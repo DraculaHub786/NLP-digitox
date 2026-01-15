@@ -1,0 +1,578 @@
+{
+    "@----------------------------- SPLASH SCREEN -----------------------------": {},
+    "mindful_tagline": "Neyin önemli olduğuna odaklan",
+    "unlock_button_label": "Kilidi açın",
+    "@----------------------------- APP PERMISSIONS -----------------------------": {},
+    "permission_status_off": "Kapalı",
+    "permission_status_allowed": "İzin verildi",
+    "permission_status_not_allowed": "İzin verilmedi",
+    "permission_button_grant_permission": "İzin verin",
+    "permission_button_agree_and_continue": "Kabul edin ve devam edin",
+    "permission_button_not_now": "Şimdi değil",
+    "permission_button_help": "Yardım?",
+    "permission_sheet_privacy_info": "NLP digitox 100% güvenli ve çevrimdışı çalışır. Sizin kişisel verileriniz toplamıyor ve depolamıyoruz.",
+    "permission_grant_step_one": "1. {button_label}'a tıklayın.",
+    "@permission_grant_step_one": {
+        "placeholders": {
+            "button_label": {
+                "type": "String"
+            }
+        }
+    },
+    "permission_grant_step_two": "2. Sonraki ekranda NLP digitox'u seçin.",
+    "permission_grant_step_three": "3. Tıklayın ve alttaki gibi dönüştürmeyi açın.",
+    "permission_notification_title": "Bildirimleri gönder",
+    "permission_alarms_title": "Alarm & hatırlatıcılar",
+    "permission_alarms_info": "Lütfen alarm ve hatırlatıcı için izin verin. Bu sayede NLP digitox ",
+    "permission_alarms_device_tile_label": "Alarm ve hatırlatıcılara izin verin",
+    "permission_usage_title": "Kullanım erişimi",
+    "permission_usage_info": "Lütfen kullanım erişim izni verin. Bu, NLP digitox'un uygulama kullanımını izlemesine ve belirli uygulamalara erişimi yönetmesine olanak tanıyarak daha odaklı ve kontrollü bir dijital ortam sağlayacaktır.",
+    "permission_usage_device_tile_label": "Kullanım erişimi verin",
+    "permission_overlay_title": "Kaplamayı Görüntüle",
+    "permission_overlay_info": "Lütfen diğer uygulamaların üzerinde gösterme izni verin. Bu, NLP digitox'un duraklatılmış bir uygulama açıldığında bir kaplama göstermesine izin vererek odaklanmanıza ve programınızı sürdürmenize yardımcı olacaktır.",
+    "permission_overlay_device_tile_label": "Diğer uygulamaların üzerinde gösterime izin ver",
+    "permission_accessibility_title": "Erişilebilirlik",
+    "permission_accessibility_info": "Lütfen erişilebilirlik izni verin. Bu, NLP digitox'un sosyal medya uygulamaları ve tarayıcılarda kısa biçimli video içeriğine (ör. Reels, Shorts) erişimi kısıtlamasına ve uygunsuz web sitelerini filtrelemesine olanak tanıyacaktır.",
+    "permission_accessibility_required": "NLP digitox, kısa içerikleri ve internet sitelerini etkili bir şekilde engellemek için erişilebilirlik izni gerektirir.",
+    "permission_accessibility_device_tile_label": "Dikkatliyi kullanın",
+    "permission_dnd_title": "Rahatsız etme",
+    "permission_dnd_info": "Lütfen Rahatsız Etmeyin erişimine izin verin. Bu, NLP digitox'un yatma zamanı programı sırasında Rahatsız Etmeyin modunu başlatmasına ve durdurmasına izin verecektir.",
+    "permission_dnd_tile_title": "Rahatsız etmeyin",
+    "permission_dnd_tile_subtitle": "Rahatsız etmeyin moduna izin verin.",
+    "permission_battery_optimization_tile_title": "Batarya optimizasyonu devre dışı bırakın",
+    "permission_battery_optimization_status_enabled": "Zaten sınırsız",
+    "permission_battery_optimization_status_disabled": "Arka plan kısıtlamalarını devre dışı bırak",
+    "permission_battery_optimization_allow_info": "'Pil Optimizasyonunu Yoksay'a izin vermek, bazı cihazlarda otomatik olarak 'Alarmlar ve Hatırlatıcılar' iznini verecektir.",
+    "permission_vpn_title": "Sanal özel ağ oluştur",
+    "permission_vpn_info": "Lütfen sanal özel ağ(VPN) oluşturmaya izin veriniz. Bu sayede NLP digitox internetizi lokal bir şekilde kısıtlayacaktır.",
+    "permission_admin_title": "Yönetici",
+    "permission_admin_info": "Yönetici ayrıcalıkları, uygulamanın düzgün çalışmasını ve kurcalanmaya karşı korumalı kalmasını sağlamak için yalnızca temel işlemler için gereklidir.",
+    "permission_admin_snack_alert": "Kurcalama koruması yalnızca seçilen zaman aralığında devre dışı bırakılabilir.",
+    "permission_notification_access_title": "Bildirim izni",
+    "permission_notification_access_info": "Lütfen bildirim erişim izni verin. Bu, NLP digitox'un bildirimlerinizi düzenlemesine ve bunları programınıza göre göndermesine izin verecektir.",
+    "permission_notification_access_required": "NLP digitox, bildirimleri toplu hale getirmek ve zamanlamak için bildirim erişimi gerektirir.",
+    "permission_notification_access_device_tile_label": "Bildirimlere izin ver",
+    "@----------------------------- DATE AND TIME -----------------------------": {},
+    "day_today": "Bugün",
+    "day_yesterday": "Dün",
+    "nDays": "{count, plural, =0{0 gün}=1{1 gün} other{{count} gün}}",
+    "@nDays": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nHours": "{count, plural, =0{0 saat}=1{1 saat} other{{count} saat}}",
+    "@nHours": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nMinutes": "{count, plural, =0{0 dakika}=1{1 dakika} other{{count} dakika}}",
+    "@nMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nSeconds": "{count, plural, =0{0 saniye}=1{1 saniye} other{{count} saniye}}",
+    "@nSeconds": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "time_separator_and": "ve",
+    "@time_separator_and": {
+        "description": "Separator used between time like, 10 hours 'and' 15 minutes"
+    },
+    "@----------------------------- SHARED STRINGS -----------------------------": {},
+    "timer_status_active": "Aktif",
+    "timer_status_paused": "Duraklatıldı",
+    "create_button": "Oluştur",
+    "update_button": "Güncelleme",
+    "dialog_button_cancel": "İptal",
+    "dialog_button_remove": "Kaldır",
+    "dialog_button_set": "Ayarla",
+    "dialog_button_reset": "Sıfırla",
+    "dialog_button_infinite": "Sonsuz",
+    "schedule_start_label": "Başlat",
+    "schedule_end_label": "Bitir",
+    "exit_without_saving_dialog_info": "Kaydetmeden çıkmak istediğinizden emin misiniz?",
+    "development_dialog_info": "NLP digitox şu anda geliştirme aşamasındadır ve hatalar veya eksik özellikler içerebilir. Herhangi bir sorunla karşılaşırsanız, lütfen geliştirmemize yardımcı olmak için bunları bildirin.\n\nGeri bildiriminiz için teşekkür ederiz!",
+    "development_dialog_button_report_issue": "Sorun Bildir",
+    "development_dialog_button_close": "Kapat",
+    "dnd_settings_tile_title": "Rahatsız etmeyin ayarları",
+    "dnd_settings_tile_subtitle": "DND'de hangi uygulamaların ve bildirimlerin size ulaşabileceğini yönetin.",
+    "quick_actions_heading": "Kısayollar",
+    "select_distracting_apps_heading": "Dikkat dağıtan uygulamaları seç",
+    "your_distracting_apps_heading": "Dikkatinizi dağıtan uygulamalarınız",
+    "select_more_apps_heading": "Daha fazla uygulama seçin",
+    "imp_distracting_apps_snack_alert": "Dikkat dağıtıcı uygulamalar listesine önemli sistem uygulamalarının eklenmesine izin verilmez.",
+    "custom_apps_quick_actions_unavailable_warning": "Ekran süresi ve kısıtlama bu uygulama için kullanılamıyor. Sadece internet kullanımı erişilebilir",
+    "create_group_fab_button": "Grup Oluştur",
+    "active_period_info": "Erişime izin verilecek bir zaman aralığı belirleyin. Bu zaman diliminin dışında erişim kısıtlanacaktır.",
+    "minimum_distracting_apps_snack_alert": "En az bir dikkat dağıtıcı uygulama seçin.",
+    "donation_card_title": "Bizi destekleyin",
+    "donation_card_info": "NLP digitox ücretsiz ve açık kaynak kodludur, aylar süren özverili çalışmalarla geliştirilmiştir. Eğer size yardımcı olduysa, bağışınız bizim için dünyalara bedeldir. Her katkı, onu herkes için geliştirmeye ve sürdürmeye devam etmemize yardımcı olur.",
+    "operation_failed_snack_alert": "Operasyon başarısız oldu, bir şeyler ters gitti!",
+    "donation_card_button_donate": "Bağış",
+    "app_restart_dialog_title": "Yeniden Başlatma Gerekli",
+    "app_restart_dialog_info": "Geri sayım bittiğinde NLP digitox otomatik olarak yeniden başlayacaktır. Değişiklikler uygulanırken lütfen sabırlı olun.",
+    "@----------------------------- TIPS -----------------------------": {},
+    "accessibility_tip": "Daha akıllı, daha pil dostu engelleme mi istiyorsunuz? NLP digitox için Erişilebilirlik iznini etkinleştirin.",
+    "battery_optimization_tip": "NLP digitox çalışmıyor mu? Sorunsuz çalışmasını sağlamak için Ayarlar'da 'Pil Optimizasyonunu Yoksay'a izin verin.",
+    "invincible_mode_tip": "Yanlışlıkla kısıtlamaları mı kaldırdınız? Bir sonraki güne veya ayar penceresine kadar kilitlemek için Yenilmez Modu kullanın.",
+    "glance_usage_tip": "İçgörü mü istiyorsunuz? Kullanım kalıplarınızı ve ekran sürenizi görüntülemek için Glance bölümünü kontrol edin.",
+    "tamper_protection_tip": "NLP digitox'u kaldırıyor musunuz? Önce kurcalama korumasını güvenli bir şekilde devre dışı bırakmak için Kaldırma Penceresini etkinleştirin.",
+    "notification_blocking_tip": "Dikkat dağıtıcı unsurları azaltmak mı istiyorsunuz? Seçili uygulamaları susturmak için Bildirim Engelleme özelliğini kullanın.",
+    "usage_history_tip": "Alışkanlıklarınız üzerinde düşünmek ister misiniz? Geçmiş kalıpları görmek için Kullanım Geçmişi'ni kontrol edin.",
+    "focus_mode_tip": "Derin odaklanmaya mı ihtiyacınız var? Görevler sırasında uygulamaları ve bildirimleri engellemek için Odak Modunu açın.",
+    "bedtime_reminder_tip": "Uykunuzu iyileştirmek mi istiyorsunuz? Geceleri rahatlamak için bir Yatma Zamanı Hatırlatıcısı ayarlayın.",
+    "custom_blocking_tip": "Özel bir deneyime mi ihtiyacınız var? İhtiyaçlarınıza uyan uygulama engelleme kuralları oluşturun.",
+    "amoled_dark_theme_tip": "Pil tasarrufu yapmak ister misiniz? OLED ekranlarda güç tüketimini azaltmak için AMOLED Koyu Tema'yı kullanın.",
+    "customize_usage_history_tip": "Kullanım geçmişini korumak ister misiniz? Kullanım Geçmişinde kaç haftalık verinin saklanacağını özelleştirin.",
+    "@----------------------------- ONBOARDING SCREEN -----------------------------": {},
+    "onboarding_skip_btn_label": "Atla",
+    "onboarding_finish_setup_btn_label": "Kurulumu bitirin",
+    "onboarding_page_one_title": "En iyi odak.",
+    "onboarding_page_one_info": "Dikkatinizi dağıtan uygulamaları duraklatın, kısa içerikleri engelleyin ve özelleştirilebilir odaklanma oturumlarıyla yolunuzdan sapmayın. İster çalışıyor, ister ders çalışıyor veya dinleniyor olun, NLP digitox kontrolü elinizde tutmanıza yardımcı olur.",
+    "onboarding_page_two_title": "Dikkat Dağıtıcıları Engelleyin.",
+    "onboarding_page_two_info": "Kullanım sınırları belirleyin, uygulamaları otomatik olarak duraklatın ve daha sağlıklı dijital alışkanlıklar oluşturun. Gevşemek ve dikkatinizin dağılmadığı bir gecenin tadını çıkarmak için Yatma Zamanı Modu'nu kullanın.",
+    "onboarding_page_three_title": "Öncelik gizlilik.",
+    "onboarding_page_three_info": "NLP digitox 100% açık kaynaklıdır ve tamamen çevrimdışı çalışır. Kişisel verilerinizi toplamıyor veya paylaşmıyoruz — gizliliğiniz her şekilde garanti altındadır.",
+    "onboarding_page_permissions_title": "Temel İzinler.",
+    "onboarding_page_permissions_info": "NLP digitox, ekran sürenizi takip etmek ve yönetmek için temel izinleri takip etmeyi gerektirir, dikkat dağıtıcı unsurları azaltmaya ve odaklanmayı geliştirmeye yardımcı olur.",
+    "@----------------------------- HOME SCREEN - DASHBOARD TAB -----------------------------": {},
+    "dashboard_tab_title": "Kontrol Paneli",
+    "focus_now_fab_button": "Şimdi odaklan",
+    "welcome_greetings": "Tekrar hoş geldin,",
+    "username_snack_alert": "İsmi düzenlemek için uzun basın.",
+    "username_dialog_title": "Kullanıcı adı",
+    "username_dialog_info": "Kontrol panelinde görüntülenecek olan kullanıcı adınızı girin.",
+    "username_dialog_button_apply": "Uygula",
+    "glance_tile_title": "Bakış",
+    "glance_tile_subtitle": "Kullanımınıza hızlıca bir göz atın.",
+    "parental_controls_tile_subtitle": "Değiştirilemez mod ve kurcalamaya karşı koruma.",
+    "restrictions_heading": "Kısıtlamalar",
+    "apps_blocking_tile_title": "Uygulama engelleme",
+    "apps_blocking_tile_subtitle": "Uygulamaları çeşitli şekillerde sınırlandırın.",
+    "grouped_apps_blocking_tile_title": "Gruplandırılmış uygulama engelleme",
+    "grouped_apps_blocking_tile_subtitle": "Uygulama gruplarını aynı anda sınırlandırın.",
+    "shorts_blocking_tile_subtitle": "Kısa içeriği birden fazla platformda sınırlandırın.",
+    "websites_blocking_tile_subtitle": "Yetişkin ve özel web sitelerini sınırlayın.",
+    "screen_time_label": "Ekran süresi",
+    "total_data_label": "Toplam veri",
+    "mobile_data_label": "Mobil veri",
+    "wifi_data_label": "Wifi veri",
+    "focus_today_label": "Günlük odaklanma",
+    "focus_weekly_label": "Haftalık odaklanma",
+    "focus_monthly_label": "Aylık odaklanma",
+    "focus_lifetime_label": "Şimdiye kadarki odaklanma",
+    "longest_streak_label": "En uzun seri",
+    "current_streak_label": "Güncel seri",
+    "successful_sessions_label": "Başarılı oturumlar",
+    "failed_sessions_label": "Başarısız oturumlar",
+    "@----------------------------- HOME SCREEN - STATISTICS TAB -----------------------------": {},
+    "statistics_tab_title": "İstatistikler",
+    "screen_segment_label": "Ekran",
+    "data_segment_label": "Veri",
+    "mobile_label": "Mobil",
+    "wifi_label": "Wifi",
+    "most_used_apps_heading": "En çok kullanılan uygulamalar",
+    "show_all_apps_tile_title": "Tüm uygulamaları göster",
+    "search_apps_hint": "Uygulama ara...",
+    "@----------------------------- HOME SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_tab_title": "Bildirimler",
+    "notifications_tab_info": "Uygulamalardan toplu bildirim alın ve sabah, öğlen, akşam ve gece gibi programlar ayarlayın. Sürekli kesinti olmadan güncel kalın.",
+    "batched_apps_tile_title": "Gruplanmış uygulamalar",
+    "store_all_tile_title": "Tüm bildirimleri sakla",
+    "schedules_heading": "Program",
+    "new_schedule_fab_button": "Yeni program",
+    "new_schedule_dialog_info": "Kolayca tanımlanmasına yardımcı olmak için bildirim zamanlamasına bir ad girin.",
+    "new_schedule_dialog_field_label": "Program adı",
+    "@----------------------------- HOME SCREEN - BEDTIME TAB -----------------------------": {},
+    "bedtime_tab_title": "Uyku vakti",
+    "bedtime_tab_info": "Bir zaman aralığı ve haftanın günlerini seçerek yatma zamanı programınızı ayarlayın. Engellenecek dikkat dağıtıcı uygulamaları seçin ve huzurlu bir gece için Rahatsız Etmeyin (DND) modunu etkinleştirin.",
+    "schedule_tile_title": "Program",
+    "schedule_tile_subtitle": "Günlük programı etkinleştirme veya devre dışı bırakma.",
+    "bedtime_no_days_selected_snack_alert": "Haftanın en az bir gününü seçin.",
+    "bedtime_minimum_duration_snack_alert": "Toplam yatma süresi en az 30 dakika olmalıdır.",
+    "distracting_apps_tile_title": "Dikkat dağıtıcı uygulamalar",
+    "distracting_apps_tile_subtitle": "Hangi uygulamaların sizi yatma zamanı rutininizden uzaklaştırdığını seçin.",
+    "bedtime_distracting_apps_modify_snack_alert": "Yatma zamanı programı aktifken dikkat dağıtıcı uygulamalar listesinde değişiklik yapılmasına izin verilmez.",
+    "@----------------------------- PARENTAL CONTROLS SCREEN-----------------------------": {},
+    "parental_controls_tab_title": "Ebeveyn Kontrolleri",
+    "invincible_mode_heading": "Değiştirilemez mod",
+    "invincible_mode_tile_title": "Değiştirilemez modu aktifleştir",
+    "invincible_mode_info": "Değiştirilemez Mod açıkken, günlük kotanıza ulaştıktan sonra seçilen limitleri ayarlayamazsınız. Ancak, seçilen 10 dakikalık değiştirilemez pencere içinde değişiklik yapabilirsiniz.",
+    "invincible_mode_snack_alert": "Değiştirilemez mod nedeniyle, kısıtlamalarda değişiklik yapılmasına izin verilmez.",
+    "invincible_mode_dialog_info": "Değiştirilemez Modu etkinleştirmek istediğinizden kesinlikle emin misiniz? Bu işlem geri döndürülemez. Değiştirilemez Mod bir kez açıldığında, bu uygulama cihazınızda yüklü olduğu sürece kapatamazsınız.",
+    "invincible_mode_turn_off_snack_alert": "Bu uygulama cihazınızda yüklü kaldığı sürece değiştirilemez mod kapatılamaz.",
+    "invincible_mode_dialog_button_start_anyway": "Yine de başlat",
+    "invincible_mode_include_timer_tile_title": "Zamanlayıcı dahil et",
+    "invincible_mode_include_launch_limit_tile_title": "Başlatma limitini dahil edin",
+    "invincible_mode_include_active_period_tile_title": "Aktif dönemi dahil edin",
+    "invincible_mode_app_restrictions_tile_title": "Uygulama kısıtlayıcı",
+    "invincible_mode_app_restrictions_tile_subtitle": "Günlük limitler aşıldığında uygulamanın seçilen kısıtlamalarında değişiklik yapılmasını önleyin.",
+    "invincible_mode_group_restrictions_tile_title": "Grup kısıtlamaları",
+    "invincible_mode_group_restrictions_tile_subtitle": "Günlük limitler aşıldığında grubun seçilen kısıtlamalarında değişiklik yapılmasını önleyin.",
+    "invincible_mode_include_shorts_timer_tile_title": "Kısa video zamanlayıcısını dahil edin",
+    "invincible_mode_include_shorts_timer_tile_subtitle": "Günlük kısa video limitinize ulaştıktan sonra değişiklik yapılmasını önler.",
+    "invincible_mode_include_bedtime_tile_title": "Uyku vaktini dahil edin",
+    "invincible_mode_include_bedtime_tile_subtitle": "Aktif uyku vakti programı sırasında değişiklikleri önler.",
+    "protected_access_tile_title": "Korumalı erişim",
+    "protected_access_tile_subtitle": "NLP digitox'u cihaz kilidinizle koruyun.",
+    "protected_access_no_lock_snack_alert": "Bu özelliği etkinleştirmek için lütfen önce cihazınızda bir biyometrik kilit ayarlayın.",
+    "protected_access_removed_lock_snack_alert": "Cihaz kilidiniz kaldırıldı. Devam etmek için lütfen yeni bir kilit ayarlayın.",
+    "protected_access_failed_lock_snack_alert": "Kimlik doğrulama başarısız oldu. Devam etmek için cihaz kilidinizi doğrulamanız gerekiyor.",
+    "tamper_protection_tile_title": "Kurcalama koruması",
+    "tamper_protection_tile_subtitle": "Kaldırmayı önleyin ve uygulamayı durdurmaya zorlayın.",
+    "uninstall_window_tile_title": "Kaldırma penceresi",
+    "uninstall_window_tile_subtitle": "Kurcalama koruması seçilen zamandan itibaren 10 dakika içinde devre dışı bırakılabilir.",
+    "invincible_window_tile_title": "Değiştirilemez mod",
+    "invincible_window_tile_subtitle": "Seçilen limitler, seçilen saatten itibaren 10 dakika içinde değiştirilebilir.",
+    "@----------------------------- SHORTS BLOCKING SCREEN-----------------------------": {},
+    "shorts_blocking_tab_title": "Kısa video engelleyici",
+    "shorts_blocking_tab_info": "Web siteleri de dahil olmak üzere Instagram, YouTube, Snapchat ve Facebook gibi platformlarda kısa içeriklere ne kadar zaman harcadığınızı kontrol edin.",
+    "short_content_heading": "Kısa video içeriği",
+    "shorts_time_left_from": "{timeShortString} 'den kalan süre",
+    "@shorts_time_left_from": {
+        "placeholders": {
+            "timeShortString": {
+                "type": "String",
+                "example": "1h 23m"
+            }
+        }
+    },
+    "short_content_timer_picker_dialog_info": "Kısa içerik için günlük bir zaman sınırı belirleyin. Sınırınıza ulaşıldığında, kısa içerik gece yarısına kadar duraklatılacaktır.",
+    "instagram_features_tile_title": "Instagram",
+    "instagram_features_tile_subtitle": "Instagram'daki içeriği kısıtlayın.",
+    "instagram_features_block_reels": "Reels bölümünü kısıtlayın.",
+    "instagram_features_block_explore": "Keşfet bölümünü kısıtlayın.",
+    "snapchat_features_tile_title": "Snapchat",
+    "snapchat_features_tile_subtitle": "Snapchat'teki içeriği kısıtlayın.",
+    "snapchat_features_block_spotlight": "Spotlight bölümünü kısıtlayın.",
+    "snapchat_features_block_discover": "Keşfet bölümünü kısıtlayın.",
+    "youtube_features_tile_title": "YouTube",
+    "youtube_features_tile_subtitle": "Youtube'daki kısa içeriği kısıtla.",
+    "facebook_features_tile_title": "Facebook",
+    "facebook_features_tile_subtitle": "Facebook'ta reelsları kısıtla.",
+    "reddit_features_tile_title": "Reddit",
+    "reddit_features_tile_subtitle": "Reddit'teki kısa videoları kısıtla.",
+    "@----------------------------- WEBSITES BLOCKING SCREEN-----------------------------": {},
+    "websites_blocking_tab_title": "Website engelleyici",
+    "websites_blocking_tab_info": "Daha güvenli ve daha odaklı bir çevrimiçi deneyim oluşturmak için yetişkinlere yönelik web sitelerini ve seçtiğiniz tüm özel siteleri engelleyin. Gezinmenizin sorumluluğunu üstlenin ve dikkatiniz dağılmasın.",
+    "adult_content_heading": "Yetişkin içeriği",
+    "block_nsfw_title": "Nsfw içeriği engelle",
+    "block_nsfw_subtitle": "Tarayıcıların yetişkin ve porno web sitelerini açmasını kısıtlayın.",
+    "block_nsfw_dialog_info": "Emin misiniz? Bu işlem geri döndürülemez. Yetişkin siteleri engelleyici AÇIK konuma getirildikten sonra, bu uygulama cihazınızda yüklü olduğu sürece KAPALI konuma getiremezsiniz.",
+    "block_nsfw_dialog_button_block_anyway": "Yinede Engelle",
+    "blocked_websites_heading": "Engellenen internet siteleri",
+    "blocked_websites_empty_list_hint": "Engellemek istediğiniz dikkat dağıtıcı web sitelerini eklemek için '+ Web Sitesi Ekle' düğmesine tıklayın.",
+    "add_website_fab_button": "Site ekle",
+    "add_website_dialog_title": "Dikkat dağıtıcı siteler",
+    "add_website_dialog_info": "Engellemek istediğiniz web sitesinin url'sini girin.",
+    "add_website_dialog_is_nsfw": "Nsfw sitesi mi?",
+    "add_website_dialog_nsfw_warning": "Uyarı: Nsfw siteleri eklendikten sonra kaldırılamaz.",
+    "add_website_dialog_button_block": "Engelle",
+    "add_website_already_exist_snack_alert": "URL zaten engellenen web siteleri listesine eklenmiştir.",
+    "add_website_invalid_url_snack_alert": "Geçersiz URL! Sunucu adresi ayrıştırılamıyor.",
+    "remove_website_dialog_title": "Web sitesini kaldırın",
+    "remove_website_dialog_info": "Emin misiniz? '{websitehost}'u engellenen web sitelerinden kaldırmak istiyorsunuz.",
+    "@remove_website_dialog_info": {
+        "placeholders": {
+            "websitehost": {
+                "type": "String",
+                "example": "example.com"
+            }
+        }
+    },
+    "@----------------------------- FOCUS SCREEN - FOCUS TAB -----------------------------": {},
+    "focus_tab_title": "Odak",
+    "focus_tab_info": "Odaklanmak için zamana ihtiyacınız olduğunda, türü seçerek, duraklatılacak dikkat dağıtıcı uygulamaları seçerek ve kesintisiz konsantrasyon için Rahatsız Etmeyin özelliğini etkinleştirerek yeni bir oturum başlatın.",
+    "active_session_card_title": "Aktif oturum",
+    "active_session_card_info": "Aktif bir odaklanma oturumunuz devam ediyor! İlerlemenizi kontrol etmek ve ne kadar zaman geçtiğini görmek için 'Görüntüle'ye tıklayın.",
+    "active_session_card_view_button": "Görüntüle",
+    "focus_distracting_apps_removal_snack_alert": "Odaklanma Oturumu etkinken dikkat dağıtıcı uygulamalar listesinden uygulama kaldırmaya izin verilmez. Ancak, bu süre zarfında listeye ek uygulamalar ekleyebilirsiniz.",
+    "focus_profile_tile_title": "Odaklanma profili",
+    "focus_session_duration_tile_title": "Oturum süresi",
+    "focus_session_duration_tile_subtitle": "Sonsuz (durdurana kadar)",
+    "focus_session_duration_dialog_info": "Lütfen bu odaklanma oturumu için istediğiniz süreyi seçin, ne kadar süre odaklanmış ve dikkatiniz dağılmadan kalmak istediğinizi belirleyin.",
+    "focus_session_minimum_apps_snack_alert": "Odaklanma oturumunu başlatmak için en az bir dikkat dağıtıcı uygulama seçin",
+    "focus_session_already_active_snack_alert": "Halihazırda aktif bir odaklanma oturumunuz var. Lütfen yeni bir oturum başlatmadan önce mevcut oturumunuzu tamamlayın veya durdurun.",
+    "@----------------------------- FOCUS SESSION TYPES -----------------------------": {},
+    "focus_session_type_study": "Ders çalışma",
+    "focus_session_type_work": "İş",
+    "focus_session_type_exercise": "Egzersiz",
+    "focus_session_type_meditation": "Meditasyon",
+    "focus_session_type_creativeWriting": "Yaratıcı Yazarlık",
+    "focus_session_type_reading": "Okuma",
+    "focus_session_type_programming": "Programlama",
+    "focus_session_type_chores": "Ev İşleri",
+    "focus_session_type_projectPlanning": "Proje Planlama",
+    "focus_session_type_artAndDesign": "Sanat ve Tasarım",
+    "focus_session_type_languageLearning": "Dil Öğrenimi",
+    "focus_session_type_musicPractice": "Müzik Pratiği",
+    "focus_session_type_selfCare": "Kişisel Bakım",
+    "focus_session_type_brainstorming": "Beyin Fırtınası",
+    "focus_session_type_skillDevelopment": "Beceri Geliştirme",
+    "focus_session_type_research": "Araştırma",
+    "focus_session_type_networking": "İlişki ağı oluşturma",
+    "focus_session_type_cooking": "Yemek yapma",
+    "focus_session_type_sportsTraining": "Spor antremanı",
+    "focus_session_type_restAndRelaxation": "Dinlenme ve Rahatlama",
+    "focus_session_type_other": "Diğer",
+    "@----------------------------- FOCUS SCREEN - TIMELINE TAB -----------------------------": {},
+    "timeline_tab_title": "Zaman çizelgesi",
+    "selected_month_productive_time_snack_alert": "Seçilen ay için toplam üretkenlik süreniz {timeString}.",
+    "@selected_month_productive_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "selected_month_productive_days_label": "Verimli günler",
+    "selected_month_productive_days_snack_alert": "Seçilen ayda toplam {daysCount} verimli gün geçirdiniz.",
+    "@selected_month_productive_days_snack_alert": {
+        "placeholders": {
+            "daysCount": {
+                "type": "num",
+                "example": "12"
+            }
+        }
+    },
+    "selected_day_focused_time_label": "Odaklanmış zaman",
+    "selected_day_focused_time_snack_alert": "Seçilen gün için odaklandığınız toplam süre {timeString}.",
+    "@selected_day_focused_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "calender_heading": "Takvim",
+    "your_sessions_heading": "Seanslarınız",
+    "your_sessions_empty_list_hint": "Seçilen gün için hiçbir odak oturumu kaydedilmemiştir.",
+    "focus_session_tile_duration_label": "Süre",
+    "focus_session_state_active": "Aktif",
+    "focus_session_state_successful": "Başarılı",
+    "focus_session_state_failed": "Başarısız",
+    "@----------------------------- ACTIVE FOCUS SESSION SCREEN -----------------------------": {},
+    "active_session_tab_title": "Oturum",
+    "active_session_none_warning": "Aktif oturum bulunamadı. Ana ekrana dönülüyor.",
+    "active_session_dialog_button_keep_pushing": "Oturuma devam et",
+    "active_session_finish_dialog_title": "Bitir",
+    "active_session_finish_dialog_info": "Güçlü kalın! Değerli bir odaklanma oluşturuyorsunuz. Bu odaklanma seansını bitirmek istediğinize emin misiniz? Fazladan her an hedefleriniz için önemlidir.",
+    "active_session_giveup_dialog_title": "Vazgeç",
+    "active_session_giveup_dialog_info": "Bir saniye! Neredeyse tamamladın, şimdi pes etme! Bu odaklanma oturumunu erken bitirmek istediğinden emin misin? İlerleme kaybolacak.",
+    "active_session_giveup_snack_alert": "Vazgeçtin! Endişelenme, bir dahaki sefere daha iyisini yapabilirsin. Her çaba önemli – sadece devam et",
+    "active_session_quote_one": "Her adım önemlidir, güçlü kalın ve devam edin",
+    "active_session_quote_two": "Odaklanmaya devam et! İnanılmaz bir ilerleme kaydediyorsun",
+    "active_session_quote_three": "Eziyorsun! Momentumu devam ettir",
+    "active_session_quote_four": "Sadece biraz daha kaldı, harika gidiyorsun",
+    "active_session_quote_five": "Tebrikler 🎉 \n {durationString} odaklanma seansınızı tamamladınız.\n\nHarika iş, harika çalışmaya devam edin",
+    "@active_session_quote_five": {
+        "placeholders": {
+            "durationString": {
+                "type": "String",
+                "example": "30 minutes"
+            }
+        }
+    },
+    "@----------------------------- RESTRICTION GROUPS SCREEN -----------------------------": {},
+    "restriction_groups_tab_title": "Kısıtlama grupları",
+    "restriction_groups_tab_info": "Bir grup uygulama için birleşik bir ekran süresi sınırı belirleyin. Toplam kullanım sınırınıza ulaştığında, odaklanmayı ve dengeyi korumaya yardımcı olmak için gruptaki tüm uygulamalar duraklatılacaktır.",
+    "restriction_group_time_spent_label": "Bugün harcanan zaman",
+    "restriction_group_time_left_label": "Bugün kalan zaman",
+    "restriction_group_name_tile_title": "Grup adı",
+    "restriction_group_name_picker_dialog_info": "Kısıtlama grubunun kolayca tanımlanmasına ve yönetilmesine yardımcı olmak için bir ad girin.",
+    "restriction_group_timer_tile_title": "Grup zamanlayıcısı",
+    "restriction_group_timer_picker_dialog_info": "Bu grup için günlük bir zaman sınırı belirleyin. Sınırınıza ulaşıldığında, bu gruptaki tüm uygulamalar gece yarısına kadar duraklatılacaktır.",
+    "restriction_group_active_period_tile_title": "Grup aktif dönemi",
+    "remove_restriction_group_dialog_title": "Grubu sil",
+    "remove_restriction_group_dialog_info": "Emin misiniz? '{groupName}' öğesini kısıtlama gruplarından kaldırmak istiyorsunuz.",
+    "@remove_restriction_group_dialog_info": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Games"
+            }
+        }
+    },
+    "restriction_group_invalid_limits_snack_alert": "Bir zamanlayıcı ya da aktif süre sınırı belirleyin.",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "conversations_label": "Sohbetler",
+    "last_24_hours_heading": "Son 24 Saat",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TIMELINE TAB -----------------------------": {},
+    "monthly_label": "Aylık",
+    "daily_label": "Günlük",
+    "search_notifications_hint": "Bildirimleri ara...",
+    "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
+    "app_info_none_warning": "Verilen paket için uygulama bulunamadı. Ana ekrana dönülüyor.",
+    "emergency_fab_button": "Acil durum",
+    "emergency_dialog_info": "Bu işlem, uygulama engelleyicisini bir sonraki 5 dakika için duraklatacaktır. {leftPassesCount} geçişiniz kaldı. Tüm geçişleri kullandıktan sonra, uygulama gece yarısına kadar veya aktif odaklanma oturumu bitene kadar engellenmiş kalacaktır. \n\nDevam etmek istiyor musunuz?",
+    "@emergency_dialog_info": {
+        "placeholders": {
+            "leftPassesCount": {
+                "type": "num",
+                "example": "3"
+            }
+        }
+    },
+    "emergency_dialog_button_use_anyway": "Yine de kullan",
+    "emergency_started_snack_alert": "Uygulama engelleyici duraklatıldı ve 5 dakika içinde engellemeye devam edecek.",
+    "emergency_already_active_snack_alert": "Uygulama engelleyici şu anda ya duraklatılmış ya da etkin değil. Bildirimler etkinse, kalan süreyle ilgili güncellemeler alırsınız.",
+    "emergency_no_pass_left_snack_alert": "Tüm acil durum geçişlerinizi kullandınız. Engellenen uygulamalar gece yarısına veya etkin odaklanma oturumu sona erene kadar engellenmiş olarak kalacaktır.",
+    "app_limit_status_not_set": "Belirlenmemiş",
+    "app_timer_tile_title": "Uygulama zamanlayıcı",
+    "app_timer_picker_dialog_info": "Bu uygulama için günlük bir zaman sınırı belirleyin. Sınırınıza ulaşıldığında, uygulama gece yarısına kadar duraklatılacaktır.",
+    "app_launch_limit_tile_title": "Başlatma limiti",
+    "app_launch_limit_tile_subtitle": "Bugün {count} kez başlatıldı.",
+    "@app_launch_limit_tile_subtitle": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "example": "15"
+            }
+        }
+    },
+    "app_launch_limit_picker_dialog_info": "Bu uygulamayı her gün kaç kez açabileceğinizi ayarlayın. Sınıra ulaşıldığında, gece yarısına kadar duraklatılacaktır.",
+    "app_active_period_tile_title": "Aktif dönem",
+    "app_active_period_tile_subtitle": "{startTime} 'den {endTime} 'e kadar",
+    "@app_active_period_tile_subtitle": {
+        "placeholders": {
+            "startTime": {
+                "type": "String",
+                "example": "10:00pm"
+            },
+            "endTime": {
+                "type": "String",
+                "example": "15"
+            }
+        }
+    },
+    "internet_access_tile_title": "Internet erişimi",
+    "internet_access_tile_subtitle": "Uygulamanın internetini engellemek için kapatın.",
+    "internet_access_blocked_snack_alert": "{appName}'in interneti engellendi.",
+    "@internet_access_blocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "internet_access_unblocked_snack_alert": "{appName}'in internet engeli kaldırıldı.",
+    "@internet_access_unblocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "launch_app_tile_title": "Uygulamayı başlat",
+    "launch_app_tile_subtitle": "{appName} uygulamasını açın.",
+    "@launch_app_tile_subtitle": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "go_to_app_settings_tile_title": "Uygulama ayarlarına gidin",
+    "go_to_app_settings_tile_subtitle": "Bildirimler, izinler, depolama ve daha fazlası gibi uygulama ayarlarını yönetin.",
+    "include_in_stats_tile_title": "Ekran kullanımına dahil et",
+    "include_in_stats_tile_subtitle": "Bu uygulamayı toplam ekran kullanımından hariç tutmak için kapatın.",
+    "app_excluded_from_stats_snack_alert": "{appName} toplam ekran kullanımından hariç tutulur.",
+    "@app_excluded_from_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "app_include_to_stats_snack_alert": "Toplam ekran kullanımına {appName} dahildir.",
+    "@app_include_to_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
+    "general_tab_title": "Genel",
+    "appearance_heading": "Görünüm",
+    "theme_mode_tile_title": "Tema modu",
+    "theme_mode_system_label": "Sistem",
+    "theme_mode_light_label": "Aydınlık",
+    "theme_mode_dark_label": "Karanlık",
+    "material_color_tile_title": "Materyal rengi",
+    "amoled_dark_tile_title": "AMOLED siyah",
+    "amoled_dark_tile_subtitle": "Koyu tema için saf siyah rengini kullanın.",
+    "dynamic_colors_tile_title": "Dinamik renkler",
+    "dynamic_colors_tile_subtitle": "Destekleniyorsa cihaz renklerini kullanın.",
+    "defaults_heading": "Varsayılanlar",
+    "app_language_tile_title": "Uygulama dili",
+    "default_home_tab_tile_title": "Ana Sayfa",
+    "usage_history_tile_title": "Kullanım Günlüğü",
+    "usage_history_15_days": "15 gün",
+    "usage_history_1_month": "1 ay",
+    "usage_history_3_month": "3 ay",
+    "usage_history_6_month": "6 ay",
+    "usage_history_1_year": "1 yıl",
+    "service_heading": "Servis",
+    "service_stopping_warning": "NLP digitox beklenmedik bir şekilde çalışmayı durdurursa, lütfen arka planda çalışmaya devam etmesi için 'Pil Optimizasyonunu Yoksay' iznini verin. Sorun devam ederse, kesintisiz performans için NLP digitox'u beyaz listeye almayı deneyin.",
+    "whitelist_app_tile_title": "Beyaz Liste NLP digitox",
+    "whitelist_app_tile_subtitle": "NLP digitoxun otomatik başlatılmasına izin ver.",
+    "whitelist_app_unsupported_snack_alert": "Bu cihaz, otomatik başlatma yönetimini desteklemiyor.",
+    "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
+    "database_tab_title": "Veritabanı",
+    "import_db_tile_title": "Veritabanını içe aktar",
+    "import_db_tile_subtitle": "Veritabanını dosyadan içeri aktar.",
+    "export_db_tile_title": "Veritabanını dışa aktar",
+    "export_db_tile_subtitle": "Veritabanını dosyadan dışarı aktar.",
+    "crash_logs_heading": "Çökme günlüğü",
+    "crash_logs_info": "Herhangi bir sorunla karşılaşırsanız, bunu GitHub üzerinde log dosyasıyla birlikte rapor edebilirsiniz. Dosya, cihazınızın üreticisi, modeli, Android sürümü, SDK sürümü ve çökme günlükleri gibi detayları içerecektir. Bu bilgiler, problemi daha etkili bir şekilde tanımlamamıza ve çözmemize yardımcı olacaktır.",
+    "crash_logs_export_tile_title": "Çökme günlüğünü dışarı aktar",
+    "crash_logs_export_tile_subtitle": "Çökme günlüğünü json dosyası olarak dışarı aktar.",
+    "crash_logs_view_tile_title": "Günlüğü görüntüle",
+    "crash_logs_view_tile_subtitle": "Saklanan çökme günlüklerini inceleyin.",
+    "crash_logs_empty_list_hint": "Şu ana kadar hiçbir çökme kaydedilmedi.",
+    "crash_logs_clear_tile_title": "Günlükleri temizle",
+    "crash_logs_clear_tile_subtitle": "Tüm çökme raporlarını veritabanından kaldırın.",
+    "crash_logs_clear_dialog_info": "Veritabanından tüm çökme günlüklerini silmek istediğinizden emin misiniz?",
+    "crash_logs_clear_dialog_button_clear_anyway": "Temizle",
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "about_tab_title": "Hakkında",
+    "changelog_tile_title": "Değişiklik Notları",
+    "changelog_tile_subtitle": "Yenilikleri öğrenin.",
+    "full_changelog_tile_title": "Tam değişiklik notları",
+    "redirected_to_github_subtitle": "Şuraya yönlendirileceksiniz: GitHub.",
+    "contribute_heading": "Katkıda bulunun",
+    "github_tile_title": "GitHub",
+    "github_tile_subtitle": "Kaynak kodunu incele.",
+    "report_issue_tile_title": "Sorun bildir",
+    "suggest_idea_tile_title": "Bir fikir öner",
+    "write_email_tile_title": "Bize e-posta ile yazın",
+    "write_email_tile_subtitle": "E-posta uygulamasına yönlendirileceksiniz.",
+    "privacy_policy_heading": "Gizlilik politikası",
+    "privacy_policy_info": "NLP digitox, gizliliğinizi korumaya kararlıdır. Herhangi bir kullanıcı verisini toplamaz, depolamaz veya aktarmaz. Uygulama tamamen çevrimdışıdır ve internet bağlantısı gerektirmez, böylece kişisel bilgileriniz cihazınızda özel ve güvenli kalır. Ücretsiz ve Açık Kaynak Yazılım (FOSS) uygulaması olarak, NLP digitox, verileriniz üzerinde tam şeffaflık ve kullanıcı kontrolü sağlar.",
+    "more_details_button": "Daha fazla bilgi"
+}

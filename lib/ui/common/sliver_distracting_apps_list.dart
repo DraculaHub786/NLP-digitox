@@ -1,0 +1,193 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/enums/item_position.dart';
+import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/config/app_constants.dart';
+import 'package:nlp_digitox/models/usage_filter_model.dart';
+import 'package:nlp_digitox/providers/apps/apps_info_provider.dart';
+import 'package:nlp_digitox/providers/apps/filtered_packages_provider.dart';
+import 'package:nlp_digitox/ui/common/application_icon.dart';
+import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+import 'package:nlp_digitox/ui/common/content_section_header.dart';
+import 'package:nlp_digitox/ui/common/search_filter_panel.dart';
+import 'package:nlp_digitox/ui/common/sliver_implicitly_animated_list.dart';
+import 'package:nlp_digitox/ui/common/sliver_shimmer_list.dart';
+import 'package:sliver_tools/sliver_tools.dart';
+
+class SliverDistractingAppsList extends ConsumerStatefulWidget {
+  const SliverDistractingAppsList({
+    super.key,
+    required this.distractingApps,
+    required this.onSelectionChanged,
+    this.hiddenApps = const [],
+    this.isInsideModalSheet = true,
+  });
+
+  final List<String> distractingApps;
+  final List<String> hiddenApps;
+  final Function(String package, bool isSelected) onSelectionChanged;
+  final bool isInsideModalSheet;
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _SliverDistractingAppsListState();
+}
+
+class _SliverDistractingAppsListState
+    extends ConsumerState<SliverDistractingAppsList> {
+  UsageFilterModel _filter = UsageFilterModel.constant();
+  bool _isSelectedAll = false;
+
+  void _onFilterChanged(UsageFilterModel filter) {
+    if (!mounted) return;
+    setState(() => _filter = filter);
+  }
+
+  void _onSelectDeselectAll(
+    bool select,
+    Iterable<String> selected,
+    Iterable<String> unselected,
+  ) async {
+    /// Find valid packages
+    final appInfos = ref.read(appsInfoProvider).valueOrNull;
+    final validPackages = (select ? unselected : selected)
+        .where((e) => (appInfos?[e]?.isImpSysApp ?? true) == false);
+
+    /// Select/Deselect them
+    for (var package in validPackages) {
+      widget.onSelectionChanged(package, select);
+    }
+
+    setState(() => _isSelectedAll = select);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final allApps = ref.watch(filteredPackagesProvider(_filter));
+
+    /// Selected apps which are installed
+    final selectedApps =
+        allApps.value?.where((e) => widget.distractingApps.contains(e)) ?? [];
+
+    /// Unselected apps which are installed
+    final unselectedApps = (allApps.value ?? []).where(
+      (e) =>
+          !widget.distractingApps.contains(e) && !widget.hiddenApps.contains(e),
+    );
+
+    final filterPanel = SearchFilterPanel(
+      filter: _filter,
+      isSelectedAll: _isSelectedAll,
+      onFilterChanged: _onFilterChanged,
+      onToggleSelectAll: (v) =>
+          _onSelectDeselectAll(v, selectedApps, unselectedApps),
+    );
+
+    return MultiSliver(
+      children: [
+        /// Search and filter panel
+        widget.isInsideModalSheet
+            ? PinnedHeaderSliver(
+                child: Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: filterPanel,
+                ),
+              )
+            : filterPanel,
+
+        /// Header
+        ContentSectionHeader(
+          title: widget.distractingApps.isEmpty
+              ? context.locale.select_distracting_apps_heading
+              : context.locale.your_distracting_apps_heading,
+        ),
+
+        /// Apps list
+        SliverAnimatedSwitcher(
+          duration: AppConstants.defaultAnimDuration,
+          switchInCurve: AppConstants.defaultCurve,
+          switchOutCurve: AppConstants.defaultCurve.flipped,
+          child: allApps.hasValue
+              ? SliverImplicitlyAnimatedList<String>(
+                  itemExtent: 56,
+                  items: [
+                    ...selectedApps,
+
+                    /// Will act as a separator
+                    if (widget.distractingApps.isNotEmpty) ...["separator"],
+
+                    ...unselectedApps,
+                  ],
+                  keyBuilder: (item) => item,
+                  itemBuilder: (context, i, packageName, _) {
+                    /// Fetch app using the package
+                    final appInfo =
+                        ref.read(appsInfoProvider).value?[packageName];
+
+                    final isSelected =
+                        widget.distractingApps.contains(packageName);
+
+                    return packageName == "separator"
+                        ? ContentSectionHeader(
+                            title: context.locale.select_more_apps_heading,
+                          )
+                        : appInfo != null
+                            ? DefaultListTile(
+                                isSelected:
+                                    appInfo.isImpSysApp ? null : isSelected,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerLow,
+                                position: _resolvePosition(
+                                  packageName,
+                                  selectedApps,
+                                  unselectedApps,
+                                ),
+                                leading:
+                                    ApplicationIcon(appInfo: appInfo, size: 16),
+                                titleText: appInfo.name,
+                                onPressed: () {
+                                  /// If app is important system app
+                                  if (appInfo.isImpSysApp) {
+                                    context.showSnackAlert(
+                                      context.locale
+                                          .imp_distracting_apps_snack_alert,
+                                    );
+                                    return;
+                                  }
+
+                                  widget.onSelectionChanged(
+                                    packageName,
+                                    !isSelected,
+                                  );
+                                },
+                              )
+                            : 0.vBox;
+                  },
+                )
+              : const SliverShimmerList(),
+        ),
+      ],
+    );
+  }
+
+  ItemPosition _resolvePosition(
+    String package,
+    Iterable<String> selected,
+    Iterable<String> unselected,
+  ) =>
+      (selected.length == 1 && selected.first == package) ||
+              (unselected.length == 1 && unselected.first == package)
+          ? ItemPosition.none
+          : (selected.isNotEmpty && selected.first == package) ||
+                  (unselected.isNotEmpty && unselected.first == package)
+              ? ItemPosition.top
+              : (selected.isNotEmpty && selected.last == package) ||
+                      (unselected.isNotEmpty && unselected.last == package)
+                  ? ItemPosition.bottom
+                  : ItemPosition.mid;
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ /*
+  ~  *
+  ~  *  * Copyright (c) 2024 Mindful (https://github.com/akaMrNagar/Mindful)
+  ~  *  * Author : Pawan Nagar (https://github.com/akaMrNagar)
+  ~  *  *
+  ~  *  * This source code is licensed under the GPL-2.0 license license found in the
+  ~  *  * LICENSE file in the root directory of this source tree.
+  ~  *
+  ~  */
+  -->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background layer (the unfilled part) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primaryContainer" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+    <!-- Progress layer (the filled part) -->
+    <item>
+        <scale
+            android:pivotX="0%"
+            android:pivotY="50%"
+            android:scaleWidth="100%"
+            android:scaleHeight="0%">
+            <shape android:shape="rectangle">
+                <solid android:color="@color/accent" />
+                <corners android:radius="24dp" />
+            </shape>
+        </scale>
+    </item>
+</layer-list>

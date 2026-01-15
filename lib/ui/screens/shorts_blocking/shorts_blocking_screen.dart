@@ -1,0 +1,79 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'dart:math';
+
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/core/extensions/ext_widget.dart';
+import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/providers/usage/shorts_screen_time_provider.dart';
+import 'package:nlp_digitox/ui/common/content_section_header.dart';
+import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/permissions/accessibility_permission_card.dart';
+import 'package:nlp_digitox/ui/screens/shorts_blocking/shorts_timer_chart.dart';
+import 'package:nlp_digitox/ui/screens/shorts_blocking/sliver_shorts_quick_actions.dart';
+
+class ShortsBlockingScreen extends ConsumerWidget {
+  const ShortsBlockingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final shortsScreenTimeSec = ref.watch(shortsScreenTimeProvider).value ?? 0;
+
+    final allowedShortContentTimeSec =
+        ref.watch(wellBeingProvider.select((v) => v.allowedShortsTimeSec));
+
+    final haveAccessibilityPermission = ref.watch(
+      permissionProvider.select((v) => v.haveAccessibilityPermission),
+    );
+
+    final remainingTimeSec = allowedShortContentTimeSec.isNegative
+        ? 0
+        : max(
+            0,
+            (allowedShortContentTimeSec - shortsScreenTimeSec),
+          );
+
+    return ScaffoldShell(
+      items: [
+        NavbarItem(
+          icon: FluentIcons.arrow_flow_diagonal_up_right_12_filled,
+          filledIcon: FluentIcons.arrow_flow_diagonal_up_right_12_filled,
+          titleText: context.locale.shorts_blocking_tab_title,
+          sliverBody: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              /// Information about shorts blocking
+              StyledText(context.locale.shorts_blocking_tab_info).sliver,
+
+              /// Short content header
+              ContentSectionHeader(title: context.locale.short_content_heading)
+                  .sliver,
+
+              /// Short usage progress bar
+              ShortsTimerChart(
+                haveNecessaryPerms: haveAccessibilityPermission,
+                allowedTimeSec: max(allowedShortContentTimeSec, 0),
+                remainingTimeSec: remainingTimeSec,
+              ).sliver,
+
+              const AccessibilityPermissionCard(),
+
+              /// Quick actions
+              SliverShortsQuickActions(
+                haveNecessaryPerms: haveAccessibilityPermission,
+              ),
+
+              const SliverTabsBottomPadding(),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}

@@ -1,0 +1,66 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:flutter/material.dart';
+import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
+
+class OnboardingPage extends StatelessWidget {
+  const OnboardingPage({
+    super.key,
+    required this.imgArtPath,
+    required this.title,
+    required this.description,
+    this.bottomPadding = 148,
+  });
+
+  final String imgArtPath;
+  final String title;
+  final String description;
+  final double bottomPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomPadding),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          0.vBox,
+
+          /// Illustration
+          AspectRatio(
+            aspectRatio: 1,
+            child: Image.asset(
+              imgArtPath,
+              fit: BoxFit.contain,
+            ),
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Title
+              StyledText(
+                title,
+                fontSize: 32,
+                fontWeight: FontWeight.w600,
+                textAlign: TextAlign.center,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              4.vBox,
+
+              /// Description
+              StyledText(
+                description,
+                fontSize: 16,
+                color: Theme.of(context).hintColor,
+                textAlign: TextAlign.left,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

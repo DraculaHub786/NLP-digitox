@@ -1,0 +1,18 @@
+project_id_env: "CROWDIN_PROJECT_ID"
+api_token_env: "CROWDIN_PERSONAL_TOKEN"
+base_path: "."
+base_url: "https://api.crowdin.com"
+preserve_hierarchy: true
+
+files:
+  - source: "lib/l10n/app_en.arb"
+    translation: "lib/l10n/app_%two_letters_code%.arb"
+
+  - source: "android/app/src/main/res/values/strings.xml"
+    translation: "android/app/src/main/res/values-%android_code%/strings.xml"
+
+download_options:
+  skip_untranslated_strings: true                    # Only export translated keys
+  export_only_completed_languages: false              # Only include fully translated files
+  export_only_approved: true                        # Set to true if you require reviewer approval
+  export_fallbacks: true                             # Use primary language fallback for dialects

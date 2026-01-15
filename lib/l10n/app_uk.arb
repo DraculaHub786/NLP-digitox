@@ -1,0 +1,615 @@
+{
+    "@----------------------------- SPLASH SCREEN -----------------------------": {},
+    "mindful_tagline": "Сфокусуйтесь на тому, що дійсно має значення",
+    "unlock_button_label": "Розблокування",
+    "@----------------------------- APP PERMISSIONS -----------------------------": {},
+    "permission_status_off": "Вимкнено",
+    "permission_status_allowed": "Дозволено",
+    "permission_status_not_allowed": "Не дозволено",
+    "permission_button_grant_permission": "Надати дозвіл",
+    "permission_button_agree_and_continue": "Погодитись та продовжити",
+    "permission_button_not_now": "Не зараз",
+    "permission_button_help": "Допомога?",
+    "permission_sheet_privacy_info": "NLP digitox є на 100 % безпечним і працює в автономному режимі. Ми не збираємо або зберігаємо жодні персональні дані.",
+    "permission_grant_step_one": "1. Натисніть кнопку {button_label}.",
+    "@permission_grant_step_one": {
+        "placeholders": {
+            "button_label": {
+                "type": "String"
+            }
+        }
+    },
+    "permission_grant_step_two": "2. Оберіть NLP digitox на наступному екрані.",
+    "permission_grant_step_three": "3. Клацніть та увімкніть перемикач нижче.",
+    "permission_notification_title": "Відправляти сповіщення",
+    "permission_alarms_title": "Будильники та нагадування",
+    "permission_alarms_info": "Будь ласка, дозвольте налаштування будильників та нагадувань. Це надасть можливість NLP digitox встановлювати ваш режим сну вчасно і щоденно скидати о півночі таймери застосунку, та допомогти вам залишитись на шляху.",
+    "permission_alarms_device_tile_label": "Дозволити налаштування будильників та нагадувань",
+    "permission_usage_title": "Доступ до статистики використання",
+    "permission_usage_info": "Будь ласка, дозвольте збирати статистику використання. Це надасть можливість NLP digitox контролювати використання застосунку та управляти доступом до певних застосунків, забезпечити більш сфокусоване та контрольоване цифрове середовище.",
+    "permission_usage_device_tile_label": "Дозволити доступ до статистики використання",
+    "permission_overlay_title": "Показ нашарування",
+    "permission_overlay_info": "Будь ласка, дозвольте нашарування. Це надасть можливість NLP digitox показувати нашарування, коли застосунок є на паузі, допомагаючи вам залишатись у фокусі та підтримувати свій графік.",
+    "permission_overlay_device_tile_label": "Дозволити показ поверх інших застосунків",
+    "permission_accessibility_title": "Обмеження доступу",
+    "permission_accessibility_info": "Будь ласка, дозвольте обмеження доступу. Це надасть можливість NLP digitox обмежувати дозвіл до короткого відеоконтенту (наприклад, Reels, Shorts) у застосунках соцмереж і браузерах, та фільтрувати недоречні вебсайти.",
+    "permission_accessibility_required": "NLP digitox потребує дозвіл на обмеження доступу для ефективного блокування контенту та вебсайтів.",
+    "permission_accessibility_device_tile_label": "Використання NLP digitox",
+    "permission_dnd_title": "Не турбувати",
+    "permission_dnd_info": "Будь ласка, дозвольте режим \"Не турбувати\". Це надасть можливість NLP digitox починати та закінчувати режим \"Не турбувати\" протягом режиму сну.",
+    "permission_dnd_tile_title": "Запустити режим \"Не турбувати\"",
+    "permission_dnd_tile_subtitle": "Також увімкнути режим \"Не турбувати\".",
+    "permission_battery_optimization_tile_title": "Ігнорувати оптимізацію батареї",
+    "permission_battery_optimization_status_enabled": "Вже без обмежень",
+    "permission_battery_optimization_status_disabled": "Вимкнути обмеження у фоновому режимі",
+    "permission_battery_optimization_allow_info": "Дозвіл «Ігнорування оптимізації батареї» автоматично надасть дозвіл на «Будильники й Нагадування» на деяких пристроях.",
+    "permission_vpn_title": "Створити VPN",
+    "permission_vpn_info": "Будь ласка, дозвольте створення підключення віртуальної приватної мережі (VPN). Це надасть можливість NLP digitox обмежити доступ для призначених застосунків, створюючи локальну мережу VPN.",
+    "permission_admin_title": "Адміністратор",
+    "permission_admin_info": "Адміністративні права потрібні лише для важливих операцій з метою забезпечення належної роботи застосунку та його захист від несанкціонованого втручання.",
+    "permission_admin_snack_alert": "Захист від несанкціонованого доступу може бути відключений тільки протягом обраного проміжку часу.",
+    "permission_notification_access_title": "Доступ до сповіщень",
+    "permission_notification_access_info": "Будь ласка, дозвольте сповіщення. Це надасть можливість NLP digitox організувати сповіщення та надсилати їх за вашим розкладом.",
+    "permission_notification_access_required": "NLP digitox потребує доступ до сповіщень для того, щоб збирати в пакети та планувати сповіщення.",
+    "permission_notification_access_device_tile_label": "Дозволити доступ до сповіщень",
+    "@----------------------------- DATE AND TIME -----------------------------": {},
+    "day_today": "Сьогодні",
+    "day_yesterday": "Вчора",
+    "nDays": "{count, plural, =0{0 днів} =1{1 день} other{{count} днів}}",
+    "@nDays": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nHours": "{count, plural, =0{0 годин} =1{1 година} other{{count} годин}}",
+    "@nHours": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nMinutes": "{count, plural, =0{0 хвилин} =1{1 хвилина} other{{count} хвилин}}",
+    "@nMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nSeconds": "{count, plural, =0{0 секунд} =1{1 секунда} other{{count} секунд}}",
+    "@nSeconds": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "time_separator_and": "та",
+    "@time_separator_and": {
+        "description": "Separator used between time like, 10 hours 'and' 15 minutes"
+    },
+    "@----------------------------- SHARED STRINGS -----------------------------": {},
+    "timer_status_active": "Активний",
+    "timer_status_paused": "На паузі",
+    "create_button": "Створити",
+    "update_button": "Обновити",
+    "dialog_button_cancel": "Скасувати",
+    "dialog_button_remove": "Видалити",
+    "dialog_button_set": "Налаштувати",
+    "dialog_button_reset": "Скинути",
+    "dialog_button_infinite": "Необмежено",
+    "schedule_start_label": "Початок",
+    "schedule_end_label": "Кінець",
+    "exit_without_saving_dialog_info": "Ви впевнені, що бажаєте вийти без збереження?",
+    "development_dialog_info": "NLP digitox перебуває зараз в процесі розробки і може містити помилки чи незакінчені функції. Якщо ви стикаєтесь з будь-якими проблемами, буль ласка, повідомте про них, щоб допомогти нам у покращенні.\n\nДякуємо за ваш відгук!",
+    "development_dialog_button_report_issue": "Повідомити про проблему",
+    "development_dialog_button_close": "Закрити",
+    "dnd_settings_tile_title": "Налаштування режиму \"Не турбувати\"",
+    "dnd_settings_tile_subtitle": "Управління застосунками та сповіщеннями, які можуть з вами зв'язатися в режимі \"Не турбувати\".",
+    "quick_actions_heading": "Швидкі дії",
+    "select_distracting_apps_heading": "Оберіть застосунки, що відволікають",
+    "your_distracting_apps_heading": "Ваші застосунки, що відволікають",
+    "select_more_apps_heading": "Оберіть більше застосунків",
+    "imp_distracting_apps_snack_alert": "Додавання важливих системних застосунків до списку таких, що відволікають, не допускається.",
+    "custom_apps_quick_actions_unavailable_warning": "Використання дисплея та обмеження недоступні для цього застосунку. На даний час, доступне лише використання мережі.",
+    "create_group_fab_button": "Створити групу",
+    "active_period_info": "Встановіть часовий період, протягом якого буде дозволений доступ. Поза цим часом доступ буде обмежений.",
+    "minimum_distracting_apps_snack_alert": "Оберіть принаймні один застосунок, що відволікає.",
+    "donation_card_title": "Підтримайте нас",
+    "donation_card_info": "NLP digitox є безплатний та відкритий, розроблений з відданістю протягом місяців. Якщо застосунок вам допоміг, ваша пожертва буде безмежно цінною для нас. Кожен внесок нам допомагає вдосконалювати для підтримувати застосунок для кожного.",
+    "operation_failed_snack_alert": "Помилка операції, щось пішло не так!",
+    "donation_card_button_donate": "Пожертвувати",
+    "app_restart_dialog_title": "Потрібен перезапуск",
+    "app_restart_dialog_info": "NLP digitox буде автоматично перезапущений після завершення зворотного відліку. Будь ласка, будьте терплячі, оскільки будуть застосовані зміни.",
+    "@----------------------------- TIPS -----------------------------": {},
+    "accessibility_tip": "Хочете розумніше, більш зручне для батареї блокування? Надайте дозвіл на спеціальні можливості для NLP digitox.",
+    "battery_optimization_tip": "NLP digitox не працює? Дозвольте \"Ігнорування оптимізації батареї\" в Налаштуваннях, щоб підтримувати безперебійну роботу.",
+    "invincible_mode_tip": "Обмеження були випадково видалені? Використайте Невразливий режим, щоб заблокувати їх до наступного дня або налаштування вікна.",
+    "glance_usage_tip": "Хочете більше інформації? Перевірте розділ Перегляд, щоб побачити ваші користувацькі шаблони та екранний час.",
+    "tamper_protection_tip": "Видалити NLP digitox? Спершу увімкніть Вікно Видалення для безпечного вимкнення захисту від несанкціонованого доступу.",
+    "notification_blocking_tip": "Хочете зменшити відволікання? Використайте Блокування Сповіщень для вимкнути звуки обраних застосунків.",
+    "usage_history_tip": "Хочете порозмірковувати над вашими звичками? Перевірте історію використання для перегляду минулих шаблонів.",
+    "focus_mode_tip": "Потрібне глибоке фокусування? Увімкніть Режим Фокусу для блокування застосунків та сповіщень під час завдань.",
+    "bedtime_reminder_tip": "Хочете покращити свій сон? Налаштуйте Нагадування Часу Сну, щоб вчасно лягати спати.",
+    "custom_blocking_tip": "Потребуєте користувальницький досвід? Створіть правила блокування застосунків, що відповідають вашим потребам.",
+    "session_timeline_tip": "Хочете відстежувати сеанси фокусування? Переглядайте часову шкалу вашого перебування у фокусі.",
+    "short_content_blocking_tip": "Турбують соцмедіа? Блокуйте короткий контент в Інстаграмі, YouTube та подібне, щоб залишатись у фокусі.",
+    "parental_controls_tip": "Потрібен батьківський контроль? Встановіть обмеження для пристрою вашої дитини, щоби забезпечити безпечне користування.",
+    "notification_batching_tip": "Хочете зменшити відволікання? Використовуйте Групування Сповіщень для перевірки їх всіх одразу.",
+    "notification_scheduling_tip": "Потребуєте керувати сповіщеннями? Наплануйте отримання сповіщень від певних застосунків.",
+    "quick_focus_tile_tip": "Потребуєте швидкий доступ до фокусування? Додайте Іконку Швидкого Фокусу для миттєвої активації Режиму Фокусу.",
+    "app_shortcuts_tip": "Хочете миттєвий доступ до застосунку? Додайте ярлики довгим натисканням та іконку застосунку для швидких дій.",
+    "backup_usage_db_tip": "Хочете зберегти ваші дані? Скористайтесь резервним копіюванням для збереження ваших записів в безпеці.",
+    "dynamic_material_color_tip": "Хочете користувацьку тему? Увімкніть Динамічний Матеріал, щоб колір застосунку збігався з кольором теми застосунку.",
+    "amoled_dark_theme_tip": "Хочете заощадити батарею? Використайте темну тему AMOLED для зменшення споживання енергії на OLED-дисплеях.",
+    "customize_usage_history_tip": "Хочете зберегти історію використання? Налаштуйте, скільки тижнів даних зберігати в Історії Використання.",
+    "grouped_apps_blocking_tip": "Хочете блокувати застосунки разом? Використовуйте Групи Обмежень для об'єднання та блокування одразу кількох застосунків.",
+    "websites_blocking_tip": "Хочете ясніший досвід перегляду вебсайтів? Блокуйте обрані або небезпечні вебсайти для більш зосередженого часу онлайн.",
+    "data_usage_tip": "Хочете відстежувати ваші дані? Слідкуйте за використанням мобільних та Wi-Fi даних для інтернет-споживання.",
+    "block_internet_tip": "Потрібно заблокувати інтернет програми? Вимкніть інтернет для окремих застосунків з їх панелі управління.",
+    "emergency_passes_tip": "Потрібна перерва? Використайте 3 Екстрені Абонементи для тимчасового розблокування застосунків протягом 5 хвилин.",
+    "@----------------------------- ONBOARDING SCREEN -----------------------------": {},
+    "onboarding_skip_btn_label": "Пропустити",
+    "onboarding_finish_setup_btn_label": "Завершити налаштування",
+    "onboarding_page_one_title": "Опануйте Зосередження.",
+    "onboarding_page_one_info": "Призупиніть відволікаючі застосунки, блокуйте короткий контент та залишайтесь у фокусі з налаштованими сесіями зосередження. Незалежно від того, чи ви працюєте, навчаєтесь або відпочиваєте, NLP digitox допомагає вам зберігати контроль.",
+    "onboarding_page_two_title": "Блокуйте відволікання.",
+    "onboarding_page_two_info": "Встановіть ліміти використання, автоматично призупиняйте застосунки та створіть здоровіші цифрові звички. Використовуйте Режим Сну, щоб розслабитись та насолодитись безтурботною ніччю.",
+    "onboarding_page_three_title": "Конфіденційність понад усе.",
+    "onboarding_page_three_info": "NLP digitox є на 100 % з відкритим вихідним кодом і повністю працює в автономному режимі. Ми не збираємо і не передаємо ваші персональні дані — ваша конфіденційність гарантується будь-яким чином.",
+    "onboarding_page_permissions_title": "Необхідні дозволи.",
+    "onboarding_page_permissions_info": "NLP digitox вимагає забезпечення необхідних дозволів для відстежування та управління екранним часом, допомагаючи зменшити відволікання та покращити фокусування.",
+    "@----------------------------- HOME SCREEN - DASHBOARD TAB -----------------------------": {},
+    "dashboard_tab_title": "Головна",
+    "focus_now_fab_button": "Зосередитися зараз",
+    "welcome_greetings": "З поверненням,",
+    "username_snack_alert": "Утримуйте для редагування імені користувача.",
+    "username_dialog_title": "Ім'я користувача",
+    "username_dialog_info": "Введіть ваше ім'я користувача, яке буде показане на панелі управління.",
+    "username_dialog_button_apply": "Прийняти",
+    "glance_tile_title": "Перегляд",
+    "glance_tile_subtitle": "Швидко перегляньте використання вами застосунку",
+    "parental_controls_tile_subtitle": "Невразливий режим та захист від несанкціонованого доступу.",
+    "restrictions_heading": "Обмеження",
+    "apps_blocking_tile_title": "Блокування додатків",
+    "apps_blocking_tile_subtitle": "Обмежити додатки різними способами.",
+    "grouped_apps_blocking_tile_title": "Блокування згрупованих додатків",
+    "grouped_apps_blocking_tile_subtitle": "Обмежити групу програм одночасно.",
+    "shorts_blocking_tile_subtitle": "Обмежити короткий вміст на декількох платформах.",
+    "websites_blocking_tile_subtitle": "Обмежити сайти для дорослих та вибрані сайти.",
+    "screen_time_label": "Час екрану",
+    "total_data_label": "Загальний обсяг даних",
+    "mobile_data_label": "Мобільний трафік",
+    "wifi_data_label": "Трафік Wifi",
+    "focus_today_label": "Зосередження сьогодні",
+    "focus_weekly_label": "Зосередження за тиждень",
+    "focus_monthly_label": "Зосередження за місяць",
+    "focus_lifetime_label": "Зосередження за весь час",
+    "longest_streak_label": "Найтриваліший період",
+    "current_streak_label": "Поточний відрізок",
+    "successful_sessions_label": "Успішні сесії",
+    "failed_sessions_label": "Провалені сесії",
+    "@----------------------------- HOME SCREEN - STATISTICS TAB -----------------------------": {},
+    "statistics_tab_title": "Статистика",
+    "screen_segment_label": "Екран",
+    "data_segment_label": "Трафік",
+    "mobile_label": "Мобільні дані",
+    "wifi_label": "Wifi",
+    "most_used_apps_heading": "Найбільш використовувані програми",
+    "show_all_apps_tile_title": "Показати всі додатки",
+    "search_apps_hint": "Шукати додатки...",
+    "@----------------------------- HOME SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_tab_title": "Сповіщення",
+    "notifications_tab_info": "Отримуйте зведені сповіщення та встановлюйте розклад, як-от: ранок, обід, вечір або ніч. Будьте в курсі подій без постійних відволікань.",
+    "batched_apps_tile_title": "Програми зі зведенням сповіщень",
+    "batch_recap_dropdown_title": "Тип підсумку для зведень",
+    "batch_recap_dropdown_info": "Виберіть, що надсилати, коли спрацьовує розклад - всі сповіщення або тільки підсумок.",
+    "batch_recap_option_summery_only": "Тільки підсумок",
+    "batch_recap_option_all_notifications": "Всі сповіщення",
+    "notification_history_tile_title": "Історія сповіщень",
+    "store_all_tile_title": "Зберігати всі сповіщення",
+    "store_all_tile_subtitle": "Зберігати не зведені сповіщення також.",
+    "schedules_heading": "Розклади",
+    "new_schedule_fab_button": "Новий Розклад",
+    "new_schedule_dialog_info": "Введіть назву для сповіщення, щоб легше його ідентифікувати.",
+    "new_schedule_dialog_field_label": "Назва розкладу",
+    "@----------------------------- HOME SCREEN - BEDTIME TAB -----------------------------": {},
+    "bedtime_tab_title": "Час сну",
+    "bedtime_tab_info": "Встановіть розклад сну, обравши час та дні тижня. Виберіть додатки, які відволікають, щоб заблокувати їх, та ввімкніть режим «Не турбувати» (DND) для спокійного вечора.",
+    "schedule_tile_title": "Розклад",
+    "schedule_tile_subtitle": "Увімкнути або вимкнути щоденний розклад.",
+    "bedtime_no_days_selected_snack_alert": "Виберіть принаймні один день тижня.",
+    "bedtime_minimum_duration_snack_alert": "Загальна тривалість сну повинна становити щонайменше 30 хвилин.",
+    "distracting_apps_tile_title": "Додатки, що відволікають",
+    "distracting_apps_tile_subtitle": "Виберіть, які програми відволікають вас перед сном.",
+    "bedtime_distracting_apps_modify_snack_alert": "Змінювати список додатків, що відволікають, не дозволяється, поки нічний режим активний.",
+    "@----------------------------- PARENTAL CONTROLS SCREEN-----------------------------": {},
+    "parental_controls_tab_title": "Батьківський контроль",
+    "invincible_mode_heading": "Захищений режим",
+    "invincible_mode_tile_title": "Активувати захищений режим",
+    "invincible_mode_info": "Якщо увімкнуто захищений режим, ви не зможете налаштувати обрані обмеження після досягнення щоденної квоти. Однак, ви можете вносити зміни під час обраного 10-хвилинного проміжку.",
+    "invincible_mode_snack_alert": "У зв'язку з увімкненим захищеним режимом, редагування обмежень не допускається.",
+    "invincible_mode_dialog_info": "Ви точно впевнені, що хочете увімкнути Захищений Режим? Ця дія незворотна. Після ввімкнення Захищеного Режиму, його не можна буде вимкнути, допоки цей додаток встановлений на вашому пристрої.",
+    "invincible_mode_turn_off_snack_alert": "Захищений Режим не можна вимкнути, доки цей додаток встановлено на вашому пристрої.",
+    "invincible_mode_dialog_button_start_anyway": "Все одно почати",
+    "invincible_mode_include_timer_tile_title": "Враховувати таймер",
+    "invincible_mode_include_launch_limit_tile_title": "Враховувати ліміт запусків",
+    "invincible_mode_include_active_period_tile_title": "Враховувати активний період",
+    "invincible_mode_app_restrictions_tile_title": "Обмеження додатку",
+    "invincible_mode_app_restrictions_tile_subtitle": "Запобігти змінам обраних обмежень додатку після перевищення денного ліміту.",
+    "invincible_mode_group_restrictions_tile_title": "Групові обмеження",
+    "invincible_mode_group_restrictions_tile_subtitle": "Запобігти зміні вибраних обмежень групи після перевищення добових лімітів.",
+    "invincible_mode_include_shorts_timer_tile_title": "Додати таймер короткого контенту",
+    "invincible_mode_include_shorts_timer_tile_subtitle": "Запобігти змінам після досягнення вашого щоденного ліміту короткого контенту.",
+    "invincible_mode_include_bedtime_tile_title": "Додати час нічного режиму",
+    "invincible_mode_include_bedtime_tile_subtitle": "Запобігти змінам під час активного режиму сну.",
+    "protected_access_tile_title": "Захищений доступ",
+    "protected_access_tile_subtitle": "Захистіть NLP digitox за допомогою блокування вашого пристрою.",
+    "protected_access_no_lock_snack_alert": "Щоб увімкнути цю функцію, спочатку налаштуйте біометричний захист на своєму пристрої.",
+    "protected_access_removed_lock_snack_alert": "Блокування пристрою було видалено. Аби продовжити, будь ласка, налаштуйте блокування.",
+    "protected_access_failed_lock_snack_alert": "Не вдалося пройти автентифікацію. Щоб продовжити, потрібно перевірити блокування пристрою.",
+    "tamper_protection_tile_title": "Захист від несанкціонованого доступу",
+    "tamper_protection_tile_subtitle": "Запобігання видаленню та примусовому зупиненню програми.",
+    "tamper_protection_confirmation_dialog_info": "Після ввімкнення ви не зможете видалити, примусово зупинити або очистити дані NLP digitox, окрім як у вибраному вікні видалення. Обхідних шляхів немає.",
+    "uninstall_window_tile_title": "Вікно видалення",
+    "uninstall_window_tile_subtitle": "Захист від несанкціонованого доступу можна вимкнути протягом 10 хвилин від обраного часу.",
+    "invincible_window_tile_title": "Вікно незмінного режиму",
+    "invincible_window_tile_subtitle": "Вибрані ліміти можна вимкнути протягом 10 хвилин від обраного часу.",
+    "@----------------------------- SHORTS BLOCKING SCREEN-----------------------------": {},
+    "shorts_blocking_tab_title": "Блокування контенту короткого формату",
+    "shorts_blocking_tab_info": "Контролюйте, скільки часу ви витрачаєте на перегляд короткого контенту на таких платформах, як Instagram, YouTube, Snapchat і Facebook, включно з їхніми вебсайтами.",
+    "short_content_heading": "Короткий контент",
+    "shorts_time_left_from": "Залишилось з {timeShortString}",
+    "@shorts_time_left_from": {
+        "placeholders": {
+            "timeShortString": {
+                "type": "String",
+                "example": "1h 23m"
+            }
+        }
+    },
+    "short_content_timer_picker_dialog_info": "Встановіть денний ліміт часу для короткого контенту. Коли ліміт буде вичерпано, показ короткого контенту буде призупинено до опівночі.",
+    "instagram_features_tile_title": "Instagram",
+    "instagram_features_tile_subtitle": "Обмежити функції Instagram.",
+    "instagram_features_block_reels": "Обмежити секцію Reels.",
+    "instagram_features_block_explore": "Обмежити секцію Цікаве.",
+    "snapchat_features_tile_title": "Snapchat",
+    "snapchat_features_tile_subtitle": "Обмежити функції Snapchat.",
+    "snapchat_features_block_spotlight": "Обмежити секцію Spotlight.",
+    "snapchat_features_block_discover": "Обмежити секцію Цікаве.",
+    "youtube_features_tile_title": "YouTube",
+    "youtube_features_tile_subtitle": "Обмежити Shorts не YouTube.",
+    "facebook_features_tile_title": "Facebook",
+    "facebook_features_tile_subtitle": "Обмежити Reels в Facebook.",
+    "reddit_features_tile_title": "Reddit",
+    "reddit_features_tile_subtitle": "Обмежити короткий контент на Reddit.",
+    "@----------------------------- WEBSITES BLOCKING SCREEN-----------------------------": {},
+    "websites_blocking_tab_title": "Блокування сайтів",
+    "websites_blocking_tab_info": "Блокуйте сайти для дорослих та будь-які власні сайти, щоб отримати безпечніший та продуктивніший онлайн-досвід. Керуйте онлайн-контентом та зменште фактори, що відволікають.",
+    "adult_content_heading": "Контент для дорослих",
+    "block_nsfw_title": "Блокувати відвертий контент",
+    "block_nsfw_subtitle": "Заборонити браузерам відкривати сайти для дорослих і порнографічні сайти.",
+    "block_nsfw_dialog_info": "Ви впевнені? Ця дія незворотна. Після того, як блокування для дорослих сайтів буде увімкнено, ви не зможете вимкнути його, поки додаток встановлено на пристрої.",
+    "block_nsfw_dialog_button_block_anyway": "Все одно блокувати",
+    "blocked_websites_heading": "Заблоковані сайти",
+    "blocked_websites_empty_list_hint": "Натисніть кнопку \"+ Додати вебсайт\", щоб додати вебсайти, що відволікають, які ви бажаєте заблокувати.",
+    "add_website_fab_button": "Додати Вебсайт",
+    "add_website_dialog_title": "Вебсайти, що відволікають",
+    "add_website_dialog_info": "Введіть Url-адресу вебсайту, який ви хочете заблокувати.",
+    "add_website_dialog_is_nsfw": "Nsfw(з делікатним вмістом) сайт?",
+    "add_website_dialog_nsfw_warning": "Увага: Вебсайти з Nsfw(делікатний вміст) не можуть бути видалені після додавання.",
+    "add_website_dialog_button_block": "Блокувати",
+    "add_website_already_exist_snack_alert": "URL-адреса вже була додана до списку заблокованих вебсайтів.",
+    "add_website_invalid_url_snack_alert": "Недійсна URL-адреса! Не вдалося обробити ім'я хосту.",
+    "remove_website_dialog_title": "Видалити вебсайт",
+    "remove_website_dialog_info": "Ви впевнені? Сайт {websitehost} буде видалено з заблокованих.",
+    "@remove_website_dialog_info": {
+        "placeholders": {
+            "websitehost": {
+                "type": "String",
+                "example": "example.com"
+            }
+        }
+    },
+    "@----------------------------- FOCUS SCREEN - FOCUS TAB -----------------------------": {},
+    "focus_tab_title": "Концентрація",
+    "focus_tab_info": "Коли вам потрібен час, щоб зосередитися, розпочніть новий сеанс, виберіть тип сесії та додатки, що відволікають і увімкніть функцію \"Не турбувати\" для безперервного зосередження.",
+    "active_session_card_title": "Активні сеанси",
+    "active_session_card_info": "У вас є активний сеанс зосередження! Натисніть \"Перегляд\", щоб перевірити ваш прогрес і подивіться, скільки часу минуло.",
+    "active_session_card_view_button": "Перегляд",
+    "focus_distracting_apps_removal_snack_alert": "Видалення програм зі списку програм, що відволікають увагу, не дозволяється, поки Сеанс Зосередження активний. Однак ви можете додавати нові програми до списку протягом цього часу.",
+    "focus_profile_tile_title": "Профіль зосередження",
+    "focus_session_duration_tile_title": "Тривалість сеансу",
+    "focus_session_duration_tile_subtitle": "Нескінченний (якщо ви не зупините)",
+    "focus_session_duration_dialog_info": "Будь ласка, виберіть бажану тривалість для цього сеансу зосередження, визначаючи, скільки часу ви хочете залишатися зосередженим та без відволікань.",
+    "focus_profile_customization_tile_title": "Налаштування профілю",
+    "focus_profile_customization_tile_subtitle": "Налаштування параметрів для вибраного профілю.",
+    "focus_enforce_tile_title": "Застосувати сеанс",
+    "focus_enforce_tile_subtitle": "Запобігає завершенню сесії до закінчення часу.",
+    "focus_session_minimum_apps_snack_alert": "Виберіть принаймні один додаток, щоб почати сеанс зосередження",
+    "focus_session_already_active_snack_alert": "У вас вже є активний сеанс зосередження. Будь ласка, закінчіть або припиніть поточний сеанс перед початком нового.",
+    "@----------------------------- FOCUS SESSION TYPES -----------------------------": {},
+    "focus_session_type_study": "Навчання",
+    "focus_session_type_work": "Робота",
+    "focus_session_type_exercise": "Тренування",
+    "focus_session_type_meditation": "Медитація",
+    "focus_session_type_creativeWriting": "Творче письмо",
+    "focus_session_type_reading": "Читання",
+    "focus_session_type_programming": "Програмування",
+    "focus_session_type_chores": "Справи по дому",
+    "focus_session_type_projectPlanning": "Планування проєкту",
+    "focus_session_type_artAndDesign": "Мистецтво та дизайн",
+    "focus_session_type_languageLearning": "Вивчення мови",
+    "focus_session_type_musicPractice": "Музична практика",
+    "focus_session_type_selfCare": "Догляд за собою",
+    "focus_session_type_brainstorming": "Мозковий штурм",
+    "focus_session_type_skillDevelopment": "Розвиток навичок",
+    "focus_session_type_research": "Дослідження",
+    "focus_session_type_networking": "Професійне спілкування",
+    "focus_session_type_cooking": "Приготування їжі",
+    "focus_session_type_sportsTraining": "Спортивна підготовка",
+    "focus_session_type_restAndRelaxation": "Відпочинок",
+    "focus_session_type_other": "Інше",
+    "@----------------------------- FOCUS SCREEN - TIMELINE TAB -----------------------------": {},
+    "timeline_tab_title": "Хронологія",
+    "focus_timeline_tab_info": "Досліджуйте свою фокус-подорож, обравши дату в календарі. Відстежуйте свій прогрес, повторюйте успіхи та вчіться на помилках.",
+    "selected_month_productive_time_snack_alert": "Твій загальний продуктивний час за обраний місяць – {timeString}.",
+    "@selected_month_productive_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "selected_month_productive_days_label": "Продуктивні дні",
+    "selected_month_productive_days_snack_alert": "У вас було {daysCount} продуктивних днів у вибраному місяці.",
+    "@selected_month_productive_days_snack_alert": {
+        "placeholders": {
+            "daysCount": {
+                "type": "num",
+                "example": "12"
+            }
+        }
+    },
+    "selected_day_focused_time_label": "Час зосередження",
+    "selected_day_focused_time_snack_alert": "Твій загальний продуктивний час для обраних днів – {timeString}.",
+    "@selected_day_focused_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "calender_heading": "Календар",
+    "your_sessions_heading": "Ваші сеанси",
+    "your_sessions_empty_list_hint": "Для обраного дня немає збережених сеансів зосередження.",
+    "focus_session_tile_timestamp_label": "Час",
+    "focus_session_tile_duration_label": "Тривалість",
+    "focus_session_tile_reflection_label": "Аналіз",
+    "focus_session_state_active": "Активний",
+    "focus_session_state_successful": "Успішний",
+    "focus_session_state_failed": "Провалено",
+    "@----------------------------- ACTIVE FOCUS SESSION SCREEN -----------------------------": {},
+    "active_session_tab_title": "Сеанс",
+    "active_session_none_warning": "Активних сеансів не знайдено. Повертаємо вас на головний екран.",
+    "active_session_dialog_button_keep_pushing": "Продовжуйте",
+    "active_session_finish_dialog_title": "Завершити",
+    "active_session_finish_dialog_info": "Не падай духом! Ви створюєте цінний фокус. Ви впевнені, що хочете закінчити цей сеанс зосередження? Кожна додаткова мить важлива для досягнення ваших цілей.",
+    "active_session_giveup_dialog_title": "Облишити",
+    "active_session_giveup_dialog_info": "Тримайтеся! Не здавайтеся, ви майже закінчили! Ви впевнені, що хочете закінчити цей сеанс зосередження достроково? Прогрес буде втрачено.",
+    "active_session_reflection_dialog_title": "Підбиття підсумків сеансу",
+    "active_session_reflection_dialog_info": "Знайдіть хвилинку, щоб поміркувати про свій прогрес. Яка ваша мета на цю сесію? Чого ви досягли під час цієї сесії?",
+    "active_session_reflection_dialog_tip": "Порада: Ви завжди можете редагувати це пізніше в хронології сенсів.",
+    "active_session_giveup_snack_alert": "Ви здалися! Не хвилюйтеся, наступного разу у вас вийде краще. Кожне зусилля має значення - просто продовжуйте",
+    "active_session_quote_one": "Кожен крок має значення, будьте сильними й не зупиняється на досягнутому.",
+    "active_session_quote_two": "Зосередьтеся! Ви робите дивовижні успіхи",
+    "active_session_quote_three": "У вас чудово виходить. Не втрачайте темп",
+    "active_session_quote_four": "Залишилося ще трохи, ви прекрасно справляєтесь",
+    "active_session_quote_five": "Вітаю 🎉 \n Ви завершили сеанс в {durationString}.\n\nЧудово, продовжуйте в тому ж дусі",
+    "@active_session_quote_five": {
+        "placeholders": {
+            "durationString": {
+                "type": "String",
+                "example": "30 minutes"
+            }
+        }
+    },
+    "@----------------------------- RESTRICTION GROUPS SCREEN -----------------------------": {},
+    "restriction_groups_tab_title": "Групи обмежень",
+    "restriction_groups_tab_info": "Встановіть обмеження часу для групи програм. Після того, як загальна кількість використань досягне ліміту, всі додатки в групі будуть призупинені, щоб допомогти зберегти фокус та баланс.",
+    "restriction_group_time_spent_label": "Витрачено часу сьогодні",
+    "restriction_group_time_left_label": "Часу залишилося сьогодні",
+    "restriction_group_name_tile_title": "Назва групи",
+    "restriction_group_name_picker_dialog_info": "Введіть назву для групи обмежень, щоб полегшити її ідентифікацію та керування нею.",
+    "restriction_group_timer_tile_title": "Таймер групи",
+    "restriction_group_timer_picker_dialog_info": "Встановіть денний ліміт часу для цієї програми. Як тільки ви досягнете ліміту, програма буде призупинена до опівночі.",
+    "restriction_group_active_period_tile_title": "Активний період групи",
+    "remove_restriction_group_dialog_title": "Видалити групу",
+    "remove_restriction_group_dialog_info": "Ви впевнені? Ви хочете видалити {groupName} з груп обмежень.",
+    "@remove_restriction_group_dialog_info": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Games"
+            }
+        }
+    },
+    "restriction_group_invalid_limits_snack_alert": "Встановіть або таймер, або обмеження активного періоду.",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_empty_list_hint": "Немає зведених повідомлень на сьогодні.",
+    "conversations_label": "Чати",
+    "last_24_hours_heading": "Останні 24 години",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TIMELINE TAB -----------------------------": {},
+    "notification_timeline_tab_info": "Перегляньте історію сповіщень вибравши дату з календаря. Перегляньте, які програми забирали вашу увагу і поміркуйте над своїми цифровими звичками.",
+    "monthly_label": "Щомісяця",
+    "daily_label": "Щоденно",
+    "search_notifications_sheet_info": "Легко знаходьте минулі сповіщення, шукаючи їх заголовок або зміст. Допомагає швидко знайти важливі сповіщення.",
+    "search_notifications_hint": "Пошук сповіщень...",
+    "search_notifications_empty_list_hint": "Не знайдено сповіщень, що співпадають з вашим запитом.",
+    "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
+    "app_info_none_warning": "Не вдалося знайти додаток для даного пакету. Переходимо на домашній екран.",
+    "emergency_fab_button": "Екстрений доступ",
+    "emergency_dialog_info": "Ця дія призупинить блокування програми на наступні 5 хвилин. У вас залишилося {leftPassesCount} пропусків. Після використання всіх пропусків додаток залишиться заблокованим до опівночі або до завершення сеансу активного фокусування.\n\nВи все ще бажаєте продовжити?",
+    "@emergency_dialog_info": {
+        "placeholders": {
+            "leftPassesCount": {
+                "type": "num",
+                "example": "3"
+            }
+        }
+    },
+    "emergency_dialog_button_use_anyway": "Все одно використати",
+    "emergency_started_snack_alert": "Блокування програм призупинено і він буде відновлено через 5 хвилин.",
+    "emergency_already_active_snack_alert": "Блокування додатків зараз призупинено або неактивно. Якщо сповіщення увімкнено, ви будете отримувати оновлення щодо часу, що залишився.",
+    "emergency_no_pass_left_snack_alert": "Ви використали всі свої екстрені пропуски. Заблоковані програми залишатимуться заблокованими до півночі або до завершення активного сеансу зосередження.",
+    "app_limit_status_not_set": "Не встановлено",
+    "app_timer_tile_title": "Таймер додатку",
+    "app_timer_picker_dialog_info": "Встановіть денний ліміт часу для цієї програми. Як тільки ви досягнете ліміту, програма буде призупинена до опівночі.",
+    "usage_reminders_tile_title": "Нагадування про використання",
+    "usage_reminders_tile_subtitle": "Ввічливі нагадування під час використання програм з таймером.",
+    "app_launch_limit_tile_title": "Ліміт запуску",
+    "app_launch_limit_tile_subtitle": "Сьогодні запущено {count} разів.",
+    "@app_launch_limit_tile_subtitle": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "example": "15"
+            }
+        }
+    },
+    "app_launch_limit_picker_dialog_info": "Вкажіть скільки разів на день ви можете відкривати цей додаток. Після досягнення ліміту додаток буде призупинений до опівночі.",
+    "app_active_period_tile_title": "Активний період",
+    "app_active_period_tile_subtitle": "Від {startTime} до {endTime}",
+    "@app_active_period_tile_subtitle": {
+        "placeholders": {
+            "startTime": {
+                "type": "String",
+                "example": "10:00pm"
+            },
+            "endTime": {
+                "type": "String",
+                "example": "15"
+            }
+        }
+    },
+    "internet_access_tile_title": "Доступ до інтернету",
+    "internet_access_tile_subtitle": "Вимкніть для блокування інтернету для додатків.",
+    "internet_access_blocked_snack_alert": "Інтернет для {appName} заблоковано.",
+    "@internet_access_blocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "internet_access_unblocked_snack_alert": "Інтернет для {appName} розблоковано.",
+    "@internet_access_unblocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "launch_app_tile_title": "Запустити додаток",
+    "launch_app_tile_subtitle": "Відкрити {appName}.",
+    "@launch_app_tile_subtitle": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "go_to_app_settings_tile_title": "Перейти до налаштувань додатку",
+    "go_to_app_settings_tile_subtitle": "Керуйте налаштуваннями додатку, такими як: сповіщення, дозволи, зберігання даних та інше.",
+    "include_in_stats_tile_title": "Включати до часу екрану",
+    "include_in_stats_tile_subtitle": "Вимкнути, щоб виключити цю програму з загального часу екрану.",
+    "app_excluded_from_stats_snack_alert": "{appName} виключено з загального використання екрану.",
+    "@app_excluded_from_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "app_include_to_stats_snack_alert": "{appName} включено до загального використання екрану.",
+    "@app_include_to_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
+    "general_tab_title": "Загальні",
+    "appearance_heading": "Вигляд",
+    "theme_mode_tile_title": "Тема",
+    "theme_mode_system_label": "Системна",
+    "theme_mode_light_label": "Світла",
+    "theme_mode_dark_label": "Темна",
+    "material_color_tile_title": "Колір Material",
+    "amoled_dark_tile_title": "Темний AMOLED",
+    "amoled_dark_tile_subtitle": "Використовувати чистий чорний колір для темної теми.",
+    "dynamic_colors_tile_title": "Динамічні кольори",
+    "dynamic_colors_tile_subtitle": "Використовувати кольори пристрою, якщо це підтримується.",
+    "defaults_heading": "Типові",
+    "app_language_tile_title": "Мова додатку",
+    "default_home_tab_tile_title": "Домашня вкладка",
+    "usage_history_tile_title": "Історія використання",
+    "usage_history_15_days": "15 днів",
+    "usage_history_1_month": "1 місяць",
+    "usage_history_3_month": "3 місяці",
+    "usage_history_6_month": "6 місяців",
+    "usage_history_1_year": "1 рік",
+    "service_heading": "Служба",
+    "service_stopping_warning": "Якщо NLP digitox несподівано перестає працювати, надайте дозвіл \"Ігнорувати оптимізацію заряду батареї\", щоб програма продовжувала працювати у фоновому режимі. Якщо проблема не зникне, спробуйте додати NLP digitox до білого списку для безперебійної роботи.",
+    "whitelist_app_tile_title": "Додати NLP digitox до білого списку",
+    "whitelist_app_tile_subtitle": "Дозволити автоматичний запуск для NLP digitox.",
+    "whitelist_app_unsupported_snack_alert": "Цей пристрій не підтримує керування автоматичним запуском.",
+    "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
+    "database_tab_title": "База даних",
+    "import_db_tile_title": "Імпорт бази даних",
+    "import_db_tile_subtitle": "Імпортувати з файлу.",
+    "export_db_tile_title": "Експорт бази даних",
+    "export_db_tile_subtitle": "Експортувати базу даних до файлу.",
+    "crash_logs_heading": "Журнал збоїв",
+    "crash_logs_info": "Якщо ви зіткнулися з будь-якою проблемою, ви можете повідомити про неї на GitHub разом із файлом журналу. Файл буде містити такі дані, як виробник вашого пристрою, модель, версія Android, версія SDK та журнали збоїв. Ця інформація допоможе нам виявити й розв'язати проблему більш ефективно.",
+    "crash_logs_export_tile_title": "Експорт журналу збоїв",
+    "crash_logs_export_tile_subtitle": "Експорт журналів збою в json файл.",
+    "crash_logs_view_tile_title": "Перегляд журналу",
+    "crash_logs_view_tile_subtitle": "Переглянути збережені звіти про збої.",
+    "crash_logs_empty_list_hint": "Поки що не було зафіксовано жодних помилок.",
+    "crash_logs_clear_tile_title": "Очистити журнал",
+    "crash_logs_clear_tile_subtitle": "Видалити всі журнали збоїв з бази даних.",
+    "crash_logs_clear_dialog_info": "Ви впевнені, що хочете очистити всі журнали збоїв з бази даних?",
+    "crash_logs_clear_dialog_button_clear_anyway": "Очистити все одно",
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "about_tab_title": "Про додаток",
+    "changelog_tile_title": "Журнал змін",
+    "changelog_tile_subtitle": "Дізнайтеся, що нового.",
+    "full_changelog_tile_title": "Повний журнал змін",
+    "redirected_to_github_subtitle": "Вас буде перенаправлено на GitHub.",
+    "contribute_heading": "Допомога проєкту",
+    "github_tile_title": "GitHub",
+    "github_tile_subtitle": "Переглянути вихідний код.",
+    "report_issue_tile_title": "Повідомити про проблему",
+    "suggest_idea_tile_title": "Запропонувати ідею",
+    "write_email_tile_title": "Напишіть нам на електронну пошту",
+    "write_email_tile_subtitle": "Вас буде перенаправлено до програми Email.",
+    "privacy_policy_heading": "Політика конфіденційності",
+    "privacy_policy_info": "NLP digitox зобов'язується захищати вашу конфіденційність. Ми не збираємо, не зберігаємо і не передаємо жодних даних користувачів. Додаток працює повністю офлайн і не вимагає підключення до Інтернету, гарантуючи, що ваша особиста інформація залишається приватною і захищеною на вашому пристрої. Як додаток з вільним та відкритим вихідним кодом (FOSS), NLP digitox гарантує повну прозорість та контроль користувача над своїми даними.",
+    "more_details_button": "Детальніше"
+}

@@ -1,0 +1,135 @@
+{
+  "project_info": {
+    "project_number": "712530453720",
+    "firebase_url": "https://digital-detox-app-01-default-rtdb.firebaseio.com",
+    "project_id": "digital-detox-app-01",
+    "storage_bucket": "digital-detox-app-01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712530453720:android:15fdc64e0b660dfce963ad",
+        "android_client_info": {
+          "package_name": "com.example.digital_detox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "712530453720-8j04ke37vg4eaemqpnd9ldstmcrspc8v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.digital_detox",
+            "certificate_hash": "40bc84eb528bf34d56718576c333b4da99e70f8e"
+          }
+        },
+        {
+          "client_id": "712530453720-nfjobfoc7d248u163q732598b7ee8kbk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnSfOWsuzbmVVn_-SLy2FKdWXWKX7-Tfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "712530453720-nfjobfoc7d248u163q732598b7ee8kbk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "712530453720-c2qv8j0meu280ugqojaatj5muugd2abp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.digitalDetox"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712530453720:android:2076535c5783358de963ad",
+        "android_client_info": {
+          "package_name": "com.mindful.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "712530453720-rtb3t94r94mnre75800s920s09lrtod6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mindful.android",
+            "certificate_hash": "40bc84eb528bf34d56718576c333b4da99e70f8e"
+          }
+        },
+        {
+          "client_id": "712530453720-nfjobfoc7d248u163q732598b7ee8kbk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnSfOWsuzbmVVn_-SLy2FKdWXWKX7-Tfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "712530453720-nfjobfoc7d248u163q732598b7ee8kbk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "712530453720-c2qv8j0meu280ugqojaatj5muugd2abp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.digitalDetox"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712530453720:android:0d783616c4e8f099e963ad",
+        "android_client_info": {
+          "package_name": "com.nlp.digitox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "712530453720-nfjobfoc7d248u163q732598b7ee8kbk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnSfOWsuzbmVVn_-SLy2FKdWXWKX7-Tfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "712530453720-nfjobfoc7d248u163q732598b7ee8kbk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "712530453720-c2qv8j0meu280ugqojaatj5muugd2abp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.digitalDetox"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

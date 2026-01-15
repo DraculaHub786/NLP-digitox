@@ -1,0 +1,34 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:flutter/material.dart';
+
+class AppRoutesObserver extends NavigatorObserver {
+  /// Private constructor to enforce singleton pattern.
+  AppRoutesObserver._internal();
+
+  /// Singleton instance of the [AppRoutesObserver].
+  static final AppRoutesObserver instance = AppRoutesObserver._internal();
+
+  String _currentRoute = "";
+
+  /// The current route of the app or empty string
+  String get currentRoute => _currentRoute;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _currentRoute = route.settings.name ?? "";
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    _currentRoute = newRoute?.settings.name ?? "";
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _currentRoute = previousRoute?.settings.name ?? "";
+    super.didPop(route, previousRoute);
+  }
+}

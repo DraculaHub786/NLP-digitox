@@ -1,0 +1,80 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/config/hero_tags.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
+import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+import 'package:nlp_digitox/ui/dialogs/input_field_dialog.dart';
+
+class AddWebsitesFAB extends ConsumerWidget {
+  const AddWebsitesFAB({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final haveAccessibilityPermission = ref.watch(
+      permissionProvider.select((value) => value.haveAccessibilityPermission),
+    );
+
+    return haveAccessibilityPermission
+        ? DefaultFabButton(
+            heroTag: HeroTags.addDistractingSiteFABTag,
+            label: context.locale.add_website_fab_button,
+            icon: FluentIcons.link_add_20_regular,
+            onPressed: () => _onPressedFab(context, ref),
+          )
+        : const SizedBox.shrink();
+  }
+
+  void _onPressedFab(BuildContext context, WidgetRef ref) async {
+    bool isNsfw = false;
+
+    final url = await showWebsiteInputDialog(
+      context: context,
+      heroTag: HeroTags.addDistractingSiteFABTag,
+      moreContent: StatefulBuilder(
+        builder: (context, setState) {
+          return DefaultListTile(
+            isSelected: isNsfw,
+            color: Colors.transparent,
+            titleText: context.locale.add_website_dialog_is_nsfw,
+            onPressed: () => setState(() => isNsfw = !isNsfw),
+          );
+        },
+      ),
+    );
+
+    if (url == null) return;
+
+    final host =
+        await MethodChannelService.instance.parseHostFromUrl(url.toLowerCase());
+
+    if (host.isNotEmpty && host.contains('.') && !host.contains(' ')) {
+      /// Check if url is already blocked
+      if (context.mounted &&
+          (ref.read(wellBeingProvider).blockedWebsites.contains(host) ||
+              ref.read(wellBeingProvider).nsfwWebsites.contains(host))) {
+        context.showSnackAlert(
+          context.locale.add_website_already_exist_snack_alert,
+        );
+        return;
+      }
+
+      /// Add to blocked sites list
+      isNsfw
+          ? ref.read(wellBeingProvider.notifier).insertNsfwSite(host)
+          : ref
+              .read(wellBeingProvider.notifier)
+              .insertRemoveBlockedSite(host, true);
+    } else if (context.mounted) {
+      context.showSnackAlert(
+        context.locale.add_website_invalid_url_snack_alert,
+      );
+    }
+  }
+}

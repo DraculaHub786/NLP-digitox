@@ -1,0 +1,97 @@
+name: nlp_digitox
+description: Your Ultimate Digital Detox & Wellbeing Companion
+homepage: https://github.com/akaMrNagar/nlp_digitox
+publish_to: "none"
+version: 1.3.0+130
+
+environment:
+  sdk: ">=3.1.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Runtime dependencies
+  # UI
+  fluentui_system_icons: ^1.1.210
+  fl_chart: ^1.0.0
+  animated_flip_counter: ^0.3.4
+  flutter_confetti: ^0.5.1
+  smooth_page_indicator: ^1.2.0+3
+  flutter_slidable: ^4.0.0
+  dynamic_color: ^1.7.0
+  flutter_svg: ^2.0.17
+  slide_action: ^0.0.2
+
+  # Animation
+  flutter_animate: ^4.2.0+1
+  skeletonizer: ^2.0.1
+
+  # Database and Storage
+  path: ^1.9.0
+  path_provider: ^2.1.2
+  file_picker: ^10.2.0
+  sqlite3: ^2.4.5
+  drift: ^2.18.0
+  drift_flutter: ^0.2.0
+
+  # Util
+  intl: any
+  sliver_tools: ^0.2.12
+  flutter_riverpod: ^2.5.1
+  local_auth: ^2.3.0
+  app_links: ^6.3.3
+
+  # Firebase
+  firebase_core: ^3.3.0
+  firebase_auth: ^5.1.4
+  cloud_firestore: ^5.2.1
+  google_sign_in: ^6.2.1
+  shared_preferences: ^2.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Development dependencies.
+  # Generator =>  dart run build_runner build
+  build_runner: ^2.4.11
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.18.0
+  
+
+
+# The following section is specific to Flutter packages.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+  generate: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    # Onboarding
+    - assets/illustrations/onboarding_1.png
+    - assets/illustrations/onboarding_2.png
+    - assets/illustrations/onboarding_3.png
+    - assets/illustrations/onboarding_4.png
+   
+    # Vector icons
+    - assets/vectors/github.svg
+    - assets/vectors/bmc.svg
+    - assets/vectors/telegram.svg
+    - assets/vectors/instagram.svg
+    - assets/vectors/snapchat.svg
+    - assets/vectors/youtube.svg
+    - assets/vectors/facebook.svg
+    - assets/vectors/reddit.svg
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic

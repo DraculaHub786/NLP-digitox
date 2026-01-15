@@ -1,0 +1,614 @@
+{
+    "@----------------------------- SPLASH SCREEN -----------------------------": {},
+    "mindful_tagline": "Фокусирај се на оно што је заиста важно",
+    "unlock_button_label": "Откључај",
+    "@----------------------------- APP PERMISSIONS -----------------------------": {},
+    "permission_status_off": "Искључено",
+    "permission_status_allowed": "Дозвољено",
+    "permission_status_not_allowed": "Није дозвољено",
+    "permission_button_grant_permission": "Дозволи",
+    "permission_button_agree_and_continue": "Прихвати и настави",
+    "permission_button_not_now": "Не сада",
+    "permission_button_help": "Помоћ?",
+    "permission_sheet_privacy_info": "NLP digitox је 100% сигуран и ради ван мреже. Не прикупљамо, нити чувамо било какве личне податке.",
+    "permission_grant_step_one": "1. Кликни на дугме {button_label}.",
+    "@permission_grant_step_one": {
+        "placeholders": {
+            "button_label": {
+                "type": "String"
+            }
+        }
+    },
+    "permission_grant_step_two": "2. Изабери NLP digitox на следећем екрану.",
+    "permission_grant_step_three": "3. Кликни и укључи подешавање испод.",
+    "permission_notification_title": "Пошаљи обавештења",
+    "permission_alarms_title": "Аларми и подсетници",
+    "permission_alarms_info": "Молимо те да одобриш дозволу за постављање аларма и подсећања. Ово ће омогућити NLP digitox да на време започне твој распоред за спавање. Такође, апликација ће дневно ресетовати тајмере у поноћ и помоћи ти да останеш на правом путу.",
+    "permission_alarms_device_tile_label": "Омогући подешавање аларма и подсетника",
+    "permission_usage_title": "Приступ коришћењу",
+    "permission_usage_info": "Молимо дозволите приступ подацима о коришћењу. Ово ће омогућити да NLP digitox прати употребу апликација и управља приступом одређеним апликацијама, обезбеђујући фокусираније и контролисаније дигитално окружење.",
+    "permission_usage_device_tile_label": "Дозволи приступ коришћењу",
+    "permission_overlay_title": "Приказ преко других апликација",
+    "permission_overlay_info": "Молимо одобрите дозволу за приказ преко других апликација. Ово ће омогућити апликацији да прикаже преклоп када се отвори паузирана апликација, што ће вам помоћи да останете фокусирани и придржавате се свог распореда.",
+    "permission_overlay_device_tile_label": "Дозволи приказ преко других апликација",
+    "permission_accessibility_title": "Приступачност",
+    "permission_accessibility_info": "Молимо одобрите дозволу за приступачност. Ово ће омогућити апликацији NLP digitox да ограничи приступ кратком видео садржају (нпр. Reels, Shorts) у оквиру апликација друштвених мрежа и интернет прегледача, као и да филтрира непримерене веб-сајтове.",
+    "permission_accessibility_required": "NLP digitox захтева дозволу за приступачност како би ефикасно блокирао кратки садржај и веб-сајтове.",
+    "permission_accessibility_device_tile_label": "Користи NLP digitox",
+    "permission_dnd_title": "Не ометај",
+    "permission_dnd_info": "Дозволи приступ за режим „Не ометај“. Ово ће омогућити NLP digitox да покрене и заустави режим „Не ометај“ током распореда за спавање.",
+    "permission_dnd_tile_title": "Покрени DND (Не ометај)",
+    "permission_dnd_tile_subtitle": "Укључи режим „Не ометај“.",
+    "permission_battery_optimization_tile_title": "Занемари оптимизацију батерије",
+    "permission_battery_optimization_status_enabled": "Већ неограничено",
+    "permission_battery_optimization_status_disabled": "Онемогући позадинска ограничења",
+    "permission_battery_optimization_allow_info": "Дозвола за „Занемаривање оптимизације батерије“ на неким уређајима такође аутоматски омогућава приступ „Алармима и подсетницима“.",
+    "permission_vpn_title": "Креирај VPN",
+    "permission_vpn_info": "Одобри дозволу за креирање виртуелне приватне мреже (VPN). Ово ће омогућити апликацији NLP digitox да ограничи приступ интернету за одређене апликације креирањем локалне VPN мреже на уређају.",
+    "permission_admin_title": "Админ",
+    "permission_admin_info": "Администраторске привилегије су потребне само за основне операције како би апликација радило исправно и остала заштићена од манипулација.",
+    "permission_admin_snack_alert": "Заштита од манипулација може бити онемогућена само у оквиру изабраног временског периода.",
+    "permission_notification_access_title": "Приступ обавештењима",
+    "permission_notification_access_info": "Молимо те да одобриш дозволу за приступ обавештењима. Ово ће омогућити NLP digitox да организује твоја обавештења и достави их по твом распореду.",
+    "permission_notification_access_required": "Апликација NLP digitox захтева приступ обавештењима како би груписао и заказивао обавештења.",
+    "permission_notification_access_device_tile_label": "Дозволи приступ обавештењима",
+    "@----------------------------- DATE AND TIME -----------------------------": {},
+    "day_today": "Данас",
+    "day_yesterday": "Јуче",
+    "nDays": "{count, plural, =0{0 дана} =1{1 дан} other{{count} дана}}",
+    "@nDays": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nHours": "{count, plural, =0{0 сати} =1{1 сат} other{{count} сати}}",
+    "@nHours": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nMinutes": "{count, plural, =0{0 минута} =1{1 минута} other{{count} минута}}",
+    "@nMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nSeconds": "{count, plural, =0{0 секунди} =1{1 секунда} other{{count} секунди}}",
+    "@nSeconds": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "time_separator_and": "и",
+    "@time_separator_and": {
+        "description": "Separator used between time like, 10 hours 'and' 15 minutes"
+    },
+    "@----------------------------- SHARED STRINGS -----------------------------": {},
+    "timer_status_active": "Активан",
+    "timer_status_paused": "Паузирано",
+    "create_button": "Креирај",
+    "update_button": "Ажурирај",
+    "dialog_button_cancel": "Поништи",
+    "dialog_button_remove": "Уклони",
+    "dialog_button_set": "Постави",
+    "dialog_button_reset": "Ресетуј",
+    "dialog_button_infinite": "Бесконачно",
+    "schedule_start_label": "Почетак",
+    "schedule_end_label": "Крај",
+    "development_dialog_info": "NLP digitox је тренутно у развоју и могуће је да садржи грешке или непотпуне функције. Ако наиђеш на проблем, пријави га како бисмо могли да побољшамо апликацију.\n\nХвала на повратним информацијама!",
+    "development_dialog_button_report_issue": "Пријави проблем",
+    "development_dialog_button_close": "Затвори",
+    "dnd_settings_tile_title": "Подешавања режима „Не узнемиравај“",
+    "dnd_settings_tile_subtitle": "Управљање тиме које апликације и обавештења могу да прођу кроз режим „Не узнемиравај“.",
+    "quick_actions_heading": "Брзе радње",
+    "select_distracting_apps_heading": "Избор апликација које одвлаче пажњу",
+    "your_distracting_apps_heading": "Апликације које одвлаче пажњу",
+    "select_more_apps_heading": "Изаберите још апликација",
+    "imp_distracting_apps_snack_alert": "Додавање важних системских апликација на листу апликација које одвлаче пажњу није дозвољено.",
+    "custom_apps_quick_actions_unavailable_warning": "Подаци о коришћењу екрана и ограничењима нису доступни за ову апликацију. Тренутно је доступан само преглед коришћења мреже.",
+    "create_group_fab_button": "Направи групу",
+    "active_period_info": "Подеси временски период током ког ће приступ бити дозвољен. Ван тог периода, приступ ће бити ограничен.",
+    "minimum_distracting_apps_snack_alert": "Изабери бар једну апликацију која одвлачи пажњу.",
+    "donation_card_title": "Подржи нас",
+    "donation_card_info": "NLP digitox је бесплатна апликација отвореног кода, развијана месецима уз велику посвећеност. Ако ти је била од помоћи, донација би нам значила пуно. Сваки допринос нам помаже да наставимо са унапређивањем и одржавањем апликације за све.",
+    "operation_failed_snack_alert": "NLP digitox је бесплатна апликација отвореног кода, развијана месецима уз велику посвећеност. Ако ти је била од помоћи, донација би нам значила пуно. Сваки допринос нам помаже да наставимо са унапређивањем и одржавањем апликације за све.\n",
+    "donation_card_button_donate": "Донирај",
+    "app_restart_dialog_title": "Потребно је поновно покретање",
+    "app_restart_dialog_info": "NLP digitox ће се аутоматски поново покренути када се одбројавање заврши. Молимо за стрпљење док се измене примењују.",
+    "@----------------------------- TIPS -----------------------------": {},
+    "accessibility_tip": "Желиш паметније блокирање које троши мање батерије? Одобри дозволу за приступачност за апликацију NLP digitox да би све радило боље и ефикасније.",
+    "battery_optimization_tip": "NLP digitox не ради како треба?\nДозволи „Игнориши оптимизацију батерије“ у подешавањима како би NLP digitox несметано радио у позадини.",
+    "invincible_mode_tip": "Случајно си уклонио ограничења?\nКористећи режим строге контроле како би ограничења остала активна до сутра или до следеће измене.",
+    "glance_usage_tip": "Желиш увид у своје навике?\nNLP digitox нуди одељак преглед где можеш да сазнаш како проводиш време на телефону.",
+    "tamper_protection_tip": "Желиш да деинсталираш NLP digitox? Прво укључи прозор за деинсталацију да би безбедно искључио заштиту од уклањања.",
+    "notification_blocking_tip": "Желиш мање ометања? NLP digitox ти нуди опцију блокирања обавештења како би утишао жељене апликације.",
+    "usage_history_tip": "Желиш да размислиш о својим навикама? Погледај историју коришћења да видиш претходне обрасце.",
+    "focus_mode_tip": "Желиш дубоку концентрацију? Укључи режим фокуса да блокираш апликације и обавештења док радиш.",
+    "bedtime_reminder_tip": "Желиш да бољи и квалитетнији сан? Подеси подсетник за спавање да се сваке вечери лагано искључиш.",
+    "custom_blocking_tip": "Желиш да све буде по твојој мери? Направи сопствена правила за блокирање апликација која ти одговарају.",
+    "session_timeline_tip": "Желиш да пратиш своје фокус сесије? Погледај хронологију и испрати свој напредак.",
+    "short_content_blocking_tip": "Скрећу ти пажњу друштвене мреже? Блокирај кратак садржај са апликација Instagram, YouTube и сличних како би остао концентрисан.",
+    "parental_controls_tip": "Треба ти родитељска контрола? Постави ограничења на уређају свог детета како би осигурао безбедно коришћење.",
+    "notification_batching_tip": "Желиш мање ометања? Користи груписање обавештења како би ти стизала сва одједном, уместо појединачно.",
+    "notification_scheduling_tip": "Желиш да имаш више контроле над обавештењима? Подеси када ти која апликација може слати обавештења.",
+    "quick_focus_tile_tip": "Треба ти брз приступ фокусу? Додај брзи фокус тастер да одмах активираш режим фокуса.",
+    "app_shortcuts_tip": "Желиш бржи приступ апликацијама? Дугим притиском на иконицу апликације додај пречице.",
+    "backup_usage_db_tip": "Желиш да сачуваш своје податке? Направи резервну копију података да би сачувао своје записе.",
+    "dynamic_material_color_tip": "Желиш прилагођену тему? Укључи Динамичку Material You боју да усагласиш тему са изгледом свог уређаја.",
+    "amoled_dark_theme_tip": "Желиш да уштедиш батерију? Користи AMOLED тамну тему да смањиш потрошњу енергије на OLED екрану.",
+    "customize_usage_history_tip": "Желиш да сачуваш историју коришћења? Подеси број недеља које желиш да чуваш у Историји коришћења.",
+    "grouped_apps_blocking_tip": "Желиш да блокираш апликације истовремено? Користи групна ограничења да групишеш лимите за апликације и блокираш више њих одједном.",
+    "websites_blocking_tip": "Желиш лакше интернет претраживање? Блокирај прилагођене или NSFW веб сајтове за безбрижно и фокусирано онлајн искуство.",
+    "data_usage_tip": "Желиш да видиш колико и како трошиш интернет? Прати коришћење мобилних и Wi-Fi података за бољи увид у интернет потрошњу.",
+    "block_internet_tip": "Желиш да блокираш интернет приступ некој од апликација?\nОнемогући интернет за одређену апликацију из њеног подешавања.",
+    "emergency_passes_tip": "Треба ти пауза? На располагању имаш 3 хитне пропуснице које ти дају приступ блокираним апликацијама на 5 минута.",
+    "@----------------------------- ONBOARDING SCREEN -----------------------------": {},
+    "onboarding_skip_btn_label": "Прескочи",
+    "onboarding_finish_setup_btn_label": "Завршите подешавање",
+    "onboarding_page_one_title": "Мастер фокус.",
+    "onboarding_page_one_info": "Паузирај апликације које те ометају, блокирај кратак садржај и остани фокусиран уз флексибилне фокус сесије. Без обзира да ли радиш, учиш или се одмараш, NLP digitox ти помаже да задржиш контролу.",
+    "onboarding_page_two_title": "Блокирај ометања.",
+    "onboarding_page_two_info": "Ограничи коришћење апликација, паузирај их аутоматски и изгради здравије дигиталне навике. Активирај режим за спавање како би се опустио и провео вече без ометања.",
+    "onboarding_page_three_title": "Приватност на првом месту.",
+    "onboarding_page_three_info": "NLP digitox је у 100% отвореног кода и ради потпуно офлајн. Не прикупљамо нити делимо било какве личне податке — твоја приватност је у потпуности загарантована.",
+    "onboarding_page_permissions_title": "Основне дозволе.",
+    "onboarding_page_permissions_info": "NLP digitox захтева следеће основне дозволе како би могао да прати и управља временом проведеним испред екрана, смањи ометања и побољша фокус.",
+    "@----------------------------- HOME SCREEN - DASHBOARD TAB -----------------------------": {},
+    "dashboard_tab_title": "Контролна табла",
+    "focus_now_fab_button": "Добродошао/ла назад!",
+    "welcome_greetings": "Добродошао/ла назад,",
+    "username_snack_alert": "Дуго притисни да измениш корисничко име.",
+    "username_dialog_title": "Корисничко име",
+    "username_dialog_info": "Унеси корисничко име које ће бити приказано на контролној табли.",
+    "username_dialog_button_apply": "Примени",
+    "glance_tile_title": "Преглед",
+    "glance_tile_subtitle": "Брзо погледај како користиш уређај.",
+    "parental_controls_tile_subtitle": "Режим који не може да се прекине.",
+    "restrictions_heading": "Ограничења",
+    "apps_blocking_tile_title": "Блокирање апликација",
+    "apps_blocking_tile_subtitle": "Ограничи апликације на више начина.",
+    "grouped_apps_blocking_tile_title": "Блокирање груписаних апликација",
+    "grouped_apps_blocking_tile_subtitle": "Ограничи групу апликација истовремено.",
+    "shorts_blocking_tile_subtitle": "Ограничи кратак садржај са различитих платформа.",
+    "websites_blocking_tile_subtitle": "Ограничи садржај за одрасле и одабране веб сајтове.",
+    "screen_time_label": "Време испред екрана",
+    "total_data_label": "Укупни интернет подаци",
+    "mobile_data_label": "Мобилни подаци",
+    "wifi_data_label": "Wi-Fi подаци",
+    "focus_today_label": "Фокус за данас",
+    "focus_weekly_label": "Фокус за недељу",
+    "focus_monthly_label": "Фокус за месец",
+    "focus_lifetime_label": "Фокус за цео живот",
+    "longest_streak_label": "Најдужи низ",
+    "current_streak_label": "Тренутни низ",
+    "successful_sessions_label": "Успешне сесије",
+    "failed_sessions_label": "Неуспешне сесије",
+    "@----------------------------- HOME SCREEN - STATISTICS TAB -----------------------------": {},
+    "statistics_tab_title": "Статистика",
+    "screen_segment_label": "Екран",
+    "data_segment_label": "Подаци",
+    "mobile_label": "Мобилни подаци",
+    "wifi_label": "Wi-Fi",
+    "most_used_apps_heading": "Најчешће коришћене апликације",
+    "show_all_apps_tile_title": "Прикажи све апликације",
+    "search_apps_hint": "Претражи апликације...",
+    "@----------------------------- HOME SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_tab_title": "Обавештења",
+    "notifications_tab_info": "Групна обавештења од апликација и подешавање распореда као што су јутро, подне, вече и ноћ. Остани у току без сталних прекида.",
+    "batched_apps_tile_title": "Груписане апликације",
+    "batch_recap_dropdown_title": "Тип груписања обавештења",
+    "batch_recap_dropdown_info": "Тип груписаних обавештења: Изабери шта да пошаљеш када се активира распоред — сва обавештења или само сажетак.",
+    "batch_recap_option_summery_only": "Само сажетак",
+    "batch_recap_option_all_notifications": "Сва обавештења",
+    "notification_history_tile_title": "Историја обавештења",
+    "store_all_tile_title": "Складишти сва обавештења",
+    "store_all_tile_subtitle": "Чувај и обавештења која нису груписана.",
+    "schedules_heading": "Распореди",
+    "new_schedule_fab_button": "Нови распоред",
+    "new_schedule_dialog_info": "Унеси име за распоред обавештења како би га лакше препознао/ла.",
+    "new_schedule_dialog_field_label": "Назив распореда",
+    "@----------------------------- HOME SCREEN - BEDTIME TAB -----------------------------": {},
+    "bedtime_tab_title": "Распоред за спавање",
+    "bedtime_tab_info": "Постави свој распоред за спавање тако што ћеш одабрати временски период и дане у недељи. Изабери апликације које желиш да блокираш и омогући режим „Не узнемиравај“ (DND) за мирну ноћ.",
+    "schedule_tile_title": "Распоред",
+    "schedule_tile_subtitle": "Омогући или онемогући дневни распоред.",
+    "bedtime_no_days_selected_snack_alert": "Изабери бар један дан у недељи.",
+    "bedtime_minimum_duration_snack_alert": "Укупно време за спавање мора бити најмање 30 минута.",
+    "distracting_apps_tile_title": "Апликације које одвлаче пажњу",
+    "distracting_apps_tile_subtitle": "Изабери које те апликације ометају у ноћној рутини.",
+    "bedtime_distracting_apps_modify_snack_alert": "Измене листе апликација које те ометају нису дозвољене док је распоред за спавање активан.",
+    "@----------------------------- PARENTAL CONTROLS SCREEN-----------------------------": {},
+    "parental_controls_tab_title": "Родитељски надзор",
+    "invincible_mode_heading": "Режим строге контроле",
+    "invincible_mode_tile_title": "Укључи режим строге контроле",
+    "invincible_mode_info": "Када је укључен режим строге контроле, нећеш моћи да мењаш изабрана ограничења након што достигнеш дневну квоту. Ипак, измене су могуће у оквиру изабраног десетоминутног прозора.",
+    "invincible_mode_snack_alert": "Због активног режима строге контроле, измене ограничења нису дозвољене.",
+    "invincible_mode_dialog_info": "Да ли си сигуран да желиш да укључиш режим строге контроле? Ова радња је неповратна. Када се режим једном активира, не може се искључити све док је ова апликација инсталирана на твом уређају.",
+    "invincible_mode_turn_off_snack_alert": "Режим строге контроле не може се искључити све док је ова апликација инсталирана на твом уређају.",
+    "invincible_mode_dialog_button_start_anyway": "Покрени свеједно",
+    "invincible_mode_include_timer_tile_title": "Укључи тајмер",
+    "invincible_mode_include_launch_limit_tile_title": "Укључи ограничење покретања",
+    "invincible_mode_include_active_period_tile_title": "Укључи активни период",
+    "invincible_mode_app_restrictions_tile_title": "Ограничења апликација",
+    "invincible_mode_app_restrictions_tile_subtitle": "Онемогући измене изабраних ограничења након што се дневне квоте премаше.",
+    "invincible_mode_group_restrictions_tile_title": " Онемогући измене изабраних ограничења након што се дневне квоте премаше.",
+    "invincible_mode_group_restrictions_tile_subtitle": "Онемогући измене изабраних ограничења након што се дневне квоте премаше.",
+    "invincible_mode_include_shorts_timer_tile_title": "Укључи тајмер за кратке видео-садржаје",
+    "invincible_mode_include_shorts_timer_tile_subtitle": "Онемогућава измене након што се достигне дневна квота за кратке видео-садржаје.",
+    "invincible_mode_include_bedtime_tile_title": "Укључи режим спавања",
+    "invincible_mode_include_bedtime_tile_subtitle": "Онемогућава измене током активног распореда за спавање.",
+    "protected_access_tile_title": "Заштићен приступ",
+    "protected_access_tile_subtitle": "Заштити апликацију NLP digitox помоћу закључавања уређаја.",
+    "protected_access_no_lock_snack_alert": "Постави биометријско закључавање на уређају да би омогућио ову функцију.",
+    "protected_access_removed_lock_snack_alert": "Опција закључавања уређаја је уклоњена. Да би наставио, постави ново закључавање.",
+    "protected_access_failed_lock_snack_alert": "Аутентификација није успела. Мораш да потврдиш закључавање уређаја да би наставио.",
+    "tamper_protection_tile_title": "Заштита од манипулације",
+    "tamper_protection_tile_subtitle": "Спречи деинсталацију и присилно заустављање апликације.",
+    "tamper_protection_confirmation_dialog_info": "Када буде омогућено, нећеш моћи да деинсталираш, принудно зауставиш или очистиш податке апликације NLP digitox, осим током изабраног периода за деинсталацију. Нема заобилазних решења.\n\nНастави на своју одговорност.",
+    "uninstall_window_tile_title": "Прозор за деинсталацију",
+    "uninstall_window_tile_subtitle": "Заштита од манипулације може бити онемогућена у року од 10 минута од изабраног времена.",
+    "invincible_window_tile_title": "Прозор режима строге контроле",
+    "invincible_window_tile_subtitle": "Изабрана ограничења могу се мењати у року од 10 минута од изабраног времена.",
+    "@----------------------------- SHORTS BLOCKING SCREEN-----------------------------": {},
+    "shorts_blocking_tab_title": "Блокирање кратких садржаја",
+    "shorts_blocking_tab_info": "Контролиши колико времена проводиш гледајући кратке садржаје на платформама као што су Instagram, YouTube, Snapchat и Facebook, укључујући и њихове веб-сајтове.",
+    "short_content_heading": "Кратки садржаји",
+    "shorts_time_left_from": "Преостало: {timeShortString}",
+    "@shorts_time_left_from": {
+        "placeholders": {
+            "timeShortString": {
+                "type": "String",
+                "example": "1h 23m"
+            }
+        }
+    },
+    "short_content_timer_picker_dialog_info": "Постави дневно временско ограничење за кратке садржаје. Када достигнеш лимит, кратки садржаји ће бити паузирани до поноћи.",
+    "instagram_features_tile_title": "Instagram",
+    "instagram_features_tile_subtitle": "Ограничи функције у оквиру апликације Instagram.",
+    "instagram_features_block_reels": "Ограничи одељак Reels.",
+    "instagram_features_block_explore": "Ограничи одељак Explore.",
+    "snapchat_features_tile_title": "Snapchat",
+    "snapchat_features_tile_subtitle": "Ограничи функције у оквиру апликације Snapchat.",
+    "snapchat_features_block_spotlight": "Ограничи одељак Spotlight.",
+    "snapchat_features_block_discover": "Ограничи одељак Discover.",
+    "youtube_features_tile_title": "Youtube",
+    "youtube_features_tile_subtitle": "Ограничи кратке видео-садржаје на YouTube платформи.",
+    "facebook_features_tile_title": "Facebook",
+    "facebook_features_tile_subtitle": "Ограничи Reels у оквиру апликације Facebook.",
+    "reddit_features_tile_title": "Reddit",
+    "reddit_features_tile_subtitle": "Ограничи кратке видео-садржаје на Reddit платформи.",
+    "@----------------------------- WEBSITES BLOCKING SCREEN-----------------------------": {},
+    "websites_blocking_tab_title": "Блокирање сајтова",
+    "websites_blocking_tab_info": "Блокирај сајтове са садржајем за одрасле и друге сајтове по сопственом избору како би креирао безбедније и фокусираније онлајн искуство. Преузми контролу над својом интернет претрагом и смањи ометања.",
+    "adult_content_heading": "Садржај за одрасле",
+    "block_nsfw_title": "Блокирај неприкладан садржај",
+    "block_nsfw_subtitle": "Ограничи претраживач да не приступа сајтовима за одрасле и порнографији.",
+    "block_nsfw_dialog_info": "Да ли си сигуран/сигурна? Ова радња је неповратна. Када укључиш блокатор за сајтове за одрасле, нећеш моћи да га искључиш све док је ова апликација инсталирана на твом уређају.",
+    "block_nsfw_dialog_button_block_anyway": "Блокирај у сваком случају",
+    "blocked_websites_heading": "Блокирани сајтови",
+    "blocked_websites_empty_list_hint": "Кликни на дугме „+ Додај сајт“ да додаш сајтове који те ометају и које желиш да блокираш.",
+    "add_website_fab_button": "Додај сајт",
+    "add_website_dialog_title": "Сајт који одвлачи пажњу",
+    "add_website_dialog_info": "Унеси URL сајта који желиш да блокираш.",
+    "add_website_dialog_is_nsfw": "Да ли је овај сајт NSFW (неприкладног садржаја)?",
+    "add_website_dialog_nsfw_warning": "Упозорење: NSFW сајтови не могу бити уклоњени након што су додати..",
+    "add_website_dialog_button_block": "Блокирај",
+    "add_website_already_exist_snack_alert": "URL је већ додат на листу блокираних сајтова.",
+    "add_website_invalid_url_snack_alert": "Неважећа URL адреса! Сајт није пронађен.",
+    "remove_website_dialog_title": "Уклони сајт",
+    "remove_website_dialog_info": "Да ли си сигуран/сигурна? Желиш ли да уклониш '{websitehost}' са листе блокираних сајтова?",
+    "@remove_website_dialog_info": {
+        "placeholders": {
+            "websitehost": {
+                "type": "String",
+                "example": "example.com"
+            }
+        }
+    },
+    "@----------------------------- FOCUS SCREEN - FOCUS TAB -----------------------------": {},
+    "focus_tab_title": "Фокус",
+    "focus_tab_info": "Када ти је потребно време за фокусирање, започни нову сесију тако што ћеш изабрати тип, одабрати апликације које те ометају да паузираш и омогућити \"Не узнемиравај\" за несметано концентрисање.",
+    "active_session_card_title": "Активни период",
+    "active_session_card_info": "Имаш активну фокус сесију! Кликни на „Прегледај“ да видиш свој напредак и колико је времена прошло.",
+    "active_session_card_view_button": "Преглед",
+    "focus_distracting_apps_removal_snack_alert": "Уклањање апликација са листе ометајућих апликација није дозвољено док је фокус сесија активна. Међутим, током овог времена можеш додати додатне апликације на листу.",
+    "focus_profile_tile_title": "Профил фокуса",
+    "focus_session_duration_tile_title": "Трајање сесије",
+    "focus_session_duration_tile_subtitle": "Бескрајно (осим ако не зауставиш)",
+    "focus_session_duration_dialog_info": "Молимо те да изабереш жељено трајање ове фокус сесије. Одреди колико дуго желиш да останеш фокусиран и без ометања.",
+    "focus_profile_customization_tile_title": "Уређивање профила",
+    "focus_profile_customization_tile_subtitle": "Прилагоди подешавања за одабрани профил.",
+    "focus_enforce_tile_title": "Принудна сесија",
+    "focus_enforce_tile_subtitle": "Онемогућава прекид сесије пре него што време истекне.",
+    "focus_session_minimum_apps_snack_alert": "Изабери бар једну апликацију која те омета да започнеш фокус сесију.",
+    "focus_session_already_active_snack_alert": "Већ имаш активну фокус сесију. Молимо те да завршиш или зауставиш тренутну сесију пре него што започнеш нову.",
+    "@----------------------------- FOCUS SESSION TYPES -----------------------------": {},
+    "focus_session_type_study": "Учење",
+    "focus_session_type_work": "Посао",
+    "focus_session_type_exercise": "Тренирање",
+    "focus_session_type_meditation": "Медитација",
+    "focus_session_type_creativeWriting": "Креативно писање",
+    "focus_session_type_reading": "Читање",
+    "focus_session_type_programming": "Програмирање",
+    "focus_session_type_chores": "Обавезе",
+    "focus_session_type_projectPlanning": "Планирање пројеката",
+    "focus_session_type_artAndDesign": "Уметност и дизајн",
+    "focus_session_type_languageLearning": "Учење језика",
+    "focus_session_type_musicPractice": "Вежбање инструмента",
+    "focus_session_type_selfCare": "Брига о себи",
+    "focus_session_type_brainstorming": "Брејнсторминг",
+    "focus_session_type_skillDevelopment": "Развој вештина",
+    "focus_session_type_research": "Истраживање",
+    "focus_session_type_networking": "Повезивање",
+    "focus_session_type_cooking": "Припрема хране",
+    "focus_session_type_sportsTraining": "Спорт",
+    "focus_session_type_restAndRelaxation": "Одмарање и опуштање",
+    "focus_session_type_other": "Остало",
+    "@----------------------------- FOCUS SCREEN - TIMELINE TAB -----------------------------": {},
+    "timeline_tab_title": "Временска линија",
+    "focus_timeline_tab_info": "Истражи пут до фокуса одабиром датума. Прати напредак, присети се успеха и учи из изазова.",
+    "selected_month_productive_time_snack_alert": "Твој укупни продуктивни временски период за одабрани месец је {timeString}.",
+    "@selected_month_productive_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "selected_month_productive_days_label": "Продуктивни дани",
+    "selected_month_productive_days_snack_alert": "Имаш укупно {daysCount} продуктивних дана у одабраном месецу.",
+    "@selected_month_productive_days_snack_alert": {
+        "placeholders": {
+            "daysCount": {
+                "type": "num",
+                "example": "12"
+            }
+        }
+    },
+    "selected_day_focused_time_label": "Време проведено у фокусу",
+    "selected_day_focused_time_snack_alert": "Твој укупни временски период проведен у фокусу за одабрани дан је {timeString}.",
+    "@selected_day_focused_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "calender_heading": "Календар",
+    "your_sessions_heading": "Твоје сесије",
+    "your_sessions_empty_list_hint": "Нема записаних сесија фокуса за одабрани дан.",
+    "focus_session_tile_timestamp_label": "Време",
+    "focus_session_tile_duration_label": "Трајање",
+    "focus_session_tile_reflection_label": "Осврт",
+    "focus_session_state_active": "Активност",
+    "focus_session_state_successful": "Успешно",
+    "focus_session_state_failed": "Неуспешно",
+    "@----------------------------- ACTIVE FOCUS SESSION SCREEN -----------------------------": {},
+    "active_session_tab_title": "Сесија",
+    "active_session_none_warning": "Нема активне сесије. Враћам те на почетни екран.",
+    "active_session_dialog_button_keep_pushing": "Настави да се трудиш",
+    "active_session_finish_dialog_title": "Заврши",
+    "active_session_finish_dialog_info": "Држи се, можеш ти то! Вредно радиш на свом фокусу. Да ли си сигуран да желиш да прекинеш ову сесију? Сваки минут који уложиш ти помаже да достигнеш жељени циљ.",
+    "active_session_giveup_dialog_title": "Одустајем",
+    "active_session_giveup_dialog_info": "Скоро си ту, не одустај сада! Да ли си сигуран да желиш да прекинеш ову сесију фокуса раније?",
+    "active_session_reflection_dialog_title": "Осврт на сесију",
+    "active_session_reflection_dialog_info": "Одвоји тренутак да размислиш о свом напретку. Који ти је циљ за ову сесију? Шта си постигао током ње?",
+    "active_session_reflection_dialog_tip": "Савет: Ово увек можеш касније изменити у временској линији сесије.",
+    "active_session_giveup_snack_alert": "Главу горе. Не брини, следећи пут ћеш бити бољи. Сваки напор се рачуна – само настави да радиш на себи",
+    "active_session_quote_one": "Сваки корак се рачуна, остани снажан и настави даље",
+    "active_session_quote_two": "Остани фокусиран! Ово су сјајни резултати",
+    "active_session_quote_three": "На правом си путу! Настави са одличним радом",
+    "active_session_quote_four": "Само још мало, иде ти супер",
+    "active_session_quote_five": "Браво! 🎉 \n Завршио си своју сесију фокуса у трајању од {durationString}.\n\nОдличан посао, настави са невероватним радом",
+    "@active_session_quote_five": {
+        "placeholders": {
+            "durationString": {
+                "type": "String",
+                "example": "30 minutes"
+            }
+        }
+    },
+    "@----------------------------- RESTRICTION GROUPS SCREEN -----------------------------": {},
+    "restriction_groups_tab_title": "Групе ограничења",
+    "restriction_groups_tab_info": "Постави укупно временско ограничење за групу апликација. Када укупно време коришћења достигне твоје ограничење, све апликације у групи ће бити паузиране како би ти помогле да одржиш фокус и баланс.",
+    "restriction_group_time_spent_label": "Време проведено данас",
+    "restriction_group_time_left_label": "Преостало време данас",
+    "restriction_group_name_tile_title": "Назив групе",
+    "restriction_group_name_picker_dialog_info": "Унеси име групе ограничења како би је лако препознао и управљао њоме.",
+    "restriction_group_timer_tile_title": "Тајмер групе",
+    "restriction_group_timer_picker_dialog_info": "Постави дневно временско ограничење за ову групу. Када достигнеш своје ограничење, све апликације у групи ће бити паузиране до поноћи.",
+    "restriction_group_active_period_tile_title": "Активни период групе",
+    "remove_restriction_group_dialog_title": "Уклони групу",
+    "remove_restriction_group_dialog_info": "Да ли си сигуран да желиш да уклониш '{groupName}' из група ограничења?",
+    "@remove_restriction_group_dialog_info": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Games"
+            }
+        }
+    },
+    "restriction_group_invalid_limits_snack_alert": "Подесите тајмер или ограничење активног периода.",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_empty_list_hint": "Ниједно обавештење није груписано данас.",
+    "conversations_label": "Преписке",
+    "last_24_hours_heading": "Последња 24 сата",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TIMELINE TAB -----------------------------": {},
+    "notification_timeline_tab_info": "Прегледај историју обавештења бирањем датума са календара.\nПогледај које су ти апликације највише одвлачиле пажњу и размисли о својим дигиталним навикама.",
+    "monthly_label": "На месечном нивоу",
+    "daily_label": "Дневно",
+    "search_notifications_sheet_info": "Лако пронађи стара обавештења претрагом по наслову или садржају.\nОлакшава брзо проналажење важних обавештења.",
+    "search_notifications_hint": "Претрага обавештења...",
+    "search_notifications_empty_list_hint": "Нема обавештења која се поклапају са претрагом.",
+    "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
+    "app_info_none_warning": "Није могуће пронаћи апликацију за дати пакет. Враћам се на почетни екран.",
+    "emergency_fab_button": "Упозорење",
+    "emergency_dialog_info": "Ова радња ће паузирати блокатор апликација на наредних 5 минута. Преостало ти је {leftPassesCount} пропусница. Након што искористиш све пропуснице, апликација ће остати блокирана до поноћи, или док активна фокус сесија не заврши.\n\nДа ли желиш да наставиш?",
+    "@emergency_dialog_info": {
+        "placeholders": {
+            "leftPassesCount": {
+                "type": "num",
+                "example": "3"
+            }
+        }
+    },
+    "emergency_dialog_button_use_anyway": "Користи у сваком случају",
+    "emergency_started_snack_alert": "Блокатор апликација је паузиран и наставиће са блокирањем за 5 минута.",
+    "emergency_already_active_snack_alert": "Блокатор апликација је тренутно паузиран или неактиван. Ако су обавештења омогућена, добићеш ажурирања о преосталом времену.",
+    "emergency_no_pass_left_snack_alert": "Искористио си све своје хитне пропуснице. Блокиране апликације ће остати блокиране до поноћи, или док се активна фокус сесија не заврши.",
+    "app_limit_status_not_set": "Није подешено",
+    "app_timer_tile_title": "Тајмер апликације",
+    "app_timer_picker_dialog_info": "Постави дневно временско ограничење за ову апликацију. Када достигнеш своје ограничење, коришћење апликације ће бити онемогућено до поноћи.",
+    "usage_reminders_tile_title": "Обавештења о коришћењу",
+    "usage_reminders_tile_subtitle": "Подсетници при коришћењу апликација са временским ограничењем.",
+    "app_launch_limit_tile_title": "Ограничење покретања",
+    "app_launch_limit_tile_subtitle": "Започето {count} пута данас.",
+    "@app_launch_limit_tile_subtitle": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "example": "15"
+            }
+        }
+    },
+    "app_launch_limit_picker_dialog_info": "Постави колико пута можеш да отвориш ову апликацију сваког дана. Када се достигне лимит, апликација ће бити паузирана до поноћи.",
+    "app_active_period_tile_title": "Активни период",
+    "app_active_period_tile_subtitle": "Од {startTime} до {endTime}",
+    "@app_active_period_tile_subtitle": {
+        "placeholders": {
+            "startTime": {
+                "type": "String",
+                "example": "10:00pm"
+            },
+            "endTime": {
+                "type": "String",
+                "example": "15"
+            }
+        }
+    },
+    "internet_access_tile_title": "Приступ интернету",
+    "internet_access_tile_subtitle": "Искључи да блокираш интернет за апликацију.",
+    "internet_access_blocked_snack_alert": "Интернет за апликацију {appName} је блокиран.",
+    "@internet_access_blocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "internet_access_unblocked_snack_alert": " Интернет за апликацију {appName} је блокиран.",
+    "@internet_access_unblocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "launch_app_tile_title": "Покрени апликацију",
+    "launch_app_tile_subtitle": "Отвори {appName}.",
+    "@launch_app_tile_subtitle": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "go_to_app_settings_tile_title": "Отвори подешавања апликације",
+    "go_to_app_settings_tile_subtitle": "Управљај подешавањима апликације као што су обавештења, дозволе, складиштење и друго.",
+    "include_in_stats_tile_title": "Укључи у коришћење екрана",
+    "include_in_stats_tile_subtitle": "Искључи ову апликацију из укупног времена проведеног испред екрана.",
+    "app_excluded_from_stats_snack_alert": "{appName} је искључен из укупног времена проведеног испред екрану.",
+    "@app_excluded_from_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "app_include_to_stats_snack_alert": "{appName} је укључен у укупно време коришћења екрана.",
+    "@app_include_to_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
+    "general_tab_title": "Опште",
+    "appearance_heading": "Приказ",
+    "theme_mode_tile_title": "Режим теме",
+    "theme_mode_system_label": "Системски",
+    "theme_mode_light_label": "Светла",
+    "theme_mode_dark_label": "Тамна",
+    "material_color_tile_title": "Боја у стилу Material дизајна",
+    "amoled_dark_tile_title": "AMOLED тамна",
+    "amoled_dark_tile_subtitle": "Користи чисто црну боју за тамну тему.",
+    "dynamic_colors_tile_title": "Динамичне боје",
+    "dynamic_colors_tile_subtitle": "Користи боје уређаја ако су подржане.",
+    "defaults_heading": "Подразумеване вредности",
+    "app_language_tile_title": "Језик апликације",
+    "default_home_tab_tile_title": "Почетна картица",
+    "usage_history_tile_title": "Историја употребе",
+    "usage_history_15_days": "15 дана",
+    "usage_history_1_month": "1 месец",
+    "usage_history_3_month": "3 месеца",
+    "usage_history_6_month": "6 месеци",
+    "usage_history_1_year": "1 година",
+    "service_heading": "Услуга",
+    "service_stopping_warning": "Ако NLP digitox престане да ради изненада, молимо те да доделиш дозволу 'Игнориши оптимизацију батерије' како би апликација наставила да ради у позадини. Ако то не реши проблем, покушај да ставиш NLP digitox на белу листу за неометан рад.",
+    "whitelist_app_tile_title": "Додај NLP digitox на белу листу",
+    "whitelist_app_tile_subtitle": "Одобри да се NLP digitox аутоматски покреће.",
+    "whitelist_app_unsupported_snack_alert": "Овај уређај не подржава управљање аутоматским покретањем.",
+    "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
+    "database_tab_title": "База података",
+    "import_db_tile_title": "Увоз базе података",
+    "import_db_tile_subtitle": "Увоз базе података из фајла.",
+    "export_db_tile_title": "Извоз базе података",
+    "export_db_tile_subtitle": "Извоз базе података у фајл.",
+    "crash_logs_heading": "Извештаји о квару",
+    "crash_logs_info": "Ако наидеш на било који проблем, можеш да га пријавиш на GitHub уз извештаје о квару. Фајл ће садржати детаље као што су произвођач твог уређаја, модел, верзија Андроида, верзија SDK-а и извештаје о квару. Ове информације ће нам помоћи да ефикасније идентификујемо и решимо проблем.",
+    "crash_logs_export_tile_title": "Извези извештаје о квару",
+    "crash_logs_export_tile_subtitle": "Извези извештаје о квару као json фајл.",
+    "crash_logs_view_tile_title": "Прегледај извештаје (логове)",
+    "crash_logs_view_tile_subtitle": "Прегледај извештаје (логове)",
+    "crash_logs_empty_list_hint": "До сада није забележен ниједан квар.",
+    "crash_logs_clear_tile_title": "Очисти записнике",
+    "crash_logs_clear_tile_subtitle": "Обриши све извештаје (логове) квара из базе података.",
+    "crash_logs_clear_dialog_info": "Да ли си сигуран да желиш да обришеш све логове квара из базе података?",
+    "crash_logs_clear_dialog_button_clear_anyway": "Обриши",
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "about_tab_title": "О нама",
+    "changelog_tile_title": "Историја измена",
+    "changelog_tile_subtitle": "Сазнај шта је ново.",
+    "full_changelog_tile_title": "Целокупан дневник измена",
+    "redirected_to_github_subtitle": "Бићеш преусмерен на GitHub.",
+    "contribute_heading": "Допринеси",
+    "github_tile_title": "GitHub",
+    "github_tile_subtitle": "Погледај изворни код.",
+    "report_issue_tile_title": "Пријави проблем",
+    "suggest_idea_tile_title": "Пошаљи нам предлог",
+    "write_email_tile_title": "Пиши нам путем мејла",
+    "write_email_tile_subtitle": "Бићеш преусмерен у апликацију за е-пошту.",
+    "privacy_policy_heading": "Политика приватности",
+    "privacy_policy_info": "NLP digitox је посвећен заштити твоје приватности. Не прикупљамо, не чувамо и не делимо било какве податке наших корисника. Апликација ради потпуно офлајн и не захтева интернет везу. Твоје личне информације остају приватне и безбедне на твом уређају. Као апликација отвореног кода (FOSS), NLP digitox гарантује потпуну транспарентност и контролу корисника над сопственим подацима.",
+    "more_details_button": "Још детаља"
+}

@@ -1,0 +1,31 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:drift/drift.dart';
+import 'package:nlp_digitox/core/enums/session_state.dart';
+import 'package:nlp_digitox/core/enums/session_type.dart';
+
+@DataClassName("FocusSession")
+class FocusSessionsTable extends Table {
+  /// Unique ID for each focus session
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Type of focus session [SessionType]
+  IntColumn get type => intEnum<SessionType>().withDefault(const Constant(0))();
+
+  /// Current state of focus session [SessionState]
+  IntColumn get state =>
+      intEnum<SessionState>().withDefault(const Constant(0))();
+
+  /// [DateTime] when the focus session is started
+  DateTimeColumn get startDateTime =>
+      dateTime().withDefault(Constant(DateTime(0)))();
+
+  /// Total duration of the focus session in SECONDS
+  /// If the session state is [SessionState.failed] then the duration
+  /// is considered as the time spent before giveup
+  IntColumn get durationSecs => integer().withDefault(const Constant(0))();
+
+  /// Reflection about the focus session. Means what did the user achieved with the session.
+  /// By default empty string.
+  TextColumn get reflection => text().withDefault(const Constant(""))();
+}

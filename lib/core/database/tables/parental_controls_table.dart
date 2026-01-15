@@ -1,0 +1,73 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:drift/drift.dart';
+import 'package:nlp_digitox/core/database/adapters/time_of_day_adapter.dart';
+
+@DataClassName("ParentalControls")
+class ParentalControlsTable extends Table {
+  /// Unique ID for Invincible Mode settings
+  IntColumn get id => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column<Object>>? get primaryKey => {id};
+
+  /// Flag indicating whether to authenticate before opening Mindful or not
+  BoolColumn get protectedAccess =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Daily uninstall window start time [TimeOfDay] stored as minutes
+  IntColumn get uninstallWindowTime => integer()
+      .map(const TimeOfDayAdapterConverter())
+      .withDefault(const Constant(0))();
+
+  /// Flag indicating if invincible mode is ON
+  BoolColumn get isInvincibleModeOn =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Daily invincible window start time [TimeOfDay] stored as minutes
+  IntColumn get invincibleWindowTime => integer()
+      .map(const TimeOfDayAdapterConverter())
+      .withDefault(const Constant(0))();
+
+  /// Flag indicating if apps timer are included in the invincible mode
+  ///
+  /// If included user cannot modify app timer if it is already ran out
+  BoolColumn get includeAppsTimer =>
+      boolean().withDefault(const Constant(true))();
+
+  /// Flag indicating if apps launch count limit is included in the invincible mode
+  ///
+  /// If included user cannot modify app launch count limit if it is already ran out
+  BoolColumn get includeAppsLaunchLimit =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Flag indicating if apps active period is included in the invincible mode
+  ///
+  /// If included user cannot modify app launch count limit if it is already ran out
+  BoolColumn get includeAppsActivePeriod =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Flag indicating if groups timer are included in the invincible mode
+  ///
+  /// If included user cannot modify group timer if it is already ran out
+  BoolColumn get includeGroupsTimer =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Flag indicating if groups active period is included in the invincible mode
+  ///
+  /// If included user cannot modify group timer if it is already ran out
+  BoolColumn get includeGroupsActivePeriod =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Flag indicating if short content's timer is included in the invincible mode
+  ///
+  /// If included user cannot modify short content timer if it is already ran out
+  BoolColumn get includeShortsTimer =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Flag indicating if bedtime schedule is included in the invincible mode
+  ///
+  /// If included user cannot modify bedtime schedule during the active period
+  BoolColumn get includeBedtimeSchedule =>
+      boolean().withDefault(const Constant(false))();
+}

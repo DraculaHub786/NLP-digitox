@@ -1,0 +1,22 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:drift/drift.dart';
+
+@DataClassName("CrashLog")
+class CrashLogsTable extends Table {
+  /// Unique ID for crash logs
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Current version of Mindful app
+  TextColumn get appVersion => text().withDefault(const Constant(""))();
+
+  /// [DateTime] when the error was thrown
+  DateTimeColumn get timeStamp =>
+      dateTime().withDefault(Constant(DateTime(0)))();
+
+  /// The error string
+  TextColumn get error => text().withDefault(const Constant(""))();
+
+  /// Stack trace when the error or exception was thrown
+  TextColumn get stackTrace => text().withDefault(const Constant(""))();
+}

@@ -1,0 +1,339 @@
+/*
+ *
+ *  *
+ *  *  * Copyright (c) 2024 Mindful (https://github.com/akaMrNagar/Mindful)
+ *  *  * Author : Pawan Nagar (https://github.com/akaMrNagar)
+ *  *  *
+ *  *  * This source code is licensed under the GPL-2.0 license license found in the
+ *  *  * LICENSE file in the root directory of this source tree.
+ *  *
+ *
+ */
+package com.nlp.digitox.services.accessibility
+
+import android.accessibilityservice.AccessibilityService
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.util.Log
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED
+import android.view.accessibility.AccessibilityEvent.TYPE_WINDOWS_CHANGED
+import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Toast
+import com.nlp.digitox.AppConstants.FACEBOOK_PACKAGE
+import com.nlp.digitox.AppConstants.INSTAGRAM_PACKAGE
+import com.nlp.digitox.AppConstants.REDDIT_PACKAGE
+import com.nlp.digitox.AppConstants.SETTINGS_PACKAGE
+import com.nlp.digitox.AppConstants.SNAPCHAT_PACKAGE
+import com.nlp.digitox.AppConstants.YOUTUBE_PACKAGE
+import com.nlp.digitox.R
+import com.nlp.digitox.enums.PlatformFeatures
+import com.nlp.digitox.helpers.device.PermissionsHelper
+import com.nlp.digitox.helpers.storage.SharedPrefsHelper
+import com.nlp.digitox.models.Wellbeing
+import com.nlp.digitox.receivers.DeviceAppsChangedReceiver
+import com.nlp.digitox.utils.ThreadUtils
+import com.nlp.digitox.utils.executors.Throttler
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
+/**
+ * An AccessibilityService that monitors app usage and blocks access to specified content based on user settings.
+ */
+class MindfulAccessibilityService : AccessibilityService(), OnSharedPreferenceChangeListener {
+    companion object {
+        private const val TAG = "Mindful.MindfulAccessibilityService"
+
+        const val ACTION_PERFORM_HOME_PRESS = "com.mindful.android.action.performHomePress"
+        const val ACTION_MIDNIGHT_ACCESSIBILITY_RESET =
+            "com.mindful.android.action.midnightAccessibilityReset"
+        const val ACTION_TAMPER_PROTECTION_CHANGED =
+            "com.mindful.android.action.tamperProtectionChanged"
+
+        // Set of desired events which will be processed
+        private val desiredEvents = setOf(
+            TYPE_WINDOWS_CHANGED,
+            TYPE_WINDOW_STATE_CHANGED,
+            TYPE_VIEW_SCROLLED
+        )
+
+        private val browserPackages = mutableSetOf<String>()
+        private val shortsPlatformPackages = mutableSetOf<String>()
+        private val devicePlatformPackages = mutableSetOf<String>()
+    }
+
+
+    // Fixed thread pool for parallel event processing
+    private val executorService: ExecutorService = Executors.newFixedThreadPool(4)
+    private val throttler: Throttler = Throttler(500L)
+    private val deviceAppsChangedReceiver: DeviceAppsChangedReceiver =
+        DeviceAppsChangedReceiver(onAppsChanged = { refreshServiceConfig() })
+
+    // Managers
+    private lateinit var shortsPlatformManager: ShortsPlatformManager
+    private lateinit var browserManager: BrowserManager
+    private lateinit var deviceFeaturesManager: DeviceFeaturesManager
+    private lateinit var trackingManager: TrackingManager
+
+    private var wellbeing = Wellbeing()
+
+    override fun onCreate() {
+        super.onCreate()
+        trackingManager = TrackingManager(context = this)
+        deviceFeaturesManager = DeviceFeaturesManager(
+            context = this,
+            blockedContentGoBack = this::goBackWithToast
+        )
+        shortsPlatformManager = ShortsPlatformManager(
+            context = this,
+            blockedContentGoBack = this::goBackWithToast
+        )
+        browserManager = BrowserManager(
+            context = this,
+            shortsPlatformManager = shortsPlatformManager,
+            blockedContentGoBack = this::goBackWithToast
+        )
+
+        // Register shared prefs listener and load data
+        SharedPrefsHelper.registerUnregisterListenerToListenablePrefs(this, true, this)
+        wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+
+        // Register listener for install and uninstall events
+        deviceAppsChangedReceiver.register(this)
+    }
+
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_MIDNIGHT_ACCESSIBILITY_RESET -> {
+                shortsPlatformManager.resetShortsScreenTime()
+                Log.d(TAG, "onStartCommand: Midnight reset completed")
+            }
+
+            ACTION_TAMPER_PROTECTION_CHANGED -> {
+                Log.d(TAG, "onStartCommand: Tamper protection changed")
+                refreshServiceConfig()
+            }
+
+            ACTION_PERFORM_HOME_PRESS -> {
+                Log.d(TAG, "onStartCommand: Pressing home button")
+                goBackWithToast(GLOBAL_ACTION_HOME)
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun onServiceConnected() {
+        refreshServiceConfig()
+        trackingManager.stopManualTracking()
+        Log.d(TAG, "onCreate: Accessibility service started successfully")
+        super.onServiceConnected()
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        try {
+            // If not desired event or executor is shutdown, then just return
+            if (!desiredEvents.contains(event.eventType) || executorService.isShutdown) return
+
+            executorService.submit {
+                // Determine package and event source node
+                val eventPackageName = event.packageName.toString()
+                val node = if (eventPackageName == REDDIT_PACKAGE) event.source
+                else rootInActiveWindow ?: event.source
+
+                node?.let {
+                    // Broadcast event
+                    trackingManager.onNewEvent("${it.packageName}")
+
+                    // Only process if any of the content is blocked
+                    if (shouldBlockContent()) {
+                        processEventInBackground(
+                            packageName = eventPackageName,
+                            node = it,
+                            wellBeing = wellbeing.copy()
+                        )
+                    }
+                }
+            }
+
+        } catch (ignored: Exception) {
+        }
+    }
+
+    /**
+     * Processes accessibility event in background thread instead of main thread.
+     *
+     * @param packageName The package name of the app generating the event.
+     * @param node        The accessibility node representing the UI element currently in focus.
+     */
+    private fun processEventInBackground(
+        packageName: String,
+        node: AccessibilityNodeInfo,
+        wellBeing: Wellbeing,
+    ) {
+        try {
+            when (packageName) {
+                in devicePlatformPackages ->
+                    deviceFeaturesManager.blockFeatures(packageName, node, wellBeing)
+
+                in shortsPlatformPackages ->
+                    shortsPlatformManager.blockDistraction(packageName, node, wellBeing)
+
+                in browserPackages ->
+                    browserManager.blockDistraction(packageName, node, wellBeing)
+            }
+
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "processEventInBackground: Failed to process accessibility event in background",
+                e
+            )
+            SharedPrefsHelper.insertCrashLogToPrefs(this, e)
+        }
+    }
+
+
+    /**
+     * Determines whether content should be blocked based on the current settings.
+     *
+     * @return `true` if content should be blocked based on the current settings,
+     * `false` otherwise.
+     */
+    private fun shouldBlockContent(): Boolean {
+        return wellbeing.blockedFeatures.isNotEmpty() ||
+                wellbeing.blockedWebsites.isNotEmpty() ||
+                wellbeing.nsfwWebsites.isNotEmpty() ||
+                wellbeing.blockNsfwSites
+    }
+
+
+    /**
+     * Performs the back action and shows a toast message indicating that the content is blocked.
+     */
+    private fun goBackWithToast(customAction: Int? = null) {
+        throttler.submit {
+            ThreadUtils.runOnMainThread {
+                // Perform the back action (can be done on background thread)
+                performGlobalAction(customAction ?: GLOBAL_ACTION_BACK)
+
+                // Post Toast to main thread
+                Toast.makeText(
+                    this@MindfulAccessibilityService,
+                    getString(R.string.toast_blocked_content),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    /**
+     * Updates the service info with the latest settings and registered packages.
+     */
+    private fun refreshServiceConfig() {
+        try {
+            // Using hashset to avoid duplicates
+            browserPackages.clear()
+            devicePlatformPackages.clear()
+            shortsPlatformPackages.clear()
+            val pm = packageManager
+
+            // Check admin and add settings to blocked packages
+            if (PermissionsHelper.getAndAskAdminPermission(this, false)) {
+                devicePlatformPackages.add(SETTINGS_PACKAGE)
+            }
+
+            // Fetch installed browser packages
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
+            pm.queryIntentActivities(browserIntent, PackageManager.MATCH_ALL).forEach {
+                browserPackages.add(it.activityInfo.packageName)
+            }
+
+            wellbeing.blockedFeatures.forEach { feature ->
+                when (feature) {
+                    /// Instagram
+                    PlatformFeatures.INSTAGRAM_REELS,
+                    PlatformFeatures.INSTAGRAM_EXPLORE,
+                        -> shortsPlatformPackages.add(INSTAGRAM_PACKAGE)
+
+                    // Snapchat
+                    PlatformFeatures.SNAPCHAT_SPOTLIGHT,
+                    PlatformFeatures.SNAPCHAT_DISCOVER,
+                        -> shortsPlatformPackages.add(SNAPCHAT_PACKAGE)
+
+                    // Facebook
+                    PlatformFeatures.FACEBOOK_REELS ->
+                        shortsPlatformPackages.add(FACEBOOK_PACKAGE)
+
+                    // Reddit
+                    PlatformFeatures.REDDIT_SHORTS ->
+                        shortsPlatformPackages.add(REDDIT_PACKAGE)
+
+                    // Youtube
+                    PlatformFeatures.YOUTUBE_SHORTS -> {
+                        // Add official package
+                        shortsPlatformPackages.add(YOUTUBE_PACKAGE)
+
+                        // Now add other unofficial clients
+                        val ytIntent =
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com"))
+                        pm.queryIntentActivities(ytIntent, PackageManager.MATCH_ALL)
+                            .filterNot { browserPackages.contains(it.activityInfo.packageName) }
+                            .forEach {
+                                shortsPlatformPackages.add(it.activityInfo.packageName)
+                            }
+                    }
+                }
+            }
+
+
+            // Load nsfw website domains if needed
+            if (wellbeing.blockNsfwSites) BrowserManager.initializeNsfwDomains()
+            else BrowserManager.clearNsfwDomains()
+
+            Log.d(
+                TAG, "refreshServiceConfig: Accessibility service config updated successfully: " +
+                        "\n settings: $wellbeing" +
+                        "\n device platforms: $devicePlatformPackages" +
+                        "\n short platforms: $shortsPlatformPackages" +
+                        "\n browsers: $browserPackages"
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "refreshServiceInfo: Failed to refresh service info", e)
+            SharedPrefsHelper.insertCrashLogToPrefs(this, e)
+        }
+    }
+
+    override fun onSharedPreferenceChanged(prefs: SharedPreferences, changedKey: String?) {
+        changedKey?.let { key ->
+            if (key == SharedPrefsHelper.PREF_KEY_WELLBEING_SETTINGS) {
+                Log.d(TAG, "OnSharedPrefsChanged: Key changed = $changedKey")
+                wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+                refreshServiceConfig()
+            }
+        }
+    }
+
+    override fun onInterrupt() {
+    }
+
+    override fun onDestroy() {
+        try {
+            executorService.shutdownNow()
+            trackingManager.startManualTracking()
+
+            // Unregister prefs listener and receiver
+            deviceAppsChangedReceiver.unRegister(this)
+            SharedPrefsHelper.registerUnregisterListenerToListenablePrefs(this, false, this)
+        } catch (e: Exception) {
+            // ignored
+        }
+
+        Log.d(TAG, "onDestroy: Accessibility service destroyed")
+        super.onDestroy()
+    }
+}

@@ -1,0 +1,615 @@
+{
+    "@----------------------------- SPLASH SCREEN -----------------------------": {},
+    "mindful_tagline": "Concéntrate en lo que realmente Importa",
+    "unlock_button_label": "Desbloquear",
+    "@----------------------------- APP PERMISSIONS -----------------------------": {},
+    "permission_status_off": "Desactivado",
+    "permission_status_allowed": "Permitido",
+    "permission_status_not_allowed": "No permitido",
+    "permission_button_grant_permission": "Autorizar",
+    "permission_button_agree_and_continue": "Aceptar y continuar",
+    "permission_button_not_now": "Ahora no",
+    "permission_button_help": "¿Ayuda?",
+    "permission_sheet_privacy_info": "NLP digitox es 100% seguro y funciona sin conexión. No recopilamos ni almacenamos datos personales.",
+    "permission_grant_step_one": "1. Haz clic en el botón {button_label}.",
+    "@permission_grant_step_one": {
+        "placeholders": {
+            "button_label": {
+                "type": "String"
+            }
+        }
+    },
+    "permission_grant_step_two": "2. Seleccione NLP digitox en la siguiente pantalla.",
+    "permission_grant_step_three": "3. Haga clic y encienda el interruptor como abajo.",
+    "permission_notification_title": "Enviar notificaciones",
+    "permission_alarms_title": "Alarmas y Recordatorios",
+    "permission_alarms_info": "Por favor, concede permisos para configurar alarmas y recordatorios. Esto permitirá que NLP digitox inicie tu horario de sueño a tiempo, reinicie los temporizadores de la aplicación diariamente a medianoche y te ayude a mantener el control.",
+    "permission_alarms_device_tile_label": "Permitir establecer alarmas y recordatorios",
+    "permission_usage_title": "Acceso al uso",
+    "permission_usage_info": "Por favor, concede permiso de acceso de uso. Esto permitirá a NLP digitox monitorizar el uso de aplicaciones y gestionar el acceso a ciertas apps, asegurando un entorno digital más enfocado y controlado.",
+    "permission_usage_device_tile_label": "Permitir acceso al uso",
+    "permission_overlay_title": "Mostrar superposición",
+    "permission_overlay_info": "Por favor, concede el permiso de superposición de pantalla. Esto permitirá a NLP digitox mostrar una superposición cuando se abra una aplicación en pausa, ayudándote a mantenerte centrado y así mantener su horario.",
+    "permission_overlay_device_tile_label": "Permitir mostrar sobre otras aplicaciones",
+    "permission_accessibility_title": "Accesibilidad",
+    "permission_accessibility_info": "Por favor, concede el permiso de accesibilidad. Esto permitirá a NLP digitox restringir el acceso al contenido de \"vídeo corto\" (P. ej., Reels, Shorts) dentro de las apps de redes sociales y los navegadores, y filtrar sitios web inapropiados.",
+    "permission_accessibility_required": "NLP digitox requiere permiso de accesibilidad para bloquear de forma efectiva el contenido corto y los sitios web.",
+    "permission_accessibility_device_tile_label": "Usar NLP digitox",
+    "permission_dnd_title": "No molestar",
+    "permission_dnd_info": "Por favor, concede acceso a No molestar. Esto permitirá a NLP digitox iniciar y detener el modo No molestar durante el horario de sueño.",
+    "permission_dnd_tile_title": "Iniciar DND",
+    "permission_dnd_tile_subtitle": "Activa también el modo No molestar.",
+    "permission_battery_optimization_tile_title": "Ignorar la Optimización de la Batería",
+    "permission_battery_optimization_status_enabled": "Actualmente 'sin restricciones'",
+    "permission_battery_optimization_status_disabled": "Desactivar las restricciones en segundo plano",
+    "permission_battery_optimization_allow_info": "Permitir 'Ignorar la optimización de la batería' automáticamente concederá el permiso 'Alarmas y Recordatorios' en algunos dispositivos.",
+    "permission_vpn_title": "Crear una VPN",
+    "permission_vpn_info": "Por favor, concede el permiso para crear una conexión de Red Privada Virtual (VPN). Esto permitirá a NLP digitox restringir el acceso a internet para las aplicaciones designadas creando una VPN local en el dispositivo.",
+    "permission_admin_title": "Admin",
+    "permission_admin_info": "Los privilegios administrativos son necesarios sólo para operaciones esenciales para asegurar que la aplicación funciona correctamente y permanece a prueba de manipulación.",
+    "permission_admin_snack_alert": "La protección contra manipulaciones solo se puede desactivar durante el período de tiempo seleccionado.",
+    "permission_notification_access_title": "Acceso a Notificaciones",
+    "permission_notification_access_info": "Por favor, concede el permiso de acceso a notificaciones. Esto permitirá a NLP digitox organizar tus notificaciones y entregarlas según tu horario.",
+    "permission_notification_access_required": "NLP digitox requiere acceso a notificaciones para agrupar y programar las mismas.",
+    "permission_notification_access_device_tile_label": "Permitir el acceso a las notificaciones",
+    "@----------------------------- DATE AND TIME -----------------------------": {},
+    "day_today": "Hoy",
+    "day_yesterday": "Ayer",
+    "nDays": "{count, plural, =0{0 días} =1{1 día} other{{count} días}}",
+    "@nDays": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nHours": "{count, plural, =0{0 horas} =1{1 hora} other{{count} horas}}",
+    "@nHours": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nMinutes": "{count, plural, =0{0 minutos} =1{1 minuto} other{{count} minutos}}",
+    "@nMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nSeconds": "{count, plural, =0{0 segundos} =1{1 segundo} other{{count} segundos}}",
+    "@nSeconds": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "time_separator_and": "Y",
+    "@time_separator_and": {
+        "description": "Separator used between time like, 10 hours 'and' 15 minutes"
+    },
+    "@----------------------------- SHARED STRINGS -----------------------------": {},
+    "timer_status_active": "Activo",
+    "timer_status_paused": "Pausado",
+    "create_button": "Crear",
+    "update_button": "Actualizar",
+    "dialog_button_cancel": "Cancelar",
+    "dialog_button_remove": "Eliminar",
+    "dialog_button_set": "Aplicar",
+    "dialog_button_reset": "Reiniciar",
+    "dialog_button_infinite": "Infinito",
+    "schedule_start_label": "Comienza",
+    "schedule_end_label": "Termina",
+    "exit_without_saving_dialog_info": "¿Estás seguro de que quieres salir sin guardar?",
+    "development_dialog_info": "NLP digitox se encuentra actualmente en desarrollo y puede contener errores funciones incompletas. Si encuentras algún problema, por favor, infórmanos para ayudarnos a mejorar.\n\n¡Gracias por tus comentarios!",
+    "development_dialog_button_report_issue": "Reportar problema",
+    "development_dialog_button_close": "Cerrar",
+    "dnd_settings_tile_title": "Ajustes del modo no molestar",
+    "dnd_settings_tile_subtitle": "Gestiona qué apps y notificaciones pueden llegarte en No Molestar.",
+    "quick_actions_heading": "Acciones rápidas",
+    "select_distracting_apps_heading": "Selecciona las apps que te distraen",
+    "your_distracting_apps_heading": "Tus aplicaciones que te distraen",
+    "select_more_apps_heading": "Selecciona más apps",
+    "imp_distracting_apps_snack_alert": "No está permitido añadir aplicaciones de sistema importantes a la lista de aplicaciones de distracción.",
+    "custom_apps_quick_actions_unavailable_warning": "Las restricciones y el uso de pantalla no están disponibles para esta aplicación. Actualmente, solo el uso de la red es accesible",
+    "create_group_fab_button": "Crear Grupo",
+    "active_period_info": "Establece un período de tiempo durante el cual se permitirá el acceso. Fuera de este marco de tiempo, el acceso estará restringido.",
+    "minimum_distracting_apps_snack_alert": "Selecciona al menos una aplicación que te distraiga.",
+    "donation_card_title": "Ayúdanos",
+    "donation_card_info": "NLP digitox es gratuito y de código abierto, desarrollado con meses de dedicación. Si te ha sido útil, tu donación significaría muchísimo para nosotros. Cada contribución nos ayuda a seguir mejorando y manteniéndolo para todos.",
+    "operation_failed_snack_alert": "Operación fallida, ¡algo salió mal!",
+    "donation_card_button_donate": "Donar",
+    "app_restart_dialog_title": "Es necesario reiniciar",
+    "app_restart_dialog_info": "NLP digitox se reiniciará automáticamente una vez que termine la cuenta regresiva. Por favor, ten paciencia mientras se aplican los cambios.",
+    "@----------------------------- TIPS -----------------------------": {},
+    "accessibility_tip": "¿Quieres un bloqueo más inteligente y que gaste menos batería? Habilita el permiso de Accesibilidad para NLP digitox.",
+    "battery_optimization_tip": "¿NLP digitox no funciona? Permite 'Ignorar la optimización de la batería' en los Ajustes para que siga funcionando sin problemas.",
+    "invincible_mode_tip": "¿Quitaste las restricciones por accidente? Usa el Modo Invencible para bloquearlas hasta el día siguiente o la ventana de ajuste.",
+    "glance_usage_tip": "¿Quieres estadísticas? Revisa la sección 'De un vistazo' o 'Vistazo rápido' para ver tus patrones de uso y tiempo de pantalla.",
+    "tamper_protection_tip": "¿Estas desinstalando NLP digitox? Habilita la Ventana de Desinstalación para desactivar la protección contra manipulaciones de forma segura primero.",
+    "notification_blocking_tip": "¿Quieres reducir las distracciones? Usa el Bloqueo de Notificaciones para silenciar las aplicaciones seleccionadas.",
+    "usage_history_tip": "¿Quieres reflexionar sobre tus hábitos? Revisa el Historial de Uso para ver patrones pasados.",
+    "focus_mode_tip": "¿Necesitas concentración profunda? Activa el Modo Enfoque para bloquear aplicaciones y notificaciones durante las tareas.",
+    "bedtime_reminder_tip": "¿Quieres mejorar tu sueño? Configura un Recordatorio para Dormir para desconectar cada noche.",
+    "custom_blocking_tip": "¿Necesitas una experiencia personalizada? Crea reglas de bloqueo de aplicaciones que se ajusten a tus necesidades.",
+    "session_timeline_tip": "¿Quieres monitorizar las sesiones de enfoque? Consulta la línea de tiempo para ver tu progreso de concentración.",
+    "short_content_blocking_tip": "¿Te distraen las redes sociales? Bloquea el contenido corto en Instagram, YouTube, etc. para mantenerte enfocado.",
+    "parental_controls_tip": "¿Necesitas el control parental? Configura restricciones para el dispositivo de tu hijo/a para asegurar una experiencia segura.",
+    "notification_batching_tip": "¿Quieres reducir las distracciones? Usa el Agrupamiento de Notificaciones para agruparlas y revisarlas todas a la vez.",
+    "notification_scheduling_tip": "¿Necesitas gestionar notificaciones? Programa cuándo recibes notificaciones para aplicaciones específicas.",
+    "quick_focus_tile_tip": "¿Necesitas acceso rápido para concentrarte? Añade un Acceso Rápido para activar el Modo Concentración al instante.",
+    "app_shortcuts_tip": "¿Quieres acceso instantáneo a una aplicación? Añade atajos manteniendo pulsado el icono de la aplicación para acciones rápidas.",
+    "backup_usage_db_tip": "¿Quieres guardar tus datos? Haz una copia de seguridad de tu base de datos de uso para mantener tus registros a salvo.",
+    "dynamic_material_color_tip": "¿Quieres un tema personalizado? Habilita el color dinámico Material You para que coincida con el tema de tu dispositivo.",
+    "amoled_dark_theme_tip": "¿Quieres ahorrar batería? Usa el Tema Oscuro AMOLED para reducir el consumo de energía en pantallas OLED.",
+    "customize_usage_history_tip": "¿Quieres conservar el historial de uso? Personaliza cuántas semanas de datos vas a almacenar en el Historial de Uso.",
+    "grouped_apps_blocking_tip": "¿Quieres bloquear aplicaciones juntas? Usa Grupos Restringidos para agrupar límites de aplicaciones y bloquear múltiples aplicaciones a la vez.",
+    "websites_blocking_tip": "¿Quieres una experiencia de navegación más limpia? Bloquea sitios web personalizados o webs NSFW para un tiempo online más enfocado.",
+    "data_usage_tip": "¿Quieres traquear tus datos? Monitoriza tu uso de datos móviles y Wi-Fi para el consumo de internet.",
+    "block_internet_tip": "¿Necesitas bloquear el internet de una aplicación? Apaga el internet para una aplicación específica desde el panel de control de la app.",
+    "emergency_passes_tip": "¿Necesitas un descanso? Usa 3 Pases de Emergencia diarios para desbloquear aplicaciones temporalmente por 5 minutos.",
+    "@----------------------------- ONBOARDING SCREEN -----------------------------": {},
+    "onboarding_skip_btn_label": "Saltar",
+    "onboarding_finish_setup_btn_label": "Finalizar",
+    "onboarding_page_one_title": "Domina el Enfoque",
+    "onboarding_page_one_info": "Pausa las apps que te distraen, bloquea el contenido corto y mantente centrado con sesiones de enfoque personalizables. Ya sea que estés trabajando, estudiando o relajándote, NLP digitox te ayuda a mantener el control.",
+    "onboarding_page_two_title": "Bloquea las Distracciones",
+    "onboarding_page_two_info": "Establece límites de uso, pausa aplicaciones automáticamente y crea hábitos digitales más saludables. Usa el Modo Descanso para desconectar y disfrutar de una noche sin distracciones.",
+    "onboarding_page_three_title": "Privacidad Ante Todo",
+    "onboarding_page_three_info": "NLP digitox es 100% de código abierto y funciona completamente sin conexión. No recopilamos ni compartimos tus datos personales; tu privacidad está garantizada de todas las maneras.",
+    "onboarding_page_permissions_title": "Permisos Esenciales",
+    "onboarding_page_permissions_info": "NLP digitox requiere los siguientes permisos esenciales para monitorizar y gestionar tu tiempo de pantalla, ayudando a reducir las distracciones y mejorando el enfoque.",
+    "@----------------------------- HOME SCREEN - DASHBOARD TAB -----------------------------": {},
+    "dashboard_tab_title": "Panel de Control",
+    "focus_now_fab_button": "Centrarse ahora",
+    "welcome_greetings": "Bienvenido,",
+    "username_snack_alert": "Mantenga pulsado para editar el nombre de usuario.",
+    "username_dialog_title": "Nombre de Usuario",
+    "username_dialog_info": "Introduzca su nombre de usuario que se mostrará en el panel de control.",
+    "username_dialog_button_apply": "Aplicar",
+    "glance_tile_title": "Vista Rápida",
+    "glance_tile_subtitle": "Echa un vistazo rápido a tu uso.",
+    "parental_controls_tile_subtitle": "Modo Invencible y Protección Antimanipulación",
+    "restrictions_heading": "Restricciones",
+    "apps_blocking_tile_title": "Bloqueo de apps",
+    "apps_blocking_tile_subtitle": "Limita las aplicaciones de muchas maneras.",
+    "grouped_apps_blocking_tile_title": "Bloquear apps agrupadas",
+    "grouped_apps_blocking_tile_subtitle": "Limita un grupo de aplicaciones simultáneamente.",
+    "shorts_blocking_tile_subtitle": "Limitar el contenido corto en múltiples plataformas.",
+    "websites_blocking_tile_subtitle": "Limitar sitios para adultos y personalizados.",
+    "screen_time_label": "Tiempo de pantalla",
+    "total_data_label": "Datos totales",
+    "mobile_data_label": "Datos móviles",
+    "wifi_data_label": "Datos Wi-Fi",
+    "focus_today_label": "Enfoque de hoy",
+    "focus_weekly_label": "Enfoque semanal",
+    "focus_monthly_label": "Enfoque mensual",
+    "focus_lifetime_label": "Enfoque total",
+    "longest_streak_label": "Racha más larga",
+    "current_streak_label": "Racha actual",
+    "successful_sessions_label": "Sesiones exitosas",
+    "failed_sessions_label": "Sesiones fallidas",
+    "@----------------------------- HOME SCREEN - STATISTICS TAB -----------------------------": {},
+    "statistics_tab_title": "Estadísticas",
+    "screen_segment_label": "Pantalla",
+    "data_segment_label": "Datos",
+    "mobile_label": "Datos",
+    "wifi_label": "Wi-Fi",
+    "most_used_apps_heading": "Aplicaciones más usadas",
+    "show_all_apps_tile_title": "Mostrar todas las aplicaciones",
+    "search_apps_hint": "Buscar aplicaciones...",
+    "@----------------------------- HOME SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_tab_title": "Notificaciones",
+    "notifications_tab_info": "Agrupa notificaciones de aplicaciones y establece horarios como por la mañana, mediodía, tarde y noche. Mantente actualizado sin interrupciones constantes.",
+    "batched_apps_tile_title": "Aplicaciones Agrupadas",
+    "batch_recap_dropdown_title": "Tipo de resumen de las agrupaciones",
+    "batch_recap_dropdown_info": "Elige qué quieres que se muestre cuando se active un horario — todas las notificaciones o solo un resumen.",
+    "batch_recap_option_summery_only": "Solo un resumen",
+    "batch_recap_option_all_notifications": "Todas las notificaciones",
+    "notification_history_tile_title": "Historial de notificaciones",
+    "store_all_tile_title": "Almacenar todas las notificaciones",
+    "store_all_tile_subtitle": "Guardar también las notificaciones no agrupadas.",
+    "schedules_heading": "Sesiones",
+    "new_schedule_fab_button": "Nueva sesión",
+    "new_schedule_dialog_info": "Introduce un nombre para el horario de notificaciones que te ayude a identificarlo fácilmente.",
+    "new_schedule_dialog_field_label": "Nombre de la programación",
+    "@----------------------------- HOME SCREEN - BEDTIME TAB -----------------------------": {},
+    "bedtime_tab_title": "Descanso",
+    "bedtime_tab_info": "Establece tu horario de descanso seleccionando un periodo de tiempo y los días de la semana. Elige las aplicaciones que te distraen para bloquear y habilita el modo No Molestar (DND) para una noche tranquila.",
+    "schedule_tile_title": "Horario",
+    "schedule_tile_subtitle": "Activar o desactivar horario diario.",
+    "bedtime_no_days_selected_snack_alert": "Seleccione al menos un día de la semana.",
+    "bedtime_minimum_duration_snack_alert": "La duración total del descanso debe ser de al menos 30 minutos.",
+    "distracting_apps_tile_title": "Apps que te distraen",
+    "distracting_apps_tile_subtitle": "Selecciona qué aplicaciones te están distrayendo de tu rutina de descanso.",
+    "bedtime_distracting_apps_modify_snack_alert": "Las modificaciones a la lista de aplicaciones que distraen no están permitidas mientras el horario de descanso esté activo.",
+    "@----------------------------- PARENTAL CONTROLS SCREEN-----------------------------": {},
+    "parental_controls_tab_title": "Control parental",
+    "invincible_mode_heading": "Modo invencible",
+    "invincible_mode_tile_title": "Activar modo invencible",
+    "invincible_mode_info": "Cuando el Modo Invencible está activado, no podrás ajustar los límites seleccionados después de alcanzar tu cuota diaria. Sin embargo, puedes hacer cambios dentro de un margen invencible seleccionado de 10 minutos.",
+    "invincible_mode_snack_alert": "Debido al modo invencible, las modificaciones a las restricciones no están permitidas.",
+    "invincible_mode_dialog_info": "¿Estás completamente seguro de que quieres habilitar el Modo Invencible? Esta acción es irreversible. Una vez que el Modo Invencible esté activado, no podrás desactivarlo mientras esta aplicación esté instalada en tu dispositivo.",
+    "invincible_mode_turn_off_snack_alert": "El Modo Invencible no se puede desactivar mientras esta aplicación permanezca instalada en tu dispositivo.",
+    "invincible_mode_dialog_button_start_anyway": "Iniciar de todos modos",
+    "invincible_mode_include_timer_tile_title": "Incluir el temporizador",
+    "invincible_mode_include_launch_limit_tile_title": "Incluir el límite de lanzamiento",
+    "invincible_mode_include_active_period_tile_title": "Incluye el período activo",
+    "invincible_mode_app_restrictions_tile_title": "Restricciones de la app",
+    "invincible_mode_app_restrictions_tile_subtitle": "Evita cambios en las restricciones seleccionadas de la aplicación una vez que se superen los límites diarios.",
+    "invincible_mode_group_restrictions_tile_title": "Restricciones de los grupos",
+    "invincible_mode_group_restrictions_tile_subtitle": "Evita cambios en las restricciones seleccionadas del grupo/s una vez que se superen los límites diarios.",
+    "invincible_mode_include_shorts_timer_tile_title": "Incluir el tiempo de los videos cortos",
+    "invincible_mode_include_shorts_timer_tile_subtitle": "Evita cambios después de alcanzar tu límite diario de contenido corto.",
+    "invincible_mode_include_bedtime_tile_title": "Incluir hora de descanso",
+    "invincible_mode_include_bedtime_tile_subtitle": "Evita cambios durante el horario de descanso activo.",
+    "protected_access_tile_title": "Acceso protegido",
+    "protected_access_tile_subtitle": "Protege NLP digitox con el desbloqueo de tu dispositivo.",
+    "protected_access_no_lock_snack_alert": "Por favor, configura primero un bloqueo biométrico en tu dispositivo para habilitar esta función.",
+    "protected_access_removed_lock_snack_alert": "El bloqueo del dispositivo ha sido eliminado. Para continuar, configure un nuevo bloqueo.",
+    "protected_access_failed_lock_snack_alert": "Error de autenticación. Necesitas verificar el bloqueo de tu dispositivo para continuar.",
+    "tamper_protection_tile_title": "Protección Antimanipulación",
+    "tamper_protection_tile_subtitle": "Evita la desinstalación y el cierre forzado de la aplicación.",
+    "tamper_protection_confirmation_dialog_info": "Una vez habilitado, no podrás desinstalar, forzar detención o borrar los datos de NLP digitox, excepto durante la ventana de desinstalación seleccionada. No hay soluciones alternativas.\n\nProcede bajo tu propio riesgo.",
+    "uninstall_window_tile_title": "Ventana de desinstalación",
+    "uninstall_window_tile_subtitle": "La protección antimanipulación puede desactivarse dentro de los 10 minutos desde la hora seleccionada.",
+    "invincible_window_tile_title": "Modo invencible",
+    "invincible_window_tile_subtitle": "Los límites seleccionados se pueden modificar dentro de los 10 minutos desde la hora seleccionada.",
+    "@----------------------------- SHORTS BLOCKING SCREEN-----------------------------": {},
+    "shorts_blocking_tab_title": "Bloqueo de vídeos cortos",
+    "shorts_blocking_tab_info": "Controla cuánto tiempo pasas en contenido de vídeo corto en plataformas como Instagram, YouTube, Snapchat y Facebook, incluyendo sus sitios web.",
+    "short_content_heading": "Contenido Corto",
+    "shorts_time_left_from": "Faltan {timeShortString}",
+    "@shorts_time_left_from": {
+        "placeholders": {
+            "timeShortString": {
+                "type": "String",
+                "example": "1h 23m"
+            }
+        }
+    },
+    "short_content_timer_picker_dialog_info": "Establece un límite de tiempo diario para el contenido corto. Una vez alcanzado tu límite, el contenido corto se pausará hasta la medianoche.",
+    "instagram_features_tile_title": "Instagram",
+    "instagram_features_tile_subtitle": "Restringir funciones en Instagram.",
+    "instagram_features_block_reels": "Restringe la sección de Reels.",
+    "instagram_features_block_explore": "Restringir sección de Explorar.",
+    "snapchat_features_tile_title": "Snapchat",
+    "snapchat_features_tile_subtitle": "Restringir funciones en Snapchat.",
+    "snapchat_features_block_spotlight": "Restringe la sección de Spotlight.",
+    "snapchat_features_block_discover": "Restringir la sección Descubrir.",
+    "youtube_features_tile_title": "YouTube",
+    "youtube_features_tile_subtitle": "Restringir Shorts en YouTube.",
+    "facebook_features_tile_title": "Facebook",
+    "facebook_features_tile_subtitle": "Restringir Reels en Facebook.",
+    "reddit_features_tile_title": "Reddit",
+    "reddit_features_tile_subtitle": "Restringir Shorts en Reddit.",
+    "@----------------------------- WEBSITES BLOCKING SCREEN-----------------------------": {},
+    "websites_blocking_tab_title": "Bloqueo de webs",
+    "websites_blocking_tab_info": "Bloquea sitios web para adultos y cualquier sitio personalizado que elijas para crear una experiencia online más segura y enfocada. Toma el control de tu navegación y mantente libre de distracciones.",
+    "adult_content_heading": "Contenido para adultos",
+    "block_nsfw_title": "Bloquear Nsfw",
+    "block_nsfw_subtitle": "Restringir a los navegadores de abrir webs para adultos y porno.",
+    "block_nsfw_dialog_info": "¿Estás seguro? Esta acción es irreversible. Una vez que el bloqueador de sitios para adultos esté ACTIVADO, no podrás DESACTIVARLO mientras esta aplicación esté instalada en tu dispositivo.",
+    "block_nsfw_dialog_button_block_anyway": "Bloquear de todos modos",
+    "blocked_websites_heading": "Webs bloqueadas",
+    "blocked_websites_empty_list_hint": "Haz clic en el botón \"+ Añadir Webs\" para añadir sitios web que te distraen y que deseas bloquear.",
+    "add_website_fab_button": "Añadir web",
+    "add_website_dialog_title": "Web distractoria",
+    "add_website_dialog_info": "Introduce la URL de una web que quieras bloquear.",
+    "add_website_dialog_is_nsfw": "¿Es un sitio NSFW?",
+    "add_website_dialog_nsfw_warning": "Advertencia: Las webs NSFW no se pueden eliminar una vez añadidas.",
+    "add_website_dialog_button_block": "Bloquear",
+    "add_website_already_exist_snack_alert": "La URL ya ha sido añadida a la lista de webs bloqueadas.",
+    "add_website_invalid_url_snack_alert": "¡URL inválida! No se puede analizar el nombre del host.",
+    "remove_website_dialog_title": "Eliminar sitio web",
+    "remove_website_dialog_info": "¿Estás seguro? Quieres eliminar '{websitehost}' de los sitios web bloqueados.",
+    "@remove_website_dialog_info": {
+        "placeholders": {
+            "websitehost": {
+                "type": "String",
+                "example": "example.com"
+            }
+        }
+    },
+    "@----------------------------- FOCUS SCREEN - FOCUS TAB -----------------------------": {},
+    "focus_tab_title": "Concentración",
+    "focus_tab_info": "Cuando necesites tiempo para enfocarte, inicia una nueva sesión seleccionando el tipo, eligiendo las aplicaciones que te distraen para pausar y habilitando el modo No Molestar para una concentración ininterrumpida.",
+    "active_session_card_title": "Sesiones activas",
+    "active_session_card_info": "¡Tienes una sesión de concentración activa en curso! Haz clic en \"Ver\" para comprobar tu progreso y ver cuánto tiempo ha transcurrido.",
+    "active_session_card_view_button": "Ver",
+    "focus_distracting_apps_removal_snack_alert": "La eliminación de aplicaciones de la lista de apps que distraen no está permitida mientras una Sesión de Concentración esté activa. Sin embargo, aún puedes añadir aplicaciones adicionales a la lista durante este tiempo.",
+    "focus_profile_tile_title": "Perfil de concentración",
+    "focus_session_duration_tile_title": "Duración de la sesión",
+    "focus_session_duration_tile_subtitle": "Infinito (hasta que lo pares)",
+    "focus_session_duration_dialog_info": "Por favor, selecciona la duración deseada para esta sesión de concentración, determinando cuánto tiempo deseas permanecer concentrado y libre de distracciones.",
+    "focus_profile_customization_tile_title": "Personalización del Perfil",
+    "focus_profile_customization_tile_subtitle": "Personalizar los ajustes para el perfil seleccionado.",
+    "focus_enforce_tile_title": "Forzar sesión",
+    "focus_enforce_tile_subtitle": "Evita terminar una sesión antes de que termine el tiempo.",
+    "focus_session_minimum_apps_snack_alert": "Seleccione al menos una aplicación distractoria para iniciar la sesión de concentración",
+    "focus_session_already_active_snack_alert": "Ya tienes una sesión de concentración activa en curso. Por favor, completa o detén tu sesión actual antes de iniciar una nueva.",
+    "@----------------------------- FOCUS SESSION TYPES -----------------------------": {},
+    "focus_session_type_study": "Estudio",
+    "focus_session_type_work": "Trabajo",
+    "focus_session_type_exercise": "Deporte",
+    "focus_session_type_meditation": "Meditación",
+    "focus_session_type_creativeWriting": "Escritura Creativa",
+    "focus_session_type_reading": "Lectura",
+    "focus_session_type_programming": "Programación",
+    "focus_session_type_chores": "Quehaceres",
+    "focus_session_type_projectPlanning": "Planificación de proyectos",
+    "focus_session_type_artAndDesign": "Arte y Diseño",
+    "focus_session_type_languageLearning": "Aprendizaje de idiomas",
+    "focus_session_type_musicPractice": "Práctica de Música",
+    "focus_session_type_selfCare": "Autocuidado",
+    "focus_session_type_brainstorming": "Lluvias de ideas",
+    "focus_session_type_skillDevelopment": "Desarrollo de Habilidad",
+    "focus_session_type_research": "Investigación",
+    "focus_session_type_networking": "Networking",
+    "focus_session_type_cooking": "Cocinar",
+    "focus_session_type_sportsTraining": "Entrenamiento Deportivo",
+    "focus_session_type_restAndRelaxation": "Descanso y Relajación",
+    "focus_session_type_other": "Otro",
+    "@----------------------------- FOCUS SCREEN - TIMELINE TAB -----------------------------": {},
+    "timeline_tab_title": "Cronología",
+    "focus_timeline_tab_info": "Explora tu diario de concentración seleccionando una fecha del calendario. Sigue tu progreso, revisa tus éxitos y aprende de los desafíos.",
+    "selected_month_productive_time_snack_alert": "Tu tiempo productivo total para el mes seleccionado es {timeString}.",
+    "@selected_month_productive_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "selected_month_productive_days_label": "Días productivos",
+    "selected_month_productive_days_snack_alert": "Has tenido un total de {daysCount} días productivos durante el mes seleccionado.",
+    "@selected_month_productive_days_snack_alert": {
+        "placeholders": {
+            "daysCount": {
+                "type": "num",
+                "example": "12"
+            }
+        }
+    },
+    "selected_day_focused_time_label": "Tiempo concentrado",
+    "selected_day_focused_time_snack_alert": "Tu tiempo productivo total para el mes seleccionado es {timeString}.",
+    "@selected_day_focused_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "calender_heading": "Calendario",
+    "your_sessions_heading": "Tus sesiones",
+    "your_sessions_empty_list_hint": "No hay sesiones de concentración grabadas para el día seleccionado.",
+    "focus_session_tile_timestamp_label": "Marca de Tiempo",
+    "focus_session_tile_duration_label": "Duración",
+    "focus_session_tile_reflection_label": "Reflexión",
+    "focus_session_state_active": "Activo",
+    "focus_session_state_successful": "Completado",
+    "focus_session_state_failed": "Fallido",
+    "@----------------------------- ACTIVE FOCUS SESSION SCREEN -----------------------------": {},
+    "active_session_tab_title": "Sesión",
+    "active_session_none_warning": "No se encontró ninguna sesión activa. Volviendo a la pantalla de inicio.",
+    "active_session_dialog_button_keep_pushing": "¡Sigue así!",
+    "active_session_finish_dialog_title": "Finalizar",
+    "active_session_finish_dialog_info": "¡Mantente fuerte! Estás construyendo una concentración valiosa. ¿Estás seguro de que quieres terminar esta sesión de concentración? Cada momento extra cuenta para tus objetivos.",
+    "active_session_giveup_dialog_title": "Rendirse",
+    "active_session_giveup_dialog_info": "¡Aguanta! Ya casi lo tienes, ¡no te rindas ahora! ¿Estás seguro de que quieres terminar esta sesión de concentración antes de tiempo? Se perderá el progreso.",
+    "active_session_reflection_dialog_title": "Reflexión de la sesión",
+    "active_session_reflection_dialog_info": "Tómate un momento para reflexionar sobre tu progreso. ¿Cuál es tu objetivo para esta sesión? ¿Qué lograste durante esta sesión?",
+    "active_session_reflection_dialog_tip": "Consejo: Siempre puedes editar esto más tarde en la línea de tiempo de la sesión.",
+    "active_session_giveup_snack_alert": "¡Te rendiste! No te preocupes, la próxima vez lo harás mejor. Cada esfuerzo cuenta - ¡solo sigue adelante!",
+    "active_session_quote_one": "Cada paso cuenta, mantente fuerte y sigue adelante",
+    "active_session_quote_two": "¡Mantente concentrado! Estás haciendo un progreso increíble",
+    "active_session_quote_three": "¡Lo estás bordando! Mantén el ritmo",
+    "active_session_quote_four": "Ya queda solo un poco más, lo estás haciendo genial",
+    "active_session_quote_five": "¡Felicitaciones! 🎉 \nHas completado tu sesión de concentración de {durationString}.",
+    "@active_session_quote_five": {
+        "placeholders": {
+            "durationString": {
+                "type": "String",
+                "example": "30 minutes"
+            }
+        }
+    },
+    "@----------------------------- RESTRICTION GROUPS SCREEN -----------------------------": {},
+    "restriction_groups_tab_title": "Grupos restringidos",
+    "restriction_groups_tab_info": "Establece un límite de tiempo de pantalla combinado para un grupo de aplicaciones. Una vez que el uso total alcance tu límite, todas las aplicaciones del grupo se pausarán para ayudar a mantener la concentración y el equilibrio.",
+    "restriction_group_time_spent_label": "Tiempo invertido hoy",
+    "restriction_group_time_left_label": "Tiempo restante hoy",
+    "restriction_group_name_tile_title": "Nombre del grupo",
+    "restriction_group_name_picker_dialog_info": "Introduzca un nombre para el grupo restringido para ayudarle a identificarlo y gestionarlo fácilmente.",
+    "restriction_group_timer_tile_title": "Temporizador de grupo",
+    "restriction_group_timer_picker_dialog_info": "Establece un límite de tiempo diario para este grupo. Una vez que se alcance tu límite, todas las aplicaciones de este grupo se pausarán hasta la medianoche.",
+    "restriction_group_active_period_tile_title": "Período activo del grupo",
+    "remove_restriction_group_dialog_title": "Eliminar grupo",
+    "remove_restriction_group_dialog_info": "¿Estás seguro? Quieres eliminar '{groupName}' de los grupos restringidos.",
+    "@remove_restriction_group_dialog_info": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Games"
+            }
+        }
+    },
+    "restriction_group_invalid_limits_snack_alert": "Establece un temporizador o un límite de período activo.",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_empty_list_hint": "No se han agrupado notificaciones para el día.",
+    "conversations_label": "Conversaciones",
+    "last_24_hours_heading": "Últimas 24 horas",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TIMELINE TAB -----------------------------": {},
+    "notification_timeline_tab_info": "Navega por tu historial de notificaciones seleccionando una fecha del calendario. Mira qué aplicaciones captaron tu atención y reflexiona sobre tus hábitos digitales.",
+    "monthly_label": "Mensual",
+    "daily_label": "Diario",
+    "search_notifications_sheet_info": "Encuentra fácilmente notificaciones pasadas buscando por su título o contenido. Te ayuda a localizar rápidamente alertas importantes.",
+    "search_notifications_hint": "Buscar notificaciones...",
+    "search_notifications_empty_list_hint": "No se han encontrado notificaciones que coincidan con tu búsqueda.",
+    "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
+    "app_info_none_warning": "No se pudo encontrar la aplicación para el paquete dado. Volviendo a la pantalla de inicio.",
+    "emergency_fab_button": "Emergencia",
+    "emergency_dialog_info": "Esta acción pausará el bloqueador de aplicaciones durante los próximos 5 minutos. Te quedan {leftPassesCount} pases. Después de usar todos los pases, la aplicación permanecerá bloqueada hasta medianoche, o hasta que termine la sesión de concentración activa.",
+    "@emergency_dialog_info": {
+        "placeholders": {
+            "leftPassesCount": {
+                "type": "num",
+                "example": "3"
+            }
+        }
+    },
+    "emergency_dialog_button_use_anyway": "Usar de todos modos",
+    "emergency_started_snack_alert": "El bloqueador de aplicaciones está pausado y se reanudará el bloqueo en 5 minutos.",
+    "emergency_already_active_snack_alert": "El bloqueador de aplicaciones está actualmente pausado o inactivo. Si las notificaciones están habilitadas, recibirás actualizaciones sobre el tiempo restante.",
+    "emergency_no_pass_left_snack_alert": "Has usado todos tus pases de emergencia. Las aplicaciones bloqueadas permanecerán bloqueadas hasta medianoche, o hasta que termine la sesión de concentración activa.",
+    "app_limit_status_not_set": "No establecido",
+    "app_timer_tile_title": "Temporizador",
+    "app_timer_picker_dialog_info": "Establece un límite de tiempo diario para esta aplicación. Una vez que se alcance tu límite, la aplicación se pausará hasta medianoche.",
+    "usage_reminders_tile_title": "Recordatorios de uso",
+    "usage_reminders_tile_subtitle": "Recordatorios suaves al usar aplicaciones con temporizador.",
+    "app_launch_limit_tile_title": "Límite de lanzamiento",
+    "app_launch_limit_tile_subtitle": "Lanzado {count} veces hoy.",
+    "@app_launch_limit_tile_subtitle": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "example": "15"
+            }
+        }
+    },
+    "app_launch_limit_picker_dialog_info": "Establece cuántas veces puedes abrir esta aplicación cada día. Una vez que se alcance el límite, se pausará hasta medianoche.",
+    "app_active_period_tile_title": "Período activo",
+    "app_active_period_tile_subtitle": "Desde las {startTime} hasta las {endTime}",
+    "@app_active_period_tile_subtitle": {
+        "placeholders": {
+            "startTime": {
+                "type": "String",
+                "example": "10:00pm"
+            },
+            "endTime": {
+                "type": "String",
+                "example": "15"
+            }
+        }
+    },
+    "internet_access_tile_title": "Acceso a Internet",
+    "internet_access_tile_subtitle": "Desactívalo para bloquear el internet de la aplicación.",
+    "internet_access_blocked_snack_alert": "El internet de {appName} está bloqueado.",
+    "@internet_access_blocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "internet_access_unblocked_snack_alert": "El internet de {appName} está desbloqueado.",
+    "@internet_access_unblocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "launch_app_tile_title": "Abrir aplicación",
+    "launch_app_tile_subtitle": "Abrir {appName}.",
+    "@launch_app_tile_subtitle": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "go_to_app_settings_tile_title": "Ir a la configuración de la app",
+    "go_to_app_settings_tile_subtitle": "Gestiona la configuración de la aplicación como notificaciones, permisos, almacenamiento y más.",
+    "include_in_stats_tile_title": "Incluir en el uso de pantalla.",
+    "include_in_stats_tile_subtitle": "Desactívalo para excluir esta aplicación del uso total de pantalla.",
+    "app_excluded_from_stats_snack_alert": "{appName} está excluido del uso total de la pantalla.",
+    "@app_excluded_from_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "app_include_to_stats_snack_alert": "{appName} está incluido en el uso total de la pantalla.",
+    "@app_include_to_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
+    "general_tab_title": "General",
+    "appearance_heading": "Apariencia",
+    "theme_mode_tile_title": "Tema",
+    "theme_mode_system_label": "Sistema",
+    "theme_mode_light_label": "Claro",
+    "theme_mode_dark_label": "Oscuro",
+    "material_color_tile_title": "Colores de Material Design",
+    "amoled_dark_tile_title": "AMOLED Oscuro",
+    "amoled_dark_tile_subtitle": "Usa el negro puro para el tema oscuro.",
+    "dynamic_colors_tile_title": "Colores dinámicos",
+    "dynamic_colors_tile_subtitle": "Usar colores del dispositivo si es compatible.",
+    "defaults_heading": "Ajustes predeterminados",
+    "app_language_tile_title": "Idioma de la aplicación",
+    "default_home_tab_tile_title": "Pestaña de inicio",
+    "usage_history_tile_title": "Historial de uso",
+    "usage_history_15_days": "15 días",
+    "usage_history_1_month": "1 mes",
+    "usage_history_3_month": "3 meses",
+    "usage_history_6_month": "6 meses",
+    "usage_history_1_year": "1 año",
+    "service_heading": "Servicio",
+    "service_stopping_warning": "Si NLP digitox deja de funcionar inesperadamente, por favor, concede el permiso \"Ignorar Optimización de Batería\" para mantenerlo funcionando en segundo plano. Si el problema persiste, intenta añadir NLP digitox a la lista blanca para un rendimiento ininterrumpido.",
+    "whitelist_app_tile_title": "Añadir NLP digitox a la lista blanca",
+    "whitelist_app_tile_subtitle": "Permitir que NLP digitox inicie automáticamente.",
+    "whitelist_app_unsupported_snack_alert": "Este dispositivo no es compatible con la gestión automática de inicio.",
+    "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
+    "database_tab_title": "Base de datos",
+    "import_db_tile_title": "Importar base de datos",
+    "import_db_tile_subtitle": "Importar la base de datos desde un archivo.",
+    "export_db_tile_title": "Exportar base de datos",
+    "export_db_tile_subtitle": "Exportar la base de datos a un archivo.",
+    "crash_logs_heading": "Registro de errores",
+    "crash_logs_info": "Si encuentras algún problema, puedes reportarlo en GitHub junto con el archivo de registro. El archivo incluirá detalles como el fabricante de tu dispositivo, el modelo, la versión de Android, la versión del SDK y los registros de fallos. Esta información nos ayudará a identificar y resolver el problema de forma más eficaz.",
+    "crash_logs_export_tile_title": "Exportar registro de errores",
+    "crash_logs_export_tile_subtitle": "Exportar registros de errores a un archivo json.",
+    "crash_logs_view_tile_title": "Ver registros",
+    "crash_logs_view_tile_subtitle": "Explora los registros de fallos almacenados.",
+    "crash_logs_empty_list_hint": "No se ha registrado ningún fallo hasta ahora.",
+    "crash_logs_clear_tile_title": "Borrar registros",
+    "crash_logs_clear_tile_subtitle": "Eliminar todos los registros de fallos de la base de datos.",
+    "crash_logs_clear_dialog_info": "¿Estás seguro de que deseas eliminar todos los registros de fallos de la base de datos?",
+    "crash_logs_clear_dialog_button_clear_anyway": "Borrar de todos modos",
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "about_tab_title": "Acerca de",
+    "changelog_tile_title": "Historial de cambios",
+    "changelog_tile_subtitle": "Descubre las últimas novedades.",
+    "full_changelog_tile_title": "Registro de cambios completo",
+    "redirected_to_github_subtitle": "Serás redirigido a GitHub.",
+    "contribute_heading": "Aportar",
+    "github_tile_title": "GitHub",
+    "github_tile_subtitle": "Ver el código fuente.",
+    "report_issue_tile_title": "Informar de un problema",
+    "suggest_idea_tile_title": "Sugerir una idea",
+    "write_email_tile_title": "Escríbenos por email",
+    "write_email_tile_subtitle": "Serás redirigido a la aplicación del correo.",
+    "privacy_policy_heading": "Política de Privacidad",
+    "privacy_policy_info": "NLP digitox se compromete a proteger tu privacidad. No recopilamos, almacenamos ni transferimos ningún tipo de datos de usuario. La aplicación funciona completamente sin conexión y no requiere conexión a internet, lo que garantiza que tu información personal permanezca privada y segura en tu dispositivo. Como aplicación de Software Libre y de Código Abierto (FOSS), NLP digitox garantiza total transparencia y control del usuario sobre sus datos.",
+    "more_details_button": "Más información"
+}

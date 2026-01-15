@@ -1,0 +1,614 @@
+﻿{
+    "@----------------------------- SPLASH SCREEN -----------------------------": {},
+    "unlock_button_label": "فتح",
+    "@----------------------------- APP PERMISSIONS -----------------------------": {},
+    "permission_status_off": "إيقاف",
+    "permission_status_allowed": "مسموح",
+    "permission_status_not_allowed": "غير مسموح",
+    "permission_button_grant_permission": "منح الإذن",
+    "permission_button_agree_and_continue": "موافق ومتابعة",
+    "permission_button_not_now": "ليس الآن",
+    "permission_button_help": "مساعدة؟",
+    "permission_sheet_privacy_info": "تطبيق NLP digitox آمن بنسبة ١٠٠% ويعمل دون اتصال بالإنترنت. ولا نقوم بجمع أو تخزين أي بيانات شخصية.",
+    "permission_grant_step_one": "١. انقر على زر {button_label}.",
+    "@permission_grant_step_one": {
+        "placeholders": {
+            "button_label": {
+                "type": "String"
+            }
+        }
+    },
+    "permission_grant_step_two": "٢. حدد NLP digitox في الشاشة التالية.",
+    "permission_grant_step_three": "٣. انقر فوق المفتاح وقم بتشغيله كما هو موضح أدناه.",
+    "permission_notification_title": "إرسال الإشعارات",
+    "permission_alarms_title": "التنبيهات والتذكيرات",
+    "permission_alarms_info": "يرجى منح الإذن لضبط التنبيهات والتذكيرات. سيسمح هذا لتطبيق NLP digitox ببدء جدول وقت النوم في الوقت المحدد وإعادة ضبط مؤقتات التطبيق يوميًا عند منتصف الليل ومساعدتك على البقاء على المسار الصحيح.",
+    "permission_alarms_device_tile_label": "السماح بإعداد التنبيهات والتذكيرات",
+    "permission_usage_title": "الوصول إلى الاستخدام",
+    "permission_usage_info": "يرجى منح إذن الوصول إلى الاستخدام. سيسمح هذا لـ NLP digitox بمراقبة استخدام التطبيق وإدارة الوصول إلى تطبيقات معينة، مما يضمن بيئة رقمية أكثر تركيزًا وتحكمًا.",
+    "permission_usage_device_tile_label": "السماح بالوصول إلى الاستخدام",
+    "permission_overlay_title": "عرض التراكب",
+    "permission_overlay_info": "يرجى منح إذن عرض التراكب. سيسمح هذا لتطبيق NLP digitox بعرض تراكب عند فتح تطبيق متوقف مؤقتًا، مما يساعدك على البقاء مركزًا والالتزام بجدولك الزمني.",
+    "permission_overlay_device_tile_label": "السماح بالعرض على التطبيقات الأخرى",
+    "permission_accessibility_title": "إمكانية الوصول",
+    "permission_accessibility_info": "يرجى منح إذن الوصول. سيسمح هذا لشركة NLP digitox بتقييد الوصول إلى محتوى الفيديو القصير (مثل Reels وShorts) داخل تطبيقات الوسائط الاجتماعية والمتصفحات، وتصفية المواقع الإلكترونية غير المناسبة.",
+    "permission_accessibility_required": "يتطلب تطبيق NLP digitox إذن الوصول لتفعيل حظر المحتوى القصير والمواقع الإلكترونية بفعالية.",
+    "permission_accessibility_device_tile_label": "استخدم NLP digitox",
+    "permission_dnd_title": "عدم الإزعاج",
+    "permission_dnd_info": "يرجى منح ميزة \"عدم الإزعاج\" حق الوصول. سيسمح هذا لتطبيق NLP digitox ببدء وإيقاف وضع \"عدم الإزعاج\" أثناء جدول وقت النوم.",
+    "permission_dnd_tile_title": "ابدأ عدم الإزعاج",
+    "permission_dnd_tile_subtitle": "قم أيضًا بتمكين وضع عدم الإزعاج.",
+    "permission_battery_optimization_tile_title": "تجاهل تحسين البطارية",
+    "permission_battery_optimization_status_enabled": "غير مقيد بالفعل",
+    "permission_battery_optimization_status_disabled": "تعطيل تقييد الخلفية",
+    "permission_battery_optimization_allow_info": "سيؤدي السماح بـ \"تجاهل تحسين البطارية\" إلى منح إذن \"التنبيهات والتذكيرات\" تلقائيًا على بعض الأجهزة",
+    "permission_vpn_title": "إنشاء VPN",
+    "permission_vpn_info": "يرجى منح الإذن لإنشاء اتصال بشبكة خاصة افتراضية (VPN). سيسمح هذا لـ NLP digitox بتقييد الوصول إلى الإنترنت للتطبيقات المحددة من خلال إنشاء شبكة VPN محلية على الجهاز.",
+    "permission_admin_title": "مسؤول",
+    "permission_admin_info": "تكون الامتيازات الإدارية ضرورية فقط للعمليات الأساسية لضمان عمل التطبيق بشكل صحيح وبقائه مقاومًا للتلاعب.",
+    "permission_admin_snack_alert": "لا يمكن تعطيل الحماية من العبث إلا خلال فترة زمنية محددة.",
+    "permission_notification_access_title": "الوصول إلى الإشعارات",
+    "permission_notification_access_info": "يرجى منح إذن الوصول إلى الإشعارات. سيسمح هذا لـ NLP digitox بتنظيم إشعاراتك وتسليمها حسب جدولك.",
+    "permission_notification_access_required": "يتطلب NLP digitox الوصول إلى الإشعارات للدفعات والإشعارات المجدولة.",
+    "permission_notification_access_device_tile_label": "السماح بالوصول إلى الإشعارات",
+    "@----------------------------- DATE AND TIME -----------------------------": {},
+    "day_today": "اليوم",
+    "day_yesterday": "أمس",
+    "nDays": "{count, plural, =0{٠ يوم} =1{يوم واحد} other{{count} أيام}}",
+    "@nDays": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nHours": "{count, plural, =0{٠ ساعة} =1{ساعة واحدة} other{{count} ساعات}}",
+    "@nHours": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nMinutes": "{count, plural, =0{٠ دقيقة} =1{دقيقة واحدة} other{{count} دقائق}}",
+    "@nMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "nSeconds": "{count, plural, =0{٩ ثانية} =1{ثانية واحدة} other{{count} ثواني}}",
+    "@nSeconds": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "time_separator_and": "و",
+    "@time_separator_and": {
+        "description": "Separator used between time like, 10 hours 'and' 15 minutes"
+    },
+    "@----------------------------- SHARED STRINGS -----------------------------": {},
+    "timer_status_active": "نشيط",
+    "timer_status_paused": "متوقف مؤقتا",
+    "create_button": "إنشاء",
+    "update_button": "تحديث",
+    "dialog_button_cancel": "إلغاء",
+    "dialog_button_remove": "حذف",
+    "dialog_button_set": "تعيين",
+    "dialog_button_reset": "إعادة ضبط",
+    "dialog_button_infinite": "لانهائي",
+    "schedule_start_label": "يبدأ",
+    "schedule_end_label": "نهاية",
+    "exit_without_saving_dialog_info": "هل أنت متأكد أنك تريد الخروج دون حفظ؟",
+    "development_dialog_info": "تطبيق NLP digitox قيد التطوير حاليًا وقد يحتوي على أخطاء أو ميزات غير مكتملة. إذا واجهت أي مشكلات، فيرجى الإبلاغ عنها لمساعدتنا على التحسين.\n\nشكرًا لك على ملاحظاتك!",
+    "development_dialog_button_report_issue": "الإبلاغ عن المشكلة",
+    "development_dialog_button_close": "غلق",
+    "dnd_settings_tile_title": "إعدادات عدم الإزعاج",
+    "dnd_settings_tile_subtitle": "إدارة التطبيقات والإشعارات التي يمكنها الوصول إليك في وضع عدم الإزعاج.",
+    "quick_actions_heading": "الإجراءات السريعة",
+    "select_distracting_apps_heading": "حدد التطبيقات المشتتة للانتباه",
+    "your_distracting_apps_heading": "تطبيقاتك المشتتة للانتباه",
+    "select_more_apps_heading": "حدد المزيد من التطبيقات",
+    "imp_distracting_apps_snack_alert": "لا يُسمح بإضافة تطبيقات النظام المهمة إلى قائمة التطبيقات المشتتة للانتباه.",
+    "custom_apps_quick_actions_unavailable_warning": "لا يتوفر استخدام الشاشة والقيود لهذا التطبيق. في الوقت الحالي، يمكن الوصول إلى استخدام الشبكة فقط",
+    "create_group_fab_button": "إنشاء مجموعة",
+    "active_period_info": "حدد مدّة زمنية يُسمح خلالها بالوصول. وخارج هذه المدّة الزمنية، سيتم تقييد الوصول.",
+    "minimum_distracting_apps_snack_alert": "حدد تطبيقًا واحدًا علي الأقل يشتت انتباهك.",
+    "donation_card_title": "ادعمنا",
+    "donation_card_info": "NLP digitox هو تطبيق مجاني ومفتوح المصدر، تم تطويره بعد شهور من التفاني. إذا ساعدك التطبيق، فإن تبرعك يعني الكثير بالنسبة لنا. تساعدنا كل مساهمة في تحسينه وصيانته من أجل الجميع.",
+    "operation_failed_snack_alert": "فشلت العملية، حدث خطأ ما!",
+    "donation_card_button_donate": "تبرع",
+    "app_restart_dialog_title": "بحاجة لإعادة التشغيل",
+    "app_restart_dialog_info": "سيتم إعادة تشغيل NLP digitox تلقائيًا بمجرد انتهاء العد التنازلي. يرجى التحلي بالصبر أثناء تطبيق التغييرات.",
+    "@----------------------------- TIPS -----------------------------": {},
+    "accessibility_tip": "هل ترغب في حظر أذكى وأكثر توفيرا للطاقة؟ فعل إذن إمكانية الوصول لتطبيق NLP digitox.",
+    "battery_optimization_tip": "هل لا يعمل تطبيق NLP digitox؟ اسمح بخيار \"تجاهل تحسين البطارية\" من الإعدادات ليعمل بسلاسة.",
+    "invincible_mode_tip": "هل أزلت القيود عن طريق الخطأ؟ استخدم وضع الحماية القصوى لقفلها حتى اليوم التالي أو حتى نافذة التعديل.",
+    "glance_usage_tip": "تريد الحصول على إحصاءات؟ تفقد قسم \"نظرة سريعة\" لعرض أنماط استخدامك ومدة وقت الشاشة.",
+    "tamper_protection_tip": "هل تنوي إزالة تطبيق NLP digitox؟ فعل نافذة إلغاء التثبيت لتعطيل حماية العبث بأمان أولا.",
+    "notification_blocking_tip": "تريد تقليل التشتت؟ استخدم ميزة حظر الإشعارات لكتم التطبيقات المحددة.",
+    "usage_history_tip": "تريد التأمل في عاداتك؟ تفقد سجل الاستخدام للاطلاع على الأنماط السابقة.",
+    "focus_mode_tip": "تحتاج إلى تركيز عميق؟ فعل وضع التركيز لحظر التطبيقات والإشعارات أثناء المهام.",
+    "bedtime_reminder_tip": "تريد تحسين نومك؟ اضبط تذكير موعد النوم للاسترخاء كل ليلة.",
+    "custom_blocking_tip": "تحتاج إلى تجربة مخصصة؟ أنشئ قواعد حظر التطبيقات التي تناسب احتياجاتك.",
+    "session_timeline_tip": "تريد متابعة جلسات التركيز؟ اطلع على الجدول الزمني لرؤية رحلة تركيزك.",
+    "short_content_blocking_tip": "تشتت بسبب تطبيقات التواصل الاجتماعي؟ احظر المحتوى القصير على إنستغرام ويوتيوب وغيرها للبقاء مركزا.",
+    "parental_controls_tip": "تحتاج إلى رقابة أبوية؟ ضع قيودا على جهاز طفلك لضمان تجربة امنة.",
+    "notification_batching_tip": "تريد تقليل التشتت؟ استخدم تجميع الإشعارات لجمعها معا والتحقق منها دفعة واحدة.",
+    "notification_scheduling_tip": "تحتاج لإدارة الإشعارات؟ جدولة مواعيد استلام الإشعارات لتطبيقات معينة.",
+    "quick_focus_tile_tip": "هل تحتاج إلى وصول سريع للتركيز؟ أضف لوحة تركيز سريعة لتفعيل وضع التركيز على الفور.",
+    "app_shortcuts_tip": "تريد وصولا فوريا للتطبيقات؟ أضف اختصارات بالضغط المطول على أيقونة التطبيق للإجراءات السريعة.",
+    "backup_usage_db_tip": "هل ترغب في حفظ بياناتك؟ قم بعمل نسخة احتياطية لقاعدة بيانات الاستخدام للحفاظ على سجلاتك بأمان.",
+    "dynamic_material_color_tip": "تريد ثيم مخصص؟ فعل لون Material You الديناميكي ليتناسب مع ثيم جهازك.",
+    "amoled_dark_theme_tip": "تريد توفير البطارية؟ استخدم الثيم الداكن AMOLED لتقليل استهلاك الطاقة على شاشات OLED.",
+    "customize_usage_history_tip": "تريد الاحتفاظ بسجل الاستخدام؟ خصص عدد الأسابيع التي تريد تخزين بياناتها في سجل الاستخدام.",
+    "grouped_apps_blocking_tip": "تريد حظر التطبيقات معا؟ استخدم مجموعات القيود لتجميع حدود التطبيقات وحظر عدة تطبيقات دفعة واحدة.",
+    "websites_blocking_tip": "تريد تجربة تصفح أنظف؟ احظر مواقع مخصصة أو مواقع غير مناسبة لمزيد من التركيز أثناء التصفح.",
+    "data_usage_tip": "تريد متابعة بياناتك؟ راقب استخدام بيانات الجوال والواي فاي لاستهلاك الإنترنت.",
+    "block_internet_tip": "تحتاج لحظر إنترنت تطبيق؟ قم بقطع الإنترنت لتطبيق معين من لوحة التحكم الخاصة به.",
+    "emergency_passes_tip": "تحتاج استراحة؟ استخدم 3 تصاريح طوارئ يوميا لفتح التطبيقات مؤقتا لمدة 5 دقائق.",
+    "@----------------------------- ONBOARDING SCREEN -----------------------------": {},
+    "onboarding_skip_btn_label": "تخطي",
+    "onboarding_finish_setup_btn_label": "إنهاء الإعداد",
+    "onboarding_page_one_title": "التركيز المتقن.",
+    "onboarding_page_one_info": "قم بإيقاف التطبيقات المشتتة للانتباه مؤقتًا، وحظر المحتوى القصير، والتزم بالمسار الصحيح من خلال جلسات التركيز القابلة للتخصيص. سواء كنت تعمل أو تدرس أو تسترخي، يساعدك NLP digitox على البقاء متحكمًا.",
+    "onboarding_page_two_title": "منع التشتيتات.",
+    "onboarding_page_two_info": "قم بتعيين حدود الاستخدام وإيقاف التطبيقات تلقائيًا وإنشاء عادات رقمية أكثر صحة. استخدم وضع وقت النوم للاسترخاء والاستمتاع بليلة خالية من التشتيت.",
+    "onboarding_page_three_title": "الخصوصية أولاً.",
+    "onboarding_page_three_info": "NLP digitox هو تطبيق مفتوح المصدر بنسبة ١٠٠% ويعمل دون اتصال بالإنترنت بالكامل. نحن لا نجمع أو نشارك بياناتك الشخصية — خصوصيتك مضمونة بكل الطرق.",
+    "onboarding_page_permissions_title": "الأذونات الأساسية.",
+    "onboarding_page_permissions_info": "يتطلب NLP digitox اتباع الأذونات الأساسية لتتبع وإدارة وقت الشاشة، مما يساعد على تقليل عوامل التشتيت وتحسين التركيز.",
+    "@----------------------------- HOME SCREEN - DASHBOARD TAB -----------------------------": {},
+    "dashboard_tab_title": "لوحة التحكم",
+    "focus_now_fab_button": "ركز الان",
+    "welcome_greetings": "مرحبًا بعودتك،",
+    "username_snack_alert": "اضغط لفترة طويلة لتعديل أسم المستخدم.",
+    "username_dialog_title": "أسم المستخدم",
+    "username_dialog_info": "أدخل أسم المستخدم الخاص بك والذي سيتم عرضه على لوحة التحكم.",
+    "username_dialog_button_apply": "تطبيق",
+    "glance_tile_title": "نظرة سريعة",
+    "glance_tile_subtitle": "ألق نظرة سريعة على استخدامك.",
+    "parental_controls_tile_subtitle": "وضع الحماية القصوى وحماية العبث.",
+    "restrictions_heading": "القيود",
+    "apps_blocking_tile_title": "حظر التطبيقات",
+    "apps_blocking_tile_subtitle": "حدد قيودا على التطبيقات بطرق متعددة.",
+    "grouped_apps_blocking_tile_title": "حظر التطبيقات المجمعة",
+    "grouped_apps_blocking_tile_subtitle": "حدد قيودا على مجموعة تطبيقات في وقت واحد.",
+    "shorts_blocking_tile_subtitle": "حدد قيودا على المحتوى القصير في عدة منصات.",
+    "websites_blocking_tile_subtitle": "حدد قيودا على المواقع الإباحية والمخصصة.",
+    "screen_time_label": "وقت استخدام الشاشة",
+    "total_data_label": "إجمالي البيانات",
+    "mobile_data_label": "بيانات الجوال",
+    "wifi_data_label": "بيانات الواي فاي",
+    "focus_today_label": "تركيز اليوم",
+    "focus_weekly_label": "تركيز أسبوعي",
+    "focus_monthly_label": "تركيز شهري",
+    "focus_lifetime_label": "تركيز مدى الحياة",
+    "longest_streak_label": "أطول سلسلة",
+    "current_streak_label": "السلسلة الحالية",
+    "successful_sessions_label": "جلسات ناجحة",
+    "failed_sessions_label": "الجلسات الفاشلة",
+    "@----------------------------- HOME SCREEN - STATISTICS TAB -----------------------------": {},
+    "statistics_tab_title": "إحصائيات",
+    "screen_segment_label": "الشاشة",
+    "data_segment_label": "بيانات",
+    "mobile_label": "الجوال",
+    "wifi_label": "الواي فاي",
+    "most_used_apps_heading": "التطبيقات الأكثر استخداما",
+    "show_all_apps_tile_title": "عرض جميع التطبيقات",
+    "search_apps_hint": "ابحث عن التطبيقات...",
+    "@----------------------------- HOME SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_tab_title": "الإشعارات",
+    "notifications_tab_info": "جمع الإشعارات من التطبيقات وضبط جداول مثل الصباح، الظهر، المساء، والليل. كن على اطلاع دون انقطاعات مستمرة.",
+    "batched_apps_tile_title": "التطبيقات المجمعة",
+    "batch_recap_dropdown_title": "نوع ملخص الدفعة",
+    "batch_recap_dropdown_info": "اختر ما يتم إرساله عند تفعيل الجدول — كل الإشعارات أو ملخص فقط.",
+    "batch_recap_option_summery_only": "الملخص فقط",
+    "batch_recap_option_all_notifications": "جميع الإشعارات",
+    "notification_history_tile_title": "سجل الإشعارات",
+    "store_all_tile_title": "تخزين جميع الإشعارات",
+    "store_all_tile_subtitle": "حفظ الإشعارات غير المجمعة أيضا.",
+    "schedules_heading": "الجداول الزمنية",
+    "new_schedule_fab_button": "جدول جديد",
+    "new_schedule_dialog_info": "أدخل اسما لجدول الإشعارات لتسهيل التعرف عليه.",
+    "new_schedule_dialog_field_label": "اسم الجدول",
+    "@----------------------------- HOME SCREEN - BEDTIME TAB -----------------------------": {},
+    "bedtime_tab_title": "موعد النوم",
+    "bedtime_tab_info": "قم بتعيين جدول وقت النوم الخاص بك عن طريق اختيار فترة زمنية وأيام الأسبوع. اختر التطبيقات المشتتة لحظرها وفعّل وضع عدم الإزعاج (DND) لقضاء ليلة هادئة.",
+    "schedule_tile_title": "الجدول الزمني",
+    "schedule_tile_subtitle": "تمكين أو تعطيل الجدول اليومي.",
+    "bedtime_no_days_selected_snack_alert": "اختر يوما واحدا على الأقل من أيام الأسبوع.",
+    "bedtime_minimum_duration_snack_alert": "يجب أن تكون مدة وقت النوم الإجمالية 30 دقيقة على الأقل.",
+    "distracting_apps_tile_title": "التطبيقات المشتتة",
+    "distracting_apps_tile_subtitle": "حدد التطبيقات التي تشتتك عن روتين وقت النوم.",
+    "bedtime_distracting_apps_modify_snack_alert": "لا يسمح بتعديل قائمة التطبيقات المشتتة أثناء تفعيل جدول وقت النوم.",
+    "@----------------------------- PARENTAL CONTROLS SCREEN-----------------------------": {},
+    "parental_controls_tab_title": "الرقابة الأبوية",
+    "invincible_mode_heading": "وضع غير قابل للهزيمة",
+    "invincible_mode_tile_title": "تفعيل وضع غير قابل للهزيمة",
+    "invincible_mode_info": "عند تفعيل وضع غير قابل للهزيمة، لن تتمكن من تعديل الحدود المختارة بعد الوصول إلى الحصة اليومية. ومع ذلك، يمكنك إجراء تغييرات خلال نافذة غير قابلة للهزيمة مدتها 10 دقائق.",
+    "invincible_mode_snack_alert": "نظرا لتفعيل وضع غير قابل للهزيمة، لا يسمح بتعديل القيود.",
+    "invincible_mode_dialog_info": "هل أنت متأكد تمامًا من رغبتك في تفعيل وضع غير قابل للهزيمة؟ هذا الإجراء لا يمكن التراجع عنه. بمجرد تفعيل وضع غير قابل للهزيمة، لن تتمكن من إيقافه طالما أن هذا التطبيق مثبت على جهازك.",
+    "invincible_mode_turn_off_snack_alert": "لا يمكن إيقاف وضع غير قابل للهزيمة طالما أن هذا التطبيق مثبت على جهازك.",
+    "invincible_mode_dialog_button_start_anyway": "ابدأ على أي حال",
+    "invincible_mode_include_timer_tile_title": "تضمين المؤقت",
+    "invincible_mode_include_launch_limit_tile_title": "تضمين حد التشغيل",
+    "invincible_mode_include_active_period_tile_title": "تضمين الفترة النشطة",
+    "invincible_mode_app_restrictions_tile_title": "قيود التطبيق",
+    "invincible_mode_app_restrictions_tile_subtitle": "منع تعديل القيود المحددة للتطبيق بمجرد تجاوز الحدود اليومية.",
+    "invincible_mode_group_restrictions_tile_title": "قيود المجموعة",
+    "invincible_mode_group_restrictions_tile_subtitle": "منع تعديل القيود المحددة للمجموعة بمجرد تجاوز الحدود اليومية.",
+    "invincible_mode_include_shorts_timer_tile_title": "تضمين مؤقت الفيديوهات القصيرة",
+    "invincible_mode_include_shorts_timer_tile_subtitle": "يمنع التعديلات بعد الوصول إلى حد الفيديوهات القصيرة اليومي.",
+    "invincible_mode_include_bedtime_tile_title": "تضمين وقت النوم",
+    "invincible_mode_include_bedtime_tile_subtitle": "يمنع التعديلات أثناء تفعيل جدول وقت النوم.",
+    "protected_access_tile_title": "وصول محمي",
+    "protected_access_tile_subtitle": "احمِ تطبيق NLP digitox بواسطة قفل جهازك.",
+    "protected_access_no_lock_snack_alert": "يرجى إعداد قفل بيومتري على جهازك أولا لتمكين هذه الميزة.",
+    "protected_access_removed_lock_snack_alert": "تم إزالة قفل جهازك. للمتابعة، يرجى إعداد قفل جديد.",
+    "protected_access_failed_lock_snack_alert": "فشل التحقق. تحتاج إلى تأكيد قفل جهازك للمتابعة.",
+    "tamper_protection_tile_title": "حماية من التلاعب",
+    "tamper_protection_tile_subtitle": "منع إلغاء التثبيت وإيقاف التطبيق قسريا.",
+    "tamper_protection_confirmation_dialog_info": "بمجرد التفعيل، لن تتمكن من إلغاء التثبيت أو إيقاف التطبيق قسريا أو مسح بيانات NLP digitox، إلا خلال فترة إلغاء التثبيت المحددة. لا توجد حلول بديلة.\n\nتابع على مسؤوليتك الخاصة.",
+    "uninstall_window_tile_title": "نافذة إلغاء التثبيت",
+    "uninstall_window_tile_subtitle": "يمكن تعطيل حماية التلاعب خلال 10 دقائق من الوقت المحدد.",
+    "invincible_window_tile_title": "نافذة الوضع غير القابل للهزيمة",
+    "invincible_window_tile_subtitle": "يمكن تعديل الحدود المختارة خلال 10 دقائق من الوقت المحدد.",
+    "@----------------------------- SHORTS BLOCKING SCREEN-----------------------------": {},
+    "shorts_blocking_tab_title": "حجب الفيديوهات القصيرة",
+    "shorts_blocking_tab_info": "تحكم في الوقت الذي تقضيه في مشاهدة المحتوى القصير عبر منصات مثل إنستجرام، يوتيوب، سناب شات، وفيسبوك، بما في ذلك مواقعهم الإلكترونية.",
+    "short_content_heading": "المحتوى القصير",
+    "shorts_time_left_from": "المتبقي من {timeShortString}",
+    "@shorts_time_left_from": {
+        "placeholders": {
+            "timeShortString": {
+                "type": "String",
+                "example": "1h 23m"
+            }
+        }
+    },
+    "short_content_timer_picker_dialog_info": "حدد حدا زمنيا يوميا للمحتوى القصير. عند الوصول إلى الحد، سيتوقف عرض المحتوى القصير حتى منتصف الليل.",
+    "instagram_features_tile_title": "إنستجرام",
+    "instagram_features_tile_subtitle": "تقييد الميزات على إنستجرام.",
+    "instagram_features_block_reels": "تقييد قسم الريلز.",
+    "instagram_features_block_explore": "تقييد قسم الاستكشاف.",
+    "snapchat_features_tile_title": "سناب شات",
+    "snapchat_features_tile_subtitle": "تقييد الميزات على سناب شات.",
+    "snapchat_features_block_spotlight": "تقييد قسم Spotlight.",
+    "snapchat_features_block_discover": "تقييد قسم Discover.",
+    "youtube_features_tile_title": "يوتيوب",
+    "youtube_features_tile_subtitle": "تقييد الفيديوهات القصيرة على يوتيوب.",
+    "facebook_features_tile_title": "فيسبوك",
+    "facebook_features_tile_subtitle": "تقييد الريلز على فيسبوك.",
+    "reddit_features_tile_title": "ريديت",
+    "reddit_features_tile_subtitle": "تقييد الفيديوهات القصيرة على ريديت.",
+    "@----------------------------- WEBSITES BLOCKING SCREEN-----------------------------": {},
+    "websites_blocking_tab_title": "حجب المواقع الإلكترونية",
+    "websites_blocking_tab_info": "حظر مواقع البالغين وأي مواقع مخصصة تختارها لخلق تجربة تصفح أكثر أمانًا وتركيزًا. تحكم في تصفحك وابقَ خاليًا من التشتيت.",
+    "adult_content_heading": "محتوى للبالغين",
+    "block_nsfw_title": "حظر المحتوى للبالغين",
+    "block_nsfw_subtitle": "تقييد المتصفحات من فتح المواقع الإباحية والمحتوى غير المناسب.",
+    "block_nsfw_dialog_info": "هل أنت متأكد؟ هذا الإجراء لا يمكن التراجع عنه. بمجرد تفعيل حجب المواقع الإباحية، لن تتمكن من إيقافه طالما أن هذا التطبيق مثبت على جهازك.",
+    "block_nsfw_dialog_button_block_anyway": "احجب على أي حال",
+    "blocked_websites_heading": "المواقع المحجوبة",
+    "blocked_websites_empty_list_hint": "انقر على زر «+ إضافة موقع» لإضافة المواقع المشتتة التي ترغب في حجبها.",
+    "add_website_fab_button": "إضافة موقع",
+    "add_website_dialog_title": "موقع مشتت",
+    "add_website_dialog_info": "أدخل رابط الموقع الذي تريد حظره.",
+    "add_website_dialog_is_nsfw": "هل الموقع يحتوي على محتوى للبالغين؟",
+    "add_website_dialog_nsfw_warning": "تحذير: لا يمكن إزالة مواقع البالغين بعد إضافتها.",
+    "add_website_dialog_button_block": "حظر",
+    "add_website_already_exist_snack_alert": "تمت إضافة الرابط مسبقا إلى قائمة المواقع المحظورة.",
+    "add_website_invalid_url_snack_alert": "رابط غير صالح! تعذر تحليل اسم المضيف.",
+    "remove_website_dialog_title": "إزالة الموقع",
+    "remove_website_dialog_info": "هل أنت متأكد أنك تريد إزالة '{websitehost}' من المواقع المحجوبة.",
+    "@remove_website_dialog_info": {
+        "placeholders": {
+            "websitehost": {
+                "type": "String",
+                "example": "example.com"
+            }
+        }
+    },
+    "@----------------------------- FOCUS SCREEN - FOCUS TAB -----------------------------": {},
+    "focus_tab_title": "التركيز",
+    "focus_tab_info": "عندما تحتاج إلى وقت للتركيز، ابدأ جلسة جديدة باختيار النوع، وتحديد التطبيقات المشتتة لإيقافها مؤقتا، وتفعيل وضع \"عدم الإزعاج\" لتحقيق تركيز دون انقطاع.",
+    "active_session_card_title": "جلسة نشطة",
+    "active_session_card_info": "لديك جلسة تركيز نشطة! انقر على \"عرض\" لمتابعة تقدمك ومعرفة الوقت المنقضي.",
+    "active_session_card_view_button": "عرض",
+    "focus_distracting_apps_removal_snack_alert": "لا يسمح بإزالة التطبيقات من قائمة التطبيقات المشتتة أثناء جلسة التركيز النشطة. ومع ذلك، يمكنك إضافة تطبيقات إضافية إلى القائمة خلال هذه الفترة.",
+    "focus_profile_tile_title": "ملف التركيز",
+    "focus_session_duration_tile_title": "مدة الجلسة",
+    "focus_session_duration_tile_subtitle": "غير محدودة (ما لم تقم بالإيقاف)",
+    "focus_session_duration_dialog_info": "يرجى اختيار المدة المطلوبة لهذه جلسة التركيز لتحديد الفترة التي ترغب في البقاء خلالها مركزا وخاليا من المشتتات.",
+    "focus_profile_customization_tile_title": "تخصيص الملف الشخصي",
+    "focus_profile_customization_tile_subtitle": "خصص الإعدادات للملف الشخصي المحدد.",
+    "focus_enforce_tile_title": "فرض الجلسة",
+    "focus_enforce_tile_subtitle": "يمنع إنهاء الجلسة قبل انتهاء الوقت المحدد.",
+    "focus_session_minimum_apps_snack_alert": "اختر تطبيقا واحدا على الأقل من التطبيقات المشتتة لبدء جلسة التركيز",
+    "focus_session_already_active_snack_alert": "لديك جلسة تركيز نشطة بالفعل. يرجى إكمالها أو إيقافها قبل بدء جلسة جديدة.",
+    "@----------------------------- FOCUS SESSION TYPES -----------------------------": {},
+    "focus_session_type_study": "دراسة",
+    "focus_session_type_work": "عمل",
+    "focus_session_type_exercise": "تمرين",
+    "focus_session_type_meditation": "تأمل",
+    "focus_session_type_creativeWriting": "الكتابة الإبداعية",
+    "focus_session_type_reading": "قراءة",
+    "focus_session_type_programming": "برمجة",
+    "focus_session_type_chores": "أعمال منزلية",
+    "focus_session_type_projectPlanning": "تخطيط المشروع",
+    "focus_session_type_artAndDesign": "الفن والتصميم",
+    "focus_session_type_languageLearning": "تعلم اللغات",
+    "focus_session_type_musicPractice": "تمرين الموسيقى",
+    "focus_session_type_selfCare": "العناية الذاتية",
+    "focus_session_type_brainstorming": "جلسة عصف ذهني",
+    "focus_session_type_skillDevelopment": "تطوير المهارات",
+    "focus_session_type_research": "بحث",
+    "focus_session_type_networking": "تواصل اجتماعي",
+    "focus_session_type_cooking": "طبخ",
+    "focus_session_type_sportsTraining": "تدريب رياضي",
+    "focus_session_type_restAndRelaxation": "راحة واسترخاء",
+    "focus_session_type_other": "أخرى",
+    "@----------------------------- FOCUS SCREEN - TIMELINE TAB -----------------------------": {},
+    "timeline_tab_title": "الجدول الزمني",
+    "focus_timeline_tab_info": "استكشف رحلة تركيزك باختيار تاريخ من التقويم. تابع تقدمك، أعد زيارة نجاحاتك، وتعلم من التحديات.",
+    "selected_month_productive_time_snack_alert": "إجمالي وقت إنتاجيتك للشهر المحدد هو {timeString}.",
+    "@selected_month_productive_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "selected_month_productive_days_label": "الأيام الإنتاجية",
+    "selected_month_productive_days_snack_alert": "لقد حققت إجمالي {daysCount} يوما إنتاجيا في الشهر المحدد.",
+    "@selected_month_productive_days_snack_alert": {
+        "placeholders": {
+            "daysCount": {
+                "type": "num",
+                "example": "12"
+            }
+        }
+    },
+    "selected_day_focused_time_label": "وقت التركيز",
+    "selected_day_focused_time_snack_alert": "إجمالي وقت تركيزك لليوم المحدد هو {timeString}.",
+    "@selected_day_focused_time_snack_alert": {
+        "placeholders": {
+            "timeString": {
+                "type": "String",
+                "example": "3 hours and 15 minutes"
+            }
+        }
+    },
+    "calender_heading": "التقويم",
+    "your_sessions_heading": "جلساتك",
+    "your_sessions_empty_list_hint": "لا توجد جلسات تركيز مسجلة لليوم المحدد.",
+    "focus_session_tile_timestamp_label": "الطابع الزمني",
+    "focus_session_tile_duration_label": "المدة",
+    "focus_session_tile_reflection_label": "تأمل",
+    "focus_session_state_active": "نشط",
+    "focus_session_state_successful": "ناجح",
+    "focus_session_state_failed": "فشل",
+    "@----------------------------- ACTIVE FOCUS SESSION SCREEN -----------------------------": {},
+    "active_session_tab_title": "جلسة",
+    "active_session_none_warning": "لم يتم العثور على جلسة نشطة. جار العودة إلى الشاشة الرئيسية.",
+    "active_session_dialog_button_keep_pushing": "استمر في التقدم",
+    "active_session_finish_dialog_title": "إنهاء",
+    "active_session_finish_dialog_info": "ابق قويا! أنت تبني تركيزا قيما. هل أنت متأكد من رغبتك في إنهاء جلسة التركيز هذه؟ كل لحظة إضافية تساهم في تحقيق أهدافك.",
+    "active_session_giveup_dialog_title": "الاستسلام",
+    "active_session_giveup_dialog_info": "تمسك! أنت على وشك الانتهاء، لا تستسلم الان! هل أنت متأكد من رغبتك في إنهاء جلسة التركيز مبكرا؟ سيتم فقدان التقدم المحرز.",
+    "active_session_reflection_dialog_title": "تأمل الجلسة",
+    "active_session_reflection_dialog_info": "خذ لحظة للتأمل في تقدمك. ما هو هدفك من هذه الجلسة؟ ماذا أنجزت خلال هذه الجلسة؟",
+    "active_session_reflection_dialog_tip": "نصيحة: يمكنك دائما تعديل هذا لاحقا في خط زمني الجلسة.",
+    "active_session_giveup_snack_alert": "لقد استسلمت! لا تقلق، يمكنك أن تكون أفضل في المرة القادمة. كل جهد يحتسب – فقط واصل المحاولة",
+    "active_session_quote_one": "كل خطوة تحتسب، ابق قويا واستمر في المضي قدما",
+    "active_session_quote_two": "ابق مركزا! أنت تحقق تقدما مذهلا",
+    "active_session_quote_three": "أنت تتألق! حافظ على هذا الزخم واستمر",
+    "active_session_quote_four": "تبقى القليل فقط، أنت تقوم بعمل رائع",
+    "active_session_quote_five": "تهانينا 🎉\nلقد أتممت جلسة التركيز التي استغرقت {durationString}.\n\nعمل رائع، استمر في هذا الأداء المذهل",
+    "@active_session_quote_five": {
+        "placeholders": {
+            "durationString": {
+                "type": "String",
+                "example": "30 minutes"
+            }
+        }
+    },
+    "@----------------------------- RESTRICTION GROUPS SCREEN -----------------------------": {},
+    "restriction_groups_tab_title": "مجموعات القيود",
+    "restriction_groups_tab_info": "حدد حدا زمنيا مجمعا لاستخدام شاشة مجموعة من التطبيقات. عند الوصول إلى الحد الإجمالي، سيتم إيقاف جميع التطبيقات في المجموعة لمساعدتك على الحفاظ على التركيز والتوازن.",
+    "restriction_group_time_spent_label": "الوقت المستغرق اليوم",
+    "restriction_group_time_left_label": "الوقت المتبقي اليوم",
+    "restriction_group_name_tile_title": "اسم المجموعة",
+    "restriction_group_name_picker_dialog_info": "أدخل اسما لمجموعة القيود لتسهيل التعرف عليها وإدارتها.",
+    "restriction_group_timer_tile_title": "مؤقت المجموعة",
+    "restriction_group_timer_picker_dialog_info": "حدد حدا زمنيا يوميا لهذه المجموعة. عند الوصول إلى الحد، سيتم إيقاف جميع التطبيقات في هذه المجموعة حتى منتصف الليل.",
+    "restriction_group_active_period_tile_title": "فترة نشاط المجموعة",
+    "remove_restriction_group_dialog_title": "حذف المجموعة",
+    "remove_restriction_group_dialog_info": "هل أنت متأكد من رغبتك في إزالة '{groupName}' من مجموعات القيود.",
+    "@remove_restriction_group_dialog_info": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Games"
+            }
+        }
+    },
+    "restriction_group_invalid_limits_snack_alert": "قم بتحديد مؤقت أو حد فترة نشاط.",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TAB -----------------------------": {},
+    "notifications_empty_list_hint": "لم يتم تجميع أي إشعارات لهذا اليوم.",
+    "conversations_label": "المحادثات",
+    "last_24_hours_heading": "آخر 24 ساعة",
+    "@----------------------------- NOTIFICATIONS SCREEN - NOTIFICATIONS TIMELINE TAB -----------------------------": {},
+    "notification_timeline_tab_info": "تصفح سجل إشعاراتك عن طريق اختيار تاريخ من التقويم. راجع التطبيقات التي لفتت انتباهك وتأمل في عاداتك الرقمية.",
+    "monthly_label": "شهريا",
+    "daily_label": "يوميا",
+    "search_notifications_sheet_info": "ابحث بسهولة في الإشعارات السابقة من خلال العنوان أو المحتوى. يساعدك ذلك على العثور بسرعة على التنبيهات المهمة.",
+    "search_notifications_hint": "ابحث في الإشعارات...",
+    "search_notifications_empty_list_hint": "لم يتم العثور على إشعارات تطابق بحثك.",
+    "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
+    "app_info_none_warning": "تعذر العثور على التطبيق للحزمة المحددة. جار العودة إلى الشاشة الرئيسية.",
+    "emergency_fab_button": "طوارئ",
+    "emergency_dialog_info": "سيؤدي هذا الإجراء إلى إيقاف مؤقت لحاجز التطبيقات لمدة 5 دقائق القادمة. لديك {leftPassesCount} فرص متبقية. بعد استخدام كل الفرص، سيظل التطبيق محظورا حتى منتصف الليل أو انتهاء جلسة التركيز النشطة.\n\nهل ترغب في المتابعة؟",
+    "@emergency_dialog_info": {
+        "placeholders": {
+            "leftPassesCount": {
+                "type": "num",
+                "example": "3"
+            }
+        }
+    },
+    "emergency_dialog_button_use_anyway": "استخدم على أي حال",
+    "emergency_started_snack_alert": "تم إيقاف حاجز التطبيقات مؤقتا وسيستأنف الحظر خلال 5 دقائق.",
+    "emergency_already_active_snack_alert": "مؤقت التطبيق حاليا إما موقوف أو غير نشط. إذا كانت الإشعارات مفعلة، ستتلقى تحديثات حول الوقت المتبقي.",
+    "emergency_no_pass_left_snack_alert": "لقد استخدمت جميع فرص الطوارئ المتاحة لك. ستظل التطبيقات المحجوبة محظورة حتى منتصف الليل، أو حتى انتهاء جلسة التركيز النشطة.",
+    "app_limit_status_not_set": "غير محدد",
+    "app_timer_tile_title": "مؤقت التطبيق",
+    "app_timer_picker_dialog_info": "حدد حدا زمنيا يوميا لهذا التطبيق. عند الوصول إلى الحد، سيتم إيقاف التطبيق حتى منتصف الليل.",
+    "usage_reminders_tile_title": "تذكيرات الاستخدام",
+    "usage_reminders_tile_subtitle": "تنبيهات لطيفة عند استخدام التطبيقات المحددة بالوقت.",
+    "app_launch_limit_tile_title": "حد الإطلاق",
+    "app_launch_limit_tile_subtitle": "تم الإطلاق {count} مرة اليوم.",
+    "@app_launch_limit_tile_subtitle": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "example": "15"
+            }
+        }
+    },
+    "app_launch_limit_picker_dialog_info": "حدد عدد المرات التي يمكنك فيها فتح هذا التطبيق يوميا. بمجرد الوصول إلى الحد، سيتم إيقافه مؤقتا حتى منتصف الليل.",
+    "app_active_period_tile_title": "الفترة النشطة",
+    "app_active_period_tile_subtitle": "من {startTime} إلى {endTime}",
+    "@app_active_period_tile_subtitle": {
+        "placeholders": {
+            "startTime": {
+                "type": "String",
+                "example": "10:00pm"
+            },
+            "endTime": {
+                "type": "String",
+                "example": "15"
+            }
+        }
+    },
+    "internet_access_tile_title": "الوصول إلى الإنترنت",
+    "internet_access_tile_subtitle": "قم بإيقاف التشغيل لحظر اتصال التطبيق بالإنترنت.",
+    "internet_access_blocked_snack_alert": "تم حظر الإنترنت لتطبيق {appName}.",
+    "@internet_access_blocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "internet_access_unblocked_snack_alert": "تم رفع الحظر عن الإنترنت لتطبيق {appName}.",
+    "@internet_access_unblocked_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "launch_app_tile_title": "فتح التطبيق",
+    "launch_app_tile_subtitle": "افتح {appName}.",
+    "@launch_app_tile_subtitle": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "go_to_app_settings_tile_title": "اذهب إلى إعدادات التطبيق",
+    "go_to_app_settings_tile_subtitle": "قم بإدارة إعدادات التطبيق مثل الإشعارات، الأذونات، التخزين والمزيد.",
+    "include_in_stats_tile_title": "تضمين في استخدام الشاشة",
+    "include_in_stats_tile_subtitle": "قم بإيقاف التشغيل لاستبعاد هذا التطبيق من إجمالي استخدام الشاشة.",
+    "app_excluded_from_stats_snack_alert": "تم استبعاد {appName} من إجمالي استخدام الشاشة.",
+    "@app_excluded_from_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "app_include_to_stats_snack_alert": "تم تضمين {appName} في إجمالي استخدام الشاشة.",
+    "@app_include_to_stats_snack_alert": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "NLP digitox"
+            }
+        }
+    },
+    "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
+    "general_tab_title": "عام",
+    "appearance_heading": "المظهر",
+    "theme_mode_tile_title": "وضع السمة",
+    "theme_mode_system_label": "النظام",
+    "theme_mode_light_label": "فاتح",
+    "theme_mode_dark_label": "داكن",
+    "material_color_tile_title": "لون المواد",
+    "amoled_dark_tile_title": "الوضع الداكن AMOLED",
+    "amoled_dark_tile_subtitle": "استخدم اللون الأسود النقي في وضع السمة الداكنة.",
+    "dynamic_colors_tile_title": "ألوان ديناميكية",
+    "dynamic_colors_tile_subtitle": "استخدم ألوان الجهاز إذا كانت مدعومة.",
+    "defaults_heading": "الإعدادات الافتراضية",
+    "app_language_tile_title": "لغة التطبيق",
+    "default_home_tab_tile_title": "علامة التبويب الرئيسية",
+    "usage_history_tile_title": "سجل الاستخدام",
+    "usage_history_15_days": "15 يوما",
+    "usage_history_1_month": "شهر 1",
+    "usage_history_3_month": "3 أشهر",
+    "usage_history_6_month": "6 أشهر",
+    "usage_history_1_year": "سنة 1",
+    "service_heading": "خدمة",
+    "service_stopping_warning": "إذا توقف تطبيق NLP digitox عن العمل فجأة، يرجى منح إذن \"تجاهل تحسين البطارية\" ليتمكن من العمل في الخلفية. إذا استمرت المشكلة، حاول إضافة NLP digitox إلى القائمة البيضاء لضمان أداء مستمر دون انقطاع.",
+    "whitelist_app_tile_title": "أضف NLP digitox إلى القائمة البيضاء",
+    "whitelist_app_tile_subtitle": "اسمح لتطبيق NLP digitox بالبدء التلقائي.",
+    "whitelist_app_unsupported_snack_alert": "هذا الجهاز لا يدعم إدارة التشغيل التلقائي.",
+    "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
+    "database_tab_title": "قاعدة البيانات",
+    "import_db_tile_title": "استيراد قاعدة البيانات",
+    "import_db_tile_subtitle": "استيراد قاعدة البيانات من ملف.",
+    "export_db_tile_title": "تصدير قاعدة البيانات",
+    "export_db_tile_subtitle": "تصدير قاعدة البيانات إلى ملف.",
+    "crash_logs_heading": "سجلات الأعطال",
+    "crash_logs_info": "إذا واجهت أي مشكلة، يمكنك الإبلاغ عنها على GitHub مع ملف السجل. يحتوي الملف على تفاصيل مثل الشركة المصنعة لجهازك، الطراز، إصدار أندرويد، إصدار SDK، وسجلات الأعطال. ستساعدنا هذه المعلومات في تحديد المشكلة وحلها بشكل أفضل.",
+    "crash_logs_export_tile_title": "تصدير سجلات الأعطال",
+    "crash_logs_export_tile_subtitle": "تصدير سجلات الأعطال إلى ملف JSON.",
+    "crash_logs_view_tile_title": "عرض السجلات",
+    "crash_logs_view_tile_subtitle": "استعرض سجلات الأعطال المخزنة.",
+    "crash_logs_empty_list_hint": "لم يتم تسجيل أي أعطال حتى الآن.",
+    "crash_logs_clear_tile_title": "مسح السجلات",
+    "crash_logs_clear_tile_subtitle": "حذف جميع سجلات الأعطال من قاعدة البيانات.",
+    "crash_logs_clear_dialog_info": "هل أنت متأكد أنك تريد مسح جميع سجلات الأعطال من قاعدة البيانات؟",
+    "crash_logs_clear_dialog_button_clear_anyway": "امسح على أي حال",
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "about_tab_title": "حول",
+    "changelog_tile_title": "سجل التغييرات",
+    "changelog_tile_subtitle": "اكتشف الجديد.",
+    "full_changelog_tile_title": "سجل التغييرات الكامل",
+    "redirected_to_github_subtitle": "سيتم توجيهك إلى GitHub.",
+    "contribute_heading": "شارك في التطوير",
+    "github_tile_title": "GitHub",
+    "github_tile_subtitle": "عرض كود المصدر.",
+    "report_issue_tile_title": "الإبلاغ عن مشكلة",
+    "suggest_idea_tile_title": "اقترح فكرة",
+    "write_email_tile_title": "راسلنا عبر البريد الإلكتروني",
+    "write_email_tile_subtitle": "سيتم توجيهك إلى تطبيق البريد الإلكتروني.",
+    "privacy_policy_heading": "سياسة الخصوصية",
+    "privacy_policy_info": "تلتزم NLP digitox بحماية خصوصيتك. نحن لا نجمع أو نخزن أو ننقل أي نوع من بيانات المستخدم. يعمل التطبيق بالكامل دون اتصال بالإنترنت، مما يضمن بقاء معلوماتك الشخصية خاصة وآمنة على جهازك. كبرنامج مجاني ومفتوح المصدر (FOSS)، يضمن NLP digitox شفافية كاملة وتحكم المستخدم الكامل في بياناته.",
+    "more_details_button": "مزيد من التفاصيل"
+}

@@ -1,0 +1,80 @@
+// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
+
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/enums/item_position.dart';
+import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/core/extensions/ext_widget.dart';
+import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+
+class SliverBatteryPermissionSwitchTile extends ConsumerWidget {
+  /// Creates a animated [DefaultListTile] for asking permission from user
+  /// with self handled state and automatically hides itself if the user have granted the permission
+  const SliverBatteryPermissionSwitchTile({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final havePermission = ref.watch(
+        permissionProvider.select((v) => v.haveIgnoreOptimizationPermission));
+
+    return DefaultListTile(
+      position: ItemPosition.top,
+      titleText: context.locale.permission_battery_optimization_tile_title,
+      enabled: !havePermission,
+      switchValue: havePermission,
+      leadingIcon: FluentIcons.battery_saver_20_regular,
+      subtitleText: havePermission
+          ? context.locale.permission_battery_optimization_status_enabled
+          : context.locale.permission_battery_optimization_status_disabled,
+      onPressed: ref
+          .read(permissionProvider.notifier)
+          .askIgnoreBatteryOptimizationPermission,
+    ).sliver;
+  }
+}
+
+class BatteryPermissionTile extends ConsumerWidget {
+  const BatteryPermissionTile({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final havePermission = ref.watch(
+        permissionProvider.select((v) => v.haveIgnoreOptimizationPermission));
+
+    return DefaultListTile(
+      position: ItemPosition.mid,
+      titleText: context.locale.permission_battery_optimization_tile_title,
+      accent: havePermission ? null : Theme.of(context).colorScheme.error,
+      subtitleText: havePermission
+          ? context.locale.permission_status_allowed
+          : context.locale.permission_status_not_allowed,
+      isSelected: havePermission,
+      onPressed: havePermission
+          ? null
+          : () {
+              // Show info about alarms and reminders permission.
+              final sdkVersion =
+                  MethodChannelService.instance.deviceInfo.sdkVersion;
+
+              if (sdkVersion >= 31) {
+                context.showSnackAlert(
+                  context.locale.permission_battery_optimization_allow_info,
+                  icon: FluentIcons.info_20_filled,
+                );
+              }
+
+              // ask permission
+              ref
+                  .read(permissionProvider.notifier)
+                  .askIgnoreBatteryOptimizationPermission();
+            },
+    );
+  }
+}
