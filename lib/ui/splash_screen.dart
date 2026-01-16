@@ -18,7 +18,6 @@ import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/breathing_widget.dart';
-import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 import 'package:nlp_digitox/ui/common/modern_background.dart';

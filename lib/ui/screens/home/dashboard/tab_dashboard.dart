@@ -24,7 +24,7 @@ import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/glance_cards/focus_daily_glance.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/glance_cards/screen_time_glance.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/glance_cards_grid.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/sliver_tips_and_tricks.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/sliver_ai_analysis.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -105,8 +105,8 @@ class TabDashboard extends ConsumerWidget {
             ),
           ),
 
-          /// Tips and tricks
-          const SliverTipsAndTricks(),
+          /// AI Analysis
+          const SliverAIAnalysis(),
 
           const SliverTabsBottomPadding(),
         ],
