@@ -82,7 +82,7 @@ class SessionCard extends ConsumerWidget {
               },
               color: Colors.transparent,
               leadingIcon: sessionTypeIcons[session.type] ??
-                  FluentIcons.target_arrow_20_regular,
+                  FluentIcons.brain_circuit_20_regular,
 
               /// Session type
               titleText: sessionTypeLabels(context)[session.type] ?? 'Session',

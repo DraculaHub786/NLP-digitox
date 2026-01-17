@@ -39,13 +39,20 @@ class TabAbout extends ConsumerWidget {
             circularRadius: 120,
             color: Theme.of(context).colorScheme.secondaryContainer,
             padding: const EdgeInsets.all(8),
-            child: const Icon(FluentIcons.target_arrow_20_regular, size: 64),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/logo.png',
+                width: 64,
+                height: 64,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
         ).sliver,
 
         /// Title
         const StyledText(
-          "Mindful",
+          "NLP-Digitox",
           fontSize: 32,
           fontWeight: FontWeight.bold,
         ).centered.sliver,
@@ -69,8 +76,7 @@ class TabAbout extends ConsumerWidget {
           positiveBtn: FilledButton.icon(
             icon: const Icon(FluentIcons.heart_20_filled),
             label: Text(context.locale.donation_card_button_donate),
-            onPressed: () => MethodChannelService.instance
-                .launchUrl(AppConstants.githubFeedbackSectionUrl),
+            onPressed: () => {},
           ),
         ),
 

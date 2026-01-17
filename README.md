@@ -1,13 +1,13 @@
 
 <div align="center">
-    <h1> <b>NLP digitox</b></h1>
-    <p><em>Your digital detox companion - powered by natural language processing</em></p>
+    <h1> <b>NLP-Digitox</b></h1>
+    <p><em>Presence over pixels</em></p>
 </div>
 
 > **Based on [Mindful](https://github.com/akaMrNagar/Mindful)** by Pawan Nagar  
 > Original project: https://github.com/akaMrNagar/Mindful
 
-**NLP digitox** is a free and open-source app designed to help you regain control over your digital habits, improve your focus, and boost productivity. Whether you're battling social media addiction, struggling to stay focused, or simply looking for a way to better manage your screen time, NLP digitox is here to assist.
+**NLP-Digitox** is a free and open-source app designed to help you regain control over your digital habits, improve your focus, and boost productivity. Whether you're battling social media addiction, struggling to stay focused, or simply looking for a way to better manage your screen time, NLP-Digitox is here to assist.
 
 ---
 
@@ -24,7 +24,7 @@
     Set daily usage limits for apps — especially for addictive short content like Reels or Shorts. Group similar apps, add shared limits, and enable Invincible Mode to lock restrictions after they're hit.
 
 - ### 3. Detailed Usage Insights
-    Check weekly screen time, app usage, and data consumption. NLP digitox helps you understand your habits so you can take control of your time.
+    Check weekly screen time, app usage, and data consumption. NLP-Digitox helps you understand your habits so you can take control of your time.
 
 - ### 4. App & Internet Blocking
     Block distracting apps or cut off internet access with one tap. Filter adult content and create a focused, safe environment for work or study.
@@ -39,18 +39,18 @@
     Set healthy digital habits for children with tamper-proof restrictions, invincible mode, and optional biometric lock.
 
 - ### 8. Privacy-First & Open Source
-    No ads. No tracking. NLP digitox works completely offline, keeping your data on your device and it's fully open-source, forever.
+    No ads. No tracking. NLP-Digitox works completely offline, keeping your data on your device and it's fully open-source, forever.
 
 > [!IMPORTANT]
 > ## Why _internet_ permission in manifest?
 > 
-> Android restricts apps from creating and protecting Local VPN tunnels without network permission. The Local VPN allows NLP digitox to block internet access for selected apps. This is why you see the network permission in the manifest. However, rest assured that NLP digitox does not collect or transmit any user data. You can verify this by checking the network usage in the app or in your device settings. 
+> Android restricts apps from creating and protecting Local VPN tunnels without network permission. The Local VPN allows NLP-Digitox to block internet access for selected apps. This is why you see the network permission in the manifest. However, rest assured that NLP-Digitox does not collect or transmit any user data. You can verify this by checking the network usage in the app or in your device settings. 
 
 
 
 # Credits
 
-NLP digitox is based on the excellent work of **Mindful** by Pawan Nagar.
+NLP-Digitox is based on the excellent work of **Mindful** by Pawan Nagar.
 
 **Original Project:** [Mindful](https://github.com/akaMrNagar/Mindful)  
 **Original Author:** Pawan Nagar  
@@ -63,7 +63,12 @@ If you find this app helpful, please consider supporting the original developer:
 
 # Feedback and Support
 
-Your feedback is invaluable to us! If you have suggestions, encounter issues, or simply want to share your thoughts, please reach out to us through the following channels : 
+Your feedback is invaluable to us! If you have suggestions, encounter issues, or simply want to share your thoughts, please reach out:
+
+* **[GitHub Issues](https://github.com/DraculaHub786/NLP-digitox/issues/new)** - Report bugs or suggest features
+* **[Email Support](mailto:afjalansari29162@gmail.com)** - Contact developer directly
+* **[Instagram](https://www.instagram.com/_afjal___ansari_?igsh=ZGlkZDU4eHF6NGM4)** - Follow for updates
+* **[LinkedIn](https://www.linkedin.com/in/afjal-ansari-999067299)** - Connect professionally
 
 For the original Mindful project support:
 * **[Original GitHub Repository](https://github.com/akaMrNagar/Mindful)**

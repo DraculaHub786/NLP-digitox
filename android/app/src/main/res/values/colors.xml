@@ -18,4 +18,5 @@
     <color name="primaryContainer">#e0e0f9</color>
     <color name="secondaryContainer">#e9e8ef</color>
     <color name="tertiaryContainer">#f5f1f9</color>
+	<color name="ic_launcher_background">#5B8DBE</color>
 </resources>

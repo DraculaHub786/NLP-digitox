@@ -10,7 +10,7 @@ import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class SliverTabsBottomPadding extends StatelessWidget {
-  /// Padded "Made with ♥️ in 🇮🇳" text
+  /// Padded "Presence Over Pixels" text
   const SliverTabsBottomPadding({
     super.key,
   });
@@ -22,9 +22,9 @@ class SliverTabsBottomPadding extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            /// Made with
+            /// Presence Over Pixels
             const StyledText(
-              "Made with ♥️ in 🇮🇳",
+              "Presence Over Pixels",
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -86,6 +86,24 @@ class SliverTabsBottomPadding extends StatelessWidget {
                   ),
                   onPressed: () => MethodChannelService.instance
                       .launchUrl(AppConstants.instagramUrl),
+                ),
+
+                /// LinkedIn
+                4.hBox,
+                RoundedContainer(
+                  height: 30,
+                  width: 30,
+                  circularRadius: 30,
+                  padding: const EdgeInsets.all(6),
+                  child: SvgPicture.asset(
+                    "assets/vectors/linkedin.svg",
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  onPressed: () => MethodChannelService.instance
+                      .launchUrl(AppConstants.linkedInUrl),
                 ),
 
                 /// Telegram

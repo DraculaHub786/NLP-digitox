@@ -176,10 +176,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       ],
                     ),
                     padding: const EdgeInsets.all(40),
-                    child: const Icon(
-                      FluentIcons.target_arrow_20_regular,
-                      size: 80,
-                      color: Colors.white,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/logo.png',
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -228,14 +231,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                     )
                   : 0.vBox,
 
-              /// Made with love
+              ///Presence Over Pixels
               GlassmorphicContainer(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 borderRadius: 16,
                 opacity: 0.05,
                 blur: 10,
                 child: const StyledText(
-                  "Made with ♥️ in 🇮🇳",
+                  "Presence Over Pixels",
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),

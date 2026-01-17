@@ -371,7 +371,7 @@
                         android:textAllCaps="false"
                         android:textColor="@color/secondaryContainer" />
 
-                    <!-- Made in India -->
+                    <!-- Presence Over Pixels -->
                     <TextView
                         android:id="@+id/overlay_sheet_made"
                         android:layout_width="match_parent"
@@ -379,7 +379,7 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="32dp"
                         android:gravity="center"
-                        android:text="Made with ♥️ in 🇮🇳"
+                        android:text="Presence Over Pixels"
                         android:textColor="@color/textSecondary"
                         android:textSize="12sp"
                         tools:ignore="HardcodedText" />
