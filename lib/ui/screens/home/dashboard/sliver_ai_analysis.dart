@@ -126,16 +126,18 @@ class _SliverAIAnalysisState extends State<SliverAIAnalysis> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         StyledText(
                           'Recommendations',
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         Expanded(
                           child: ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
+                            padding: EdgeInsets.zero,
                             itemCount: _recommendations.length,
                             itemBuilder: (context, index) {
                               return Padding(
@@ -144,7 +146,7 @@ class _SliverAIAnalysisState extends State<SliverAIAnalysis> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      margin: const EdgeInsets.only(top: 4),
+                                      margin: const EdgeInsets.only(top: 6),
                                       width: 6,
                                       height: 6,
                                       decoration: BoxDecoration(
@@ -157,8 +159,6 @@ class _SliverAIAnalysisState extends State<SliverAIAnalysis> {
                                       child: StyledText(
                                         _recommendations[index],
                                         fontSize: 13,
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
