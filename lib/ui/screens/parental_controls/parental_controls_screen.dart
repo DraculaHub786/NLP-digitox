@@ -16,6 +16,7 @@ import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/time_picker_dialog.dart';
+import 'package:nlp_digitox/ui/dialogs/parental_password_management_dialog.dart';
 import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
 import 'package:nlp_digitox/ui/screens/parental_controls/invincible_mode_settings.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
@@ -105,7 +106,7 @@ class ParentalControlsScreen extends ConsumerWidget {
               DefaultHero(
                 tag: HeroTags.uninstallWindowTileTag,
                 child: DefaultListTile(
-                  position: ItemPosition.bottom,
+                  position: ItemPosition.mid,
                   titleText: context.locale.uninstall_window_tile_title,
                   subtitleText: context.locale.uninstall_window_tile_subtitle,
                   trailing: StyledText(
@@ -138,6 +139,17 @@ class ParentalControlsScreen extends ConsumerWidget {
                           .changeUninstallWindowTime(pickedTime);
                     }
                   },
+                ),
+              ).sliver,
+
+              /// Parental password management
+              DefaultListTile(
+                position: ItemPosition.bottom,
+                leadingIcon: FluentIcons.password_20_regular,
+                titleText: "Manage Parental Password",
+                subtitleText: "Change your parental control password",
+                onPressed: () => showParentalPasswordManagementDialog(
+                  context: context,
                 ),
               ).sliver,
 

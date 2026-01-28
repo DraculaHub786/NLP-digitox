@@ -11,7 +11,7 @@ import 'package:nlp_digitox/ui/screens/app_dashboard/app_dashboard_screen.dart';
 import 'package:nlp_digitox/ui/screens/change_logs/change_logs_screen.dart';
 import 'package:nlp_digitox/ui/screens/focus/focus_screen.dart';
 import 'package:nlp_digitox/ui/screens/home/home_screen.dart';
-import 'package:nlp_digitox/ui/screens/parental_controls/parental_controls_screen.dart';
+import 'package:nlp_digitox/ui/screens/parental_controls/parental_controls_gate.dart';
 import 'package:nlp_digitox/ui/screens/restriction_groups/restriction_groups_screen.dart';
 import 'package:nlp_digitox/ui/screens/settings/settings_screen.dart';
 import 'package:nlp_digitox/ui/screens/shorts_blocking/shorts_blocking_screen.dart';
@@ -69,7 +69,7 @@ class AppRoutes {
         ),
 
     /// Parental controls screen
-    parentalControlsPath: (context) => const ParentalControlsScreen(),
+    parentalControlsPath: (context) => const ParentalControlsGate(),
 
     /// Restriction groups screen
     restrictionGroupsPath: (context) => const RestrictionGroupsScreen(),

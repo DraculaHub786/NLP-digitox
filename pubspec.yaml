@@ -43,6 +43,8 @@ dependencies:
   flutter_riverpod: ^2.5.1
   local_auth: ^2.3.0
   app_links: ^6.3.3
+  crypto: ^3.0.3
+  flutter_local_notifications: ^18.0.1
 
   # Firebase
   firebase_core: ^3.3.0

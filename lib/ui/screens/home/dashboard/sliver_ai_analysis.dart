@@ -157,7 +157,8 @@ class _SliverAIAnalysisState extends State<SliverAIAnalysis> {
                                       child: StyledText(
                                         _recommendations[index],
                                         fontSize: 13,
-                                        maxLines: 1,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],

@@ -11,6 +11,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/task_model.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
+import 'package:nlp_digitox/core/services/productivity_points_service.dart';
 
 class TasksNotifier extends StateNotifier<AsyncValue<List<TaskModel>>> {
   TasksNotifier() : super(const AsyncValue.loading()) {
@@ -18,6 +19,7 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskModel>>> {
   }
 
   final _service = ProductivityService.instance;
+  final _pointsService = ProductivityPointsService.instance;
 
   Future<void> loadTasks() async {
     state = const AsyncValue.loading();
@@ -60,6 +62,14 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskModel>>> {
     );
 
     await updateTask(updatedTask);
+
+    // Award points for completing the task
+    if (isCompleted) {
+      await _pointsService.awardTaskCompletionPoints(
+        taskTitle: task.title,
+        showNotification: true,
+      );
+    }
   }
 }
 

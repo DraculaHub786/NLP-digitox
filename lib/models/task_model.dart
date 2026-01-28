@@ -23,6 +23,7 @@ class TaskModel {
   final Color color;
   final DateTime createdAt;
   final DateTime? completedAt;
+  final DateTime? lastResetDate;
 
   const TaskModel({
     required this.id,
@@ -34,6 +35,7 @@ class TaskModel {
     required this.color,
     required this.createdAt,
     this.completedAt,
+    this.lastResetDate,
   });
 
   TaskModel copyWith({
@@ -46,6 +48,7 @@ class TaskModel {
     Color? color,
     DateTime? createdAt,
     DateTime? completedAt,
+    DateTime? lastResetDate,
   }) {
     return TaskModel(
       id: id ?? this.id,
@@ -57,6 +60,7 @@ class TaskModel {
       color: color ?? this.color,
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
+      lastResetDate: lastResetDate ?? this.lastResetDate,
     );
   }
 
@@ -71,6 +75,7 @@ class TaskModel {
       'colorValue': color.value,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'completedAt': completedAt?.millisecondsSinceEpoch,
+      'lastResetDate': lastResetDate?.millisecondsSinceEpoch,
     };
   }
 
@@ -88,6 +93,9 @@ class TaskModel {
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
       completedAt: json['completedAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(json['completedAt'] as int)
+          : null,
+      lastResetDate: json['lastResetDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lastResetDate'] as int)
           : null,
     );
   }

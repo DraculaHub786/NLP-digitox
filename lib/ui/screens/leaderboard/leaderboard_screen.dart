@@ -192,26 +192,46 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverToBoxAdapter(
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: ModernMetricCard(
-                    label: "Your Points",
-                    value: _totalPoints.toString(),
-                    icon: FluentIcons.trophy_20_filled,
-                    color: colorScheme.primary,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ModernMetricCard(
+                        label: "Your Points",
+                        value: _totalPoints.toString(),
+                        icon: FluentIcons.trophy_20_filled,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ModernMetricCard(
+                        label: "Current Rank",
+                        value: _currentUserData != null
+                            ? "#${_currentUserData!.rank}"
+                            : "-",
+                        icon: FluentIcons.star_20_filled,
+                        color: colorScheme.tertiary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ModernMetricCard(
-                    label: "Current Rank",
-                    value: _currentUserData != null
-                        ? "#${_currentUserData!.rank}"
-                        : "-",
-                    icon: FluentIcons.star_20_filled,
-                    color: colorScheme.tertiary,
-                  ),
+                const SizedBox(height: 12),
+                // Streak Card
+                ModernMetricCard(
+                  label: _currentUserData?.streak != null && _currentUserData!.streak > 0
+                      ? "Day Streak"
+                      : "Build Your Streak",
+                  value: _currentUserData?.streak != null && _currentUserData!.streak > 0
+                      ? "${_currentUserData!.streak} ${_currentUserData!.streak == 1 ? 'day' : 'days'}"
+                      : "Get started!",
+                  icon: _currentUserData?.streak != null && _currentUserData!.streak >= 7
+                      ? FluentIcons.fire_20_filled
+                      : FluentIcons.target_20_regular,
+                  color: _currentUserData?.streak != null && _currentUserData!.streak >= 7
+                      ? Colors.orange
+                      : colorScheme.secondary,
                 ),
               ],
             ),
@@ -390,17 +410,41 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                     const SizedBox(height: 4),
                                     Row(
                                       children: [
-                                        Icon(
-                                          FluentIcons.fire_20_filled,
-                                          size: 14,
-                                          color: Colors.orange,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        StyledText(
-                                          '${user.streak} day streak',
-                                          fontSize: 12,
-                                          color: colorScheme.onSurfaceVariant,
-                                        ),
+                                        if (user.streak > 0) ...[
+                                          Icon(
+                                            FluentIcons.fire_20_filled,
+                                            size: 14,
+                                            color: user.streak >= 7
+                                                ? Colors.orange
+                                                : colorScheme.onSurfaceVariant
+                                                    .withOpacity(0.6),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          StyledText(
+                                            '${user.streak} ${user.streak == 1 ? 'day' : 'days'}',
+                                            fontSize: 12,
+                                            fontWeight: user.streak >= 7
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                            color: user.streak >= 7
+                                                ? Colors.orange
+                                                : colorScheme.onSurfaceVariant,
+                                          ),
+                                        ] else ...[
+                                          Icon(
+                                            FluentIcons.sparkle_20_regular,
+                                            size: 14,
+                                            color: colorScheme.onSurfaceVariant
+                                                .withOpacity(0.5),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          StyledText(
+                                            'Start your streak!',
+                                            fontSize: 12,
+                                            color: colorScheme.onSurfaceVariant
+                                                .withOpacity(0.7),
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ],

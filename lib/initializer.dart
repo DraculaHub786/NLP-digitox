@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/productivity_reset_service.dart';
+import 'package:nlp_digitox/core/services/productivity_notification_service.dart';
 
 /// Initializer to initialize necessary things.
 class Initializer {
@@ -53,6 +55,12 @@ class Initializer {
     final notificationSettings = await uniqueDao.loadNotificationSettings();
     await MethodChannelService.instance
         .updateNotificationSettings(notificationSettings);
+
+    /// Initialize productivity notification service
+    await ProductivityNotificationService.instance.initialize();
+
+    /// Initialize productivity reset service for daily resets and notifications
+    await ProductivityResetService.instance.initialize();
 
     debugPrint(
       "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",

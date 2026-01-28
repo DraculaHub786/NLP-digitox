@@ -20,6 +20,8 @@ class HabitModel {
   final bool completedToday;
   final DateTime createdAt;
   final List<DateTime> completedDates;
+  final DateTime? lastCompletedDate;
+  final DateTime? lastResetDate;
 
   const HabitModel({
     required this.id,
@@ -30,6 +32,8 @@ class HabitModel {
     this.completedToday = false,
     required this.createdAt,
     this.completedDates = const [],
+    this.lastCompletedDate,
+    this.lastResetDate,
   });
 
   HabitModel copyWith({
@@ -41,6 +45,8 @@ class HabitModel {
     bool? completedToday,
     DateTime? createdAt,
     List<DateTime>? completedDates,
+    DateTime? lastCompletedDate,
+    DateTime? lastResetDate,
   }) {
     return HabitModel(
       id: id ?? this.id,
@@ -51,6 +57,8 @@ class HabitModel {
       completedToday: completedToday ?? this.completedToday,
       createdAt: createdAt ?? this.createdAt,
       completedDates: completedDates ?? this.completedDates,
+      lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
+      lastResetDate: lastResetDate ?? this.lastResetDate,
     );
   }
 
@@ -64,6 +72,8 @@ class HabitModel {
       'completedToday': completedToday ? 1 : 0,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'completedDates': completedDates.map((d) => d.millisecondsSinceEpoch).toList(),
+      'lastCompletedDate': lastCompletedDate?.millisecondsSinceEpoch,
+      'lastResetDate': lastResetDate?.millisecondsSinceEpoch,
     };
   }
 
@@ -80,6 +90,12 @@ class HabitModel {
               ?.map((e) => DateTime.fromMillisecondsSinceEpoch(e as int))
               .toList() ??
           [],
+      lastCompletedDate: json['lastCompletedDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lastCompletedDate'] as int)
+          : null,
+      lastResetDate: json['lastResetDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lastResetDate'] as int)
+          : null,
     );
   }
 }
