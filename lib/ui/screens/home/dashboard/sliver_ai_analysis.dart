@@ -57,7 +57,7 @@ class _SliverAIAnalysisState extends State<SliverAIAnalysis> {
                       children: [
                         StyledText(
                           'Sentiment Analysis',
-                          fontSize: 15,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                         const SizedBox(height: 16),
@@ -130,7 +130,7 @@ class _SliverAIAnalysisState extends State<SliverAIAnalysis> {
                       children: [
                         StyledText(
                           'Recommendations',
-                          fontSize: 15,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                         const SizedBox(height: 12),
