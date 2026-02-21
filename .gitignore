@@ -47,3 +47,19 @@ app.*.map.json
 /android/app/release
 /android/app/.cxx/
 /android/build
+
+# Additional build outputs
+/android/.gradle
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+
+# Environment variables and API keys
+.env
+.env.*
+**/api_keys.dart
+**/secrets.dart
+
+# Large generated files
+/lib/l10n/generated/

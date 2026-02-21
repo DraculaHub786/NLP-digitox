@@ -34,6 +34,11 @@ class HabitsNotifier extends StateNotifier<AsyncValue<List<HabitModel>>> {
   }
 
   Future<void> addHabit(HabitModel habit) async {
+    // Limit to maximum 4 habits
+    final currentHabits = state.value ?? [];
+    if (currentHabits.length >= 4) {
+      throw Exception('Maximum 4 habits allowed');
+    }
     await _service.addHabit(habit);
     await loadHabits();
   }

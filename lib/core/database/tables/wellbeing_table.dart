@@ -17,7 +17,7 @@ class WellbeingTable extends Table {
 
   /// Allowed time for short content in SECONDS
   IntColumn get allowedShortsTimeSec =>
-      integer().withDefault(const Constant(30 * 60))();
+      integer().withDefault(const Constant(7 * 60 * 60))(); // 7 hours default
 
   /// List of feature which are blocked
   TextColumn get blockedFeatures => text()

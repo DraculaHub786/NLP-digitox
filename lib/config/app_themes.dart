@@ -7,8 +7,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 class AppTheme {
   // Modern gradient color scheme inspired by the reference UI
   static const _kSeedColor = Color(0xFF4DD6D9); // Turquoise/Cyan
-  static const _kSecondaryColor = Color(0xFF2DD4BF); // Teal
-  static const _kAccentColor = Color(0xFF60A5FA); // Light Blue
 
   static final _kShimmerEffect = ShimmerEffect(
     highlightColor: Colors.white.withValues(alpha: 0.6),
