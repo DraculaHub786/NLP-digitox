@@ -45,7 +45,7 @@ const defaultParentalControlsModel = ParentalControls(
 
 const defaultWellbeingModel = Wellbeing(
   id: 0,
-  allowedShortsTimeSec: 30 * 60,
+  allowedShortsTimeSec: 7 * 60 * 60, // 7 hours default screen time goal
   blockedFeatures: [],
   blockNsfwSites: false,
   blockedWebsites: [],

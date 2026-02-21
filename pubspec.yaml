@@ -45,6 +45,7 @@ dependencies:
   app_links: ^6.3.3
   crypto: ^3.0.3
   flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.2
 
   # Firebase
   firebase_core: ^3.3.0
@@ -52,6 +53,9 @@ dependencies:
   cloud_firestore: ^5.2.1
   google_sign_in: ^6.2.1
   shared_preferences: ^2.2.2
+
+  # AI Integration
+  google_generative_ai: ^0.4.6
 
 dev_dependencies:
   flutter_test:

@@ -151,7 +151,19 @@ class HabitsScreen extends ConsumerWidget {
       floatingActionButton: GlassFAB(
         icon: FluentIcons.add_20_filled,
         label: 'New Habit',
-        onPressed: () => _showAddHabitDialog(context, ref),
+        onPressed: () {
+          final habits = ref.read(habitsProvider).value ?? [];
+          if (habits.length >= 4) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Maximum 4 habits allowed'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+          _showAddHabitDialog(context, ref);
+        },
       ),
     );
   }
@@ -262,7 +274,7 @@ class HabitsScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.trim().isEmpty) return;
 
                 final habit = HabitModel(
@@ -273,8 +285,22 @@ class HabitsScreen extends ConsumerWidget {
                   createdAt: DateTime.now(),
                 );
 
-                ref.read(habitsProvider.notifier).addHabit(habit);
-                Navigator.pop(context);
+                try {
+                  await ref.read(habitsProvider.notifier).addHabit(habit);
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
               child: const Text('Add'),
             ),

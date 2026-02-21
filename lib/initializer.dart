@@ -3,6 +3,8 @@ import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/services/productivity_reset_service.dart';
 import 'package:nlp_digitox/core/services/productivity_notification_service.dart';
+import 'package:nlp_digitox/core/services/notification_scheduler_service.dart';
+import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 
 /// Initializer to initialize necessary things.
 class Initializer {
@@ -59,8 +61,15 @@ class Initializer {
     /// Initialize productivity notification service
     await ProductivityNotificationService.instance.initialize();
 
+    /// Initialize notification scheduler service
+    await NotificationSchedulerService.instance.initialize();
+    await NotificationSchedulerService.instance.updateAllSchedules(notificationSettings.schedules);
+
     /// Initialize productivity reset service for daily resets and notifications
     await ProductivityResetService.instance.initialize();
+
+    /// Check and reset leaderboard streak if user was inactive
+    await LeaderboardService.instance.checkAndResetStreakIfNeeded();
 
     debugPrint(
       "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",

@@ -97,21 +97,27 @@ class ProductivityPointsService {
     bool showNotification = true,
   }) async {
     try {
+      // First check if streak should be reset due to inactivity
+      await _leaderboardService.checkAndResetStreakIfNeeded();
+      
       // Check if already awarded today
       final prefs = await SharedPreferences.getInstance();
       final lastAwardedTimestamp = prefs.getInt(_lastStreakPointsDateKey);
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      
+      // Using 4 AM as the reset time for consistency
+      final resetHour = 4;
+      final effectiveToday = now.hour < resetHour 
+          ? DateTime(now.year, now.month, now.day - 1)
+          : DateTime(now.year, now.month, now.day);
 
       if (lastAwardedTimestamp != null) {
         final lastAwarded = DateTime.fromMillisecondsSinceEpoch(lastAwardedTimestamp);
-        final lastAwardedDay = DateTime(
-          lastAwarded.year,
-          lastAwarded.month,
-          lastAwarded.day,
-        );
+        final lastAwardedDay = now.hour < resetHour 
+            ? DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day - 1)
+            : DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day);
 
-        if (lastAwardedDay == today) {
+        if (lastAwardedDay == effectiveToday) {
           debugPrint('Streak points already awarded today, skipping');
           return;
         }
@@ -126,7 +132,7 @@ class ProductivityPointsService {
       await _leaderboardService.updateStreak(streak);
 
       // Save last awarded date
-      await prefs.setInt(_lastStreakPointsDateKey, today.millisecondsSinceEpoch);
+      await prefs.setInt(_lastStreakPointsDateKey, now.millisecondsSinceEpoch);
 
       if (showNotification) {
         await _notificationService.sendPointsEarnedNotification(
@@ -151,17 +157,20 @@ class ProductivityPointsService {
       final prefs = await SharedPreferences.getInstance();
       final lastAwardedTimestamp = prefs.getInt(_lastScreenTimePointsDateKey);
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      
+      // Using 4 AM as the reset time for consistency
+      final resetHour = 4;
+      final effectiveToday = now.hour < resetHour 
+          ? DateTime(now.year, now.month, now.day - 1)
+          : DateTime(now.year, now.month, now.day);
 
       if (lastAwardedTimestamp != null) {
         final lastAwarded = DateTime.fromMillisecondsSinceEpoch(lastAwardedTimestamp);
-        final lastAwardedDay = DateTime(
-          lastAwarded.year,
-          lastAwarded.month,
-          lastAwarded.day,
-        );
+        final lastAwardedDay = now.hour < resetHour 
+            ? DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day - 1)
+            : DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day);
 
-        if (lastAwardedDay == today) {
+        if (lastAwardedDay == effectiveToday) {
           debugPrint('Screen time points already awarded today, skipping');
           return;
         }
@@ -173,7 +182,7 @@ class ProductivityPointsService {
       );
 
       // Save last awarded date
-      await prefs.setInt(_lastScreenTimePointsDateKey, today.millisecondsSinceEpoch);
+      await prefs.setInt(_lastScreenTimePointsDateKey, now.millisecondsSinceEpoch);
 
       if (showNotification) {
         await _notificationService.sendPointsEarnedNotification(
@@ -198,17 +207,20 @@ class ProductivityPointsService {
       final prefs = await SharedPreferences.getInstance();
       final lastAwardedTimestamp = prefs.getInt(_lastBedtimePointsDateKey);
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      
+      // Using 4 AM as the reset time for consistency
+      final resetHour = 4;
+      final effectiveToday = now.hour < resetHour 
+          ? DateTime(now.year, now.month, now.day - 1)
+          : DateTime(now.year, now.month, now.day);
 
       if (lastAwardedTimestamp != null) {
         final lastAwarded = DateTime.fromMillisecondsSinceEpoch(lastAwardedTimestamp);
-        final lastAwardedDay = DateTime(
-          lastAwarded.year,
-          lastAwarded.month,
-          lastAwarded.day,
-        );
+        final lastAwardedDay = now.hour < resetHour 
+            ? DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day - 1)
+            : DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day);
 
-        if (lastAwardedDay == today) {
+        if (lastAwardedDay == effectiveToday) {
           debugPrint('Bedtime points already awarded today, skipping');
           return;
         }
@@ -220,7 +232,7 @@ class ProductivityPointsService {
       );
 
       // Save last awarded date
-      await prefs.setInt(_lastBedtimePointsDateKey, today.millisecondsSinceEpoch);
+      await prefs.setInt(_lastBedtimePointsDateKey, now.millisecondsSinceEpoch);
 
       if (showNotification) {
         await _notificationService.sendPointsEarnedNotification(
@@ -245,17 +257,20 @@ class ProductivityPointsService {
       final prefs = await SharedPreferences.getInstance();
       final lastAwardedTimestamp = prefs.getInt(_lastAppRestrictionPointsDateKey);
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      
+      // Using 4 AM as the reset time for consistency
+      final resetHour = 4;
+      final effectiveToday = now.hour < resetHour 
+          ? DateTime(now.year, now.month, now.day - 1)
+          : DateTime(now.year, now.month, now.day);
 
       if (lastAwardedTimestamp != null) {
         final lastAwarded = DateTime.fromMillisecondsSinceEpoch(lastAwardedTimestamp);
-        final lastAwardedDay = DateTime(
-          lastAwarded.year,
-          lastAwarded.month,
-          lastAwarded.day,
-        );
+        final lastAwardedDay = now.hour < resetHour 
+            ? DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day - 1)
+            : DateTime(lastAwarded.year, lastAwarded.month, lastAwarded.day);
 
-        if (lastAwardedDay == today) {
+        if (lastAwardedDay == effectiveToday) {
           debugPrint('App restriction points already awarded today, skipping');
           return;
         }
@@ -267,7 +282,7 @@ class ProductivityPointsService {
       );
 
       // Save last awarded date
-      await prefs.setInt(_lastAppRestrictionPointsDateKey, today.millisecondsSinceEpoch);
+      await prefs.setInt(_lastAppRestrictionPointsDateKey, now.millisecondsSinceEpoch);
 
       if (showNotification) {
         await _notificationService.sendPointsEarnedNotification(

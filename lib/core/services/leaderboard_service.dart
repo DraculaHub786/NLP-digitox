@@ -263,4 +263,36 @@ class LeaderboardService {
       }).toList();
     });
   }
+
+  /// Check if user was inactive and reset streak if needed
+  /// Called on app initialization
+  Future<void> checkAndResetStreakIfNeeded() async {
+    try {
+      final userId = FirebaseAuthService.instance.userId;
+      if (userId == null) return;
+
+      final docRef = _firestore.collection('leaderboard').doc(userId);
+      final snapshot = await docRef.get();
+      
+      if (!snapshot.exists) return;
+
+      final data = snapshot.data();
+      if (data == null) return;
+
+      final lastUpdated = (data['lastUpdated'] as Timestamp?)?.toDate();
+      final currentStreak = (data['streak'] ?? 0) as int;
+
+      if (lastUpdated != null && currentStreak > 0) {
+        final daysSinceLastUpdate = DateTime.now().difference(lastUpdated).inDays;
+        
+        // Reset streak if user was inactive for more than 1 day
+        if (daysSinceLastUpdate > 1) {
+          await updateStreak(0);
+          debugPrint('Streak reset due to $daysSinceLastUpdate days of inactivity');
+        }
+      }
+    } catch (e) {
+      debugPrint('Check and reset streak error: $e');
+    }
+  }
 }

@@ -7,6 +7,7 @@ import 'package:nlp_digitox/core/database/daos/unique_records_dao.dart';
 import 'package:nlp_digitox/core/enums/recap_type.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/notification_scheduler_service.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/models/notification_schedule.dart';
 
@@ -19,6 +20,7 @@ final notificationSettingsProvider =
 /// This class manages the state of [NotificationConfig]settings.
 class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
   late UniqueRecordsDao _dao;
+  final _schedulerService = NotificationSchedulerService.instance;
 
   NotificationSettingsNotifier() : super(defaultNotificationSettingsModel) {
     _init();
@@ -29,6 +31,10 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
     _dao = DriftDbService.instance.driftDb.uniqueRecordsDao;
     state = await _dao.loadNotificationSettings();
     await MethodChannelService.instance.updateNotificationSettings(state);
+    
+    // Initialize scheduler and update all schedules
+    await _schedulerService.initialize();
+    await _schedulerService.updateAllSchedules(state.schedules);
 
     /// Listen to provider and save changes to Isar database and platform service
     addListener(
@@ -72,27 +78,39 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
     );
 
     /// Update state
-    state = state.copyWith(
-      schedules: state.schedules.toList()
-        ..add(newSchedule)
-        ..sort((a, b) => a.time.compareTo(b.time)),
-    );
+    final updatedSchedules = state.schedules.toList()
+      ..add(newSchedule)
+      ..sort((a, b) => a.time.compareTo(b.time));
+    
+    state = state.copyWith(schedules: updatedSchedules);
+    
+    // Update scheduled notifications
+    await _schedulerService.updateAllSchedules(updatedSchedules);
   }
 
   Future<void> updateSchedule(
     NotificationSchedule updatedSchedule,
     int index,
-  ) async =>
-      state = state.copyWith(
-        schedules: state.schedules.toList()
-          ..removeAt(index)
-          ..add(updatedSchedule)
-          ..sort((a, b) => a.time.compareTo(b.time)),
-      );
+  ) async {
+    final updatedSchedules = state.schedules.toList()
+      ..removeAt(index)
+      ..add(updatedSchedule)
+      ..sort((a, b) => a.time.compareTo(b.time));
+    
+    state = state.copyWith(schedules: updatedSchedules);
+    
+    // Update scheduled notifications
+    await _schedulerService.updateAllSchedules(updatedSchedules);
+  }
 
-  Future<void> removeSchedule(int index) async => state = state.copyWith(
-        schedules: state.schedules
-          ..removeAt(index)
-          ..sort((a, b) => a.time.compareTo(b.time)),
-      );
+  Future<void> removeSchedule(int index) async {
+    final updatedSchedules = state.schedules.toList()
+      ..removeAt(index)
+      ..sort((a, b) => a.time.compareTo(b.time));
+    
+    state = state.copyWith(schedules: updatedSchedules);
+    
+    // Update scheduled notifications
+    await _schedulerService.updateAllSchedules(updatedSchedules);
+  }
 }

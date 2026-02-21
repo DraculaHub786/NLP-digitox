@@ -23,7 +23,8 @@ class _ParentalPasswordManagementDialog extends StatefulWidget {
 }
 
 class _ParentalPasswordManagementDialogState
-    extends State<_ParentalPasswordManagementDialog> {
+    extends State<_ParentalPasswordManagementDialog>
+    with SingleTickerProviderStateMixin {
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -33,9 +34,38 @@ class _ParentalPasswordManagementDialogState
   String? _errorMessage;
   String? _successMessage;
   bool _isProcessing = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
+    _animationController.dispose();
     _oldPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -131,18 +161,28 @@ class _ParentalPasswordManagementDialogState
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(
-            FluentIcons.shield_lock_20_filled,
-            color: Theme.of(context).colorScheme.primary,
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                FluentIcons.shield_lock_20_filled,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              const Flexible(
+                child: Text(
+                  "Change Password",
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          const Text("Change Password"),
-        ],
-      ),
-      content: SingleChildScrollView(
+          content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +243,7 @@ class _ParentalPasswordManagementDialogState
               obscureText: _obscureConfirmPassword,
               enabled: !_isProcessing,
               decoration: InputDecoration(
-                labelText: "Confirm New Password",
+                labelText: "Confirm Password",
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(FluentIcons.lock_closed_20_regular),
                 suffixIcon: IconButton(
@@ -261,6 +301,8 @@ class _ParentalPasswordManagementDialogState
               : const Text("Change"),
         ),
       ],
+        ),
+      ),
     );
   }
 }
