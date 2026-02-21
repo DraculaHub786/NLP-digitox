@@ -4,9 +4,6 @@
     <p><em>Presence over pixels</em></p>
 </div>
 
-> **Based on [Mindful](https://github.com/akaMrNagar/Mindful)** by Pawan Nagar  
-> Original project: https://github.com/akaMrNagar/Mindful
-
 **NLP-Digitox** is a free and open-source app designed to help you regain control over your digital habits, improve your focus, and boost productivity. Whether you're battling social media addiction, struggling to stay focused, or simply looking for a way to better manage your screen time, NLP-Digitox is here to assist.
 
 ---
