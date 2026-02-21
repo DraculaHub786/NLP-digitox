@@ -56,7 +56,3 @@ Your feedback is invaluable to us! If you have suggestions, encounter issues, or
 * **[Instagram](https://www.instagram.com/_afjal___ansari_?igsh=ZGlkZDU4eHF6NGM4)** - Follow for updates
 * **[LinkedIn](https://www.linkedin.com/in/afjal-ansari-999067299)** - Connect professionally
 
-For the original Mindful project support:
-* **[Original GitHub Repository](https://github.com/akaMrNagar/Mindful)**
-* **[Original Project Support](mailto:help.lasthopedevs@gmail.com)**
-
