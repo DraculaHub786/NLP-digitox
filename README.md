@@ -47,20 +47,6 @@
 > Android restricts apps from creating and protecting Local VPN tunnels without network permission. The Local VPN allows NLP-Digitox to block internet access for selected apps. This is why you see the network permission in the manifest. However, rest assured that NLP-Digitox does not collect or transmit any user data. You can verify this by checking the network usage in the app or in your device settings. 
 
 
-
-# Credits
-
-NLP-Digitox is based on the excellent work of **Mindful** by Pawan Nagar.
-
-**Original Project:** [Mindful](https://github.com/akaMrNagar/Mindful)  
-**Original Author:** Pawan Nagar  
-**License:** GPL-2.0
-
-If you find this app helpful, please consider supporting the original developer:
-- [Buy Pawan a Coffee](https://www.buymeacoffee.com/akamrnagar)
-- [Sponsor on GitHub](https://github.com/sponsors/akamrnagar)
-
-
 # Feedback and Support
 
 Your feedback is invaluable to us! If you have suggestions, encounter issues, or simply want to share your thoughts, please reach out:
@@ -74,41 +60,3 @@ For the original Mindful project support:
 * **[Original GitHub Repository](https://github.com/akaMrNagar/Mindful)**
 * **[Original Project Support](mailto:help.lasthopedevs@gmail.com)**
 
----
-# Translation & Localization
-
-Translation support is inherited from the original Mindful project.
-
-A huge thank you to the original Mindful localization contributors
-[*@michelangelodepascale02*](https://crowdin.com/profile/michelangelodepascale02), 
-[*@mysticxz*](https://crowdin.com/profile/mysticxz), 
-[*@wreckingbang*](https://crowdin.com/profile/wreckingbang), 
-[*@eric*.nevard](https://crowdin.com/profile/eric.nevard), 
-[*@deltridev*](https://crowdin.com/profile/deltridev), 
-[*@luxdev01*](https://crowdin.com/profile/luxdev01), 
-[*@na7m*](https://crowdin.com/profile/na7m), 
-[*@riikun*](https://crowdin.com/profile/riikun), 
-[*@kareemkimo*](https://crowdin.com/profile/kareemkimo), 
-[*@uito*](https://crowdin.com/profile/uito), 
-[*@netobloom*](https://crowdin.com/profile/netobloom), 
-[*@marcmaderhome123*](https://crowdin.com/profile/marcmaderhome123), 
-[*@alpereneryilmaz03*](https://crowdin.com/profile/alpereneryilmaz03), 
-[*@keremk*](https://crowdin.com/profile/keremk), 
-[*@nolhanproduction*](https://crowdin.com/profile/nolhanproduction), 
-[*@lefetrtp*](https://crowdin.com/profile/lefetrtp), 
-[*@ceceayo*](https://crowdin.com/profile/ceceayo), 
-[*@jihuayu*](https://crowdin.com/profile/jihuayu), 
-[*@ngocanh*.tve](https://crowdin.com/profile/ngocanh.tve), 
-[*@vinaooooo*](https://crowdin.com/profile/vinaooooo), 
-[*@nlhm*](https://crowdin.com/profile/nlhm), 
-[*@nevena2ooo*](https://crowdin.com/profile/nevena2ooo), 
-[*@nerisal*](https://crowdin.com/profile/nerisal), 
-[*@andriik*](https://crowdin.com/profile/andriik), 
-[*@mateuszam*](https://crowdin.com/profile/mateuszam), 
-[*@jrodenas*](https://crowdin.com/profile/jrodenas), 
-[*@andre*.fernandes.it](https://crowdin.com/profile/andre.fernandes.it), 
-[*@fireflurry*](https://crowdin.com/profile/fireflurry),
-[*@youquan0914*](https://crowdin.com/profile/youquan0914), 
-[*@e_cllf*](https://crowdin.com/profile/e_cllf).
-[*@cypherzane*](https://crowdin.com/profile/cypherzane).
-[*@none_baiano*](https://crowdin.com/profile/none_baiano).
