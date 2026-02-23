@@ -1,18 +1,9 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/habit_model.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
 import 'package:nlp_digitox/core/services/productivity_points_service.dart';
-import 'package:nlp_digitox/core/services/productivity_notification_service.dart';
 
 class HabitsNotifier extends StateNotifier<AsyncValue<List<HabitModel>>> {
   HabitsNotifier() : super(const AsyncValue.loading()) {
@@ -21,7 +12,6 @@ class HabitsNotifier extends StateNotifier<AsyncValue<List<HabitModel>>> {
 
   final _service = ProductivityService.instance;
   final _pointsService = ProductivityPointsService.instance;
-  final _notificationService = ProductivityNotificationService.instance;
 
   Future<void> loadHabits() async {
     state = const AsyncValue.loading();
@@ -34,7 +24,6 @@ class HabitsNotifier extends StateNotifier<AsyncValue<List<HabitModel>>> {
   }
 
   Future<void> addHabit(HabitModel habit) async {
-    // Limit to maximum 4 habits
     final currentHabits = state.value ?? [];
     if (currentHabits.length >= 4) {
       throw Exception('Maximum 4 habits allowed');
@@ -75,8 +64,6 @@ class HabitsNotifier extends StateNotifier<AsyncValue<List<HabitModel>>> {
           date.month == today.month &&
           date.day == today.day);
     }
-
-    // Calculate streak
     int newStreak = 0;
     if (isCompletedToday) {
       newStreak = 1;
@@ -104,28 +91,12 @@ class HabitsNotifier extends StateNotifier<AsyncValue<List<HabitModel>>> {
 
     await updateHabit(updatedHabit);
 
-    // Award points for completing the habit
     if (isCompletedToday) {
       await _pointsService.awardHabitCompletionPoints(
+        habitId: habit.id,
         habitName: habit.name,
         showNotification: true,
       );
-
-      // Award daily streak points if this is the first completion today
-      if (newStreak > 0) {
-        await _pointsService.awardDailyStreakPoints(
-          streak: newStreak,
-          showNotification: false, // Don't show notification for every habit
-        );
-      }
-
-      // Send milestone notification for specific streak milestones
-      if (newStreak > 0 && (newStreak == 7 || newStreak == 30 || newStreak % 50 == 0)) {
-        await _notificationService.sendStreakMilestoneNotification(
-          habitName: habit.name,
-          streak: newStreak,
-        );
-      }
     }
   }
 }

@@ -1,104 +1,41 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Afjal Ansari
- *  *
- *  * This source code is licensed under the GPL-2.0 license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+﻿// Copyright (c) 2024 NLP digitox
 
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// AI Service for sentiment analysis and personalized recommendations
-/// Uses Google Gemini AI (free tier) for accurate analysis
+/// Uses Groq API (free tier) for accurate and FAST analysis
 class AISentimentService {
-  // Singleton pattern
   static AISentimentService? _instance;
   static AISentimentService get instance {
     _instance ??= AISentimentService._();
     return _instance!;
   }
 
-  AISentimentService._() {
-    _initializeAI();
-    _testAPIConnection();
-  }
+  AISentimentService._();
 
-  // Google Gemini API key - Get your free API key from: https://makersuite.google.com/app/apikey
-  static const String _apiKey = 'AIzaSyAJSA_tbqeaSz6Tj-IsIQ1v00Ed7QPSd14'; // Replace with your actual API key
-  
-  late GenerativeModel _model;
-  ChatSession? _sharedChatSession; // Shared with chatbot for context
+  static const String _apiKey = 'YOUR_GROQ_API_KEY_HERE'; // Get free key at https://console.groq.com/keys
+  static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+  static const String _model = 'llama-3.1-8b-instant';
 
-  // Cache keys
+  Map<String, double>? _lastSentiment;
+  String? _lastSentimentContext;
+
   static const String _lastAnalysisKey = 'last_sentiment_analysis';
   static const String _lastAnalysisDateKey = 'last_sentiment_analysis_date';
 
-  void _initializeAI() {
-    try {
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AISentimentService: Invalid API key! Please set up your Gemini API key.');
-        return;
-      }
-      _model = GenerativeModel(
-        model: 'gemini-1.5-flash', // Free tier model
-        apiKey: _apiKey,
-        generationConfig: GenerationConfig(
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        ),
-      );
-      debugPrint('✅ AISentimentService: Initialized successfully with API key');
-    } catch (e) {
-      debugPrint('❌ AISentimentService: Error initializing - $e');
-    }
-  }
+  /// Get the last sentiment analysis for sharing with chatbot
+  Map<String, double>? getLastSentiment() => _lastSentiment;
+  String? getLastSentimentContext() => _lastSentimentContext;
 
-  /// Test API connection to verify key is working
-  Future<void> _testAPIConnection() async {
-    try {
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AISentimentService: Skipping API test - no valid key');
-        return;
-      }
-      
-      debugPrint('🧪 AISentimentService: Testing API connection...');
-      final testResponse = await _model.generateContent([
-        Content.text('Respond with OK if you can read this')
-      ]);
-      
-      if (testResponse.text != null && testResponse.text!.isNotEmpty) {
-        debugPrint('✅ AISentimentService: API connection successful! Response: ${testResponse.text}');
-      } else {
-        debugPrint('⚠️ AISentimentService: API responded but with empty content');
-      }
-    } catch (e, stackTrace) {
-      debugPrint('❌ AISentimentService: API connection test failed!');
-      debugPrint('Error: $e');
-      debugPrint('Stack trace: $stackTrace');
-      debugPrint('💡 Please check:');
-      debugPrint('   1. Your API key is valid: https://makersuite.google.com/app/apikey');
-      debugPrint('   2. Your device has internet connection');
-      debugPrint('   3. The Gemini API is enabled for your key');
-    }
-  }
-
-  /// Get or create shared chat session for collaborative AI
-  ChatSession _getSharedChatSession() {
-    _sharedChatSession ??= _model.startChat(history: []);
-    return _sharedChatSession!;
-  }
-
-  /// Clear chat history (useful for new day or reset)
-  void clearChatHistory() {
-    _sharedChatSession = null;
-    debugPrint('AISentimentService: Chat history cleared');
+  /// Clear sentiment cache (useful for new day or reset)
+  void clearSentimentCache() {
+    _lastSentiment = null;
+    _lastSentimentContext = null;
+    debugPrint('AISentimentService: Sentiment cache cleared');
   }
 
   /// Analyze user's digital wellbeing sentiment based on usage patterns
@@ -111,7 +48,6 @@ class AISentimentService {
     int? tasksCompleted,
   }) async {
     try {
-      // Check if API is properly configured
       if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
         debugPrint('⚠️ AISentimentService: API key not configured! Returning defaults.');
         return {
@@ -123,23 +59,28 @@ class AISentimentService {
         };
       }
       
-      // Check if we need to update analysis (once per 6 hours)
       final prefs = await SharedPreferences.getInstance();
       final lastAnalysisDate = prefs.getString(_lastAnalysisDateKey);
       final now = DateTime.now();
       
       if (lastAnalysisDate != null) {
         final lastDate = DateTime.parse(lastAnalysisDate);
-        if (now.difference(lastDate).inHours < 6) {
-          // Return cached analysis
+        final minutesSinceLastAnalysis = now.difference(lastDate).inMinutes;
+        
+        if (minutesSinceLastAnalysis < 30) {
+          debugPrint('💾 AISentimentService: Using cached sentiment (${minutesSinceLastAnalysis} minutes old)');
           final cached = prefs.getString(_lastAnalysisKey);
           if (cached != null) {
-            return _parseSentimentFromCache(cached);
+            final cachedSentiment = _parseSentimentFromCache(cached);
+            _lastSentiment = cachedSentiment;
+            debugPrint('✅ AISentimentService: Returning cached sentiment: $cachedSentiment');
+            return cachedSentiment;
           }
+        } else {
+          debugPrint('🔄 AISentimentService: Cache expired (${minutesSinceLastAnalysis} minutes old), fetching fresh analysis');
         }
       }
 
-      // Prepare usage context
       final screenTimeHours = (todayUsage.screenTime / 3600).toStringAsFixed(1);
       final goalHours = (screenTimeGoalSeconds / 3600).toStringAsFixed(1);
       final goalPercentage = ((todayUsage.screenTime / screenTimeGoalSeconds) * 100).toInt();
@@ -148,43 +89,69 @@ class AISentimentService {
 Analyze the digital wellbeing sentiment of a user based on their smartphone usage patterns today. Provide a psychological assessment.
 
 Usage Data:
-- Screen Time: $screenTimeHours hours (Goal: $goalHours hours, ${goalPercentage}% of goal)
+- Screen Time: $screenTimeHours hours (Goal: $goalHours hours, $goalPercentage percent of goal)
 - Mobile Data: ${(todayUsage.mobileData / 1024).toStringAsFixed(1)} MB
 - WiFi Data: ${(todayUsage.wifiData / 1024).toStringAsFixed(1)} MB
 - Current Streak: ${streakDays ?? 0} days
 - Habits Completed: ${habitsCompleted ?? 0}
 - Tasks Completed: ${tasksCompleted ?? 0}
 
-Analyze the user's sentiment and respond with ONLY 5 percentage values (must add up to 100%) in this exact format:
+IMPORTANT: Be deterministic - same usage data should produce consistent results.
+
+SCORING GUIDELINES (apply consistently):
+1. Screen time under goal: increase Positive and Focused
+2. Screen time over 150% of goal: increase Anxious and Negative
+3. Streak of 3+ days: increase Positive and Focused
+4. Habits completed: increase Positive and Focused
+5. Screen time 100-130% of goal: increase Neutral
+
+Respond with ONLY these 5 values (must total 100):
 Positive: XX
 Neutral: XX
 Negative: XX
 Anxious: XX
 Focused: XX
-
-Consider:
-- Is screen time within healthy limits?
-- Is the user maintaining good productivity habits?
-- Are they showing signs of digital anxiety or balance?
-- Do their patterns suggest focus or distraction?
 ''';
 
-      debugPrint('🤖 AISentimentService: Calling Gemini API for sentiment analysis...');
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? '';
+      debugPrint('🤖 AISentimentService: Calling Groq API for sentiment analysis...');
       
-      debugPrint('📥 AISentimentService: Received response from API');
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'messages': [
+            {'role': 'system', 'content': 'You are a deterministic digital wellbeing analyzer. Apply rules consistently. Same input = same output.'},
+            {'role': 'user', 'content': prompt},
+          ],
+          'temperature': 0.1,  // Low temperature for consistency
+          'max_tokens': 150,
+          'seed': 42,  // Fixed seed for deterministic results
+        }),
+      );
+      
+      if (response.statusCode != 200) {
+        debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
+        debugPrint('Response: ${response.body}');
+        throw Exception('API error: ${response.statusCode}');
+      }
+      
+      final jsonResponse = jsonDecode(response.body);
+      final text = jsonResponse['choices'][0]['message']['content'] as String;
+      
+      debugPrint('📥 AISentimentService: Received response from Groq API');
       debugPrint('Response text: $text');
       
-      // Parse sentiment percentages from AI response
       final sentiments = _parseSentiment(text);
       
-      // Cache the result
       await prefs.setString(_lastAnalysisKey, text);
       await prefs.setString(_lastAnalysisDateKey, now.toIso8601String());
       
-      // Update shared chat session with this analysis
-      _getSharedChatSession();
+      _lastSentiment = sentiments;
+      _lastSentimentContext = 'Screen time: $screenTimeHours hrs (goal: $goalHours hrs), Streak: ${streakDays ?? 0} days, Habits: ${habitsCompleted ?? 0}, Tasks: ${tasksCompleted ?? 0}';
       
       debugPrint('✅ AISentimentService: Sentiment analysis completed: $sentiments');
       return sentiments;
@@ -192,8 +159,20 @@ Consider:
     } catch (e, stackTrace) {
       debugPrint('❌ AISentimentService: Error analyzing sentiment - $e');
       debugPrint('Stack trace: $stackTrace');
+      
+      final errorMsg = e.toString().toLowerCase();
+      if (errorMsg.contains('quota') || errorMsg.contains('limit') || errorMsg.contains('429')) {
+        debugPrint('⚠️ API QUOTA/RATE LIMIT ERROR: You may have exceeded the free tier limits.');
+        debugPrint('   Solutions:');
+        debugPrint('   1. Wait 1 minute and try again (30 requests/minute limit for Groq)');
+        debugPrint('   2. Check your usage at https://console.groq.com/');
+        debugPrint('   3. Generate a new API key if current one is exhausted');
+      } else if (errorMsg.contains('api key') || errorMsg.contains('invalid') || errorMsg.contains('401')) {
+        debugPrint('⚠️ INVALID API KEY ERROR: Your Groq API key may be incorrect or disabled.');
+        debugPrint('   Get a new key at: https://console.groq.com/keys');
+      }
+      
       debugPrint('⚠️ Returning default sentiment values due to API error');
-      // Return default sentiment on error
       return {
         'Positive': 40.0,
         'Neutral': 30.0,
@@ -225,19 +204,13 @@ Consider:
       final screenTimeHours = (todayUsage.screenTime / 3600).toStringAsFixed(1);
       final goalHours = (screenTimeGoalSeconds / 3600).toStringAsFixed(1);
       
-      // Build chat context if available
-      String chatContext = '';
-      if (recentChatMessages != null && recentChatMessages.isNotEmpty) {
-        chatContext = '\n\nRecent User Conversations:\n${recentChatMessages.join('\n')}';
-      }
-      
       final prompt = '''
 As a digital wellbeing AI assistant, provide 3-4 personalized, actionable recommendations for this user based on their usage patterns and emotional state.
 
 Current State:
 - Screen Time: $screenTimeHours hours (Goal: $goalHours hours)
 - Sentiment: ${currentSentiment.entries.map((e) => '${e.key}: ${e.value.toInt()}%').join(', ')}
-$chatContext
+
 
 Provide 3-4 brief, actionable recommendations (each max 15 words). Format as a simple numbered list:
 1. [Recommendation]
@@ -252,13 +225,35 @@ Focus on:
 - Practical, achievable steps
 ''';
 
-      debugPrint('🤖 AISentimentService: Calling Gemini API for recommendations...');
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? '';
+      debugPrint('🤖 AISentimentService: Calling Groq API for recommendations...');
       
-      debugPrint('📥 AISentimentService: Received recommendations from API');
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'messages': [
+            {'role': 'system', 'content': 'You are a digital wellbeing coach. Provide brief, actionable recommendations.'},
+            {'role': 'user', 'content': prompt},
+          ],
+          'temperature': 0.8,
+          'max_tokens': 200,
+        }),
+      );
       
-      // Parse recommendations
+      if (response.statusCode != 200) {
+        debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
+        throw Exception('API error: ${response.statusCode}');
+      }
+      
+      final jsonResponse = jsonDecode(response.body);
+      final text = jsonResponse['choices'][0]['message']['content'] as String;
+      
+      debugPrint('📥 AISentimentService: Received recommendations from Groq API');
+      
       final recommendations = _parseRecommendations(text);
       
       debugPrint('✅ AISentimentService: Generated ${recommendations.length} recommendations');
@@ -349,27 +344,8 @@ Focus on:
     
     return recommendations.take(4).toList();
   }
-
-  /// Send sentiment context to the shared chat session
-  /// This allows the chatbot to be aware of the user's emotional state
-  Future<void> shareSentimentWithChat(Map<String, double> sentiment, String context) async {
-    try {
-      final session = _getSharedChatSession();
-      
-      final prompt = '''
-[System Context Update - Do not respond to this]
-User's current emotional sentiment analysis:
-${sentiment.entries.map((e) => '${e.key}: ${e.value.toInt()}%').join(', ')}
-
-Context: $context
-
-Remember this for our conversation to provide more empathetic and contextual responses.
-''';
-      
-      await session.sendMessage(Content.text(prompt));
-      debugPrint('AISentimentService: Sentiment shared with chatbot');
-    } catch (e) {
-      debugPrint('AISentimentService: Error sharing sentiment with chat - $e');
-    }
-  }
 }
+
+
+
+

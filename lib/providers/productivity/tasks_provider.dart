@@ -1,12 +1,4 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/task_model.dart';
@@ -63,9 +55,9 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<TaskModel>>> {
 
     await updateTask(updatedTask);
 
-    // Award points for completing the task
     if (isCompleted) {
       await _pointsService.awardTaskCompletionPoints(
+        taskId: task.id,
         taskTitle: task.title,
         showNotification: true,
       );

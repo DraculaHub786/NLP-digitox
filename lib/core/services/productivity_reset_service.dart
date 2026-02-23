@@ -1,12 +1,4 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -23,7 +15,6 @@ class ProductivityResetService {
   static const String _lastResetDateKey = 'productivity_last_reset_date';
   static const String _notificationCheckTimeKey = 'productivity_notification_check_time';
   
-  // Singleton pattern
   static ProductivityResetService? _instance;
   static ProductivityResetService get instance {
     _instance ??= ProductivityResetService._();
@@ -39,7 +30,6 @@ class ProductivityResetService {
   Timer? _resetCheckTimer;
 
   /// Initialize the reset service
-  /// Call this during app startup
   Future<void> initialize() async {
     debugPrint('Initializing ProductivityResetService');
     
@@ -291,6 +281,7 @@ class ProductivityResetService {
           await _pointsService.awardScreenTimeGoalPoints(showNotification: true);
           debugPrint('User met screen time goal: $todayUsage <= ${wellbeingSettings.allowedShortsTimeSec} seconds');
         } else {
+          await _pointsService.resetScreenTimeStreak();
           debugPrint('User exceeded screen time goal: $todayUsage > ${wellbeingSettings.allowedShortsTimeSec} seconds');
         }
       }

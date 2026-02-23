@@ -66,15 +66,12 @@ class LeaderboardService {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
-  // Cache to reduce Firestore reads
   List<LeaderboardUser>? _cachedLeaderboard;
   DateTime? _lastFetchTime;
   static const _cacheDuration = Duration(minutes: 5);
 
-  /// Get top leaderboard users (default: 100)
   Future<List<LeaderboardUser>> getTopUsers({int limit = 100}) async {
     try {
-      // Return cached data if valid
       if (_cachedLeaderboard != null &&
           _lastFetchTime != null &&
           DateTime.now().difference(_lastFetchTime!) < _cacheDuration) {
@@ -96,7 +93,6 @@ class LeaderboardService {
         return LeaderboardUser.fromFirestore(doc, rank, currentUserId);
       }).toList();
 
-      // Update cache
       _cachedLeaderboard = users;
       _lastFetchTime = DateTime.now();
 

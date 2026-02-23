@@ -137,6 +137,6 @@ If none of these work, copy the error messages from the Flutter console and:
 
 ---
 
-**Quick Test:** Open the app, go to Dashboard, tap "Chat with AI Coach", type "hello". 
+**Quick Test:** Open the app, go to Dashboard, tap "Chat with AI", type "hello". 
 - ✅ If you get a response → AI is working!
 - ❌ If you get "Please configure your API key..." → Follow steps above
