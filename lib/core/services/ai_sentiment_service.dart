@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nlp_digitox/config/api_keys.dart';
 
 /// AI Service for sentiment analysis and personalized recommendations
 /// Uses Groq API (free tier) for accurate and FAST analysis
@@ -17,7 +18,7 @@ class AISentimentService {
 
   AISentimentService._();
 
-  static const String _apiKey = 'YOUR_GROQ_API_KEY_HERE'; // Get free key at https://console.groq.com/keys
+  static final String _apiKey = ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   static const String _model = 'llama-3.1-8b-instant';
 

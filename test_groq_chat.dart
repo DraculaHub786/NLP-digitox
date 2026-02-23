@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'lib/config/api_keys.dart';
 
 /// Test script to verify Groq API integration
 /// Run with: dart test_groq_chat.dart
 void main() async {
   print('🧪 Testing Groq API Chat Integration...\n');
   
-  const apiKey = 'YOUR_GROQ_API_KEY_HERE'; // Get free key at https://console.groq.com/keys
+  final apiKey = ApiKeys.groqApiKey;
   const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   const modelName = 'llama-3.1-8b-instant';
   
