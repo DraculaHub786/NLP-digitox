@@ -773,14 +773,37 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
     );
     
     if (newText != null && newText.isNotEmpty && newText != message.message) {
-      await AIChatbotService.instance.editMessage(message.id, newText);
-      // Refresh chat messages
-      ref.read(aiChatMessagesProvider.notifier).state = 
-          List.from(AIChatbotService.instance.chatHistory);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Message edited')),
-        );
+      // Show loading state
+      ref.read(aiChatLoadingProvider.notifier).state = true;
+      
+      try {
+        // Edit message and get new AI response
+        final aiResponse = await AIChatbotService.instance.editMessage(message.id, newText);
+        
+        // Refresh chat messages
+        ref.read(aiChatMessagesProvider.notifier).state = 
+            List.from(AIChatbotService.instance.chatHistory);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(aiResponse != null 
+                ? 'Message edited and AI response regenerated' 
+                : 'Message edited'),
+            ),
+          );
+          
+          // Scroll to bottom to show new AI response
+          Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
+      } finally {
+        ref.read(aiChatLoadingProvider.notifier).state = false;
       }
     }
   }

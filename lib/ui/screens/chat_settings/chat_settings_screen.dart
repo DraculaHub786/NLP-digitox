@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
+import 'package:nlp_digitox/providers/ai_providers.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 
@@ -112,6 +113,10 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
   Future<void> _switchToSession(ChatSession session) async {
     await AIChatbotService.instance.switchToSession(session.id);
     if (mounted) {
+      // Update the chat messages provider to reflect the switched session
+      ref.read(aiChatMessagesProvider.notifier).state = 
+          List.from(AIChatbotService.instance.chatHistory);
+      
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Switched to "${session.title}"')),

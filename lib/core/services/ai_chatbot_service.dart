@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
+import 'package:nlp_digitox/config/api_keys.dart';
 
 /// Model for chat messages with editing and deletion support
 class ChatMessage {
@@ -126,9 +127,10 @@ class AIChatbotService {
   AIChatbotService._() {
     _initializeAI();
     _loadChatHistory();
+    _startNewSessionOnAppOpen();
   }
 
-  static const String _apiKey = 'YOUR_GROQ_API_KEY_HERE'; // Get free key at https://console.groq.com/keys
+  static final String _apiKey = ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   static const String _modelName = 'llama-3.1-8b-instant';
   
@@ -236,6 +238,56 @@ Remember: You're a supportive friend helping them build better digital habits, n
     }
   }
 
+  /// Start a new session when app opens
+  Future<void> _startNewSessionOnAppOpen() async {
+    try {
+      // If we have a current session with messages, save it and start a new one
+      if (_currentSessionId != null && _chatHistory.isNotEmpty) {
+        await _saveCurrentSessionToHistory();
+        debugPrint('📝 Saved previous session, starting new session for app open');
+        
+        // Create new session
+        final newSession = ChatSession(
+          title: 'Chat ${_chatSessions.length + 1}',
+          createdAt: DateTime.now(),
+          lastMessageAt: DateTime.now(),
+          messages: [],
+        );
+        
+        _chatSessions.add(newSession);
+        _currentSessionId = newSession.id;
+        _chatHistory.clear();
+        _conversationHistory.clear();
+        _initializeAI();
+        
+        await _saveChatHistory();
+        debugPrint('✅ Started new chat session on app open: ${newSession.id}');
+      } else if (_currentSessionId == null || _chatSessions.isEmpty) {
+        // No current session, create first one
+        final newSession = ChatSession(
+          title: 'Chat 1',
+          createdAt: DateTime.now(),
+          lastMessageAt: DateTime.now(),
+          messages: [],
+        );
+        
+        _chatSessions.add(newSession);
+        _currentSessionId = newSession.id;
+        _chatHistory.clear();
+        _conversationHistory.clear();
+        _initializeAI();
+        
+        await _saveChatHistory();
+        debugPrint('✅ Created first chat session: ${newSession.id}');
+      } else {
+        // Current session exists but is empty, reuse it
+        debugPrint('✅ Reusing empty current session: $_currentSessionId');
+      }
+    } catch (e) {
+      debugPrint('❌ Error starting new session on app open: $e');
+    }
+  }
+
   /// Save chat history and sessions to storage
   Future<void> _saveChatHistory() async {
     try {
@@ -325,9 +377,9 @@ Remember: You're a supportive friend helping them build better digital habits, n
       debugPrint('🤖 AIChatbotService: Sending message to Groq API...');
       debugPrint('User message: $userMessage');
       
-      // Ensure we have a current session
+      // Ensure we have a current session (should always exist from _startNewSessionOnAppOpen)
       if (_currentSessionId == null || _chatSessions.isEmpty) {
-        debugPrint('📝 No current session, creating new one...');
+        debugPrint('📝 No current session found, creating one...');
         final newSession = await createNewSession();
         _currentSessionId = newSession.id;
       }
@@ -696,25 +748,66 @@ Adjust your responses to be empathetic to their current emotional state.
   // MESSAGE MANAGEMENT
   // ═══════════════════════════════════════════════════════
   
-  /// Edit a message
-  Future<void> editMessage(String messageId, String newText) async {
+  /// Edit a message and regenerate AI response
+  Future<String?> editMessage(String messageId, String newText) async {
     try {
       final messageIndex = _chatHistory.indexWhere((m) => m.id == messageId);
-      if (messageIndex != -1) {
-        _chatHistory[messageIndex] = _chatHistory[messageIndex].copyWith(
-          message: newText,
-          isEdited: true,
-        );
-        
-        // Update in conversation history if needed
-        final convIndex = _conversationHistory.indexWhere((m) => m['content'] == _chatHistory[messageIndex].message);
-        if (convIndex != -1) {
-          _conversationHistory[convIndex]['content'] = newText;
-        }
-        
-        await _saveChatHistory();
-        debugPrint('✅ Edited message: $messageId');
+      if (messageIndex == -1) {
+        debugPrint('❌ Message not found: $messageId');
+        return null;
       }
+      
+      final originalMessage = _chatHistory[messageIndex];
+      if (!originalMessage.isUser) {
+        debugPrint('❌ Cannot edit AI messages');
+        return null;
+      }
+      
+      // Update the user message
+      _chatHistory[messageIndex] = originalMessage.copyWith(
+        message: newText,
+        isEdited: true,
+      );
+      
+      // Remove all messages after this one (including AI's old response)
+      final messagesToRemove = _chatHistory.length - messageIndex - 1;
+      if (messagesToRemove > 0) {
+        _chatHistory.removeRange(messageIndex + 1, _chatHistory.length);
+        debugPrint('🗑️ Removed $messagesToRemove messages after edited message');
+      }
+      
+      // Rebuild conversation history up to the edited message
+      _conversationHistory.clear();
+      _initializeAI();
+      for (int i = 0; i <= messageIndex; i++) {
+        final msg = _chatHistory[i];
+        _conversationHistory.add({
+          'role': msg.isUser ? 'user' : 'assistant',
+          'content': msg.message,
+        });
+      }
+      
+      await _saveChatHistory();
+      debugPrint('✅ Edited message and cleared subsequent messages: $messageId');
+      
+      // Generate new AI response for the edited message
+      debugPrint('🔄 Regenerating AI response for edited message...');
+      final aiResponse = await _sendMessageWithRetry(newText);
+      
+      // Add the new AI response
+      final aiChatMessage = ChatMessage(
+        message: aiResponse,
+        isUser: false,
+        timestamp: DateTime.now(),
+      );
+      _chatHistory.add(aiChatMessage);
+      
+      await _saveChatHistory();
+      await _saveCurrentSessionToHistory();
+      
+      debugPrint('✅ Generated new AI response for edited message');
+      return aiResponse;
+      
     } catch (e) {
       debugPrint('❌ Error editing message: $e');
       rethrow;
