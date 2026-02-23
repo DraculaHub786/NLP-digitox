@@ -84,7 +84,7 @@ flutter run
 
 ### Using the AI Chatbot
 
-1. In the AI Analysis section, tap on **"Chat with AI Coach"**
+1. In the AI Analysis section, tap on **"Chat with AI"**
 2. The chat interface will expand
 3. Options:
    - Type your own message

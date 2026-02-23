@@ -41,7 +41,7 @@ flutter run
 - Actionable suggestions
 
 ### 💬 AI Chatbot
-- Tap "Chat with AI Coach" in dashboard
+- Tap "Chat with AI" in dashboard
 - Natural conversations
 - Ask anything about digital wellbeing
 - Context-aware (knows your usage patterns)

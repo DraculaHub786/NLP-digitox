@@ -1,12 +1,4 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +11,6 @@ class ProductivityService {
   static const String _tasksKey = 'user_tasks';
   static const String _notesKey = 'user_notes';
 
-  // Singleton pattern
   static ProductivityService? _instance;
   static ProductivityService get instance {
     _instance ??= ProductivityService._();

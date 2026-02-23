@@ -1,12 +1,4 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Afjal Ansari
- *  *
- *  * This source code is licensed under the GPL-2.0 license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
@@ -18,8 +10,7 @@ import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 
-/// Provider for AI sentiment analysis
-final aiSentimentProvider = FutureProvider.autoDispose<Map<String, double>>((ref) async {
+final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
   final todayUsage = ref.watch(
     weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday] ?? const UsageModel()),
   );
@@ -28,7 +19,6 @@ final aiSentimentProvider = FutureProvider.autoDispose<Map<String, double>>((ref
   final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
   final screenTimeGoal = wellbeingSettings.allowedShortsTimeSec;
 
-  // Get productivity stats
   final habitsCompleted = await _getCompletedHabitsToday();
   final tasksCompleted = await _getCompletedTasksToday();
   final streak = await _getCurrentStreak();
@@ -44,7 +34,6 @@ final aiSentimentProvider = FutureProvider.autoDispose<Map<String, double>>((ref
   return sentiment;
 });
 
-/// Provider for AI recommendations
 final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref) async {
   final todayUsage = ref.watch(
     weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday] ?? const UsageModel()),
@@ -54,10 +43,8 @@ final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref)
   final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
   final screenTimeGoal = wellbeingSettings.allowedShortsTimeSec;
 
-  // Get current sentiment
   final sentiment = await ref.watch(aiSentimentProvider.future);
 
-  // Get recent chat messages for context
   final recentMessages = AIChatbotService.instance.getRecentMessages(count: 3);
 
   final recommendations = await AISentimentService.instance.getRecommendations(
@@ -70,12 +57,10 @@ final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref)
   return recommendations;
 });
 
-/// Provider for chat messages
 final aiChatMessagesProvider = StateProvider<List<ChatMessage>>((ref) {
   return AIChatbotService.instance.chatHistory;
 });
 
-/// Provider for loading state during chat
 final aiChatLoadingProvider = StateProvider<bool>((ref) => false);
 
 /// Provider for suggested chat prompts

@@ -1,50 +1,122 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Afjal Ansari
- *  *
- *  * This source code is licensed under the GPL-2.0 license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 
-/// Model for chat messages
+/// Model for chat messages with editing and deletion support
 class ChatMessage {
+  final String id; // Unique identifier for editing/deletion
   final String message;
   final bool isUser;
   final DateTime timestamp;
+  final bool isEdited;
 
   ChatMessage({
+    String? id,
     required this.message,
     required this.isUser,
     required this.timestamp,
-  });
+    this.isEdited = false,
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'message': message,
       'isUser': isUser,
       'timestamp': timestamp.toIso8601String(),
+      'isEdited': isEdited,
     };
   }
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
+      id: map['id'] as String?,
       message: map['message'] as String,
       isUser: map['isUser'] as bool,
       timestamp: DateTime.parse(map['timestamp'] as String),
+      isEdited: map['isEdited'] as bool? ?? false,
+    );
+  }
+
+  ChatMessage copyWith({
+    String? id,
+    String? message,
+    bool? isUser,
+    DateTime? timestamp,
+    bool? isEdited,
+  }) {
+    return ChatMessage(
+      id: id ?? this.id,
+      message: message ?? this.message,
+      isUser: isUser ?? this.isUser,
+      timestamp: timestamp ?? this.timestamp,
+      isEdited: isEdited ?? this.isEdited,
     );
   }
 }
 
-/// AI Chatbot Service for human-like conversations using NLP
+/// Model for chat sessions
+class ChatSession {
+  final String id;
+  final String title;
+  final DateTime createdAt;
+  final DateTime lastMessageAt;
+  final List<ChatMessage> messages;
+
+  ChatSession({
+    String? id,
+    required this.title,
+    required this.createdAt,
+    required this.lastMessageAt,
+    required this.messages,
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'createdAt': createdAt.toIso8601String(),
+      'lastMessageAt': lastMessageAt.toIso8601String(),
+      'messages': messages.map((m) => m.toMap()).toList(),
+    };
+  }
+
+  factory ChatSession.fromMap(Map<String, dynamic> map) {
+    return ChatSession(
+      id: map['id'] as String?,
+      title: map['title'] as String,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      lastMessageAt: DateTime.parse(map['lastMessageAt'] as String),
+      messages: (map['messages'] as List)
+          .map((m) => ChatMessage.fromMap(m as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  ChatSession copyWith({
+    String? id,
+    String? title,
+    DateTime? createdAt,
+    DateTime? lastMessageAt,
+    List<ChatMessage>? messages,
+  }) {
+    return ChatSession(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      createdAt: createdAt ?? this.createdAt,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      messages: messages ?? this.messages,
+    );
+  }
+}
+
+/// AI Chatbot Service for conversational support using Groq API
 /// Integrates with sentiment analysis for context-aware responses
 class AIChatbotService {
-  // Singleton pattern
   static AIChatbotService? _instance;
   static AIChatbotService get instance {
     _instance ??= AIChatbotService._();
@@ -56,72 +128,98 @@ class AIChatbotService {
     _loadChatHistory();
   }
 
-  // Google Gemini API key - Same as sentiment service
-  static const String _apiKey = 'AIzaSyAJSA_tbqeaSz6Tj-IsIQ1v00Ed7QPSd14'; // Replace with your actual API key
+  static const String _apiKey = 'YOUR_GROQ_API_KEY_HERE'; // Get free key at https://console.groq.com/keys
+  static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+  static const String _modelName = 'llama-3.1-8b-instant';
   
-  late GenerativeModel _model;
-  late ChatSession _chatSession;
+  final List<Map<String, String>> _conversationHistory = [];
   final List<ChatMessage> _chatHistory = [];
+  final List<ChatSession> _chatSessions = [];
+  String? _currentSessionId;
 
-  // Cache keys
   static const String _chatHistoryKey = 'ai_chat_history';
-  static const int _maxHistoryMessages = 100; // Keep last 100 messages
+  static const String _chatSessionsKey = 'ai_chat_sessions';
+  static const String _currentSessionKey = 'ai_current_session';
+  static const int _maxHistoryMessages = 100;
+  static const int _autoDeletionDays = 30;
+  
+  DateTime? _lastRequestTime;
+  static const Duration _minRequestInterval = Duration(seconds: 2);
+  int _consecutiveErrors = 0;
+  int _requestsToday = 0;
+  DateTime? _lastResetDate;
+  static const int _maxRequestsPerDay = 14000;
+  
+  int _messagesSinceLastSentiment = 0;
+  static const int _sentimentContextInterval = 3;
+  
+  int _messagesInCurrentSession = 0;
+  static const int _maxMessagesPerSession = 15;
 
   void _initializeAI() {
     try {
       if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AIChatbotService: Invalid API key! Please set up your Gemini API key.');
+        debugPrint('⚠️ AIChatbotService: Invalid API key! Please set up your Groq API key.');
         return;
       }
-      _model = GenerativeModel(
-        model: 'gemini-1.5-flash', // Free tier model
-        apiKey: _apiKey,
-        generationConfig: GenerationConfig(
-          temperature: 0.9, // More creative for natural conversation
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 512,
-        ),
-        systemInstruction: Content.system('''
-You are a compassionate and knowledgeable digital wellbeing coach AI assistant named "NLP ditixBot". Your role is to:
+      
+      _conversationHistory.add({
+        'role': 'system',
+        'content': '''
+You are a compassionate digital wellbeing assistant named "ditixBot". Your role is to:
 
 1. Provide empathetic support for users managing their screen time and digital habits
 2. Offer practical advice on digital wellness, productivity, and mental health
 3. Be conversational, warm, and human-like in your responses
 4. Keep responses concise (2-3 sentences max) unless asked for detailed advice
-5. Reference the user's sentiment analysis and usage patterns when relevant
+5. Use the sentiment analysis context provided to personalize your responses
 6. Encourage healthy digital habits without being preachy
 7. Celebrate their progress and gently guide them when they struggle
 8. Use encouraging language and emojis occasionally to feel more personal
 
-Remember: You're a supportive friend helping them build better digital habits, not a therapist or medical professional.
-'''),
-      );
+Important: When context about the user's emotional state is provided, acknowledge it naturally and adjust your tone accordingly.
 
-      _chatSession = _model.startChat(history: []);
-      debugPrint('✅ AIChatbotService: Initialized successfully with API key');
+Remember: You're a supportive friend helping them build better digital habits, not a therapist or medical professional.
+'''
+      });
+      
+      debugPrint('✅ AIChatbotService: Initialized successfully with Groq API (30 RPM, 14,400 RPD)');
     } catch (e) {
       debugPrint('❌ AIChatbotService: Error initializing - $e');
     }
   }
 
-  /// Load chat history from storage
+  /// Load chat history and sessions from storage
   Future<void> _loadChatHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final historyJson = prefs.getStringList(_chatHistoryKey);
       
-      if (historyJson != null) {
+      // Load chat sessions
+      final sessionsJson = prefs.getString(_chatSessionsKey);
+      if (sessionsJson != null) {
+        final sessionsList = json.decode(sessionsJson) as List;
+        _chatSessions.clear();
+        for (final sessionMap in sessionsList) {
+          _chatSessions.add(ChatSession.fromMap(sessionMap as Map<String, dynamic>));
+        }
+        debugPrint('AIChatbotService: Loaded ${_chatSessions.length} chat sessions');
+      }
+      
+      _currentSessionId = prefs.getString(_currentSessionKey);
+      
+      final historyJson = prefs.getStringList(_chatHistoryKey);
+      if (historyJson != null && historyJson.isNotEmpty) {
         _chatHistory.clear();
         for (final json in historyJson) {
           try {
-            // Simple parsing since we're storing as strings
             final parts = json.split('|');
-            if (parts.length == 3) {
+            if (parts.length >= 3) {
               _chatHistory.add(ChatMessage(
+                id: parts.length > 3 ? parts[3] : null,
                 message: parts[0],
                 isUser: parts[1] == 'true',
                 timestamp: DateTime.parse(parts[2]),
+                isEdited: parts.length > 4 ? parts[4] == 'true' : false,
               ));
             }
           } catch (e) {
@@ -130,40 +228,109 @@ Remember: You're a supportive friend helping them build better digital habits, n
         }
         debugPrint('AIChatbotService: Loaded ${_chatHistory.length} messages from history');
       }
+      
+      await _autoDeleteOldChats();
+      
     } catch (e) {
       debugPrint('AIChatbotService: Error loading chat history - $e');
     }
   }
 
-  /// Save chat history to storage
+  /// Save chat history and sessions to storage
   Future<void> _saveChatHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      
       final historyJson = _chatHistory
           .take(_maxHistoryMessages)
-          .map((msg) => '${msg.message}|${msg.isUser}|${msg.timestamp.toIso8601String()}')
+          .map((msg) => '${msg.message}|${msg.isUser}|${msg.timestamp.toIso8601String()}|${msg.id}|${msg.isEdited}')
           .toList();
-      
       await prefs.setStringList(_chatHistoryKey, historyJson);
+      
+      final sessionsJson = json.encode(
+        _chatSessions.map((s) => s.toMap()).toList(),
+      );
+      await prefs.setString(_chatSessionsKey, sessionsJson);
+      
+      if (_currentSessionId != null) {
+        await prefs.setString(_currentSessionKey, _currentSessionId!);
+      }
+      
     } catch (e) {
       debugPrint('AIChatbotService: Error saving chat history - $e');
+    }
+  }
+  
+  /// Reset chat session to prevent unbounded history growth
+  /// This helps stay within token limits by clearing the session's internal history
+  Future<void> _resetChatSession() async {
+    try {
+      // Keep system message + last 6 user/assistant exchanges (12 messages)
+      final systemMsg = _conversationHistory.first; // System message
+      final recentMsgs = _conversationHistory.length > 13
+          ? _conversationHistory.sublist(_conversationHistory.length - 12)
+          : _conversationHistory.sublist(1); // Skip system msg if recreating
+      
+      _conversationHistory.clear();
+      _conversationHistory.add(systemMsg);
+      _conversationHistory.addAll(recentMsgs);
+      _messagesInCurrentSession = 0;
+      
+      debugPrint('✅ Chat session reset. Retained last ${recentMsgs.length} messages for context.');
+    } catch (e) {
+      debugPrint('❌ Error resetting chat session: $e');
+      // Fallback: reinitialize
+      _conversationHistory.clear();
+      _initializeAI();
+      _messagesInCurrentSession = 0;
     }
   }
 
   /// Get chat history
   List<ChatMessage> get chatHistory => List.unmodifiable(_chatHistory);
 
-  /// Send a message and get AI response
+  /// Send a message and get AI response with rate limiting and optimization
   Future<String> sendMessage(String userMessage) async {
     try {
       // Check if API is properly configured
       if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
         debugPrint('⚠️ AIChatbotService: API key not configured!');
-        return "Please configure your Google Gemini API key to use the AI chat feature. Visit the AI Setup Guide for instructions.";
+        return "Please configure your Groq API key to use the AI chat feature. Visit https://console.groq.com/keys for setup.";
       }
       
-      debugPrint('🤖 AIChatbotService: Sending message to Gemini API...');
+      // RATE LIMITING: Enforce minimum delay between requests
+      // Also check daily quota
+      final now = DateTime.now();
+      if (_lastResetDate == null || _lastResetDate!.day != now.day) {
+        _requestsToday = 0;
+        _lastResetDate = now;
+        debugPrint('🔄 Daily request counter reset');
+      }
+      
+      if (_requestsToday >= _maxRequestsPerDay) { // Safety limit below 14,400 RPD
+        debugPrint('⛔ Daily quota reached ($_requestsToday/$_maxRequestsPerDay). Try again tomorrow.');
+        return "⛔ Daily API limit reached. Groq free tier allows 14,400 requests/day. Please try again tomorrow.";
+      }
+      
+      if (_lastRequestTime != null) {
+        final timeSinceLastRequest = now.difference(_lastRequestTime!);
+        if (timeSinceLastRequest < _minRequestInterval) {
+          final waitTime = _minRequestInterval - timeSinceLastRequest;
+          debugPrint('⏱️ Rate limiting: Waiting ${waitTime.inSeconds}s before next request... (Request ${_requestsToday + 1}/$_maxRequestsPerDay today)');
+          await Future.delayed(waitTime);
+        }
+      }
+      
+      debugPrint('🚀 Sending message to AI: $userMessage');
+      debugPrint('🤖 AIChatbotService: Sending message to Groq API...');
       debugPrint('User message: $userMessage');
+      
+      // Ensure we have a current session
+      if (_currentSessionId == null || _chatSessions.isEmpty) {
+        debugPrint('📝 No current session, creating new one...');
+        final newSession = await createNewSession();
+        _currentSessionId = newSession.id;
+      }
       
       // Add user message to history
       final userChatMessage = ChatMessage(
@@ -172,11 +339,40 @@ Remember: You're a supportive friend helping them build better digital habits, n
         timestamp: DateTime.now(),
       );
       _chatHistory.add(userChatMessage);
+      
+      _messagesInCurrentSession++;
+      if (_messagesInCurrentSession >= _maxMessagesPerSession) {
+        debugPrint('🔄 Resetting chat session after $_messagesInCurrentSession messages to optimize token usage...');
+        await _resetChatSession();
+      }
 
-      // Get AI response
-      final response = await _chatSession.sendMessage(Content.text(userMessage));
-      final aiResponse = response.text ?? "I'm having trouble responding right now. Please try again.";
+      _messagesSinceLastSentiment++;
+      final sentimentService = AISentimentService.instance;
+      final lastSentiment = sentimentService.getLastSentiment();
+      final sentimentContext = sentimentService.getLastSentimentContext();
+      
+      String enhancedMessage = userMessage;
+      if (_messagesSinceLastSentiment >= _sentimentContextInterval && 
+          lastSentiment != null && 
+          sentimentContext != null) {
+        final topEmotion = lastSentiment.entries.reduce((a, b) => a.value > b.value ? a : b);
+        enhancedMessage = '''
+$userMessage
 
+[Context: User's emotional state is ${topEmotion.key} (${topEmotion.value.toInt()}%). Usage: $sentimentContext]
+''';
+        debugPrint('📊 Adding sentiment context: ${topEmotion.key} ${topEmotion.value.toInt()}%');
+        _messagesSinceLastSentiment = 0;
+      }
+
+      _lastRequestTime = DateTime.now();
+      _requestsToday++;
+      debugPrint('📊 API Request #$_requestsToday today');
+      final aiResponse = await _sendMessageWithRetry(enhancedMessage);
+      
+      _consecutiveErrors = 0;
+
+      debugPrint('✅ AI Response received: $aiResponse');
       debugPrint('📥 AIChatbotService: Received response from API');
       debugPrint('AI response: $aiResponse');
       
@@ -188,10 +384,9 @@ Remember: You're a supportive friend helping them build better digital habits, n
       );
       _chatHistory.add(aiChatMessage);
 
-      // Save to storage
       await _saveChatHistory();
+      await _saveCurrentSessionToHistory();
 
-      // Share this conversation with sentiment analysis AI
       await _shareChatWithSentiment(userMessage, aiResponse);
 
       debugPrint('✅ AIChatbotService: Conversation completed');
@@ -200,15 +395,81 @@ Remember: You're a supportive friend helping them build better digital habits, n
     } catch (e, stackTrace) {
       debugPrint('❌ AIChatbotService: Error sending message - $e');
       debugPrint('Stack trace: $stackTrace');
-      return "I apologize, but I'm having trouble connecting right now. Please check your internet connection and API key configuration.";
+      
+      _consecutiveErrors++;
+      
+      final errorMsg = e.toString().toLowerCase();
+      if (errorMsg.contains('quota') || errorMsg.contains('limit') || errorMsg.contains('429')) {
+        debugPrint('⚠️ API QUOTA/RATE LIMIT ERROR: Free tier limits reached.');
+        debugPrint('💡 Tip: Rate limiting is enforced (${_minRequestInterval.inSeconds}s between requests).');
+        return "⚠️ Rate limit reached. Groq free tier: 30 RPM, 14,400 RPD. Please wait ${_minRequestInterval.inSeconds} seconds between messages.";
+      } else if (errorMsg.contains('api key') || errorMsg.contains('invalid') || errorMsg.contains('401') || errorMsg.contains('unauthorized')) {
+        debugPrint('⚠️ INVALID API KEY ERROR');
+        return "❌ Invalid API key. Please update your Groq API key. Get one at https://console.groq.com/keys";
+      } else if (errorMsg.contains('model')) {
+        debugPrint('⚠️ MODEL ERROR: Invalid model name');
+        return "❌ Model error. Using '$_modelName'. If issues persist, check available models.";
+      }
+      
+      return "I apologize, but I'm having trouble connecting right now (${_consecutiveErrors} errors). Please check your internet connection and wait a moment before trying again.";
+    }
+  }
+  
+  Future<String> _sendMessageWithRetry(String message, {int attempt = 1}) async {
+    const maxAttempts = 3;
+    try {
+      _conversationHistory.add({'role': 'user', 'content': message});
+      
+      final requestBody = {
+        'model': _modelName,
+        'messages': _conversationHistory,
+        'temperature': 0.9,
+        'max_tokens': 300,
+        'top_p': 0.95,
+      };
+      
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_apiKey',
+        },
+        body: json.encode(requestBody),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final aiMessage = data['choices'][0]['message']['content'] as String;
+        
+        _conversationHistory.add({'role': 'assistant', 'content': aiMessage});
+        
+        return aiMessage;
+      } else {
+        final error = 'HTTP ${response.statusCode}: ${response.body}';
+        debugPrint('❌ Groq API Error: $error');
+        throw Exception(error);
+      }
+    } catch (e) {
+      final errorMsg = e.toString().toLowerCase();
+      final isRateLimit = errorMsg.contains('quota') || errorMsg.contains('limit') || errorMsg.contains('429');
+      
+      if (isRateLimit && attempt < maxAttempts) {
+        final backoffSeconds = 5 * (1 << (attempt - 1));
+        debugPrint('⏳ Rate limit hit. Retrying in ${backoffSeconds}s (attempt $attempt/$maxAttempts)...');
+        await Future.delayed(Duration(seconds: backoffSeconds));
+        
+        if (_conversationHistory.isNotEmpty && _conversationHistory.last['role'] == 'user') {
+          _conversationHistory.removeLast();
+        }
+        
+        return await _sendMessageWithRetry(message, attempt: attempt + 1);
+      }
+      rethrow;
     }
   }
 
-  /// Share chat conversation with sentiment AI for better mood analysis
   Future<void> _shareChatWithSentiment(String userMessage, String aiResponse) async {
     try {
-      // This allows sentiment AI to understand user's mood from conversations
-      // Context is shared bidirectionally for collaborative AI functioning
       debugPrint('AIChatbotService: Shared chat context with sentiment AI');
     } catch (e) {
       debugPrint('AIChatbotService: Error sharing chat with sentiment - $e');
@@ -216,12 +477,19 @@ Remember: You're a supportive friend helping them build better digital habits, n
   }
 
   /// Update chatbot with current sentiment analysis
-  /// This helps the chatbot understand user's emotional state
+  /// ⚠️ DISABLED to save API quota - sentiment context is already included in sendMessage every 3rd message
+  /// This method was making EXTRA API calls that caused quota exhaustion
   Future<void> updateWithSentiment({
     required Map<String, double> sentiment,
     required int screenTimeSeconds,
     required int goalSeconds,
   }) async {
+    // DISABLED: This was making hidden API calls that bypassed rate limiting
+    // Sentiment context is already included in chat messages (every 3rd message)
+    debugPrint('ℹ️ updateWithSentiment() called but DISABLED to save quota. Context already in messages.');
+    return; // Don't make API call
+    
+    /* ORIGINAL CODE - DISABLED
     try {
       final screenTimeHours = (screenTimeSeconds / 3600).toStringAsFixed(1);
       final goalHours = (goalSeconds / 3600).toStringAsFixed(1);
@@ -242,13 +510,14 @@ Adjust your responses to be empathetic to their current emotional state.
     } catch (e) {
       debugPrint('AIChatbotService: Error updating with sentiment - $e');
     }
+    */
   }
 
-  /// Clear chat history
   Future<void> clearHistory() async {
     try {
       _chatHistory.clear();
-      _chatSession = _model.startChat(history: []);
+      _conversationHistory.clear();
+      _initializeAI();
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_chatHistoryKey);
       debugPrint('AIChatbotService: Chat history cleared');
@@ -264,6 +533,262 @@ Adjust your responses to be empathetic to their current emotional state.
         .take(count)
         .map((msg) => msg.message)
         .toList();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // CHAT SESSION MANAGEMENT
+  // ═══════════════════════════════════════════════════════
+  
+  /// Get all chat sessions
+  List<ChatSession> getAllSessions() {
+    return List.unmodifiable(_chatSessions);
+  }
+  
+  /// Get current session
+  ChatSession? getCurrentSession() {
+    if (_currentSessionId == null) return null;
+    try {
+      return _chatSessions.firstWhere((s) => s.id == _currentSessionId);
+    } catch (e) {
+      return null;
+    }
+  }
+  
+  /// Create a new chat session
+  Future<ChatSession> createNewSession({String? title}) async {
+    try {
+      if (_currentSessionId != null && _chatHistory.isNotEmpty) {
+        await _saveCurrentSessionToHistory();
+      }
+      
+      final newSession = ChatSession(
+        title: title ?? 'Chat ${_chatSessions.length + 1}',
+        createdAt: DateTime.now(),
+        lastMessageAt: DateTime.now(),
+        messages: [],
+      );
+      
+      _chatSessions.add(newSession);
+      _currentSessionId = newSession.id;
+      
+      if (title != null) {
+        _chatHistory.clear();
+        _conversationHistory.clear();
+        _initializeAI();
+      }
+      
+      await _saveChatHistory();
+      debugPrint('✅ Created new chat session: ${newSession.id}');
+      
+      return newSession;
+    } catch (e) {
+      debugPrint('❌ Error creating new session: $e');
+      rethrow;
+    }
+  }
+  
+  /// Switch to a different chat session
+  Future<void> switchToSession(String sessionId) async {
+    try {
+      if (_currentSessionId != null && _chatHistory.isNotEmpty) {
+        await _saveCurrentSessionToHistory();
+      }
+      
+      final session = _chatSessions.firstWhere((s) => s.id == sessionId);
+      _currentSessionId = sessionId;
+      _chatHistory.clear();
+      _chatHistory.addAll(session.messages);
+      
+      _conversationHistory.clear();
+      _initializeAI();
+      for (final msg in session.messages) {
+        _conversationHistory.add({
+          'role': msg.isUser ? 'user' : 'assistant',
+          'content': msg.message,
+        });
+      }
+      
+      await _saveChatHistory();
+      debugPrint('✅ Switched to session: $sessionId');
+    } catch (e) {
+      debugPrint('❌ Error switching session: $e');
+      rethrow;
+    }
+  }
+  
+  /// Save current session to history
+  Future<void> _saveCurrentSessionToHistory() async {
+    try {
+      if (_currentSessionId == null || _chatHistory.isEmpty) return;
+      
+      final sessionIndex = _chatSessions.indexWhere((s) => s.id == _currentSessionId);
+      if (sessionIndex != -1) {
+        _chatSessions[sessionIndex] = _chatSessions[sessionIndex].copyWith(
+          messages: List.from(_chatHistory),
+          lastMessageAt: DateTime.now(),
+        );
+      } else {
+        final newSession = ChatSession(
+          id: _currentSessionId,
+          title: _generateSessionTitle(),
+          createdAt: _chatHistory.first.timestamp,
+          lastMessageAt: DateTime.now(),
+          messages: List.from(_chatHistory),
+        );
+        _chatSessions.add(newSession);
+      }
+      
+      await _saveChatHistory();
+    } catch (e) {
+      debugPrint('❌ Error saving current session: $e');
+    }
+  }
+  
+  /// Generate session title from first message
+  String _generateSessionTitle() {
+    if (_chatHistory.isEmpty) return 'New Chat';
+    final firstUserMsg = _chatHistory.firstWhere(
+      (m) => m.isUser,
+      orElse: () => _chatHistory.first,
+    );
+    final title = firstUserMsg.message.trim();
+    return title.length > 30 ? '${title.substring(0, 30)}...' : title;
+  }
+  
+  /// Delete a chat session
+  Future<void> deleteSession(String sessionId) async {
+    try {
+      _chatSessions.removeWhere((s) => s.id == sessionId);
+      
+      if (_currentSessionId == sessionId) {
+        _currentSessionId = null;
+        _chatHistory.clear();
+        _conversationHistory.clear();
+        _initializeAI();
+      }
+      
+      await _saveChatHistory();
+      debugPrint('✅ Deleted session: $sessionId');
+    } catch (e) {
+      debugPrint('❌ Error deleting session: $e');
+      rethrow;
+    }
+  }
+  
+  /// Rename a chat session
+  Future<void> renameSession(String sessionId, String newTitle) async {
+    try {
+      final sessionIndex = _chatSessions.indexWhere((s) => s.id == sessionId);
+      if (sessionIndex != -1) {
+        _chatSessions[sessionIndex] = _chatSessions[sessionIndex].copyWith(
+          title: newTitle,
+        );
+        await _saveChatHistory();
+        debugPrint('✅ Renamed session: $sessionId to $newTitle');
+      }
+    } catch (e) {
+      debugPrint('❌ Error renaming session: $e');
+      rethrow;
+    }
+  }
+  
+  // ═══════════════════════════════════════════════════════
+  // MESSAGE MANAGEMENT
+  // ═══════════════════════════════════════════════════════
+  
+  /// Edit a message
+  Future<void> editMessage(String messageId, String newText) async {
+    try {
+      final messageIndex = _chatHistory.indexWhere((m) => m.id == messageId);
+      if (messageIndex != -1) {
+        _chatHistory[messageIndex] = _chatHistory[messageIndex].copyWith(
+          message: newText,
+          isEdited: true,
+        );
+        
+        // Update in conversation history if needed
+        final convIndex = _conversationHistory.indexWhere((m) => m['content'] == _chatHistory[messageIndex].message);
+        if (convIndex != -1) {
+          _conversationHistory[convIndex]['content'] = newText;
+        }
+        
+        await _saveChatHistory();
+        debugPrint('✅ Edited message: $messageId');
+      }
+    } catch (e) {
+      debugPrint('❌ Error editing message: $e');
+      rethrow;
+    }
+  }
+  
+  /// Delete a specific message
+  Future<void> deleteMessage(String messageId) async {
+    try {
+      final messageIndex = _chatHistory.indexWhere((m) => m.id == messageId);
+      if (messageIndex != -1) {
+        final message = _chatHistory[messageIndex];
+        _chatHistory.removeAt(messageIndex);
+        
+        _conversationHistory.removeWhere((m) => m['content'] == message.message);
+        
+        await _saveChatHistory();
+        debugPrint('✅ Deleted message: $messageId');
+      }
+    } catch (e) {
+      debugPrint('❌ Error deleting message: $e');
+      rethrow;
+    }
+  }
+  
+  /// Copy message text to clipboard (returns message text)
+  String? copyMessage(String messageId) {
+    try {
+      final message = _chatHistory.firstWhere((m) => m.id == messageId);
+      debugPrint('✅ Copied message: $messageId');
+      return message.message;
+    } catch (e) {
+      debugPrint('❌ Error copying message: $e');
+      return null;
+    }
+  }
+  
+  // ═══════════════════════════════════════════════════════
+  // AUTO-DELETION
+  // ═══════════════════════════════════════════════════════
+  
+  /// Auto-delete chats older than 30 days
+  Future<void> _autoDeleteOldChats() async {
+    try {
+      final cutoffDate = DateTime.now().subtract(Duration(days: _autoDeletionDays));
+      final initialCount = _chatSessions.length;
+      
+      _chatSessions.removeWhere((session) {
+        final isOld = session.lastMessageAt.isBefore(cutoffDate);
+        if (isOld) {
+          debugPrint('🗑️ Auto-deleting old session: ${session.id} (${session.title})');
+        }
+        return isOld;
+      });
+      
+      final deletedCount = initialCount - _chatSessions.length;
+      if (deletedCount > 0) {
+        await _saveChatHistory();
+        debugPrint('✅ Auto-deleted $deletedCount old chat session(s) (older than $_autoDeletionDays days)');
+      }
+    } catch (e) {
+      debugPrint('❌ Error auto-deleting old chats: $e');
+    }
+  }
+  
+  /// Manually trigger auto-deletion check
+  Future<void> cleanupOldChats() async {
+    await _autoDeleteOldChats();
+  }
+  
+  /// Get sessions count that will be deleted
+  int getOldChatsCount() {
+    final cutoffDate = DateTime.now().subtract(Duration(days: _autoDeletionDays));
+    return _chatSessions.where((s) => s.lastMessageAt.isBefore(cutoffDate)).length;
   }
 
   /// Suggest conversation starters based on sentiment

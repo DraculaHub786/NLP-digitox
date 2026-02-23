@@ -14,13 +14,11 @@ final parentalControlsProvider =
 );
 
 class ParentalControlsNotifier extends StateNotifier<ParentalControls> {
-  /// Returns `TRUE` if the time now is between the uninstall window otherwise `FALSE`.
   bool get isBetweenUninstallWindow => DateTime.now().isBetweenTod(
         state.uninstallWindowTime,
         TimeOfDayAdapter.fromMinutes(state.uninstallWindowTime.toMinutes + 10),
       );
 
-  /// Returns `TRUE` if the time now is between the invincible window otherwise `FALSE`.
   bool get isBetweenInvincibleWindow => DateTime.now().isBetweenTod(
         state.invincibleWindowTime,
         TimeOfDayAdapter.fromMinutes(state.invincibleWindowTime.toMinutes + 10),
@@ -30,12 +28,10 @@ class ParentalControlsNotifier extends StateNotifier<ParentalControls> {
     init();
   }
 
-  /// Initializes the settings state by loading from the database and setting up a listener for saving changes.
   Future<ParentalControls> init() async {
     final dao = DriftDbService.instance.driftDb.uniqueRecordsDao;
     state = await dao.loadParentalControls();
 
-    /// Listen to provider and save changes to Isar database
     addListener(
       fireImmediately: false,
       (state) => dao.saveParentalControls(state),
@@ -44,15 +40,12 @@ class ParentalControlsNotifier extends StateNotifier<ParentalControls> {
     return state;
   }
 
-  /// Switch protected access
   void switchProtectedAccess() =>
       state = state.copyWith(protectedAccess: !state.protectedAccess);
 
-  /// Changes the time of day when uninstall widow starts for 5 minutes.
   void changeUninstallWindowTime(TimeOfDayAdapter time) =>
       state = state.copyWith(uninstallWindowTime: time);
 
-  /// Changes the time of day when invincible widow starts for 5 minutes.
   void changeInvincibleWindowTime(TimeOfDayAdapter time) =>
       state = state.copyWith(invincibleWindowTime: time);
 

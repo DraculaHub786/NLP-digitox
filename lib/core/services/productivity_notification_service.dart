@@ -1,19 +1,10 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+// Copyright (c) 2024 NLP digitox
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Service to handle productivity-related notifications
 class ProductivityNotificationService {
-  // Singleton pattern
   static ProductivityNotificationService? _instance;
   static ProductivityNotificationService get instance {
     _instance ??= ProductivityNotificationService._();
@@ -56,10 +47,8 @@ class ProductivityNotificationService {
     }
   }
 
-  /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
     debugPrint('Notification tapped: ${response.payload}');
-    // TODO: Navigate to productivity section
   }
 
   /// Send notification for incomplete items

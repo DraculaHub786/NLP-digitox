@@ -1,13 +1,22 @@
 // Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/NLP ditix)
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:sliver_tools/sliver_tools.dart' as sliver show MultiSliver;
 import 'package:nlp_digitox/providers/ai_providers.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
+import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:nlp_digitox/core/utils/date_time_utils.dart';
+import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
+import 'package:nlp_digitox/models/usage_model.dart';
+import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
+import 'package:nlp_digitox/core/services/drift_db_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nlp_digitox/ui/screens/chat_settings/chat_settings_screen.dart';
 
 class SliverAIAnalysis extends ConsumerStatefulWidget {
   const SliverAIAnalysis({super.key});
@@ -81,13 +90,34 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                   size: 14,
                                   color: colorScheme.primary,
                                 ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: StyledText(
-                                    'Sentiment',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    overflow: TextOverflow.ellipsis,
+                                const SizedBox(width: 6),
+                                StyledText(
+                                  'Sentiment',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                const Spacer(),
+                                // Refresh button
+                                InkWell(
+                                  onTap: () async {
+                                    // Clear cache and refresh
+                                    AISentimentService.instance.clearSentimentCache();
+                                    
+                                    // Also clear SharedPreferences cache
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.remove('last_sentiment_analysis');
+                                    await prefs.remove('last_sentiment_analysis_date');
+                                    
+                                    // Force refresh providers
+                                    ref.invalidate(aiSentimentProvider);
+                                    ref.invalidate(aiRecommendationsProvider);
+                                    
+                                    debugPrint('🔄 Manually refreshed sentiment analysis');
+                                  },
+                                  child: Icon(
+                                    FluentIcons.arrow_clockwise_20_regular,
+                                    size: 14,
+                                    color: colorScheme.primary.withOpacity(0.7),
                                   ),
                                 ),
                               ],
@@ -278,7 +308,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               StyledText(
-                                'Chat with AI Coach',
+                                'Chat with AI',
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -292,6 +322,23 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               ),
                             ],
                           ),
+                        ),
+                        // Settings button
+                        IconButton(
+                          icon: Icon(
+                            FluentIcons.settings_20_regular,
+                            size: 18,
+                            color: colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ChatSettingsScreen(),
+                              ),
+                            );
+                          },
+                          tooltip: 'Chat Settings',
                         ),
                         Icon(
                           _isChatExpanded 
@@ -568,26 +615,102 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             const SizedBox(width: 8),
           ],
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: isUser 
-                    ? colorScheme.primary
-                    : colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isUser ? 16 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 16),
+            child: Column(
+              crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onLongPress: () => _showMessageOptions(message, colorScheme),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isUser 
+                          ? colorScheme.primary
+                          : colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft: Radius.circular(isUser ? 16 : 4),
+                        bottomRight: Radius.circular(isUser ? 4 : 16),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StyledText(
+                          message.message,
+                          fontSize: 13,
+                          color: isUser 
+                              ? colorScheme.onPrimary
+                              : colorScheme.onSurface,
+                        ),
+                        if (message.isEdited)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: StyledText(
+                              '(edited)',
+                              fontSize: 10,
+                              color: isUser 
+                                  ? colorScheme.onPrimary.withOpacity(0.7)
+                                  : colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              child: StyledText(
-                message.message,
-                fontSize: 13,
-                color: isUser 
-                    ? colorScheme.onPrimary
-                    : colorScheme.onSurface,
-              ),
+                // Message actions
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Copy button
+                      InkWell(
+                        onTap: () => _copyMessage(message),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            FluentIcons.copy_20_regular,
+                            size: 14,
+                            color: colorScheme.outline,
+                          ),
+                        ),
+                      ),
+                      // Edit button (only for user messages)
+                      if (isUser) ...[
+                        const SizedBox(width: 4),
+                        InkWell(
+                          onTap: () => _editMessage(message),
+                          borderRadius: BorderRadius.circular(4),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Icon(
+                              FluentIcons.edit_20_regular,
+                              size: 14,
+                              color: colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                      ],
+                      // Delete button
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: () => _deleteMessage(message),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            FluentIcons.delete_20_regular,
+                            size: 14,
+                            color: Colors.red.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           if (isUser) ...[
@@ -606,6 +729,130 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             ),
           ],
         ],
+      ),
+    );
+  }
+  
+  // Message action handlers
+  void _copyMessage(ChatMessage message) {
+    final text = AIChatbotService.instance.copyMessage(message.id);
+    if (text != null) {
+      Clipboard.setData(ClipboardData(text: text));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Message copied to clipboard')),
+      );
+    }
+  }
+  
+  Future<void> _editMessage(ChatMessage message) async {
+    final controller = TextEditingController(text: message.message);
+    final newText = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Message'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Message',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    
+    if (newText != null && newText.isNotEmpty && newText != message.message) {
+      await AIChatbotService.instance.editMessage(message.id, newText);
+      // Refresh chat messages
+      ref.read(aiChatMessagesProvider.notifier).state = 
+          List.from(AIChatbotService.instance.chatHistory);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Message edited')),
+        );
+      }
+    }
+  }
+  
+  Future<void> _deleteMessage(ChatMessage message) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Message'),
+        content: const Text('Are you sure you want to delete this message?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirm == true) {
+      await AIChatbotService.instance.deleteMessage(message.id);
+      // Refresh chat messages
+      ref.read(aiChatMessagesProvider.notifier).state = 
+          List.from(AIChatbotService.instance.chatHistory);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Message deleted')),
+        );
+      }
+    }
+  }
+  
+  void _showMessageOptions(ChatMessage message, ColorScheme colorScheme) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(FluentIcons.copy_20_regular),
+              title: const Text('Copy'),
+              onTap: () {
+                Navigator.pop(context);
+                _copyMessage(message);
+              },
+            ),
+            if (message.isUser)
+              ListTile(
+                leading: const Icon(FluentIcons.edit_20_regular),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _editMessage(message);
+                },
+              ),
+            ListTile(
+              leading: const Icon(FluentIcons.delete_20_regular, color: Colors.red),
+              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _deleteMessage(message);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -678,32 +925,63 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
     ref.read(aiChatLoadingProvider.notifier).state = true;
 
     try {
-      // Send message to AI
-      await AIChatbotService.instance.sendMessage(message);
+      debugPrint('🚀 Sending message to AI: $message');
+      
+      // Send message to AI and get response
+      final response = await AIChatbotService.instance.sendMessage(message);
+      
+      debugPrint('✅ AI Response received: $response');
 
-      // Update chat history
+      // Update chat history immediately after receiving response
       ref.read(aiChatMessagesProvider.notifier).state = 
-          AIChatbotService.instance.chatHistory;
+          List.from(AIChatbotService.instance.chatHistory);
 
-      // Update sentiment AI with chat context
-      final sentimentAsync = ref.read(aiSentimentProvider);
-      sentimentAsync.whenData((sentiment) async {
-        await AIChatbotService.instance.updateWithSentiment(
-          sentiment: sentiment,
-          screenTimeSeconds: 0, // Will be updated from provider
-          goalSeconds: 0, // Will be updated from provider
+      // Update sentiment AI with chat context for better future analysis
+      try {
+        final sentimentAsync = ref.read(aiSentimentProvider);
+        final todayUsage = ref.read(weeklyDeviceUsageProvider(dateToday.weekRange))[dateToday] ?? const UsageModel();
+        final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
+        
+        await sentimentAsync.whenOrNull(
+          data: (sentiment) async {
+            await AIChatbotService.instance.updateWithSentiment(
+              sentiment: sentiment,
+              screenTimeSeconds: todayUsage.screenTime,
+              goalSeconds: wellbeingSettings.allowedShortsTimeSec,
+            );
+          },
         );
-      });
+      } catch (e) {
+        debugPrint('⚠️ Error updating sentiment context: $e');
+      }
 
-      // Scroll to bottom
+      // Refresh recommendations based on new chat context
+      ref.invalidate(aiRecommendationsProvider);
+
+      // Scroll to bottom to show new messages
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToBottom();
+        if (mounted) {
+          _scrollToBottom();
+        }
       });
-    } catch (e) {
-      debugPrint('Error sending message: $e');
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error sending message: $e');
+      debugPrint('Stack trace: $stackTrace');
+      
+      // Show error message in chat
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send message. Please check your internet connection and API key.'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     } finally {
       // Clear loading state
-      ref.read(aiChatLoadingProvider.notifier).state = false;
+      if (mounted) {
+        ref.read(aiChatLoadingProvider.notifier).state = false;
+      }
     }
   }
 }
