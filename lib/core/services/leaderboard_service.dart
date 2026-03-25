@@ -69,6 +69,10 @@ class LeaderboardService {
   List<LeaderboardUser>? _cachedLeaderboard;
   DateTime? _lastFetchTime;
   static const _cacheDuration = Duration(minutes: 5);
+  
+  // Weekly reset configuration
+  static const String _leaderboardConfigCollection = 'leaderboard_config';
+  static const String _leaderboardConfigDoc = 'weekly_reset';
 
   Future<List<LeaderboardUser>> getTopUsers({int limit = 100}) async {
     try {
@@ -289,6 +293,236 @@ class LeaderboardService {
       }
     } catch (e) {
       debugPrint('Check and reset streak error: $e');
+    }
+  }
+
+  /// Check if weekly leaderboard reset is needed and perform reset
+  /// Called on app initialization
+  /// Resets all users' points to 0 but preserves streaks
+  /// Reset happens every Monday at 4 AM
+  Future<void> checkAndPerformWeeklyReset() async {
+    try {
+      final now = DateTime.now();
+      
+      // Check if it's Monday (DateTime.monday = 1)
+      final isMonday = now.weekday == DateTime.monday;
+      
+      // Check if it's past 4 AM (reset hour)
+      final resetHour = 4;
+      final isPastResetTime = now.hour >= resetHour;
+      
+      final configDoc = await _firestore
+          .collection(_leaderboardConfigCollection)
+          .doc(_leaderboardConfigDoc)
+          .get();
+
+      DateTime? lastResetDate;
+
+      if (configDoc.exists) {
+        final data = configDoc.data();
+        final lastResetTimestamp = data?['lastResetDate'] as Timestamp?;
+        if (lastResetTimestamp != null) {
+          lastResetDate = lastResetTimestamp.toDate();
+        }
+      }
+
+      // If no last reset date, initialize it
+      if (lastResetDate == null) {
+        await _initializeLeaderboardWeek(now);
+        debugPrint('Initialized leaderboard weekly reset system (Resets every Monday at 4 AM)');
+        return;
+      }
+
+      // Determine if we're in the reset window and haven't reset this week
+      final lastResetWeekStart = _getWeekStart(lastResetDate);
+      final currentWeekStart = _getWeekStart(now);
+      final isNewWeek = currentWeekStart.isAfter(lastResetWeekStart);
+      
+      // Reset if:
+      // 1. It's Monday and past 4 AM, AND
+      // 2. We haven't reset yet this week
+      if (isMonday && isPastResetTime && isNewWeek) {
+        debugPrint('🔄 Weekly leaderboard reset triggered! (Monday 4 AM reset)');
+        debugPrint('   Last reset: ${lastResetDate.toString()}');
+        debugPrint('   Current time: ${now.toString()}');
+        
+        await _resetAllUsersPoints();
+        await _updateLastResetDate(now);
+        debugPrint('✅ Weekly leaderboard reset completed successfully');
+        
+        // Clear cache to reflect new data
+        clearCache();
+      } else {
+        if (isNewWeek && !isMonday) {
+          debugPrint('Leaderboard reset pending: Waiting for Monday at 4 AM');
+        } else if (isNewWeek && !isPastResetTime) {
+          debugPrint('Leaderboard reset pending: Waiting for 4 AM (Current: ${now.hour}:${now.minute})');
+        } else {
+          final daysUntilMonday = (DateTime.monday - now.weekday) % 7;
+          final nextResetDay = daysUntilMonday == 0 ? 'Today' : 'in $daysUntilMonday days';
+          debugPrint('Next leaderboard reset: Monday $nextResetDay at 4 AM');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking/performing weekly leaderboard reset: $e');
+    }
+  }
+
+  /// Get the start of the week (Monday at 00:00:00) for a given date
+  DateTime _getWeekStart(DateTime date) {
+    final dayOfWeek = date.weekday;
+    final daysToSubtract = dayOfWeek - DateTime.monday;
+    return DateTime(
+      date.year,
+      date.month,
+      date.day - daysToSubtract,
+    );
+  }
+
+  /// Initialize the leaderboard week tracking
+  Future<void> _initializeLeaderboardWeek(DateTime startDate) async {
+    try {
+      await _firestore
+          .collection(_leaderboardConfigCollection)
+          .doc(_leaderboardConfigDoc)
+          .set({
+        'lastResetDate': Timestamp.fromDate(startDate),
+        'weekNumber': 1,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error initializing leaderboard week: $e');
+    }
+  }
+
+  /// Update the last reset date in Firestore
+  Future<void> _updateLastResetDate(DateTime resetDate) async {
+    try {
+      final configDoc = await _firestore
+          .collection(_leaderboardConfigCollection)
+          .doc(_leaderboardConfigDoc)
+          .get();
+
+      final currentWeekNumber = configDoc.exists 
+          ? (configDoc.data()?['weekNumber'] ?? 0) as int
+          : 0;
+
+      await _firestore
+          .collection(_leaderboardConfigCollection)
+          .doc(_leaderboardConfigDoc)
+          .set({
+        'lastResetDate': Timestamp.fromDate(resetDate),
+        'weekNumber': currentWeekNumber + 1,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error updating last reset date: $e');
+    }
+  }
+
+  /// Reset all users' points to 0 while preserving streaks
+  Future<void> _resetAllUsersPoints() async {
+    try {
+      // Get all leaderboard documents
+      final querySnapshot = await _firestore
+          .collection('leaderboard')
+          .get();
+
+      // Batch write for efficiency
+      final batch = _firestore.batch();
+      int userCount = 0;
+
+      for (final doc in querySnapshot.docs) {
+        final data = doc.data();
+        final currentStreak = data['streak'] ?? 0;
+        
+        // Reset points and pointsBreakdown, but keep streak
+        batch.update(doc.reference, {
+          'points': 0,
+          'pointsBreakdown': {},
+          'streak': currentStreak, // Keep streak unchanged
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+        
+        userCount++;
+      }
+
+      await batch.commit();
+      debugPrint('Reset points for $userCount users (streaks preserved)');
+    } catch (e) {
+      debugPrint('Error resetting all users points: $e');
+      throw Exception('Failed to reset leaderboard');
+    }
+  }
+
+  /// Get the current leaderboard week information
+  Future<Map<String, dynamic>?> getLeaderboardWeekInfo() async {
+    try {
+      final configDoc = await _firestore
+          .collection(_leaderboardConfigCollection)
+          .doc(_leaderboardConfigDoc)
+          .get();
+
+      if (!configDoc.exists) return null;
+
+      final data = configDoc.data();
+      final lastResetDate = (data?['lastResetDate'] as Timestamp?)?.toDate();
+      final weekNumber = data?['weekNumber'] ?? 0;
+
+      if (lastResetDate == null) return null;
+
+      final now = DateTime.now();
+      final resetHour = 4;
+      
+      // Calculate next Monday at 4 AM
+      final daysUntilMonday = (DateTime.monday - now.weekday) % 7;
+      DateTime nextReset;
+      
+      if (daysUntilMonday == 0) {
+        // Today is Monday
+        if (now.hour < resetHour) {
+          // Reset hasn't happened yet today
+          nextReset = DateTime(now.year, now.month, now.day, resetHour);
+        } else {
+          // Reset already happened, next one is in 7 days
+          nextReset = DateTime(now.year, now.month, now.day + 7, resetHour);
+        }
+      } else {
+        // Not Monday, calculate next Monday at 4 AM
+        nextReset = DateTime(now.year, now.month, now.day + daysUntilMonday, resetHour);
+      }
+      
+      final hoursUntilReset = nextReset.difference(now).inHours;
+      final daysUntilReset = (hoursUntilReset / 24).ceil();
+      final daysSinceReset = now.difference(lastResetDate).inDays;
+
+      return {
+        'lastResetDate': lastResetDate,
+        'nextResetDate': nextReset,
+        'weekNumber': weekNumber,
+        'daysSinceReset': daysSinceReset,
+        'daysUntilReset': daysUntilReset > 0 ? daysUntilReset : 0,
+        'hoursUntilReset': hoursUntilReset > 0 ? hoursUntilReset : 0,
+      };
+    } catch (e) {
+      debugPrint('Error getting leaderboard week info: $e');
+      return null;
+    }
+  }
+
+  /// Manual reset for testing purposes
+  /// Forces a weekly reset regardless of time
+  /// WARNING: This should only be used for testing!
+  Future<void> forceWeeklyReset() async {
+    try {
+      debugPrint('🔴 FORCING WEEKLY RESET (TESTING ONLY)');
+      await _resetAllUsersPoints();
+      await _updateLastResetDate(DateTime.now());
+      clearCache();
+      debugPrint('✅ Forced reset completed');
+    } catch (e) {
+      debugPrint('Error forcing weekly reset: $e');
+      throw Exception('Failed to force reset leaderboard');
     }
   }
 }

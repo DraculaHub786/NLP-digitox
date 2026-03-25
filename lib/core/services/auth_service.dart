@@ -27,7 +27,7 @@ class AuthService {
       if (availableBiometrics.isEmpty) return null;
 
       /// Return status
-      return await _auth.authenticate(localizedReason: "Mindful");
+      return await _auth.authenticate(localizedReason: "NLP-digitox");
     } catch (e) {
       debugPrint("Failed to authenticate : ${e.toString()}");
       return false;

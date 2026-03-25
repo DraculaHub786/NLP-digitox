@@ -125,9 +125,21 @@ class AIChatbotService {
   }
 
   AIChatbotService._() {
+    _initialize();
+  }
+
+  bool _initialized = false;
+  
+  /// Initialize service in correct order
+  Future<void> _initialize() async {
+    if (_initialized) return;
+    
     _initializeAI();
-    _loadChatHistory();
-    _startNewSessionOnAppOpen();
+    await _loadChatHistory();
+    await _startNewSessionOnAppOpen();
+    
+    _initialized = true;
+    debugPrint('✅ AIChatbotService fully initialized');
   }
 
   static final String _apiKey = ApiKeys.groqApiKey;
@@ -157,6 +169,13 @@ class AIChatbotService {
   
   int _messagesInCurrentSession = 0;
   static const int _maxMessagesPerSession = 15;
+
+  /// Ensure initialization is complete before operations
+  Future<void> _ensureInitialized() async {
+    if (!_initialized) {
+      await _initialize();
+    }
+  }
 
   void _initializeAI() {
     try {
@@ -231,6 +250,10 @@ Remember: You're a supportive friend helping them build better digital habits, n
         debugPrint('AIChatbotService: Loaded ${_chatHistory.length} messages from history');
       }
       
+      // ✅ FIX: Remove empty sessions on load
+      _chatSessions.removeWhere((session) => session.messages.isEmpty);
+      debugPrint('🧹 Cleaned up empty sessions. Total sessions: ${_chatSessions.length}');
+      
       await _autoDeleteOldChats();
       
     } catch (e) {
@@ -241,48 +264,25 @@ Remember: You're a supportive friend helping them build better digital habits, n
   /// Start a new session when app opens
   Future<void> _startNewSessionOnAppOpen() async {
     try {
-      // If we have a current session with messages, save it and start a new one
+      // ✅ FIX: Clean up - remove any empty sessions from memory
+      _chatSessions.removeWhere((s) => s.messages.isEmpty);
+      
+      // If we have a current session with messages, save it
       if (_currentSessionId != null && _chatHistory.isNotEmpty) {
         await _saveCurrentSessionToHistory();
-        debugPrint('📝 Saved previous session, starting new session for app open');
-        
-        // Create new session
-        final newSession = ChatSession(
-          title: 'Chat ${_chatSessions.length + 1}',
-          createdAt: DateTime.now(),
-          lastMessageAt: DateTime.now(),
-          messages: [],
-        );
-        
-        _chatSessions.add(newSession);
-        _currentSessionId = newSession.id;
-        _chatHistory.clear();
-        _conversationHistory.clear();
-        _initializeAI();
-        
-        await _saveChatHistory();
-        debugPrint('✅ Started new chat session on app open: ${newSession.id}');
-      } else if (_currentSessionId == null || _chatSessions.isEmpty) {
-        // No current session, create first one
-        final newSession = ChatSession(
-          title: 'Chat 1',
-          createdAt: DateTime.now(),
-          lastMessageAt: DateTime.now(),
-          messages: [],
-        );
-        
-        _chatSessions.add(newSession);
-        _currentSessionId = newSession.id;
-        _chatHistory.clear();
-        _conversationHistory.clear();
-        _initializeAI();
-        
-        await _saveChatHistory();
-        debugPrint('✅ Created first chat session: ${newSession.id}');
-      } else {
-        // Current session exists but is empty, reuse it
-        debugPrint('✅ Reusing empty current session: $_currentSessionId');
+        debugPrint('📝 Saved previous session with ${_chatHistory.length} messages');
       }
+      
+      // Always clear current chat to start fresh
+      _chatHistory.clear();
+      _conversationHistory.clear();
+      _initializeAI();
+      
+      // ✅ FIX: Create session ID but DON'T add empty session to list
+      // Session will be added to _chatSessions when first message is sent via _saveCurrentSessionToHistory()
+      _currentSessionId = DateTime.now().millisecondsSinceEpoch.toString();
+      
+      debugPrint('✅ Ready for new chat session: $_currentSessionId | Total saved sessions: ${_chatSessions.where((s) => s.messages.isNotEmpty).length}');
     } catch (e) {
       debugPrint('❌ Error starting new session on app open: $e');
     }
@@ -299,15 +299,22 @@ Remember: You're a supportive friend helping them build better digital habits, n
           .toList();
       await prefs.setStringList(_chatHistoryKey, historyJson);
       
+      // ✅ FIX: Only save sessions that have at least one message
+      final nonEmptySessions = _chatSessions.where((s) => s.messages.isNotEmpty).toList();
       final sessionsJson = json.encode(
-        _chatSessions.map((s) => s.toMap()).toList(),
+        nonEmptySessions.map((s) => s.toMap()).toList(),
       );
       await prefs.setString(_chatSessionsKey, sessionsJson);
       
-      if (_currentSessionId != null) {
+      // ✅ FIX: Only save current session ID if it has messages
+      if (_currentSessionId != null && _chatHistory.isNotEmpty) {
         await prefs.setString(_currentSessionKey, _currentSessionId!);
+      } else {
+        // Clear saved session ID if current session is empty
+        await prefs.remove(_currentSessionKey);
       }
       
+      debugPrint('💾 Saved ${nonEmptySessions.length} non-empty sessions (skipped ${_chatSessions.length - nonEmptySessions.length} empty sessions)');
     } catch (e) {
       debugPrint('AIChatbotService: Error saving chat history - $e');
     }
@@ -339,10 +346,18 @@ Remember: You're a supportive friend helping them build better digital habits, n
   }
 
   /// Get chat history
-  List<ChatMessage> get chatHistory => List.unmodifiable(_chatHistory);
+  List<ChatMessage> get chatHistory {
+    // Trigger initialization if not done (will complete async)
+    if (!_initialized) {
+      _initialize();
+    }
+    return List.unmodifiable(_chatHistory);
+  }
 
   /// Send a message and get AI response with rate limiting and optimization
   Future<String> sendMessage(String userMessage) async {
+    await _ensureInitialized();
+    
     try {
       // Check if API is properly configured
       if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
@@ -570,11 +585,37 @@ Adjust your responses to be empathetic to their current emotional state.
       _chatHistory.clear();
       _conversationHistory.clear();
       _initializeAI();
+      
+      // ✅ FIX: Also clean up empty sessions when clearing history
+      _chatSessions.removeWhere((s) => s.messages.isEmpty);
+      
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_chatHistoryKey);
+      await prefs.remove(_currentSessionKey);
+      
+      // Save cleaned sessions
+      await _saveChatHistory();
+      
       debugPrint('AIChatbotService: Chat history cleared');
     } catch (e) {
       debugPrint('AIChatbotService: Error clearing history - $e');
+    }
+  }
+  
+  /// Cleanup method - removes all empty sessions from storage
+  /// Call this periodically or on app close
+  Future<void> cleanupEmptySessions() async {
+    try {
+      final initialCount = _chatSessions.length;
+      _chatSessions.removeWhere((s) => s.messages.isEmpty);
+      final removedCount = initialCount - _chatSessions.length;
+      
+      if (removedCount > 0) {
+        await _saveChatHistory();
+        debugPrint('🧹 Cleaned up $removedCount empty session(s)');
+      }
+    } catch (e) {
+      debugPrint('❌ Error cleaning up empty sessions: $e');
     }
   }
 
@@ -593,11 +634,20 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Get all chat sessions
   List<ChatSession> getAllSessions() {
-    return List.unmodifiable(_chatSessions);
+    // Trigger initialization if not done (will complete async)
+    if (!_initialized) {
+      _initialize();
+    }
+    // ✅ FIX: Only return sessions that have messages
+    return List.unmodifiable(_chatSessions.where((s) => s.messages.isNotEmpty).toList());
   }
   
   /// Get current session
   ChatSession? getCurrentSession() {
+    // Trigger initialization if not done (will complete async)
+    if (!_initialized) {
+      _initialize();
+    }
     if (_currentSessionId == null) return null;
     try {
       return _chatSessions.firstWhere((s) => s.id == _currentSessionId);
@@ -608,20 +658,24 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Create a new chat session
   Future<ChatSession> createNewSession({String? title}) async {
+    await _ensureInitialized();
+    
     try {
       if (_currentSessionId != null && _chatHistory.isNotEmpty) {
         await _saveCurrentSessionToHistory();
       }
       
+      // ✅ FIX: Create session ID but DON'T add empty session to _chatSessions list
+      // Session will be added when first message is sent via _saveCurrentSessionToHistory()
+      _currentSessionId = DateTime.now().millisecondsSinceEpoch.toString();
+      
       final newSession = ChatSession(
-        title: title ?? 'Chat ${_chatSessions.length + 1}',
+        id: _currentSessionId,
+        title: title ?? 'New Chat', // Temporary title, updated later
         createdAt: DateTime.now(),
         lastMessageAt: DateTime.now(),
         messages: [],
       );
-      
-      _chatSessions.add(newSession);
-      _currentSessionId = newSession.id;
       
       if (title != null) {
         _chatHistory.clear();
@@ -629,8 +683,8 @@ Adjust your responses to be empathetic to their current emotional state.
         _initializeAI();
       }
       
-      await _saveChatHistory();
-      debugPrint('✅ Created new chat session: ${newSession.id}');
+      // ✅ FIX: Don't add to list - will be added when messages arrive
+      debugPrint('✅ Created new chat session: ${newSession.id} (will be added to list when first message is sent)');
       
       return newSession;
     } catch (e) {
@@ -641,6 +695,8 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Switch to a different chat session
   Future<void> switchToSession(String sessionId) async {
+    await _ensureInitialized();
+    
     try {
       if (_currentSessionId != null && _chatHistory.isNotEmpty) {
         await _saveCurrentSessionToHistory();
@@ -671,15 +727,23 @@ Adjust your responses to be empathetic to their current emotional state.
   /// Save current session to history
   Future<void> _saveCurrentSessionToHistory() async {
     try {
+      // ✅ FIX: Only save if there are messages
       if (_currentSessionId == null || _chatHistory.isEmpty) return;
       
       final sessionIndex = _chatSessions.indexWhere((s) => s.id == _currentSessionId);
       if (sessionIndex != -1) {
-        _chatSessions[sessionIndex] = _chatSessions[sessionIndex].copyWith(
+        // ✅ FIX: Update title if it's still 'New Chat' (first message)
+        final currentSession = _chatSessions[sessionIndex];
+        final shouldUpdateTitle = currentSession.title == 'New Chat' || 
+                                   currentSession.title.startsWith('Chat ');
+        
+        _chatSessions[sessionIndex] = currentSession.copyWith(
+          title: shouldUpdateTitle ? _generateSessionTitle() : currentSession.title,
           messages: List.from(_chatHistory),
           lastMessageAt: DateTime.now(),
         );
       } else {
+        // Session doesn't exist in list, create it with proper title
         final newSession = ChatSession(
           id: _currentSessionId,
           title: _generateSessionTitle(),
@@ -709,6 +773,8 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Delete a chat session
   Future<void> deleteSession(String sessionId) async {
+    await _ensureInitialized();
+    
     try {
       _chatSessions.removeWhere((s) => s.id == sessionId);
       
@@ -729,6 +795,8 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Rename a chat session
   Future<void> renameSession(String sessionId, String newTitle) async {
+    await _ensureInitialized();
+    
     try {
       final sessionIndex = _chatSessions.indexWhere((s) => s.id == sessionId);
       if (sessionIndex != -1) {
@@ -750,6 +818,8 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Edit a message and regenerate AI response
   Future<String?> editMessage(String messageId, String newText) async {
+    await _ensureInitialized();
+    
     try {
       final messageIndex = _chatHistory.indexWhere((m) => m.id == messageId);
       if (messageIndex == -1) {
@@ -816,6 +886,8 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Delete a specific message
   Future<void> deleteMessage(String messageId) async {
+    await _ensureInitialized();
+    
     try {
       final messageIndex = _chatHistory.indexWhere((m) => m.id == messageId);
       if (messageIndex != -1) {
@@ -875,11 +947,17 @@ Adjust your responses to be empathetic to their current emotional state.
   
   /// Manually trigger auto-deletion check
   Future<void> cleanupOldChats() async {
+    await _ensureInitialized();
     await _autoDeleteOldChats();
   }
   
   /// Get sessions count that will be deleted
   int getOldChatsCount() {
+    // Trigger initialization if not done (will complete async)
+    if (!_initialized) {
+      _initialize();
+      return 0; // Return 0 while initializing
+    }
     final cutoffDate = DateTime.now().subtract(Duration(days: _autoDeletionDays));
     return _chatSessions.where((s) => s.lastMessageAt.isBefore(cutoffDate)).length;
   }
