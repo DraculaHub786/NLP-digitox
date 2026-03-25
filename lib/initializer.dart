@@ -71,6 +71,9 @@ class Initializer {
     /// Check and reset leaderboard streak if user was inactive
     await LeaderboardService.instance.checkAndResetStreakIfNeeded();
 
+    /// Check and perform weekly leaderboard reset (resets points but keeps streaks)
+    await LeaderboardService.instance.checkAndPerformWeeklyReset();
+
     debugPrint(
       "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",
     );

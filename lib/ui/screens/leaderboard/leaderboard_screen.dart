@@ -19,6 +19,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   
   List<LeaderboardUser> _leaderboardData = [];
   LeaderboardUser? _currentUserData;
+  Map<String, dynamic>? _weekInfo;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -37,10 +38,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     try {
       final users = await _leaderboardService.getTopUsers(limit: 100);
       final currentUser = await _leaderboardService.getCurrentUserData();
+      final weekInfo = await _leaderboardService.getLeaderboardWeekInfo();
 
       setState(() {
         _leaderboardData = users;
         _currentUserData = currentUser;
+        _weekInfo = weekInfo;
         _isLoading = false;
       });
     } catch (e) {
@@ -56,6 +59,23 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   int get _totalPoints =>
       _pointsBreakdown.isEmpty ? 0 : _pointsBreakdown.values.reduce((a, b) => a + b);
+
+  String _getResetTimeText() {
+    if (_weekInfo == null) return 'Loading...';
+    
+    final daysUntilReset = _weekInfo!['daysUntilReset'] as int;
+    final hoursUntilReset = _weekInfo!['hoursUntilReset'] as int;
+    
+    if (hoursUntilReset < 1) {
+      return 'Resetting now!';
+    } else if (hoursUntilReset < 24) {
+      return 'Resets in ${hoursUntilReset}h at Monday 4 AM';
+    } else if (daysUntilReset == 1) {
+      return 'Resets tomorrow at 4 AM';
+    } else {
+      return 'Resets Monday at 4 AM (${daysUntilReset}d)';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +253,65 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                       ? Colors.orange
                       : colorScheme.secondary,
                 ),
+                // Weekly Reset Info Card
+                if (_weekInfo != null) ...[
+                  const SizedBox(height: 12),
+                  GlassCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            FluentIcons.calendar_clock_20_regular,
+                            color: colorScheme.primary,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              StyledText(
+                                'Weekly Reset',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: colorScheme.onSurface,
+                              ),
+                              const SizedBox(height: 4),
+                              StyledText(
+                                _getResetTimeText(),
+                                fontSize: 12,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: StyledText(
+                            'Week ${_weekInfo!['weekNumber']}',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
