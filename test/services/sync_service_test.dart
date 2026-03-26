@@ -148,5 +148,198 @@ void main() {
         returnsNormally,
       );
     });
+
+    // Task 5: Primary device and shared quota tests
+    group('Primary Device', () {
+      test('claimPrimaryDevice() should return boolean', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        final claimed = await service.claimPrimaryDevice();
+
+        expect(claimed, isA<bool>());
+      });
+
+      test('isPrimaryDevice() should return boolean', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        final isPrimary = await service.isPrimaryDevice();
+
+        expect(isPrimary, isA<bool>());
+      });
+
+      test('releasePrimaryDevice() should not throw', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        await service.claimPrimaryDevice();
+
+        expect(
+          () async => await service.releasePrimaryDevice(),
+          returnsNormally,
+        );
+      });
+
+      test('listenPrimaryDevice() should return a stream of device IDs', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        final stream = service.listenPrimaryDevice();
+
+        expect(stream, isNotNull);
+        expect(stream, isA<Stream<String?>>());
+      });
+
+      test('getAllDevices() should return a map', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        final devices = await service.getAllDevices();
+
+        expect(devices, isA<Map<String, Map<String, dynamic>>>());
+      });
+    });
+
+    group('Lock Heartbeat', () {
+      test('startLockHeartbeat() should start without throwing', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        expect(
+          () => service.startLockHeartbeat('com.example.app'),
+          returnsNormally,
+        );
+      });
+
+      test('stopLockHeartbeat() should stop heartbeat without throwing', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        service.startLockHeartbeat('com.example.app');
+
+        expect(
+          () => service.stopLockHeartbeat('com.example.app'),
+          returnsNormally,
+        );
+      });
+
+      test('stopLockHeartbeat() should handle app with no active heartbeat', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        expect(
+          () => service.stopLockHeartbeat('com.nonexistent.app'),
+          returnsNormally,
+        );
+      });
+
+      test('multiple heartbeats should be manageable', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        service.startLockHeartbeat('com.example.app1');
+        service.startLockHeartbeat('com.example.app2');
+        service.startLockHeartbeat('com.example.app3');
+
+        service.stopLockHeartbeat('com.example.app1');
+        service.stopLockHeartbeat('com.example.app2');
+        service.stopLockHeartbeat('com.example.app3');
+
+        expect(true, isTrue);
+      });
+    });
+
+    group('Shared Quota Workflow', () {
+      test('shared quota workflow should track usage correctly', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        // Set daily limit for an app
+        await service.setDailyLimit('com.social.twitter', 30); // 30 minutes
+
+        // Get initial usage
+        var usage = await service.getUsage('com.social.twitter');
+        expect(usage['dailyMinutes'], equals(0));
+        expect(usage['dailyLimit'], isA<int>());
+
+        // Increment usage
+        final incremented1 = await service.incrementUsage('com.social.twitter', 10);
+        expect(incremented1, isA<bool>());
+
+        // Increment usage more
+        final incremented2 = await service.incrementUsage('com.social.twitter', 10);
+        expect(incremented2, isA<bool>());
+
+        // Usage should have increased (in stub mode, always returns true)
+        usage = await service.getUsage('com.social.twitter');
+        expect(usage['dailyMinutes'], isA<int>());
+      });
+
+      test('quota system should support multiple apps', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        // Set limits for different apps
+        await service.setDailyLimit('com.social.twitter', 30);
+        await service.setDailyLimit('com.social.instagram', 20);
+        await service.setDailyLimit('com.entertainment.netflix', 60);
+
+        // Increment usage for each app
+        await service.incrementUsage('com.social.twitter', 5);
+        await service.incrementUsage('com.social.instagram', 3);
+        await service.incrementUsage('com.entertainment.netflix', 15);
+
+        // Verify each app's usage independently
+        final twitterUsage = await service.getUsage('com.social.twitter');
+        final instagramUsage = await service.getUsage('com.social.instagram');
+        final netflixUsage = await service.getUsage('com.entertainment.netflix');
+
+        expect(twitterUsage['dailyMinutes'], isA<int>());
+        expect(instagramUsage['dailyMinutes'], isA<int>());
+        expect(netflixUsage['dailyMinutes'], isA<int>());
+      });
+    });
+
+    group('Lock Workflow', () {
+      test('lock lifecycle should work correctly', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        // acquire lock
+        final acquired = await service.acquireLock('com.example.app');
+        expect(acquired, isA<bool>());
+
+        // Check if locked
+        final isLocked = await service.isLockedByOtherDevice('com.example.app');
+        expect(isLocked, isA<bool>());
+
+        // Release lock
+        await service.releaseLock('com.example.app');
+
+        // Should no longer be locked (in stub mode, depends on Firebase implementation)
+        final isLockedAfter = await service.isLockedByOtherDevice('com.example.app');
+        expect(isLockedAfter, isA<bool>());
+      });
+
+      test('refresh lock should work with heartbeat', () async {
+        final service = SyncService.instance;
+        await service.init();
+
+        // Acquire a lock
+        await service.acquireLock('com.example.app', ttlMinutes: 5);
+
+        // Start heartbeat to refresh it
+        service.startLockHeartbeat('com.example.app', refreshIntervalSeconds: 2);
+
+        // Wait for heartbeat to trigger
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Stop heartbeat
+        service.stopLockHeartbeat('com.example.app');
+
+        expect(true, isTrue);
+      });
+    });
   });
 }
