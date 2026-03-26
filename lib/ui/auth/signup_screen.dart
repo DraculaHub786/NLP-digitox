@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
+import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
@@ -52,6 +53,25 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         displayName: _nameController.text.trim(),
       );
 
+      // Initialize Firestore user data for new user
+      try {
+        debugPrint('📝 Creating Firestore user data...');
+        await FirestoreService.instance.initializeUserData(
+          username: _nameController.text.trim(),
+          initialSettings: {
+            'themeMode': 'system',
+            'accentColor': 'Indigo',
+            'locale': 'en',
+            'protectedAccess': false,
+            'isOnboardingDone': false,
+          },
+        );
+        debugPrint('✅ Firestore user data created successfully!');
+      } catch (e) {
+        debugPrint('❌ Failed to create Firestore user data: $e');
+        // Don't block signup if Firestore fails
+      }
+
       // Initialize leaderboard data for new user
       try {
         debugPrint('📝 Creating leaderboard data for new user...');
@@ -90,11 +110,33 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     try {
       await FirebaseAuthService.instance.signInWithGoogle();
 
-      // Initialize leaderboard data for Google sign-in users
+      // Get user info
       final user = FirebaseAuthService.instance.currentUser;
+      final username = user?.displayName ?? 'User';
+
+      // Initialize Firestore user data for Google sign-in users
+      try {
+        debugPrint('📝 Creating Firestore user data for Google user...');
+        await FirestoreService.instance.initializeUserData(
+          username: username,
+          initialSettings: {
+            'themeMode': 'system',
+            'accentColor': 'Indigo',
+            'locale': 'en',
+            'protectedAccess': false,
+            'isOnboardingDone': false,
+          },
+        );
+        debugPrint('✅ Firestore user data created successfully!');
+      } catch (e) {
+        debugPrint('❌ Failed to create Firestore user data: $e');
+        // Don't block signup if Firestore fails
+      }
+
+      // Initialize leaderboard data for Google sign-in users
       if (user != null) {
         await LeaderboardService.instance.updateUserData(
-          username: user.displayName ?? 'User',
+          username: username,
           points: 0,
           streak: 0,
           avatarEmoji: '👤',
