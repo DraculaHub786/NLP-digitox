@@ -7,9 +7,11 @@ import 'package:nlp_digitox/core/enums/app_theme_mode.dart';
 import 'package:nlp_digitox/core/enums/default_home_tab.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
+import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 
 /// A Riverpod state notifier provider that manages [MindfulSettings].
 final mindfulSettingsProvider =
@@ -106,7 +108,25 @@ class MindfulSettingsNotifier extends StateNotifier<MindfulSettings> {
       );
 
   /// Mark onboarding as completed
-  void markOnboardingDone() => state = state.copyWith(isOnboardingDone: true);
+  void markOnboardingDone() {
+    state = state.copyWith(isOnboardingDone: true);
+
+    // Sync to Firestore
+    _syncOnboardingStatusToFirestore();
+  }
+
+  /// Sync onboarding status to Firestore
+  Future<void> _syncOnboardingStatusToFirestore() async {
+    try {
+      final settings = await FirestoreService.instance.getUserSettings();
+      settings['isOnboardingDone'] = true;
+      await FirestoreService.instance.updateSettings(settings);
+      debugPrint('✅ Onboarding status synced to Firestore');
+    } catch (e) {
+      debugPrint('❌ Failed to sync onboarding status to Firestore: $e');
+      // Don't throw - local state is already updated
+    }
+  }
 
   /// Update app version
   void updateAppVersion() => state = state.copyWith(
