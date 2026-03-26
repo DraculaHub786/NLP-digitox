@@ -19,7 +19,9 @@ import 'dart:async';
 ///   │   ├── name: string
 ///   │   ├── lastSeen: timestamp
 ///   │   ├── isPrimary: bool
-///   │   └── isActive: bool
+///   │   ├── isActive: bool
+///   │   └── claimedAt: timestamp
+///   ├── primaryDevice: deviceId (optional, for primary device designation)
 ///   └── locks/{appPackage}/
 ///       ├── lockedBy: deviceId
 ///       ├── expiresAt: timestamp
@@ -45,6 +47,9 @@ class SyncService {
 
   /// Whether Firebase is available (for stub mode)
   bool _isFirebaseAvailable = true;
+
+  /// Lock heartbeat timer (for TTL refresh)
+  final Map<String, Timer?> _lockHeartbeatTimers = {};
 
   /// Initialize the sync service
   /// Should be called once during app startup
@@ -407,10 +412,229 @@ class SyncService {
     }
   }
 
+  /// Claim this device as the primary device
+  /// Only one device can be primary per user at a time
+  Future<bool> claimPrimaryDevice() async {
+    try {
+      final deviceId = DeviceIdentityService.instance.deviceId;
+      if (_userRef == null || deviceId == null) {
+        debugPrint('SyncService: Cannot claim primary device - not authenticated or device ID missing');
+        return false;
+      }
+
+      // Use transaction to ensure atomic primary device assignment
+      final primaryRef = _userRef!.child('primaryDevice');
+      final result = await primaryRef.runTransaction((currentData) {
+        // Always set this device as primary
+        return Transaction.success(deviceId);
+      });
+
+      if (result.committed) {
+        // Also mark this device as primary in its profile
+        final deviceRef = _userRef!.child('devices/$deviceId');
+        await deviceRef.update({
+          'isPrimary': true,
+          'claimedAt': ServerValue.timestamp,
+        });
+
+        _localCache['isPrimaryDevice'] = true;
+        debugPrint('SyncService: Successfully claimed primary device');
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      debugPrint('SyncService: Error claiming primary device: $e');
+      return false;
+    }
+  }
+
+  /// Release primary device status
+  Future<void> releasePrimaryDevice() async {
+    try {
+      final deviceId = DeviceIdentityService.instance.deviceId;
+      if (_userRef == null || deviceId == null) return;
+
+      // Remove primary device assignment
+      await _userRef!.child('primaryDevice').remove();
+
+      // Mark device as not primary
+      final deviceRef = _userRef!.child('devices/$deviceId');
+      await deviceRef.update({'isPrimary': false});
+
+      _localCache['isPrimaryDevice'] = false;
+      debugPrint('SyncService: Released primary device status');
+    } catch (e) {
+      debugPrint('SyncService: Error releasing primary device: $e');
+    }
+  }
+
+  /// Check if this device is the primary device
+  Future<bool> isPrimaryDevice() async {
+    try {
+      // Check cache first
+      if (_localCache.containsKey('isPrimaryDevice')) {
+        return _localCache['isPrimaryDevice'] as bool;
+      }
+
+      if (_userRef == null) return false;
+
+      final deviceId = DeviceIdentityService.instance.deviceId;
+      if (deviceId == null) return false;
+
+      final primaryRef = _userRef!.child('primaryDevice');
+      final snapshot = await primaryRef.get();
+
+      if (snapshot.exists) {
+        final primaryDeviceId = snapshot.value as String?;
+        final isPrimary = primaryDeviceId == deviceId;
+        _localCache['isPrimaryDevice'] = isPrimary;
+        return isPrimary;
+      }
+
+      _localCache['isPrimaryDevice'] = false;
+      return false;
+    } catch (e) {
+      debugPrint('SyncService: Error checking if primary device: $e');
+      return false;
+    }
+  }
+
+  /// Listen to primary device changes
+  Stream<String?> listenPrimaryDevice() {
+    try {
+      if (_userRef == null) {
+        return Stream.value(_localCache['primaryDevice'] as String?);
+      }
+
+      final primaryRef = _userRef!.child('primaryDevice');
+      return primaryRef.onValue.map((event) {
+        final primaryDeviceId = event.snapshot.value as String?;
+        _localCache['primaryDevice'] = primaryDeviceId;
+        return primaryDeviceId;
+      });
+    } catch (e) {
+      debugPrint('SyncService: Error listening to primary device: $e');
+      return Stream.value(null);
+    }
+  }
+
+  /// Get all devices for this user
+  Future<Map<String, Map<String, dynamic>>> getAllDevices() async {
+    try {
+      if (_userRef == null) return {};
+
+      final devicesRef = _userRef!.child('devices');
+      final snapshot = await devicesRef.get();
+
+      if (snapshot.exists) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        final result = <String, Map<String, dynamic>>{};
+
+        for (final entry in data.entries) {
+          result[entry.key] = Map<String, dynamic>.from(entry.value as Map);
+        }
+
+        return result;
+      }
+
+      return {};
+    } catch (e) {
+      debugPrint('SyncService: Error getting all devices: $e');
+      return {};
+    }
+  }
+
+  /// Start refreshing lock using heartbeat (for apps held by this device)
+  /// The appPackage lock will be automatically refreshed every 2 minutes
+  /// while the app is in the foreground
+  void startLockHeartbeat(String appPackage, {int refreshIntervalSeconds = 120}) {
+    try {
+      // Cancel existing timer if any
+      _lockHeartbeatTimers[appPackage]?.cancel();
+
+      // Create new heartbeat timer
+      _lockHeartbeatTimers[appPackage] = Timer.periodic(
+        Duration(seconds: refreshIntervalSeconds),
+        (_) async {
+          _refreshLockTTL(appPackage);
+        },
+      );
+
+      debugPrint('SyncService: Started lock heartbeat for $appPackage (interval: ${refreshIntervalSeconds}s)');
+    } catch (e) {
+      debugPrint('SyncService: Error starting lock heartbeat: $e');
+    }
+  }
+
+  /// Stop refreshing lock heartbeat for an app
+  void stopLockHeartbeat(String appPackage) {
+    try {
+      _lockHeartbeatTimers[appPackage]?.cancel();
+      _lockHeartbeatTimers.remove(appPackage);
+
+      debugPrint('SyncService: Stopped lock heartbeat for $appPackage');
+    } catch (e) {
+      debugPrint('SyncService: Error stopping lock heartbeat: $e');
+    }
+  }
+
+  /// Refresh the TTL for a lock held by this device
+  Future<void> _refreshLockTTL(String appPackage, {int ttlMinutes = 5}) async {
+    try {
+      final deviceId = DeviceIdentityService.instance.deviceId;
+      if (_userRef == null || deviceId == null) return;
+
+      final lockRef = _userRef!.child('locks/$appPackage');
+
+      // Use transaction to safely refresh the lock
+      final result = await lockRef.runTransaction((currentData) {
+        if (currentData == null) {
+          // No lock exists, nothing to refresh
+          return Transaction.abort();
+        }
+
+        final data = Map<String, dynamic>.from(currentData as Map);
+        final lockedBy = data['lockedBy'] as String?;
+
+        // Only refresh if this device owns the lock
+        if (lockedBy == deviceId) {
+          final expiresAt = DateTime.now().add(Duration(minutes: ttlMinutes)).millisecondsSinceEpoch;
+          data['expiresAt'] = expiresAt;
+          return Transaction.success(data);
+        }
+
+        return Transaction.abort();
+      });
+
+      if (result.committed) {
+        debugPrint('SyncService: Refreshed lock TTL for $appPackage');
+      }
+    } catch (e) {
+      debugPrint('SyncService: Error refreshing lock TTL: $e');
+    }
+  }
+
+  /// Stop all lock heartbeats
+  void _stopAllHeartbeats() {
+    try {
+      for (final timer in _lockHeartbeatTimers.values) {
+        timer?.cancel();
+      }
+      _lockHeartbeatTimers.clear();
+      debugPrint('SyncService: Stopped all lock heartbeats');
+    } catch (e) {
+      debugPrint('SyncService: Error stopping all heartbeats: $e');
+    }
+  }
+
   /// Dispose and cleanup
   Future<void> dispose() async {
     try {
       await markDeviceInactive();
+
+      // Stop all lock heartbeats
+      _stopAllHeartbeats();
 
       // Cancel all active listeners
       for (final subscription in _activeListeners.values) {
