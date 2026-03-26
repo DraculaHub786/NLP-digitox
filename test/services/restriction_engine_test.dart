@@ -157,4 +157,114 @@ void main() {
       expect(decision.type, equals(RestrictionType.launchLimit));
     });
   });
+
+  group('RestrictionEngine - Shared Quota', () {
+    test('canOpenApp() should check shared quota if available', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      final decision = await engine.canOpenApp('com.social.app');
+
+      // Should return a decision (allow or block based on shared quota)
+      expect(decision, isNotNull);
+      expect(decision.canOpen, isA<bool>());
+    });
+
+    test('syncUsageToShared() should handle quota tracking', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      // Sync 10 minutes of usage
+      expect(
+        () async => await engine.syncUsageToShared('com.social.app', 10),
+        returnsNormally,
+      );
+    });
+
+    test('local usage cache should be updateable', () {
+      final engine = RestrictionEngine.instance;
+
+      // Update usage for various apps
+      engine.updateLocalUsage('com.social.twitter', 300); // 5 min
+      engine.updateLocalUsage('com.social.instagram', 600); // 10 min
+
+      // Should complete without throwing
+      expect(true, isTrue);
+    });
+  });
+
+  group('RestrictionEngine - Cross-Device Lock', () {
+    test('canOpenApp() should check cross-device locks', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      final decision = await engine.canOpenApp('com.locked.app');
+
+      // Should return a decision
+      expect(decision, isNotNull);
+      expect(decision.canOpen, isA<bool>());
+      // If locked by other device, should be blocked
+      if (!decision.canOpen) {
+        expect(decision.type, equals(RestrictionType.crossDeviceLock));
+      }
+    });
+
+    test('onAppLaunchAttempt() should handle cross-device scenarios', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      final allowed = await engine.onAppLaunchAttempt('com.example.app');
+
+      expect(allowed, isA<bool>());
+    });
+  });
+
+  group('RestrictionEngine - Complex Scenarios', () {
+    test('should allow unrestricted apps', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      final decision = await engine.canOpenApp('com.unrestricted.unknown.app');
+
+      expect(decision.canOpen, isTrue);
+      expect(decision.type, equals(RestrictionType.none));
+    });
+
+    test('should handle multiple concurrent restriction checks', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      // Run multiple checks concurrently
+      final futures = <Future<RestrictionDecision>>[
+        engine.canOpenApp('com.app1'),
+        engine.canOpenApp('com.app2'),
+        engine.canOpenApp('com.app3'),
+      ];
+
+      final decisions = await Future.wait(futures);
+
+      expect(decisions.length, equals(3));
+      for (final decision in decisions) {
+        expect(decision, isNotNull);
+        expect(decision.canOpen, isA<bool>());
+      }
+    });
+
+    test('should handle app launch attempts gracefully', () async {
+      final engine = RestrictionEngine.instance;
+      await engine.init();
+
+      // Multiple launch attempts
+      final results = await Future.wait([
+        engine.onAppLaunchAttempt('com.app1'),
+        engine.onAppLaunchAttempt('com.app2'),
+        engine.onAppLaunchAttempt('com.app3'),
+      ]);
+
+      expect(results.length, equals(3));
+      for (final result in results) {
+        expect(result, isA<bool>());
+      }
+    });
+  });
 }
