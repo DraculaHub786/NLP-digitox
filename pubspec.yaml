@@ -52,8 +52,10 @@ dependencies:
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.4
   cloud_firestore: ^5.2.1
+  firebase_database: ^11.1.4
   google_sign_in: ^6.2.1
   shared_preferences: ^2.2.2
+  device_info_plus: ^10.1.0
 
   # AI Integration
   google_generative_ai: ^0.4.6
