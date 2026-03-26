@@ -45,6 +45,7 @@ enum RestrictionType {
   sharedQuota,
   crossDeviceLock,
   internet,
+  intentRequired,
 }
 
 /// Restriction Engine
@@ -271,6 +272,10 @@ class RestrictionEngine {
         // Continue without lock check if service unavailable
       }
 
+      // Check intent requirement (note: this returns a soft block to show prompt)
+      // Apps that require intent prompts will be checked here
+      // This is handled separately in onAppLaunchAttempt to show the prompt UI
+
       // All checks passed
       return RestrictionDecision.allow();
     } catch (e) {
@@ -373,6 +378,41 @@ class RestrictionEngine {
     _localUsageCache.clear();
     _lastCacheRefresh = null;
     debugPrint('RestrictionEngine: Cache cleared');
+  }
+
+  /// Check if app requires intent prompt before opening
+  /// Returns true if intent prompt should be shown
+  bool requiresIntentPrompt(String appPackage) {
+    // Apps that should prompt for intent on launch
+    // Social and entertainment apps by default require intent prompts
+    final socialApps = [
+      'com.facebook.katana',
+      'com.twitter.android',
+      'com.instagram.android',
+      'com.snapchat.android',
+      'com.whatsapp',
+      'com.telegram',
+      'com.reddit.official',
+      'com.tiktok.android',
+      'com.youtube',
+    ];
+
+    final entertainmentApps = [
+      'com.netflix.mediaclient',
+      'com.spotify.music',
+      'com.google.android.youtube.gaming',
+      'com.twitch.android.app',
+    ];
+
+    return socialApps.contains(appPackage) || entertainmentApps.contains(appPackage);
+  }
+
+  /// Store app intent preference for future considerations
+  /// This helps learn usage patterns without blocking subsequent opens
+  void recordAppIntent(String appPackage, String intentCategory) {
+    debugPrint('RestrictionEngine: Recorded intent "$intentCategory" for $appPackage');
+    // TODO: integrate with FirebaseFirestore to persist intent patterns
+    // This would involve calling SyncService or a dedicated IntentService
   }
 
   /// Helper method to format TimeOfDay without context
