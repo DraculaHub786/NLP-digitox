@@ -69,7 +69,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(AppRoutes.splashPath);
+      Navigator.of(context).pushReplacementNamed(
+        AppRoutes.onboardingPath,
+        arguments: {"isOnboardingDone": false},
+      );
     } catch (e) {
       if (!mounted) return;
       context.showSnackAlert(
@@ -100,7 +103,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(AppRoutes.splashPath);
+      Navigator.of(context).pushReplacementNamed(
+        AppRoutes.onboardingPath,
+        arguments: {"isOnboardingDone": false},
+      );
     } catch (e) {
       if (!mounted) return;
       context.showSnackAlert(
