@@ -1,6 +1,8 @@
 // Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 /// Sentiment/Mood classification
 enum Sentiment {
@@ -283,16 +285,26 @@ class SentimentFilter {
   /// Maximum history entries to keep
   static const int maxHistorySize = 500;
 
+  /// Grok API key (set from environment or config)
+  String? _grokApiKey;
+
+  /// Grok API endpoint
+  static const String _grokApiEndpoint = 'https://api.x.ai/v1/chat/completions';
+
   /// Initialize the sentiment filter
-  Future<void> initialize() async {
+  Future<void> initialize({String? grokApiKey}) async {
     if (_isInitialized) return;
 
     try {
-      // TODO: v2 - Integrate with ML Kit Firebase or custom TFLite model
-      // _engine = MLKitSentimentEngine();
-      // For now using configuration placeholder
+      // Set Grok API key from parameter or environment
+      _grokApiKey = grokApiKey ?? const String.fromEnvironment('GROK_API_KEY', defaultValue: '');
+
+      if (_grokApiKey!.isEmpty) {
+        debugPrint('SentimentFilter: Warning - GROK_API_KEY not set. Using test mode.');
+      }
+
       _isInitialized = true;
-      debugPrint('SentimentFilter: Initialized (ready for ML integration)');
+      debugPrint('SentimentFilter: Initialized with Grok API integration');
     } catch (e) {
       debugPrint('SentimentFilter: Error during initialization: $e');
       _isInitialized = false;
@@ -312,11 +324,8 @@ class SentimentFilter {
     }
 
     try {
-      // TODO: v2 - Use actual ML model
-      // final prediction = await _engine.analyze(text);
-
-      // Placeholder for v1 - shows structure
-      final prediction = _createPlaceholderPrediction(text);
+      // Use Grok API for real sentiment analysis
+      final prediction = await _createPredictionWithGrok(text);
 
       // Add to history
       _moodHistory.add(
@@ -579,16 +588,147 @@ class SentimentFilter {
   }
 
   /// Placeholder prediction for v1 (will use real ML in v2)
-  SentimentPrediction _createPlaceholderPrediction(String text) {
-    // This demonstrates the structure - will be replaced with actual ML in v2
+  Future<SentimentPrediction> _createPredictionWithGrok(String text) async {
+    try {
+      // If no API key, return structured response for testing
+      if (_grokApiKey == null || _grokApiKey!.isEmpty) {
+        return _createLocalPrediction(text);
+      }
+
+      // Call Grok API for sentiment analysis
+      final response = await http.post(
+        Uri.parse(_grokApiEndpoint),
+        headers: {
+          'Authorization': 'Bearer $_grokApiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': 'grok-2',
+          'messages': [
+            {
+              'role': 'user',
+              'content': '''Analyze the sentiment of this text and respond with ONLY a JSON object (no markdown, no extra text):
+{
+  "sentiment": "veryPositive|positive|neutral|negative|veryNegative",
+  "confidence": 0.0-1.0,
+  "emotions": ["list", "of", "detected", "emotions"],
+  "reasoning": "brief explanation"
+}
+
+Text: "$text"'''
+            }
+          ],
+          'temperature': 0.3,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final content = data['choices'][0]['message']['content'].toString().trim();
+
+        // Parse sentiment response
+        try {
+          // Try to extract JSON from response (in case Grok adds markdown)
+          String jsonStr = content;
+          if (content.contains('```json')) {
+            jsonStr = content.split('```json')[1].split('```')[0].trim();
+          } else if (content.contains('```')) {
+            jsonStr = content.split('```')[1].split('```')[0].trim();
+          }
+
+          final sentimentData = jsonDecode(jsonStr);
+          final sentimentStr = sentimentData['sentiment'].toString().toLowerCase();
+          final confidence = (sentimentData['confidence'] as num?)?.toDouble() ?? 0.5;
+          final emotions = List<String>.from(sentimentData['emotions'] ?? []);
+          final reasoning = sentimentData['reasoning'] ?? 'Grok analysis';
+
+          // Map string to enum
+          final sentiment = _sentimentFromString(sentimentStr);
+
+          return SentimentPrediction(
+            sentiment: sentiment,
+            confidence: confidence.clamp(0.0, 1.0),
+            analysis: 'Grok AI sentiment analysis',
+            inputText: text,
+            detectedEmotions: emotions,
+            suggestions: _generateSuggestions(sentiment).take(3).toList(),
+            reasoning: reasoning,
+          );
+        } catch (parseError) {
+          debugPrint('SentimentFilter: JSON parse error: $parseError, response: $content');
+          return _createLocalPrediction(text);
+        }
+      } else if (response.statusCode == 401) {
+        debugPrint('SentimentFilter: Unauthorized - invalid Grok API key');
+        return _createLocalPrediction(text);
+      } else {
+        debugPrint('SentimentFilter: Grok API error ${response.statusCode}: ${response.body}');
+        return _createLocalPrediction(text);
+      }
+    } catch (e) {
+      debugPrint('SentimentFilter: Error calling Grok API: $e');
+      return _createLocalPrediction(text);
+    }
+  }
+
+  /// Convert string to Sentiment enum
+  Sentiment _sentimentFromString(String sentimentStr) {
+    switch (sentimentStr.toLowerCase()) {
+      case 'verypositive':
+      case 'very_positive':
+        return Sentiment.veryPositive;
+      case 'positive':
+        return Sentiment.positive;
+      case 'neutral':
+        return Sentiment.neutral;
+      case 'negative':
+        return Sentiment.negative;
+      case 'verynegative':
+      case 'very_negative':
+        return Sentiment.veryNegative;
+      default:
+        return Sentiment.unknown;
+    }
+  }
+
+  /// Local fallback prediction when API unavailable
+  SentimentPrediction _createLocalPrediction(String text) {
+    // Simple local analysis as fallback
+    final lowerText = text.toLowerCase();
+
+    // Quick keyword check
+    final positive = ['great', 'good', 'excellent', 'amazing', 'wonderful', 'love', 'happy', 'beautiful'];
+    final negative = ['terrible', 'bad', 'awful', 'hate', 'sad', 'angry', 'disappointed'];
+
+    int positiveCount = 0;
+    int negativeCount = 0;
+
+    for (final word in positive) {
+      if (lowerText.contains(word)) positiveCount++;
+    }
+    for (final word in negative) {
+      if (lowerText.contains(word)) negativeCount++;
+    }
+
+    Sentiment sentiment = Sentiment.neutral;
+    double confidence = 0.5;
+
+    if (positiveCount > negativeCount && positiveCount > 0) {
+      sentiment = positiveCount >= 2 ? Sentiment.veryPositive : Sentiment.positive;
+      confidence = 0.65 + (positiveCount * 0.05);
+    } else if (negativeCount > positiveCount && negativeCount > 0) {
+      sentiment = negativeCount >= 2 ? Sentiment.veryNegative : Sentiment.negative;
+      confidence = 0.65 + (negativeCount * 0.05);
+    }
+
     return SentimentPrediction(
-      sentiment: Sentiment.neutral,
-      confidence: 0.0,
-      analysis: 'Awaiting ML model integration',
+      sentiment: sentiment,
+      confidence: confidence.clamp(0.0, 1.0),
+      analysis: 'Local sentiment analysis (Grok unavailable)',
       inputText: text,
       detectedEmotions: [],
       suggestions: [],
-      reasoning: 'Model not yet initialized. This is a placeholder structure.',
+      reasoning: 'Fallback local analysis',
     );
   }
 
