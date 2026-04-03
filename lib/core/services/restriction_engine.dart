@@ -6,6 +6,8 @@ import 'package:nlp_digitox/core/database/app_database.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/services/sync_service.dart';
+import 'package:nlp_digitox/features/mood/mood_service.dart';
+import 'package:nlp_digitox/features/mood/models.dart';
 
 /// Restriction Decision Result
 class RestrictionDecision {
@@ -128,6 +130,7 @@ class RestrictionEngine {
 
   /// Check if an app can be opened
   /// Returns a RestrictionDecision with the result and reason
+  /// Now includes mood-based adaptive strictness
   Future<RestrictionDecision> canOpenApp(String appPackage) async {
     try {
       await _ensureCacheValid();
@@ -139,6 +142,11 @@ class RestrictionEngine {
       if (restriction == null) {
         return RestrictionDecision.allow();
       }
+
+      // Apply mood-based strictness adjustment
+      final moodMultiplier = _getMoodStrictnessMultiplier();
+      
+      debugPrint('RestrictionEngine: Mood multiplier = $moodMultiplier for $appPackage');
 
       // Check internet restriction
       if (!restriction.canAccessInternet) {
@@ -186,12 +194,17 @@ class RestrictionEngine {
         }
       }
 
-      // Check timer (local usage)
+      // Check timer (local usage) with mood-based adjustment
       if (restriction.timerSec > 0) {
         final localUsageSec = _localUsageCache[appPackage] ?? 0;
-        if (localUsageSec >= restriction.timerSec) {
+        // Apply mood multiplier: negative mood = stricter limits
+        final adjustedLimit = (restriction.timerSec * moodMultiplier).round();
+        
+        if (localUsageSec >= adjustedLimit) {
           return RestrictionDecision.block(
-            'Daily time limit reached',
+            moodMultiplier < 1.0
+                ? 'Time limit reached (adjusted for current mood)'
+                : 'Daily time limit reached',
             RestrictionType.timer,
           );
         }
@@ -420,5 +433,59 @@ class RestrictionEngine {
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+
+  /// Get mood-based strictness multiplier
+  /// Returns a value between 0.5 (very strict) and 1.2 (more lenient)
+  /// Based on the user's current mood state
+  double _getMoodStrictnessMultiplier() {
+    try {
+      final moodService = MoodService();
+      final recentMood = moodService.latestMood;
+
+      if (recentMood == null) {
+        return 1.0; // Default: no adjustment
+      }
+
+      // Get sentiment score from mood (-1.0 to 1.0)
+      final sentiment = recentMood.mood.sentimentScore;
+
+      // Negative moods = stricter limits (0.5-1.0)
+      // Positive moods = more lenient (1.0-1.2)
+      if (sentiment < -0.5) {
+        return 0.5; // 50% stricter
+      } else if (sentiment < -0.2) {
+        return 0.7; // 30% stricter
+      } else if (sentiment < 0.2) {
+        return 1.0; // No adjustment
+      } else if (sentiment < 0.5) {
+        return 1.1; // 10% more lenient
+      } else {
+        return 1.2; // 20% more lenient
+      }
+    } catch (e) {
+      debugPrint('RestrictionEngine: Error getting mood multiplier: $e');
+      return 1.0; // Default on error
+    }
+  }
+
+  /// Check if user needs intervention based on current mood
+  Future<bool> shouldTriggerMoodIntervention(String appPackage) async {
+    try {
+      final moodService = MoodService();
+      final suggestedMood = await moodService.detectMoodFromBehavior();
+
+      if (suggestedMood != null) {
+        final sentiment = suggestedMood.sentimentScore;
+        if (sentiment < -0.2) {
+          debugPrint('RestrictionEngine: Mood intervention recommended for $appPackage');
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      debugPrint('RestrictionEngine: Error checking mood intervention: $e');
+      return false;
+    }
   }
 }

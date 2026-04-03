@@ -1,0 +1,89 @@
+{
+  "rules": {
+    "users": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid",
+        
+        "profile": {
+          ".validate": "newData.hasChildren(['displayName', 'email', 'createdAt'])"
+        },
+        
+        "usage": {
+          "$appPackage": {
+            ".validate": "newData.hasChildren(['dailyUsage', 'lastUpdated'])",
+            "dailyUsage": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            }
+          }
+        },
+        
+        "devices": {
+          "$deviceId": {
+            ".validate": "newData.hasChildren(['deviceName', 'lastActive', 'registeredAt'])"
+          }
+        },
+        
+        "locks": {
+          "$appPackage": {
+            ".validate": "newData.hasChildren(['lockedBy', 'expiresAt', 'acquiredAt'])",
+            "lockedBy": {
+              ".validate": "newData.isString()"
+            },
+            "expiresAt": {
+              ".validate": "newData.isNumber() && newData.val() > now"
+            }
+          }
+        },
+        
+        "primaryDevice": {
+          ".validate": "newData.hasChildren(['deviceId', 'deviceName', 'claimedAt'])"
+        },
+        
+        "privacy": {
+          ".validate": "newData.hasChildren(['cloudSyncEnabled', 'crossDeviceEnabled'])"
+        }
+      }
+    },
+    
+    "groups": {
+      "$groupId": {
+        ".read": "auth != null && (root.child('groups').child($groupId).child('members').child(auth.uid).exists() || root.child('groups').child($groupId).child('visibility').val() === 'public')",
+        ".write": "auth != null && root.child('groups').child($groupId).child('owner').val() === auth.uid",
+        
+        "sessions": {
+          "$sessionId": {
+            ".read": "auth != null && root.child('groups').child($groupId).child('sessions').child($sessionId).child('members').child(auth.uid).exists()",
+            ".write": "auth != null && (root.child('groups').child($groupId).child('sessions').child($sessionId).child('owner').val() === auth.uid || root.child('groups').child($groupId).child('sessions').child($sessionId).child('members').child(auth.uid).exists())",
+            
+            "members": {
+              "$memberId": {
+                ".validate": "newData.hasChildren(['displayName', 'deviceId', 'joinedAt', 'isActive', 'lastActive'])"
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "sessions": {
+      "$sessionId": {
+        ".read": "auth != null && (root.child('sessions').child($sessionId).child('members').child(auth.uid).exists() || root.child('sessions').child($sessionId).child('visibility').val() === 'public')",
+        ".write": "auth != null && (root.child('sessions').child($sessionId).child('owner').val() === auth.uid || root.child('sessions').child($sessionId).child('members').child(auth.uid).exists())",
+        
+        "members": {
+          "$memberId": {
+            ".validate": "newData.hasChildren(['displayName', 'deviceId', 'joinedAt', 'isActive', 'lastActive'])"
+          }
+        },
+        
+        "presence": {
+          "$memberId": {
+            ".validate": "newData.hasChildren(['lastHeartbeat', 'status'])",
+            ".write": "$memberId === auth.uid"
+          }
+        }
+      }
+    }
+  }
+}

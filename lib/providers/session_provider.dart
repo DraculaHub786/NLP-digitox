@@ -106,3 +106,37 @@ final leaveSessionProvider = StateNotifierProvider.autoDispose<LeaveSessionNotif
   final sessionService = ref.watch(sessionServiceProvider);
   return LeaveSessionNotifier(sessionService);
 });
+
+/// Public sessions provider — for browse-and-join flow
+final publicSessionsProvider =
+    FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final sessionService = ref.watch(sessionServiceProvider);
+  return sessionService.getPublicSessions();
+});
+
+/// Join session by ID notifier
+class JoinSessionByIdNotifier extends StateNotifier<AsyncValue<void>> {
+  final SessionService _sessionService;
+
+  JoinSessionByIdNotifier(this._sessionService)
+      : super(const AsyncValue.data(null));
+
+  Future<void> joinById({
+    required String sessionId,
+    required String displayName,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _sessionService.joinSession(
+          sessionId: sessionId,
+          displayName: displayName,
+        ));
+  }
+}
+
+/// Join session by ID provider
+final joinByIdProvider =
+    StateNotifierProvider.autoDispose<JoinSessionByIdNotifier, AsyncValue<void>>(
+        (ref) {
+  final sessionService = ref.watch(sessionServiceProvider);
+  return JoinSessionByIdNotifier(sessionService);
+});

@@ -450,6 +450,20 @@ class ProductivityPointsService {
         dailyStreakPoints;
   }
 
+  /// Award points for completing a focus session
+  Future<void> awardPointsForFocusSession(int durationMinutes) async {
+    try {
+      final points = (durationMinutes * 0.5).round().clamp(10, 100);
+      await _leaderboardService.addPoints(
+        points,
+        'Focus Session',
+      );
+      debugPrint('Awarded $points points for $durationMinutes-minute focus session');
+    } catch (e) {
+      debugPrint('Error awarding focus session points: $e');
+    }
+  }
+
   /// Reset daily points tracking (for testing)
   Future<void> resetDailyPointsTracking() async {
     try {

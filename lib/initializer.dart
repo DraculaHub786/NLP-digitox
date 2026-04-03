@@ -73,6 +73,7 @@ class Initializer {
 
     /// Check and perform weekly leaderboard reset (resets points but keeps streaks)
     await LeaderboardService.instance.checkAndPerformWeeklyReset();
+    LeaderboardService.instance.startWeeklyResetMonitor();
 
     debugPrint(
       "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",

@@ -162,6 +162,20 @@ class FirebaseAuthService {
     }
   }
 
+  /// Check if user signed in with Google
+  bool isSignedInWithGoogle() {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    return user.providerData.any((info) => info.providerId == 'google.com');
+  }
+
+  /// Check if user signed in with Email/Password
+  bool isSignedInWithEmail() {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    return user.providerData.any((info) => info.providerId == 'password');
+  }
+
   /// Reauthenticate user with password (required before sensitive operations)
   Future<void> reauthenticate(String password) async {
     try {
@@ -183,6 +197,32 @@ class FirebaseAuthService {
     } catch (e) {
       debugPrint('Reauthentication error: $e');
       throw Exception('Failed to verify password. Please try again.');
+    }
+  }
+
+  /// Reauthenticate with Google (for Google Sign-In users)
+  Future<void> reauthenticateWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        throw Exception('Google sign-in cancelled');
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.currentUser?.reauthenticateWithCredential(credential);
+      debugPrint('User reauthenticated with Google successfully');
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Google reauthentication error: ${e.code} - ${e.message}');
+      throw _handleAuthException(e);
+    } catch (e) {
+      debugPrint('Google reauthentication error: $e');
+      throw Exception('Failed to verify Google account. Please try again.');
     }
   }
 

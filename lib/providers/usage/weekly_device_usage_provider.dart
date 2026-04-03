@@ -39,7 +39,7 @@ class WeeklyDeviceUsageNotifier
         .instance.driftDb.dynamicRecordsDao
         .fetchWeeklyDeviceUsage(weekRange: range);
 
-    debugPrint("WeeklyDeviceUsageProvider.refreshUsage: haveUsage=$haveUsage, cache size=${cache.length}, entries=${cache.length > 0 ? cache.entries.map((e) => '${e.key}: ${e.value.screenTime}s').join(', ') : 'empty'}");
+    debugPrint("WeeklyDeviceUsageProvider.refreshUsage: haveUsage=$haveUsage, cache size=${cache.length}, entries=${cache.isNotEmpty ? cache.entries.map((e) => '${e.key}: ${e.value.screenTime}s').join(', ') : 'empty'}");
 
     /// Only reload todays usage if needed
     if (cache.containsKey(dateToday)) {

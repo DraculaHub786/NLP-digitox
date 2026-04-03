@@ -132,7 +132,7 @@ class TasksScreen extends ConsumerWidget {
                                   .toggleTask(task.id),
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -162,7 +162,7 @@ class TasksScreen extends ConsumerWidget {
                               ),
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                 ],

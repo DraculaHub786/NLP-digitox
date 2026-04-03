@@ -195,11 +195,11 @@ class _IntentOption extends StatelessWidget {
   final Function(AppIntent) onSelected;
 
   const _IntentOption({
-    Key? key,
+    super.key,
     required this.intent,
     required this.isSelected,
     required this.onSelected,
-  }) : super(key: key);
+  });
 
   IconData _getIconForIntent(AppIntent intent) {
     switch (intent) {

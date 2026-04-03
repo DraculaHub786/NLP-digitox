@@ -7,6 +7,7 @@ import 'package:nlp_digitox/ui/auth/login_screen.dart';
 import 'package:nlp_digitox/ui/auth/signup_screen.dart';
 import 'package:nlp_digitox/ui/onboarding/onboarding_screen.dart';
 import 'package:nlp_digitox/ui/screens/active_session/active_session_screen.dart';
+import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/screens/app_dashboard/app_dashboard_screen.dart';
 import 'package:nlp_digitox/ui/screens/change_logs/change_logs_screen.dart';
 import 'package:nlp_digitox/ui/screens/focus/focus_screen.dart';
@@ -39,6 +40,7 @@ class AppRoutes {
 
   static const String appDashboardPath = '/appDashboard';
   static const String notificationsPath = '/notifications';
+  static const String achievementsPath = '/achievements';
 
   static final Map<String, Widget Function(BuildContext)> routes = {
     /// Auth screens
@@ -84,6 +86,9 @@ class AppRoutes {
     notificationsPath: (context) => NotificationsScreen(
           initialTabIndex: context.resolveParam<int>("tab"),
         ),
+
+    /// Achievements screen
+    achievementsPath: (context) => const AchievementsScreen(),
 
     /// Focus mode screen
     focusModePath: (context) => FocusScreen(

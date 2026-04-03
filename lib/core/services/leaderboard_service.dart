@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
+import 'dart:async';
 
 /// Model for leaderboard user data
 class LeaderboardUser {
@@ -14,6 +15,7 @@ class LeaderboardUser {
   final int rank;
   final bool isCurrentUser;
   final Map<String, int>? pointsBreakdown;
+  final int lifetimePoints;
 
   LeaderboardUser({
     required this.userId,
@@ -24,6 +26,7 @@ class LeaderboardUser {
     required this.rank,
     required this.isCurrentUser,
     this.pointsBreakdown,
+    required this.lifetimePoints,
   });
 
   factory LeaderboardUser.fromFirestore(
@@ -43,6 +46,7 @@ class LeaderboardUser {
       pointsBreakdown: data['pointsBreakdown'] != null
           ? Map<String, int>.from(data['pointsBreakdown'])
           : null,
+      lifetimePoints: data['lifetimePoints'] ?? 0,
     );
   }
 
@@ -53,6 +57,7 @@ class LeaderboardUser {
       'streak': streak,
       'avatarEmoji': avatarEmoji ?? '👤',
       'pointsBreakdown': pointsBreakdown ?? {},
+      'lifetimePoints': lifetimePoints,
       'lastUpdated': FieldValue.serverTimestamp(),
     };
   }
@@ -73,6 +78,7 @@ class LeaderboardService {
   // Weekly reset configuration
   static const String _leaderboardConfigCollection = 'leaderboard_config';
   static const String _leaderboardConfigDoc = 'weekly_reset';
+  Timer? _weeklyResetTimer;
 
   Future<List<LeaderboardUser>> getTopUsers({int limit = 100}) async {
     try {
@@ -159,6 +165,7 @@ class LeaderboardService {
         rank: 0, // Not used when updating
         isCurrentUser: true,
         pointsBreakdown: pointsBreakdown,
+        lifetimePoints: points,
       );
 
       await _firestore
@@ -194,6 +201,9 @@ class LeaderboardService {
         final currentBreakdown = snapshot.exists
             ? Map<String, int>.from(snapshot.data()?['pointsBreakdown'] ?? {})
             : <String, int>{};
+        final currentLifetimePoints = snapshot.exists
+            ? (snapshot.data()?['lifetimePoints'] ?? 0) as int
+            : 0;
 
         currentBreakdown[category] = (currentBreakdown[category] ?? 0) + points;
 
@@ -202,6 +212,7 @@ class LeaderboardService {
           {
             'points': currentPoints + points,
             'pointsBreakdown': currentBreakdown,
+            'lifetimePoints': currentLifetimePoints + points,
             'lastUpdated': FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),
@@ -328,7 +339,8 @@ class LeaderboardService {
 
       // If no last reset date, initialize it
       if (lastResetDate == null) {
-        await _initializeLeaderboardWeek(now);
+        final previousWeek = now.subtract(const Duration(days: 7));
+        await _initializeLeaderboardWeek(previousWeek);
         debugPrint('Initialized leaderboard weekly reset system (Resets every Monday at 4 AM)');
         return;
       }
@@ -366,6 +378,22 @@ class LeaderboardService {
     } catch (e) {
       debugPrint('Error checking/performing weekly leaderboard reset: $e');
     }
+  }
+
+  /// Start periodic monitor for Monday 4 AM weekly resets
+  void startWeeklyResetMonitor() {
+    _weeklyResetTimer?.cancel();
+    _weeklyResetTimer = Timer.periodic(
+      const Duration(minutes: 15),
+      (_) => checkAndPerformWeeklyReset(),
+    );
+    debugPrint('Weekly leaderboard reset monitor started (15 min interval)');
+  }
+
+  /// Stop periodic monitor
+  void stopWeeklyResetMonitor() {
+    _weeklyResetTimer?.cancel();
+    _weeklyResetTimer = null;
   }
 
   /// Get the start of the week (Monday at 00:00:00) for a given date
@@ -440,6 +468,7 @@ class LeaderboardService {
         batch.update(doc.reference, {
           'points': 0,
           'pointsBreakdown': {},
+          'lifetimePoints': data['lifetimePoints'] ?? 0,
           'streak': currentStreak, // Keep streak unchanged
           'lastUpdated': FieldValue.serverTimestamp(),
         });

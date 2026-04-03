@@ -139,7 +139,7 @@ class HabitsScreen extends ConsumerWidget {
                                   .toggleHabit(habit.id),
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                 ],

@@ -1,0 +1,50 @@
+{
+  "themes": {
+    "light": {
+      "primaryColor": "#5B8DBE",
+      "secondaryColor": "#4A90E2",
+      "backgroundColor": "#FFFFFF",
+      "surfaceColor": "#F5F5F5",
+      "textColor": "#212121",
+      "accentColor": "#FF6B6B"
+    },
+    "dark": {
+      "primaryColor": "#5B8DBE",
+      "secondaryColor": "#4A90E2",
+      "backgroundColor": "#121212",
+      "surfaceColor": "#1E1E1E",
+      "textColor": "#FFFFFF",
+      "accentColor": "#FF6B6B"
+    },
+    "amoled": {
+      "primaryColor": "#5B8DBE",
+      "secondaryColor": "#4A90E2",
+      "backgroundColor": "#000000",
+      "surfaceColor": "#0A0A0A",
+      "textColor": "#FFFFFF",
+      "accentColor": "#FF6B6B"
+    }
+  },
+  "colorSchemes": {
+    "calm": {
+      "primary": "#6B9BD1",
+      "secondary": "#A8D8EA",
+      "accent": "#FFA07A"
+    },
+    "focus": {
+      "primary": "#7B68EE",
+      "secondary": "#9370DB",
+      "accent": "#FFD700"
+    },
+    "energize": {
+      "primary": "#FF6347",
+      "secondary": "#FF7F50",
+      "accent": "#FFD700"
+    },
+    "nature": {
+      "primary": "#2E8B57",
+      "secondary": "#3CB371",
+      "accent": "#F4A460"
+    }
+  }
+}

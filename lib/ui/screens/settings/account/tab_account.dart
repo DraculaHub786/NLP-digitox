@@ -9,6 +9,7 @@ import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/firestore_service.dart';
+import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
@@ -59,6 +60,17 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 onPressed: () => _showChangeNameDialog(),
               ),
 
+              DefaultListTile(
+                leadingIcon: FluentIcons.trophy_20_regular,
+                titleText: 'Achievements',
+                subtitleText: 'View points, badges, and streaks',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AchievementsScreen(),
+                  ),
+                ),
+              ),
+
               SizedBox(height: 20.0),
 
               /// Data Management
@@ -106,7 +118,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -323,6 +335,8 @@ class _TabAccountState extends ConsumerState<TabAccount> {
 
   /// Delete Account Confirmation Dialog
   void _showDeleteAccountDialog() {
+    final isGoogleUser = _authService.isSignedInWithGoogle();
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -347,7 +361,11 @@ class _TabAccountState extends ConsumerState<TabAccount> {
             ),
             onPressed: () {
               Navigator.pop(context);
-              _showDeleteAccountPasswordDialog();
+              if (isGoogleUser) {
+                _deleteGoogleAccount();
+              } else {
+                _showDeleteAccountPasswordDialog();
+              }
             },
             child: const Text('Delete'),
           ),
@@ -491,11 +509,18 @@ class _TabAccountState extends ConsumerState<TabAccount> {
     }
   }
 
-  /// Delete Account
+  /// Delete Account (Email/Password users)
   Future<void> _deleteAccount(String password) async {
-    
-
     try {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
       // Reauthenticate first
       await _authService.reauthenticate(password);
       
@@ -506,6 +531,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       await _authService.deleteAccount();
 
       if (mounted) {
+        Navigator.pop(context); // Close loading dialog
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.loginPath,
@@ -514,9 +540,54 @@ class _TabAccountState extends ConsumerState<TabAccount> {
         context.showSnackAlert('Account deleted successfully');
       }
     } catch (e) {
-      _showError(e.toString());
-    } finally {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        _showError(e.toString().replaceAll('Exception: ', ''));
+      }
+    }
+  }
+
+  /// Delete Account (Google users)
+  Future<void> _deleteGoogleAccount() async {
+    try {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('Please sign in with Google to confirm...'),
+            ],
+          ),
+        ),
+      );
+
+      // Reauthenticate with Google
+      await _authService.reauthenticateWithGoogle();
       
+      // Delete user data from Firestore
+      await FirestoreService.instance.deleteUserData();
+
+      // Delete Firebase Auth account
+      await _authService.deleteAccount();
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.loginPath,
+          (route) => false,
+        );
+        context.showSnackAlert('Account deleted successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        _showError(e.toString().replaceAll('Exception: ', ''));
+      }
     }
   }
 
