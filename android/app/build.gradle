@@ -42,7 +42,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         applicationId "com.nlp.digitox"
-        minSdkVersion defaultMinSdkVersion
+        minSdkVersion 26  // Required by tflite_flutter (Android 8.0+)
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

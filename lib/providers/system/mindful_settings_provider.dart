@@ -11,6 +11,7 @@ import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
+import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:flutter/foundation.dart';
 
 /// A Riverpod state notifier provider that manages [MindfulSettings].

@@ -478,7 +478,7 @@ $userMessage
         return "❌ Model error. Using '$_modelName'. If issues persist, check available models.";
       }
       
-      return "I apologize, but I'm having trouble connecting right now (${_consecutiveErrors} errors). Please check your internet connection and wait a moment before trying again.";
+      return "I apologize, but I'm having trouble connecting right now ($_consecutiveErrors errors). Please check your internet connection and wait a moment before trying again.";
     }
   }
   

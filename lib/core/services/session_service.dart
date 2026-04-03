@@ -15,23 +15,24 @@ import 'package:nlp_digitox/models/shared_session_model.dart';
 ///   ├── name: string
 ///   ├── description: string
 ///   ├── ownerId: string
-///   ├── createdAt: timestamp
+///   ├── createdAt: timestamp (ISO string)
 ///   ├── isPublic: bool
 ///   ├── maxMembers: int
 ///   ├── theme: string
 ///   ├── isActive: bool
-///   ├── members/{userId}/
+///   ├── members/{userId}/          ← Map keyed by userId, NOT a list
+///   │   ├── userId: string
 ///   │   ├── displayName: string
 ///   │   ├── deviceId: string
-///   │   ├── joinedAt: timestamp
+///   │   ├── joinedAt: ISO string
 ///   │   ├── isActive: bool
-///   │   └── lastActive: timestamp
+///   │   └── lastActive: ISO string
 ///   └── settings/
 ///       ├── sharedDailyLimit: int
 ///       ├── focusApps: list
 ///       └── blockedApps: list
 ///
-/// users/{userId}/sessions/{sessionId}: sessionId (for quick lookup)
+/// users/{userId}/sessions/{sessionId}: true (for quick lookup)
 class SessionService {
   /// Private constructor for singleton
   SessionService._();
@@ -56,6 +57,10 @@ class SessionService {
 
   /// Whether Firebase is available
   bool _isFirebaseAvailable = true;
+
+  // ---------------------------------------------------------------------------
+  // Initialization
+  // ---------------------------------------------------------------------------
 
   /// Initialize the session service
   Future<void> init() async {
@@ -87,7 +92,12 @@ class SessionService {
     }
   }
 
-  /// Create a new shared session
+  // ---------------------------------------------------------------------------
+  // Session CRUD
+  // ---------------------------------------------------------------------------
+
+  /// Create a new shared session.
+  /// Uses Firebase push().key for collision-safe IDs.
   Future<SharedSession> createSession({
     required String name,
     String? description,
@@ -110,8 +120,26 @@ class SessionService {
         throw StateError('User not authenticated');
       }
 
-      final sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
       final deviceId = DeviceIdentityService.instance.deviceId;
+
+      // Generate a collision-safe ID from Firebase push
+      String sessionId;
+      if (_isFirebaseAvailable && _database != null) {
+        sessionId = _database!.ref('sessions').push().key ??
+            'session_${DateTime.now().millisecondsSinceEpoch}';
+      } else {
+        sessionId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      }
+
+      final now = DateTime.now();
+      final ownerMember = SessionMember(
+        userId: userId,
+        deviceId: deviceId,
+        displayName: 'You',
+        joinedAt: now,
+        isActive: true,
+        lastActive: now,
+      );
 
       final session = SharedSession(
         id: sessionId,
@@ -120,29 +148,34 @@ class SessionService {
         ownerId: userId,
         maxMembers: maxMembers,
         isPublic: isPublic,
-        createdAt: DateTime.now(),
+        createdAt: now,
         theme: theme,
         isActive: true,
         settings: settings,
-        members: [
-          SessionMember(
-            userId: userId,
-            deviceId: deviceId,
-            displayName: 'You',
-            joinedAt: DateTime.now(),
-            isActive: true,
-            lastActive: DateTime.now(),
-          ),
-        ],
+        members: [ownerMember],
       );
 
       if (_isFirebaseAvailable && _database != null) {
         await _database!.ref('sessions/$sessionId').set(session.toMap());
+        // Index for this user's session list
         await _database!.ref('users/$userId/sessions/$sessionId').set(true);
+        // Index in public listing if applicable
+        if (isPublic) {
+          await _database!.ref('publicSessions/$sessionId').set({
+            'name': name,
+            'theme': theme,
+            'memberCount': 1,
+            'createdAt': now.toIso8601String(),
+          });
+        }
       }
 
       _sessionCache[sessionId] = session;
       debugPrint('SessionService: Created session $sessionId');
+
+      // Auto-start presence heartbeat for owner
+      startPresenceHeartbeat(sessionId);
+
       return session;
     } catch (e) {
       debugPrint('SessionService: Error creating session: $e');
@@ -150,24 +183,16 @@ class SessionService {
     }
   }
 
-  /// Join an existing session
+  /// Join an existing session by ID.
   Future<void> joinSession({
     required String sessionId,
     required String displayName,
   }) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
-      if (userId == null) {
-        throw StateError('User not authenticated');
-      }
-
-      if (!_isInitialized) {
-        throw StateError('SessionService not initialized');
-      }
-
-      if (displayName.isEmpty) {
-        throw ArgumentError('Display name cannot be empty');
-      }
+      if (userId == null) throw StateError('User not authenticated');
+      if (!_isInitialized) throw StateError('SessionService not initialized');
+      if (displayName.isEmpty) throw ArgumentError('Display name cannot be empty');
 
       final deviceId = DeviceIdentityService.instance.deviceId;
 
@@ -175,12 +200,10 @@ class SessionService {
         final sessionRef = _database!.ref('sessions/$sessionId');
         final sessionSnap = await sessionRef.get();
 
-        if (!sessionSnap.exists) {
-          throw StateError('Session not found');
-        }
+        if (!sessionSnap.exists) throw StateError('Session not found');
 
-        final sessionMap = Map<String, dynamic>.from(sessionSnap.value as Map);
-        final session = SharedSession.fromMap(sessionMap);
+        final session = SharedSession.fromMap(
+          Map<String, dynamic>.from(sessionSnap.value as Map));
 
         // Check max members
         if (session.maxMembers > 0 && session.memberCount >= session.maxMembers) {
@@ -188,33 +211,38 @@ class SessionService {
         }
 
         // Check if already a member
-        final isMember = session.members.any((m) => m.userId == userId);
-        if (isMember) {
+        if (session.members.any((m) => m.userId == userId)) {
           debugPrint('SessionService: User already in session');
           return;
         }
 
-        // Add member
+        final now = DateTime.now();
         final newMember = SessionMember(
           userId: userId,
           deviceId: deviceId,
           displayName: displayName,
-          joinedAt: DateTime.now(),
+          joinedAt: now,
           isActive: true,
-          lastActive: DateTime.now(),
+          lastActive: now,
         );
 
-        await _database!.ref('sessions/$sessionId/members/$userId').set(newMember.toMap());
-        await _database!.ref('users/$userId/sessions/$sessionId').set(true);
-
-        // Update local cache
-        if (_sessionCache.containsKey(sessionId)) {
-          final updatedSession = _sessionCache[sessionId]!.copyWith(
-            members: [..._sessionCache[sessionId]!.members, newMember],
-          );
-          _sessionCache[sessionId] = updatedSession;
+        // Write into members/{userId} — the nested-map structure
+        await _database!
+            .ref('sessions/$sessionId/members/$userId')
+            .set(newMember.toMap());
+        await _database!
+            .ref('users/$userId/sessions/$sessionId')
+            .set(true);
+        // Update public index member count
+        if (session.isPublic) {
+          await _database!
+              .ref('publicSessions/$sessionId/memberCount')
+              .set(session.memberCount + 1);
         }
       }
+
+      // Auto-start presence heartbeat
+      startPresenceHeartbeat(sessionId);
 
       debugPrint('SessionService: Joined session $sessionId');
     } catch (e) {
@@ -227,29 +255,31 @@ class SessionService {
   Future<void> leaveSession({required String sessionId}) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
-      if (userId == null) {
-        throw StateError('User not authenticated');
-      }
-
-      if (!_isInitialized) {
-        throw StateError('SessionService not initialized');
-      }
+      if (userId == null) throw StateError('User not authenticated');
+      if (!_isInitialized) throw StateError('SessionService not initialized');
 
       // Stop presence heartbeat
       _stopPresenceHeartbeat(sessionId);
 
       if (_isFirebaseAvailable && _database != null) {
-        await _database!.ref('sessions/$sessionId/members/$userId').remove();
-        await _database!.ref('users/$userId/sessions/$sessionId').remove();
+        await _database!
+            .ref('sessions/$sessionId/members/$userId')
+            .remove();
+        await _database!
+            .ref('users/$userId/sessions/$sessionId')
+            .remove();
 
-        // If owner left, delete session
-        final sessionRef = _database!.ref('sessions/$sessionId');
-        final sessionSnap = await sessionRef.get();
+        // If owner left, mark session as inactive and remove from public index
+        final sessionSnap =
+            await _database!.ref('sessions/$sessionId').get();
         if (sessionSnap.exists) {
-          final sessionMap = Map<String, dynamic>.from(sessionSnap.value as Map);
-          final session = SharedSession.fromMap(sessionMap);
+          final session = SharedSession.fromMap(
+              Map<String, dynamic>.from(sessionSnap.value as Map));
           if (session.ownerId == userId) {
-            await sessionRef.remove();
+            await _database!
+                .ref('sessions/$sessionId/isActive')
+                .set(false);
+            await _database!.ref('publicSessions/$sessionId').remove();
           }
         }
       }
@@ -262,21 +292,25 @@ class SessionService {
     }
   }
 
-  /// Get a session by ID
+  // ---------------------------------------------------------------------------
+  // Fetching
+  // ---------------------------------------------------------------------------
+
+  /// Get a session by ID (cache-first)
   Future<SharedSession?> getSession(String sessionId) async {
     try {
       if (_sessionCache.containsKey(sessionId)) {
         return _sessionCache[sessionId];
       }
 
-      if (!_isFirebaseAvailable || _database == null) {
-        return null;
-      }
+      if (!_isFirebaseAvailable || _database == null) return null;
 
-      final snapshot = await _database!.ref('sessions/$sessionId').get();
+      final snapshot =
+          await _database!.ref('sessions/$sessionId').get();
       if (!snapshot.exists) return null;
 
-      final session = SharedSession.fromMap(Map<String, dynamic>.from(snapshot.value as Map));
+      final session = SharedSession.fromMap(
+          Map<String, dynamic>.from(snapshot.value as Map));
       _sessionCache[sessionId] = session;
       return session;
     } catch (e) {
@@ -285,27 +319,24 @@ class SessionService {
     }
   }
 
-  /// Get user's sessions
+  /// Get sessions the current user belongs to
   Future<List<SharedSession>> getUserSessions() async {
     try {
       final userId = FirebaseAuthService.instance.userId;
-      if (userId == null) {
-        return [];
-      }
+      if (userId == null) return [];
+      if (!_isFirebaseAvailable || _database == null) return [];
 
-      if (!_isFirebaseAvailable || _database == null) {
-        return [];
-      }
-
-      final snapshot = await _database!.ref('users/$userId/sessions').get();
+      final snapshot =
+          await _database!.ref('users/$userId/sessions').get();
       if (!snapshot.exists) return [];
 
-      final sessionIds = (snapshot.value as Map?)?.keys.cast<String>() ?? [];
+      final sessionIds =
+          (snapshot.value as Map?)?.keys.cast<String>() ?? [];
       final sessions = <SharedSession>[];
 
       for (final sessionId in sessionIds) {
         final session = await getSession(sessionId);
-        if (session != null) {
+        if (session != null && session.isActive) {
           sessions.add(session);
         }
       }
@@ -317,18 +348,45 @@ class SessionService {
     }
   }
 
-  /// Start presence heartbeat for a session
+  /// Get public sessions (for join-by-browse)
+  Future<List<Map<String, dynamic>>> getPublicSessions({int limit = 30}) async {
+    try {
+      if (!_isFirebaseAvailable || _database == null) return [];
+
+      final snapshot = await _database!
+          .ref('publicSessions')
+          .limitToFirst(limit)
+          .get();
+      if (!snapshot.exists) return [];
+
+      final raw = Map<String, dynamic>.from(snapshot.value as Map);
+      return raw.entries.map((e) {
+        final data = Map<String, dynamic>.from(e.value as Map);
+        data['id'] = e.key;
+        return data;
+      }).toList();
+    } catch (e) {
+      debugPrint('SessionService: Error getting public sessions: $e');
+      return [];
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Presence
+  // ---------------------------------------------------------------------------
+
+  /// Start presence heartbeat for a session (every 30 s)
   void startPresenceHeartbeat(String sessionId) {
     try {
-      if (_presenceHeartbeatTimers.containsKey(sessionId) && _presenceHeartbeatTimers[sessionId]?.isActive == true) {
-        return; // Already running
-      }
+      if (_presenceHeartbeatTimers[sessionId]?.isActive == true) return;
 
-      _presenceHeartbeatTimers[sessionId] = Timer.periodic(Duration(seconds: 30), (_) async {
-        await _updatePresence(sessionId);
-      });
+      _presenceHeartbeatTimers[sessionId] = Timer.periodic(
+        const Duration(seconds: 30),
+        (_) async => _updatePresence(sessionId),
+      );
 
-      debugPrint('SessionService: Started presence heartbeat for $sessionId');
+      debugPrint(
+          'SessionService: Started presence heartbeat for $sessionId');
     } catch (e) {
       debugPrint('SessionService: Error starting heartbeat: $e');
     }
@@ -338,59 +396,73 @@ class SessionService {
   void _stopPresenceHeartbeat(String sessionId) {
     _presenceHeartbeatTimers[sessionId]?.cancel();
     _presenceHeartbeatTimers.remove(sessionId);
-    debugPrint('SessionService: Stopped presence heartbeat for $sessionId');
+    debugPrint(
+        'SessionService: Stopped presence heartbeat for $sessionId');
   }
 
-  /// Update member presence
+  /// Update member presence timestamp
   Future<void> _updatePresence(String sessionId) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
-      if (userId == null || !_isFirebaseAvailable || _database == null) {
-        return;
-      }
+      if (userId == null || !_isFirebaseAvailable || _database == null) return;
 
-      await _database!.ref('sessions/$sessionId/members/$userId/lastActive').set(DateTime.now().toIso8601String());
+      await _database!
+          .ref('sessions/$sessionId/members/$userId')
+          .update({
+        'lastActive': DateTime.now().toIso8601String(),
+        'isActive': true,
+      });
     } catch (e) {
       debugPrint('SessionService: Error updating presence: $e');
     }
   }
 
-  /// Listen to session updates
+  // ---------------------------------------------------------------------------
+  // Real-time listening
+  // ---------------------------------------------------------------------------
+
+  /// Listen to live session updates
   StreamSubscription<DatabaseEvent> listenToSession(
     String sessionId,
     Function(SharedSession) onUpdate,
   ) {
     if (!_isFirebaseAvailable || _database == null) {
-      // Return dummy subscription for stub mode
       return Stream<DatabaseEvent>.empty().listen((_) {});
     }
 
-    final subscription = _database!.ref('sessions/$sessionId').onValue.listen((event) {
-      try {
-        if (event.snapshot.exists) {
-          final session = SharedSession.fromMap(Map<String, dynamic>.from(event.snapshot.value as Map));
-          _sessionCache[sessionId] = session;
-          onUpdate(session);
+    final subscription =
+        _database!.ref('sessions/$sessionId').onValue.listen(
+      (event) {
+        try {
+          if (event.snapshot.exists) {
+            final session = SharedSession.fromMap(
+                Map<String, dynamic>.from(event.snapshot.value as Map));
+            _sessionCache[sessionId] = session;
+            onUpdate(session);
+          }
+        } catch (e) {
+          debugPrint(
+              'SessionService: Error processing session update: $e');
         }
-      } catch (e) {
-        debugPrint('SessionService: Error processing session update: $e');
-      }
-    });
+      },
+    );
 
     _activeListeners[sessionId] = subscription;
     return subscription;
   }
 
-  /// Release resources
+  // ---------------------------------------------------------------------------
+  // Cleanup
+  // ---------------------------------------------------------------------------
+
+  /// Release all resources
   Future<void> release() async {
     try {
-      // Cancel all heartbeats
       for (final timer in _presenceHeartbeatTimers.values) {
         timer?.cancel();
       }
       _presenceHeartbeatTimers.clear();
 
-      // Cancel all listeners
       for (final listener in _activeListeners.values) {
         await listener.cancel();
       }
@@ -404,10 +476,14 @@ class SessionService {
     }
   }
 
-  /// Get debug status
-  String get debugStatus =>
-      'SessionService(ready: $_isInitialized, cache_size: ${_sessionCache.length}, heartbeats: ${_presenceHeartbeatTimers.length})';
+  // ---------------------------------------------------------------------------
+  // Debug helpers
+  // ---------------------------------------------------------------------------
 
-  /// Check if ready
+  String get debugStatus =>
+      'SessionService(ready: $_isInitialized, '
+      'cache: ${_sessionCache.length}, '
+      'heartbeats: ${_presenceHeartbeatTimers.length})';
+
   bool get isReady => _isInitialized;
 }

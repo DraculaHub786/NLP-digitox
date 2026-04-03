@@ -10,6 +10,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:nlp_digitox/models/notification_schedule.dart';
@@ -30,6 +31,8 @@ class NotificationSchedulerService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final _leaderboardService = LeaderboardService.instance;
+  AndroidScheduleMode _androidScheduleMode =
+      AndroidScheduleMode.exactAllowWhileIdle;
 
   bool _initialized = false;
 
@@ -40,7 +43,15 @@ class NotificationSchedulerService {
     try {
       // Initialize timezone data
       tz.initializeTimeZones();
-      final location = tz.getLocation('UTC');
+      final timeZoneName = await FlutterTimezone.getLocalTimezone();
+      tz.Location location;
+      try {
+        location = tz.getLocation(timeZoneName);
+      } catch (_) {
+        debugPrint(
+            'Unknown timezone "$timeZoneName", falling back to UTC for scheduling');
+        location = tz.getLocation('UTC');
+      }
       tz.setLocalLocation(location);
       debugPrint('Timezone initialized: ${tz.local.name}');
       
@@ -72,7 +83,13 @@ class NotificationSchedulerService {
         
         final exactAlarmGranted = await androidPlugin.requestExactAlarmsPermission();
         debugPrint('Exact alarm permission granted: $exactAlarmGranted');
+        _androidScheduleMode = (exactAlarmGranted ?? false)
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle;
+      } else {
+        _androidScheduleMode = AndroidScheduleMode.inexactAllowWhileIdle;
       }
+      debugPrint('Notification schedule mode: $_androidScheduleMode');
 
       _initialized = true;
       debugPrint('NotificationSchedulerService initialized successfully');
@@ -184,7 +201,7 @@ class NotificationSchedulerService {
         'This is your scheduled reminder',
         scheduledDate,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: _androidScheduleMode,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time, // Repeat daily at this time

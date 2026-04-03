@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
+import 'package:nlp_digitox/core/services/privacy_service.dart';
 import 'dart:async';
 
 /// Sync Service for cross-device coordination
@@ -93,11 +94,18 @@ class SyncService {
     }
   }
 
-  /// Get database reference for current user
+  /// Get database reference for current user.
+  /// Returns null when Firebase unavailable OR privacy settings disallow cloud sync.
   DatabaseReference? get _userRef {
     final userId = FirebaseAuthService.instance.userId;
     if (userId == null || !_isFirebaseAvailable || _database == null) return null;
+    if (!_isCloudAllowed()) return null;
     return _database!.ref('users/$userId');
+  }
+
+  /// Returns false when the user has opted out of cloud sync in privacy settings.
+  bool _isCloudAllowed() {
+    return PrivacyService.instance.cloudSyncEnabled;
   }
 
   /// Register or update this device in Firebase
@@ -386,11 +394,14 @@ class SyncService {
     }
   }
 
-  /// Reset daily usage for all apps (typically called at midnight)
+  /// Reset daily usage for all apps (typically called at midnight).
+  /// Uses a single batched update() call instead of N individual writes.
   Future<void> resetDailyUsage() async {
     try {
+      _localCache.removeWhere((key, _) => key.startsWith('usage_'));
+
       if (_userRef == null) {
-        _localCache.clear();
+        debugPrint('SyncService: Daily usage reset (local only)');
         return;
       }
 
@@ -400,13 +411,19 @@ class SyncService {
       if (snapshot.exists) {
         final data = Map<String, dynamic>.from(snapshot.value as Map);
 
+        // Build a single batch update for all apps
+        final batchUpdate = <String, dynamic>{};
         for (final appPackage in data.keys) {
-          await usageRef.child('$appPackage/dailyMinutes').set(0);
-          await usageRef.child('$appPackage/lastReset').set(ServerValue.timestamp);
+          batchUpdate['$appPackage/dailyMinutes'] = 0;
+          batchUpdate['$appPackage/lastReset'] = ServerValue.timestamp;
+        }
+
+        if (batchUpdate.isNotEmpty) {
+          await usageRef.update(batchUpdate);
         }
       }
 
-      debugPrint('SyncService: Daily usage reset completed');
+      debugPrint('SyncService: Daily usage reset completed (batch)');
     } catch (e) {
       debugPrint('SyncService: Error resetting daily usage: $e');
     }

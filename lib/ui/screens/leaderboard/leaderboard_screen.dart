@@ -367,7 +367,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                             borderRadius: BorderRadius.circular(4),
                                             child: LinearProgressIndicator(
                                               value: entry.value / _totalPoints,
-                                              backgroundColor: colorScheme.surfaceVariant,
+                                              backgroundColor: colorScheme.surfaceContainerHighest,
                                               valueColor: AlwaysStoppedAnimation(
                                                 colorScheme.primary,
                                               ),
@@ -461,7 +461,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: colorScheme.surfaceVariant,
+                                  color: colorScheme.surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(24),
                                 ),
                                 child: Center(
@@ -479,7 +479,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     StyledText(
-                                      user.username,
+                                      isCurrentUser ? 'You' : user.username,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 16,
                                       color: isCurrentUser

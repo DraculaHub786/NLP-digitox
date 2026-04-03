@@ -32,22 +32,42 @@ class SessionMember {
     required this.lastActive,
   });
 
-  factory SessionMember.fromMap(Map<String, dynamic> map) {
+  /// Parse from Firebase RTDB map (the nested map under a userId key)
+  /// The [userId] is the key from the parent map, since RTDB omits it from value.
+  factory SessionMember.fromMap(Map<String, dynamic> map, {String? userId}) {
+    final resolvedUserId = userId ?? map['userId'] as String? ?? '';
     return SessionMember(
-      userId: map['userId'] as String? ?? '',
+      userId: resolvedUserId,
       deviceId: map['deviceId'] as String?,
       displayName: map['displayName'] as String? ?? 'Unknown',
-      joinedAt: DateTime.parse(map['joinedAt'] as String? ?? DateTime.now().toIso8601String()),
+      joinedAt: _parseDateTime(map['joinedAt']),
       isActive: map['isActive'] as bool? ?? false,
-      lastActive: DateTime.parse(map['lastActive'] as String? ?? DateTime.now().toIso8601String()),
+      lastActive: _parseDateTime(map['lastActive']),
     );
   }
 
+  /// Robust date parser: handles ISO strings, int timestamps, and null
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (_) {
+        return DateTime.now();
+      }
+    }
+    return DateTime.now();
+  }
+
+  /// Serialize for Firebase RTDB — stored under sessions/{id}/members/{userId}
+  /// We store userId inside the value too for easy reconstruction when fetched as a list.
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
       'deviceId': deviceId,
       'displayName': displayName,
+      // Store as ISO string for readability; lastActive can use server timestamp on update
       'joinedAt': joinedAt.toIso8601String(),
       'isActive': isActive,
       'lastActive': lastActive.toIso8601String(),
@@ -85,7 +105,8 @@ class SessionMember {
   int get hashCode => userId.hashCode ^ deviceId.hashCode ^ isActive.hashCode;
 
   @override
-  String toString() => 'SessionMember(userId: $userId, displayName: $displayName, isActive: $isActive)';
+  String toString() =>
+      'SessionMember(userId: $userId, displayName: $displayName, isActive: $isActive)';
 }
 
 /// Represents a shared focus/wellness session/group
@@ -144,31 +165,88 @@ class SharedSession {
   /// Active member count
   int get activeMembers => members.where((m) => m.isActive).length;
 
+  /// Parse from Firebase RTDB snapshot value.
+  ///
+  /// Firebase RTDB stores members as a nested Map:
+  ///   { "userId1": { displayName: ..., isActive: ... }, "userId2": { ... } }
+  /// NOT as a list. This factory handles both the old list format (migration
+  /// safety) and the correct nested-map format.
   factory SharedSession.fromMap(Map<String, dynamic> map) {
-    final membersList = (map['members'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final members = _parseMembers(map['members']);
+
     return SharedSession(
       id: map['id'] as String? ?? '',
       name: map['name'] as String? ?? 'Session',
       description: map['description'] as String?,
       ownerId: map['ownerId'] as String? ?? '',
       maxMembers: map['maxMembers'] as int? ?? 0,
-      members: membersList.map((m) => SessionMember.fromMap(m)).toList(),
+      members: members,
       isPublic: map['isPublic'] as bool? ?? false,
-      createdAt: DateTime.parse(map['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: SessionMember._parseDateTime(map['createdAt']),
       theme: map['theme'] as String?,
       isActive: map['isActive'] as bool? ?? true,
-      settings: map['settings'] != null ? SessionSettings.fromMap(map['settings'] as Map<String, dynamic>) : null,
+      settings: map['settings'] != null
+          ? SessionSettings.fromMap(
+              Map<String, dynamic>.from(map['settings'] as Map))
+          : null,
     );
   }
 
+  /// Robustly parses the members field from RTDB.
+  /// Handles:
+  ///  - null / missing → []
+  ///  - Map<String, dynamic> (correct RTDB format) → parse each entry
+  ///  - List (legacy local format) → parse each entry
+  static List<SessionMember> _parseMembers(dynamic rawMembers) {
+    if (rawMembers == null) return [];
+
+    if (rawMembers is Map) {
+      // Firebase RTDB nested map: { userId: { ...memberData } }
+      final result = <SessionMember>[];
+      for (final entry in rawMembers.entries) {
+        try {
+          final memberData = Map<String, dynamic>.from(entry.value as Map);
+          result.add(SessionMember.fromMap(memberData, userId: entry.key as String));
+        } catch (e) {
+          debugPrint('SharedSession: Error parsing member ${entry.key}: $e');
+        }
+      }
+      return result;
+    }
+
+    if (rawMembers is List) {
+      // Legacy list format (in-memory only, can be removed after migration)
+      final result = <SessionMember>[];
+      for (final item in rawMembers) {
+        try {
+          result.add(SessionMember.fromMap(Map<String, dynamic>.from(item as Map)));
+        } catch (e) {
+          debugPrint('SharedSession: Error parsing member from list: $e');
+        }
+      }
+      return result;
+    }
+
+    debugPrint('SharedSession: Unknown members format: ${rawMembers.runtimeType}');
+    return [];
+  }
+
+  /// Serialize for Firebase RTDB.
+  /// Members are stored as a nested map: { userId: { ...data } }
   Map<String, dynamic> toMap() {
+    // Build the nested members map keyed by userId
+    final membersMap = <String, dynamic>{};
+    for (final m in members) {
+      membersMap[m.userId] = m.toMap();
+    }
+
     return {
       'id': id,
       'name': name,
       'description': description,
       'ownerId': ownerId,
       'maxMembers': maxMembers,
-      'members': members.map((m) => m.toMap()).toList(),
+      'members': membersMap,
       'isPublic': isPublic,
       'createdAt': createdAt.toIso8601String(),
       'theme': theme,
@@ -218,7 +296,8 @@ class SharedSession {
   int get hashCode => id.hashCode ^ ownerId.hashCode ^ memberCount.hashCode;
 
   @override
-  String toString() => 'SharedSession(id: $id, name: $name, members: $memberCount)';
+  String toString() =>
+      'SharedSession(id: $id, name: $name, members: $memberCount)';
 }
 
 /// Settings for a shared session
@@ -277,5 +356,8 @@ class SessionSettings {
           enforceSync == other.enforceSync;
 
   @override
-  int get hashCode => sharedDailyLimit.hashCode ^ showMemberActivity.hashCode ^ enforceSync.hashCode;
+  int get hashCode =>
+      sharedDailyLimit.hashCode ^
+      showMemberActivity.hashCode ^
+      enforceSync.hashCode;
 }

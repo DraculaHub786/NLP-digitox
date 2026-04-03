@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 
 /// Firestore Database Service
@@ -67,7 +68,7 @@ class FirestoreService {
 
       final docSnapshot = await _userDoc!.get();
       if (!docSnapshot.exists) {
-        await initializeUserData(username: 'User');
+        await initializeUserData(username: AppConstants.defaultUsername);
         return getUserSettings();
       }
 
@@ -97,11 +98,34 @@ class FirestoreService {
     }
   }
 
-  /// Update username
+  /// Check if username is available (for uniqueness)
+  Future<bool> isUsernameAvailable(String username) async {
+    try {
+      final usersRef = FirebaseFirestore.instance.collection('users');
+      final query = await usersRef
+          .where('username', isEqualTo: username)
+          .limit(1)
+          .get();
+      
+      // Username is available if no documents found
+      return query.docs.isEmpty;
+    } catch (e) {
+      debugPrint('Check username availability error: $e');
+      return false; // Assume taken on error for safety
+    }
+  }
+
+  /// Update username with uniqueness check
   Future<void> updateUsername(String username) async {
     try {
       if (_userDoc == null) {
         throw Exception('User not authenticated');
+      }
+
+      // Check if username is already taken
+      final isAvailable = await isUsernameAvailable(username);
+      if (!isAvailable) {
+        throw Exception('Username already taken. Please choose another.');
       }
 
       await _userDoc!.update({
@@ -111,7 +135,7 @@ class FirestoreService {
       debugPrint('Username updated to: $username');
     } catch (e) {
       debugPrint('Update username error: $e');
-      throw Exception('Failed to update username');
+      throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
   }
 

@@ -9,6 +9,7 @@ import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
+import 'package:nlp_digitox/features/onboarding/quiz.dart';
 import 'package:nlp_digitox/models/permissions_model.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
@@ -51,6 +52,7 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
       description: context.locale.onboarding_page_three_info,
     ),
     const PermissionsPage(),
+    const OnboardingQuizPage(),
   ];
 
   @override

@@ -5,33 +5,45 @@ import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
 import 'package:nlp_digitox/models/usage_model.dart';
+import 'package:nlp_digitox/models/app_intent_model.dart';
 import 'package:nlp_digitox/core/utils/date_time_utils.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
+import 'package:nlp_digitox/providers/system/intent_provider.dart';
 
 final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
   final todayUsage = ref.watch(
     weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday] ?? const UsageModel()),
   );
+  final intentHistory = ref.watch(intentNotifierProvider);
 
   // Get wellbeing settings for screen time goal
-  final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
-  final screenTimeGoal = wellbeingSettings.allowedShortsTimeSec;
+  final screenTimeGoal = await _loadScreenTimeGoalSeconds();
+  if (screenTimeGoal == null) {
+    return _fallbackSentiment();
+  }
 
   final habitsCompleted = await _getCompletedHabitsToday();
   final tasksCompleted = await _getCompletedTasksToday();
   final streak = await _getCurrentStreak();
+  final recentMessages = AIChatbotService.instance.getRecentMessages(count: 6);
+  final recentIntents = _getRecentIntentSignals(intentHistory);
 
-  final sentiment = await AISentimentService.instance.analyzeSentiment(
-    todayUsage: todayUsage,
-    screenTimeGoalSeconds: screenTimeGoal,
-    streakDays: streak,
-    habitsCompleted: habitsCompleted,
-    tasksCompleted: tasksCompleted,
-  );
-
-  return sentiment;
+  try {
+    final sentiment = await AISentimentService.instance.analyzeSentiment(
+      todayUsage: todayUsage,
+      screenTimeGoalSeconds: screenTimeGoal,
+      streakDays: streak,
+      habitsCompleted: habitsCompleted,
+      tasksCompleted: tasksCompleted,
+      recentChatMessages: recentMessages.isNotEmpty ? recentMessages : null,
+      recentIntentSignals: recentIntents.isNotEmpty ? recentIntents : null,
+    );
+    return sentiment;
+  } catch (_) {
+    return _fallbackSentiment();
+  }
 });
 
 final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref) async {
@@ -40,21 +52,26 @@ final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref)
   );
 
   // Get wellbeing settings for screen time goal
-  final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
-  final screenTimeGoal = wellbeingSettings.allowedShortsTimeSec;
+  final screenTimeGoal = await _loadScreenTimeGoalSeconds();
+  if (screenTimeGoal == null) {
+    return _fallbackRecommendations();
+  }
 
   final sentiment = await ref.watch(aiSentimentProvider.future);
 
   final recentMessages = AIChatbotService.instance.getRecentMessages(count: 3);
 
-  final recommendations = await AISentimentService.instance.getRecommendations(
-    todayUsage: todayUsage,
-    screenTimeGoalSeconds: screenTimeGoal,
-    currentSentiment: sentiment,
-    recentChatMessages: recentMessages.isNotEmpty ? recentMessages : null,
-  );
-
-  return recommendations;
+  try {
+    final recommendations = await AISentimentService.instance.getRecommendations(
+      todayUsage: todayUsage,
+      screenTimeGoalSeconds: screenTimeGoal,
+      currentSentiment: sentiment,
+      recentChatMessages: recentMessages.isNotEmpty ? recentMessages : null,
+    );
+    return recommendations;
+  } catch (_) {
+    return _fallbackRecommendations();
+  }
 });
 
 final aiChatMessagesProvider = StateProvider<List<ChatMessage>>((ref) {
@@ -129,4 +146,44 @@ Future<int> _getCurrentStreak() async {
   } catch (e) {
     return 0;
   }
+}
+
+List<String> _getRecentIntentSignals(Map<String, List<AppIntentModel>> history) {
+  final signals = <String>[];
+
+  history.forEach((package, intents) {
+    if (intents.isEmpty) return;
+    final recent = intents.last;
+    final appLabel = package.split('.').last;
+    signals.add('$appLabel: ${recent.intent.displayName} (${recent.isAllowed ? "allowed" : "not-allowed"})');
+  });
+
+  return signals.take(8).toList();
+}
+
+Future<int?> _loadScreenTimeGoalSeconds() async {
+  try {
+    final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
+    return wellbeingSettings.allowedShortsTimeSec;
+  } catch (_) {
+    return null;
+  }
+}
+
+Map<String, double> _fallbackSentiment() {
+  return {
+    'Positive': 30.0,
+    'Neutral': 45.0,
+    'Negative': 10.0,
+    'Anxious': 10.0,
+    'Focused': 5.0,
+  };
+}
+
+List<String> _fallbackRecommendations() {
+  return const [
+    'Set one small focus goal for the next 20 minutes.',
+    'Take a short break and return with a clear next task.',
+    'Review today\'s habits and complete one quick win now.',
+  ];
 }

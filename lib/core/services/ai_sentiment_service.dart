@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:nlp_digitox/models/usage_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
 
 /// AI Service for sentiment analysis and personalized recommendations
@@ -21,12 +20,10 @@ class AISentimentService {
   static final String _apiKey = ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   static const String _model = 'llama-3.1-8b-instant';
+  static const Duration _requestTimeout = Duration(seconds: 15);
 
   Map<String, double>? _lastSentiment;
   String? _lastSentimentContext;
-
-  static const String _lastAnalysisKey = 'last_sentiment_analysis';
-  static const String _lastAnalysisDateKey = 'last_sentiment_analysis_date';
 
   /// Get the last sentiment analysis for sharing with chatbot
   Map<String, double>? getLastSentiment() => _lastSentiment;
@@ -47,44 +44,25 @@ class AISentimentService {
     int? streakDays,
     int? habitsCompleted,
     int? tasksCompleted,
+    List<String>? recentChatMessages,
+    List<String>? recentIntentSignals,
   }) async {
-    try {
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AISentimentService: API key not configured! Returning defaults.');
-        return {
-          'Positive': 40.0,
-          'Neutral': 30.0,
-          'Negative': 10.0,
-          'Anxious': 10.0,
-          'Focused': 10.0,
-        };
-      }
-      
-      final prefs = await SharedPreferences.getInstance();
-      final lastAnalysisDate = prefs.getString(_lastAnalysisDateKey);
-      final now = DateTime.now();
-      
-      if (lastAnalysisDate != null) {
-        final lastDate = DateTime.parse(lastAnalysisDate);
-        final minutesSinceLastAnalysis = now.difference(lastDate).inMinutes;
-        
-        if (minutesSinceLastAnalysis < 30) {
-          debugPrint('💾 AISentimentService: Using cached sentiment (${minutesSinceLastAnalysis} minutes old)');
-          final cached = prefs.getString(_lastAnalysisKey);
-          if (cached != null) {
-            final cachedSentiment = _parseSentimentFromCache(cached);
-            _lastSentiment = cachedSentiment;
-            debugPrint('✅ AISentimentService: Returning cached sentiment: $cachedSentiment');
-            return cachedSentiment;
-          }
-        } else {
-          debugPrint('🔄 AISentimentService: Cache expired (${minutesSinceLastAnalysis} minutes old), fetching fresh analysis');
-        }
-      }
+    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
+      throw Exception('Groq API key is not configured.');
+    }
 
+    try {
       final screenTimeHours = (todayUsage.screenTime / 3600).toStringAsFixed(1);
       final goalHours = (screenTimeGoalSeconds / 3600).toStringAsFixed(1);
-      final goalPercentage = ((todayUsage.screenTime / screenTimeGoalSeconds) * 100).toInt();
+      final goalPercentage = screenTimeGoalSeconds > 0
+          ? ((todayUsage.screenTime / screenTimeGoalSeconds) * 100).toInt()
+          : 0;
+      final recentChatContext = (recentChatMessages != null && recentChatMessages.isNotEmpty)
+          ? recentChatMessages.take(6).map((m) => '- $m').join('\n')
+          : 'No recent chat context.';
+      final recentIntentContext = (recentIntentSignals != null && recentIntentSignals.isNotEmpty)
+          ? recentIntentSignals.take(8).map((s) => '- $s').join('\n')
+          : 'No recent app-intent context.';
       
       final prompt = '''
 Analyze the digital wellbeing sentiment of a user based on their smartphone usage patterns today. Provide a psychological assessment.
@@ -96,6 +74,12 @@ Usage Data:
 - Current Streak: ${streakDays ?? 0} days
 - Habits Completed: ${habitsCompleted ?? 0}
 - Tasks Completed: ${tasksCompleted ?? 0}
+
+Recent user chat context:
+$recentChatContext
+
+Recent app usage intent context:
+$recentIntentContext
 
 IMPORTANT: Be deterministic - same usage data should produce consistent results.
 
@@ -116,23 +100,25 @@ Focused: XX
 
       debugPrint('🤖 AISentimentService: Calling Groq API for sentiment analysis...');
       
-      final response = await http.post(
-        Uri.parse(_apiUrl),
-        headers: {
-          'Authorization': 'Bearer $_apiKey',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'model': _model,
-          'messages': [
-            {'role': 'system', 'content': 'You are a deterministic digital wellbeing analyzer. Apply rules consistently. Same input = same output.'},
-            {'role': 'user', 'content': prompt},
-          ],
-          'temperature': 0.1,  // Low temperature for consistency
-          'max_tokens': 150,
-          'seed': 42,  // Fixed seed for deterministic results
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse(_apiUrl),
+            headers: {
+              'Authorization': 'Bearer $_apiKey',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'model': _model,
+              'messages': [
+                {'role': 'system', 'content': 'You are a deterministic digital wellbeing analyzer. Apply rules consistently. Same input = same output.'},
+                {'role': 'user', 'content': prompt},
+              ],
+              'temperature': 0.1,  // Low temperature for consistency
+              'max_tokens': 150,
+              'seed': 42,  // Fixed seed for deterministic results
+            }),
+          )
+          .timeout(_requestTimeout);
       
       if (response.statusCode != 200) {
         debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
@@ -147,9 +133,6 @@ Focused: XX
       debugPrint('Response text: $text');
       
       final sentiments = _parseSentiment(text);
-      
-      await prefs.setString(_lastAnalysisKey, text);
-      await prefs.setString(_lastAnalysisDateKey, now.toIso8601String());
       
       _lastSentiment = sentiments;
       _lastSentimentContext = 'Screen time: $screenTimeHours hrs (goal: $goalHours hrs), Streak: ${streakDays ?? 0} days, Habits: ${habitsCompleted ?? 0}, Tasks: ${tasksCompleted ?? 0}';
@@ -172,15 +155,7 @@ Focused: XX
         debugPrint('⚠️ INVALID API KEY ERROR: Your Groq API key may be incorrect or disabled.');
         debugPrint('   Get a new key at: https://console.groq.com/keys');
       }
-      
-      debugPrint('⚠️ Returning default sentiment values due to API error');
-      return {
-        'Positive': 40.0,
-        'Neutral': 30.0,
-        'Negative': 10.0,
-        'Anxious': 10.0,
-        'Focused': 10.0,
-      };
+      rethrow;
     }
   }
 
@@ -191,19 +166,16 @@ Focused: XX
     required Map<String, double> currentSentiment,
     List<String>? recentChatMessages, // Include chat context for better recommendations
   }) async {
+    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
+      throw Exception('Groq API key is not configured.');
+    }
+
     try {
-      // Check if API is properly configured
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AISentimentService: API key not configured! Returning default recommendations.');
-        return [
-          'Take a 5-minute break from your screen',
-          'Try focus mode during work hours',
-          'Set app timers for social media',
-        ];
-      }
-      
       final screenTimeHours = (todayUsage.screenTime / 3600).toStringAsFixed(1);
       final goalHours = (screenTimeGoalSeconds / 3600).toStringAsFixed(1);
+      final recentChatContext = (recentChatMessages != null && recentChatMessages.isNotEmpty)
+          ? recentChatMessages.take(6).map((m) => '- $m').join('\n')
+          : 'No recent chat context.';
       
       final prompt = '''
 As a digital wellbeing AI assistant, provide 3-4 personalized, actionable recommendations for this user based on their usage patterns and emotional state.
@@ -211,6 +183,8 @@ As a digital wellbeing AI assistant, provide 3-4 personalized, actionable recomm
 Current State:
 - Screen Time: $screenTimeHours hours (Goal: $goalHours hours)
 - Sentiment: ${currentSentiment.entries.map((e) => '${e.key}: ${e.value.toInt()}%').join(', ')}
+- Recent chats:
+$recentChatContext
 
 
 Provide 3-4 brief, actionable recommendations (each max 15 words). Format as a simple numbered list:
@@ -228,22 +202,24 @@ Focus on:
 
       debugPrint('🤖 AISentimentService: Calling Groq API for recommendations...');
       
-      final response = await http.post(
-        Uri.parse(_apiUrl),
-        headers: {
-          'Authorization': 'Bearer $_apiKey',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'model': _model,
-          'messages': [
-            {'role': 'system', 'content': 'You are a digital wellbeing coach. Provide brief, actionable recommendations.'},
-            {'role': 'user', 'content': prompt},
-          ],
-          'temperature': 0.8,
-          'max_tokens': 200,
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse(_apiUrl),
+            headers: {
+              'Authorization': 'Bearer $_apiKey',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'model': _model,
+              'messages': [
+                {'role': 'system', 'content': 'You are a digital wellbeing coach. Provide brief, actionable recommendations.'},
+                {'role': 'user', 'content': prompt},
+              ],
+              'temperature': 0.8,
+              'max_tokens': 200,
+            }),
+          )
+          .timeout(_requestTimeout);
       
       if (response.statusCode != 200) {
         debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
@@ -263,12 +239,7 @@ Focus on:
     } catch (e, stackTrace) {
       debugPrint('❌ AISentimentService: Error generating recommendations - $e');
       debugPrint('Stack trace: $stackTrace');
-      debugPrint('⚠️ Returning default recommendations due to API error');
-      return [
-        'Take a 5-minute break from your screen',
-        'Try focus mode during work hours',
-        'Set app timers for social media',
-      ];
+      rethrow;
     }
   }
 
@@ -299,23 +270,12 @@ Focus on:
       sentiments.updateAll((key, value) => (value / total) * 100);
     }
     
-    // Return defaults if parsing failed
+    // Treat parse failure as an error to avoid fake fallback sentiment.
     if (sentiments.length < 3) {
-      return {
-        'Positive': 40.0,
-        'Neutral': 30.0,
-        'Negative': 10.0,
-        'Anxious': 10.0,
-        'Focused': 10.0,
-      };
+      throw FormatException('Failed to parse sentiment response: $text');
     }
     
     return sentiments;
-  }
-
-  /// Parse sentiment from cached text
-  Map<String, double> _parseSentimentFromCache(String cached) {
-    return _parseSentiment(cached);
   }
 
   /// Parse recommendations from AI response

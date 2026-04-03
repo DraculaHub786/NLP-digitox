@@ -4,6 +4,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
@@ -112,7 +113,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
       // Get user info
       final user = FirebaseAuthService.instance.currentUser;
-      final username = user?.displayName ?? 'User';
+      final username = user?.displayName ?? AppConstants.defaultUsername;
 
       // Initialize Firestore user data for Google sign-in users
       try {

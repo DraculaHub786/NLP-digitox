@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 /// Sentiment/Mood classification
@@ -303,6 +304,9 @@ class SentimentFilter {
         debugPrint('SentimentFilter: Warning - GROK_API_KEY not set. Using test mode.');
       }
 
+      // Load persisted mood history from SharedPreferences
+      await _loadHistory();
+
       _isInitialized = true;
       debugPrint('SentimentFilter: Initialized with Grok API integration');
     } catch (e) {
@@ -341,6 +345,9 @@ class SentimentFilter {
       if (_moodHistory.length > maxHistorySize) {
         _moodHistory.removeAt(0);
       }
+
+      // Persist to SharedPreferences (fire-and-forget, lightweight)
+      _saveHistory();
 
       debugPrint('SentimentFilter: Analyzed mood - ${prediction.sentiment.displayName} (${(prediction.confidence * 100).toStringAsFixed(1)}%)');
       return prediction;
@@ -739,6 +746,90 @@ Text: "$text"'''
       debugPrint('SentimentFilter: Released');
     } catch (e) {
       debugPrint('SentimentFilter: Error during release: $e');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // SharedPreferences persistence (lightweight, simple JSON)
+  // ---------------------------------------------------------------------------
+
+  static const String _historyKey = 'sentiment_mood_history_v1';
+
+  /// Load mood history from SharedPreferences.
+  /// Each entry is stored as a compact JSON object.
+  Future<void> _loadHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_historyKey);
+      if (raw == null) return;
+
+      final List<dynamic> list = jsonDecode(raw) as List<dynamic>;
+      _moodHistory.clear();
+
+      for (final item in list) {
+        try {
+          final map = item as Map<String, dynamic>;
+          final sentimentStr = map['s'] as String? ?? 'neutral';
+          final sentiment = _sentimentFromString(sentimentStr);
+          final confidence = (map['c'] as num?)?.toDouble() ?? 0.5;
+          final timestamp = DateTime.fromMillisecondsSinceEpoch(
+              (map['t'] as int?) ?? DateTime.now().millisecondsSinceEpoch);
+
+          _moodHistory.add(MoodEntry(
+            id: map['id'] as String? ?? timestamp.millisecondsSinceEpoch.toString(),
+            timestamp: timestamp,
+            prediction: SentimentPrediction(
+              sentiment: sentiment,
+              confidence: confidence,
+              analysis: 'Restored from cache',
+              inputText: map['text'] as String? ?? '',
+              detectedEmotions: [],
+              suggestions: [],
+              reasoning: 'Loaded from history',
+            ),
+            note: map['text'] as String?,
+          ));
+        } catch (e) {
+          debugPrint('SentimentFilter: Error parsing history entry: $e');
+        }
+      }
+
+      debugPrint('SentimentFilter: Loaded ${_moodHistory.length} mood history entries');
+    } catch (e) {
+      debugPrint('SentimentFilter: Error loading history: $e');
+      // Non-fatal — start with empty history
+    }
+  }
+
+  /// Persist mood history to SharedPreferences.
+  /// Stored as a compact list to minimize read/write payload.
+  /// Fire-and-forget (unawaited) — called after each analysis.
+  void _saveHistory() {
+    // Run async without blocking
+    _doSaveHistory().catchError((e) {
+      debugPrint('SentimentFilter: Background save error: $e');
+    });
+  }
+
+  Future<void> _doSaveHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Keep only the most recent entries to cap blob size
+      final toSave = _moodHistory.length > maxHistorySize
+          ? _moodHistory.sublist(_moodHistory.length - maxHistorySize)
+          : _moodHistory;
+
+      final list = toSave.map((e) => {
+        'id': e.id,
+        't': e.timestamp.millisecondsSinceEpoch,
+        's': e.prediction.sentiment.name,
+        'c': e.prediction.confidence,
+        'text': e.note ?? '',
+      }).toList();
+
+      await prefs.setString(_historyKey, jsonEncode(list));
+    } catch (e) {
+      debugPrint('SentimentFilter: Error persisting history: $e');
     }
   }
 
