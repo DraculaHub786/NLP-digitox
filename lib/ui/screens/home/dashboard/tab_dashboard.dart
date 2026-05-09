@@ -4,9 +4,9 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/enums/default_home_tab.dart';
-import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_list.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
@@ -14,20 +14,15 @@ import 'package:nlp_digitox/ui/screens/productivity/habits_screen.dart';
 import 'package:nlp_digitox/ui/screens/productivity/tasks_screen.dart';
 import 'package:nlp_digitox/ui/screens/productivity/notes_screen.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
-import 'package:nlp_digitox/ui/common/default_expandable_list_tile.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/sliver_active_session_alert.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/glance_cards/focus_daily_glance.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/glance_cards/screen_time_glance.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/glance_cards_grid.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/sliver_ai_analysis.dart';
-import 'package:nlp_digitox/ui/transitions/default_effects.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_glance_cards.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:sliver_tools/sliver_tools.dart';
 
 class TabDashboard extends ConsumerWidget {
   const TabDashboard({super.key});
@@ -36,6 +31,7 @@ class TabDashboard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isUsageLoading =
         ref.watch(todaysAppsUsageProvider.select((v) => v.isLoading));
+    final colorScheme = Theme.of(context).colorScheme;
 
     return DefaultRefreshIndicator(
       onRefresh: () async => ref
@@ -44,68 +40,64 @@ class TabDashboard extends ConsumerWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
+          /// Background gradient
+          SliverToBoxAdapter(
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colorScheme.primary.withValues(alpha: 0.08),
+                    colorScheme.secondary.withValues(alpha: 0.05),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           /// Active session
           const SliverActiveSessionAlert(),
 
-          MultiSliver(
-            children: [
-              8.vBox,
-              Skeletonizer.zone(
-                enabled: isUsageLoading,
-                enableSwitchAnimation: true,
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      /// Screen time
-                      const Expanded(child: ScreenTimeGlance()),
-                      4.hBox,
+            /// Modern Dashboard UI ABOVE AI Analysis
+            MultiSliver(
+              children: [
+                16.vBox,
 
-                      /// Data usage
-                      const Expanded(child: FocusDailyGlance()),
-                    ],
-                  ),
-                ),
-              ),
+              /// Modern Stats Cards Section
+              _buildModernStatsSection(context, isUsageLoading),
 
-              /// Usage glance
-              DefaultExpandableListTile(
-                position: ItemPosition.mid,
-                titleText: context.locale.glance_tile_title,
-                subtitleText: context.locale.glance_tile_subtitle,
-                content: Skeletonizer.zone(
-                  enabled: isUsageLoading,
-                  enableSwitchAnimation: true,
-                  child: const GlanceCardsGrid(),
-                ),
-              ),
+              24.vBox,
 
-              /// Parental controls
-              DefaultListTile(
-                position: ItemPosition.bottom,
-                leadingIcon: FluentIcons.shield_keyhole_20_regular,
-                titleText: context.locale.parental_controls_tab_title,
-                subtitleText: context.locale.parental_controls_tile_subtitle,
-                color: Theme.of(context).colorScheme.secondaryContainer,
-                trailing: const Icon(FluentIcons.chevron_right_20_regular),
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(AppRoutes.parentalControlsPath),
-              ),
+              /// Quick Actions Section
+              _buildQuickActionsSection(context),
 
-              /// Restrictions
-              ..._restrictions(context),
+              24.vBox,
 
-              /// Productivity
-              ..._productivity(context),
+              /// Glance Cards Section
+              _buildGlanceSection(context, isUsageLoading),
+
+              24.vBox,
+
+              /// Restrictions Section
+              _buildRestrictionsSection(context),
+
+              24.vBox,
+
+              /// Productivity Section
+              _buildProductivitySection(context),
+
+              16.vBox,
             ].animateListOnce(
               ref: ref,
               uniqueKey: "home.dashboard",
               delay: 100.ms,
-              effects: DefaultEffects.transitionIn,
-              interval: 100.ms,
+              interval: 80.ms,
             ),
           ),
 
-          /// AI Analysis
+          /// AI Analysis Section - KEEP EXACTLY AS IS
           const SliverAIAnalysis(),
 
           const SliverTabsBottomPadding(),
@@ -114,95 +106,226 @@ class TabDashboard extends ConsumerWidget {
     );
   }
 
-  static List<Widget> _restrictions(BuildContext context) => [
-        /// Restrictions
-        ContentSectionHeader(
-          title: context.locale.restrictions_heading,
+  Widget _buildModernStatsSection(BuildContext context, bool isLoading) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ModernSectionHeader(
+              title: "Today's Overview",
+              subtitle: "Your digital wellness at a glance",
+            ),
+            const SizedBox(height: 16),
+            Skeletonizer.zone(
+              enabled: isLoading,
+              enableSwitchAnimation: true,
+              child: const ModernStatsCards(),
+            ),
+          ],
         ),
+      ),
+    );
+  }
 
-        /// Apps blocking
-        DefaultListTile(
-          position: ItemPosition.top,
-          leadingIcon: FluentIcons.app_title_20_regular,
-          titleText: context.locale.apps_blocking_tile_title,
-          subtitleText: context.locale.apps_blocking_tile_subtitle,
-          onPressed: () => TabControllerProvider.maybeOf(context)?.animateToTab(
-            DefaultHomeTab.statistics.index,
-          ),
+  Widget _buildQuickActionsSection(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const ModernSectionHeader(
+              title: "Quick Actions",
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ModernQuickActionButton(
+                    title: "Focus Now",
+                    icon: FluentIcons.target_20_filled,
+                    color: const Color(0xFF10B981),
+                    onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
+                      DefaultHomeTab.statistics.index,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ModernQuickActionButton(
+                    title: "View Stats",
+                    icon: FluentIcons.chart_multiple_20_regular,
+                    color: const Color(0xFF3B82F6),
+                    onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
+                      DefaultHomeTab.statistics.index,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
 
-        /// Grouped apps blocking
-        DefaultListTile(
-          position: ItemPosition.mid,
-          leadingIcon: FluentIcons.app_recent_20_regular,
-          titleText: context.locale.grouped_apps_blocking_tile_title,
-          subtitleText: context.locale.grouped_apps_blocking_tile_subtitle,
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () =>
-              Navigator.of(context).pushNamed(AppRoutes.restrictionGroupsPath),
+  Widget _buildGlanceSection(BuildContext context, bool isLoading) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StyledText(
+                      context.locale.glance_tile_title,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(height: 2),
+                    StyledText(
+                      context.locale.glance_tile_subtitle,
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Skeletonizer.zone(
+              enabled: isLoading,
+              enableSwitchAnimation: true,
+              child: const ModernGlanceGrid(),
+            ),
+          ],
         ),
+      ),
+    );
+  }
 
-        /// Shorts restrictions
-        DefaultListTile(
-          position: ItemPosition.mid,
-          leadingIcon: FluentIcons.resize_video_20_regular,
-          titleText: context.locale.shorts_blocking_tab_title,
-          subtitleText: context.locale.shorts_blocking_tile_subtitle,
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () =>
-              Navigator.of(context).pushNamed(AppRoutes.shortsBlockingPath),
+  Widget _buildRestrictionsSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: ModernCategorySection(
+          title: "Restrictions",
+          children: [
+            /// Apps blocking
+            ModernListTile(
+              title: context.locale.apps_blocking_tile_title,
+              subtitle: context.locale.apps_blocking_tile_subtitle,
+              icon: FluentIcons.app_title_20_regular,
+              iconColor: colorScheme.primary,
+              onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
+                DefaultHomeTab.statistics.index,
+              ),
+            ),
+
+            /// Grouped apps blocking
+            ModernListTile(
+              title: context.locale.grouped_apps_blocking_tile_title,
+              subtitle: context.locale.grouped_apps_blocking_tile_subtitle,
+              icon: FluentIcons.app_recent_20_regular,
+              iconColor: const Color(0xFF8B5CF6),
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.restrictionGroupsPath,
+              ),
+            ),
+
+            /// Shorts restrictions
+            ModernListTile(
+              title: context.locale.shorts_blocking_tab_title,
+              subtitle: context.locale.shorts_blocking_tile_subtitle,
+              icon: FluentIcons.resize_video_20_regular,
+              iconColor: const Color(0xFFEC4899),
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.shortsBlockingPath,
+              ),
+            ),
+
+            /// Website restrictions
+            ModernListTile(
+              title: context.locale.websites_blocking_tab_title,
+              subtitle: context.locale.websites_blocking_tile_subtitle,
+              icon: FluentIcons.earth_20_regular,
+              iconColor: const Color(0xFF06B6D4),
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.websitesBlockingPath,
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
 
-        /// Website restrictions
-        DefaultListTile(
-          position: ItemPosition.bottom,
-          leadingIcon: FluentIcons.earth_20_regular,
-          titleText: context.locale.websites_blocking_tab_title,
-          subtitleText: context.locale.websites_blocking_tile_subtitle,
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () =>
-              Navigator.of(context).pushNamed(AppRoutes.websitesBlockingPath),
+  Widget _buildProductivitySection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: ModernCategorySection(
+          title: "Productivity",
+          children: [
+            /// Habits
+            ModernListTile(
+              title: "Habits",
+              subtitle: "Build better habits and track them.",
+              icon: FluentIcons.drink_coffee_20_regular,
+              iconColor: const Color(0xFFF59E0B),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const HabitsScreen()),
+              ),
+            ),
+
+            /// Tasks and todos
+            ModernListTile(
+              title: "Tasks and Todos",
+              subtitle: "Plan your future with tasks and todos.",
+              icon: FluentIcons.reading_list_20_regular,
+              iconColor: const Color(0xFF10B981),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const TasksScreen()),
+              ),
+            ),
+
+            /// Notes & lists
+            ModernListTile(
+              title: "Notes and Lists",
+              subtitle: "Capture thoughts, checklists, or ideas.",
+              icon: FluentIcons.note_20_regular,
+              iconColor: const Color(0xFF3B82F6),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NotesScreen()),
+              ),
+            ),
+
+            /// Parental Controls
+            ModernListTile(
+              title: context.locale.parental_controls_tab_title,
+              subtitle: context.locale.parental_controls_tile_subtitle,
+              icon: FluentIcons.shield_keyhole_20_regular,
+              iconColor: const Color(0xFFEF4444),
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.parentalControlsPath,
+              ),
+            ),
+          ],
         ),
-      ];
-
-  static List<Widget> _productivity(BuildContext context) => [
-        /// Productivity
-        const ContentSectionHeader(title: "Productivity"),
-
-        /// Habits
-        DefaultListTile(
-          position: ItemPosition.top,
-          leadingIcon: FluentIcons.drink_coffee_20_regular,
-          titleText: "Habits",
-          subtitleText: "Build better habits and track them.",
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const HabitsScreen()),
-          ),
-        ),
-
-        /// Tasks and todos
-        DefaultListTile(
-          position: ItemPosition.mid,
-          leadingIcon: FluentIcons.reading_list_20_regular,
-          titleText: "Tasks and todos",
-          subtitleText: "Plan your future with tasks and todos.",
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const TasksScreen()),
-          ),
-        ),
-
-        /// Notes & lists
-        DefaultListTile(
-          position: ItemPosition.bottom,
-          leadingIcon: FluentIcons.note_20_regular,
-          titleText: "Notes and lists",
-          subtitleText: "Capture thoughts, checklists, or ideas.",
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const NotesScreen()),
-          ),
-        ),
-      ];
+      ),
+    );
+  }
 }

@@ -19,7 +19,9 @@ class DefaultSegmentedButton<T> extends StatelessWidget {
     return SegmentedButton<T>(
       showSelectedIcon: false,
       selected: {selected},
-      onSelectionChanged: (set) => onChanged(set.first),
+      onSelectionChanged: (set) {
+        if (set.isNotEmpty) onChanged(set.first);
+      },
       style: const ButtonStyle().copyWith(
         visualDensity: VisualDensity.standard,
         foregroundColor: WidgetStatePropertyAll(

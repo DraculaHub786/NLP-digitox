@@ -16,6 +16,7 @@ import 'package:nlp_digitox/providers/focus/monthly_focus_provider.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/empty_list_indicator.dart';
+import 'package:nlp_digitox/ui/common/sliver_shimmer_list.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/usage_glance_card.dart';
@@ -134,21 +135,26 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
           8.vSliverBox,
 
           /// List of today's sessions
-          dailyFocus.selectedDaysSessions.hasValue &&
-                  dailyFocus.selectedDaysSessions.value!.isNotEmpty
-              ? SliverList.builder(
-                  itemCount: dailyFocus.selectedDaysSessions.value!.length,
-                  itemBuilder: (context, index) => SessionCard(
-                    position: getItemPositionInList(
-                      index,
-                      dailyFocus.selectedDaysSessions.value!.length,
-                    ),
-                    session: dailyFocus.selectedDaysSessions.value![index],
-                  ),
-                )
-              : EmptyListIndicator(
+          dailyFocus.selectedDaysSessions.when(
+            data: (sessions) {
+              if (sessions.isEmpty) {
+                return EmptyListIndicator(
                   info: context.locale.your_sessions_empty_list_hint,
-                ).sliver,
+                ).sliver;
+              }
+              return SliverList.builder(
+                itemCount: sessions.length,
+                itemBuilder: (context, index) => SessionCard(
+                  position: getItemPositionInList(index, sessions.length),
+                  session: sessions[index],
+                ),
+              );
+            },
+            loading: () => SliverShimmerList(includeSubtitle: true),
+            error: (e, s) => EmptyListIndicator(
+              info: 'Failed to load sessions',
+            ).sliver,
+          ),
 
           const SliverTabsBottomPadding(),
         ],

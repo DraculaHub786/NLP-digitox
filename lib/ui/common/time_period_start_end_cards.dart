@@ -45,7 +45,7 @@ class TimePeriodStartEndCards extends StatelessWidget {
           ),
         ),
 
-        12.hBox,
+        8.hBox,
 
         /// Schedule end time
         Expanded(

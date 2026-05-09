@@ -81,36 +81,44 @@ class _SearchNotificationStateSheet
         /// Notifications
         SliverAnimatedSwitcher(
           duration: 500.ms,
-          child: notifications.hasValue && appInfo.hasValue
-              ? notifications.value!.isEmpty
-                  ? EmptyListIndicator(
-                      info: context.locale.search_notifications_empty_list_hint,
-                    ).sliver
-                  : SliverImplicitlyAnimatedList(
-                      items: notifications.value!,
-                      keyBuilder: (e) => "${e.packageName}: ${e.timeStamp}",
-                      itemBuilder: (context, i, notification, position) {
-                        return appInfo.value!
-                                .containsKey(notification.packageName)
-                            ? NotificationTile(
-                                position: position,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHigh,
-                                leading: ApplicationIcon(
-                                  appInfo:
-                                      appInfo.value![notification.packageName]!,
-                                ),
-                                notification: notification,
-                              )
-                            : 0.vBox;
-                      },
-                    )
-              : const SliverShimmerList(
-                  includeLeading: true,
-                  includeSubtitle: true,
-                  includeTrailing: true,
-                ),
+          child: notifications.when(
+            data: (notificationList) {
+              final appInfoMap = appInfo.valueOrNull ?? {};
+              
+              if (notificationList.isEmpty) {
+                return EmptyListIndicator(
+                  info: context.locale.search_notifications_empty_list_hint,
+                ).sliver;
+              }
+              
+              return SliverImplicitlyAnimatedList(
+                items: notificationList,
+                keyBuilder: (e) => "${e.packageName}: ${e.timeStamp}",
+                itemBuilder: (context, i, notification, position) {
+                  final appItem = appInfoMap[notification.packageName];
+                  return NotificationTile(
+                    position: position,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    leading: appItem != null
+                        ? ApplicationIcon(appInfo: appItem)
+                        : const Icon(
+                            FluentIcons.error_circle_20_filled,
+                            size: 36,
+                          ),
+                    notification: notification,
+                  );
+                },
+              );
+            },
+            loading: () => const SliverShimmerList(
+              includeLeading: true,
+              includeSubtitle: true,
+              includeTrailing: true,
+            ),
+            error: (e, s) => EmptyListIndicator(
+              info: 'Failed to load notifications',
+            ).sliver,
+          ),
         )
       ],
     );

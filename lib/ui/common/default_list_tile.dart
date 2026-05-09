@@ -76,32 +76,30 @@ class DefaultListTile extends StatelessWidget {
           /// leading space
           if (leading != null || leadingIcon != null) const SizedBox(width: 16),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// Title widget
-                  titleText != null
-                      ? StyledText(
-                          titleText!,
-                          fontSize: 16,
-                          fontWeight: isPrimary ? FontWeight.w500 : null,
-                          color: enabled ? accent : Theme.of(context).hintColor,
-                        )
-                      : title ?? 0.vBox,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Title widget
+                titleText != null
+                    ? StyledText(
+                        titleText!,
+                        fontSize: 16,
+                        fontWeight: isPrimary ? FontWeight.w500 : null,
+                        color: enabled ? accent : Theme.of(context).hintColor,
+                      )
+                    : title ?? 0.vBox,
 
-                  /// Subtitle widget
-                  subtitleText != null
-                      ? StyledText(
-                          subtitleText!,
-                          fontSize: 14,
-                          isSubtitle: true,
-                        )
-                      : subtitle ?? 0.vBox,
-                ],
-              ),
+                /// Subtitle widget
+                subtitleText != null
+                    ? StyledText(
+                        subtitleText!,
+                        fontSize: 14,
+                        isSubtitle: true,
+                      )
+                    : subtitle ?? 0.vBox,
+              ],
             ),
           ),
 
