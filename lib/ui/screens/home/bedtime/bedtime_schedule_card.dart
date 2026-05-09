@@ -36,7 +36,7 @@ class BedtimeScheduleCard extends ConsumerWidget {
 
     return RoundedContainer(
       borderRadius: getBorderRadiusFromPosition(ItemPosition.top),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

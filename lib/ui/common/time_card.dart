@@ -61,6 +61,7 @@ class TimeCard extends StatelessWidget {
               }
             : null,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             /// Icon
             if (icon != null)
@@ -73,18 +74,20 @@ class TimeCard extends StatelessWidget {
                 ),
               ),
 
-            SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// Label
-                  StyledText(
-                    label,
-                    isSubtitle: !enabled,
-                  ),
-                  4.vBox,
-                  Row(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Label
+                StyledText(
+                  label,
+                  isSubtitle: !enabled,
+                ),
+                4.vBox,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       /// Time in hour and minutes
@@ -105,8 +108,8 @@ class TimeCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

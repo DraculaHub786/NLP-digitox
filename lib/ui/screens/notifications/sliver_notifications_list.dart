@@ -102,36 +102,44 @@ class _SliverNotificationsList extends ConsumerWidget {
     final notifications = ref.watch(datedNotificationsProvider(timeRange));
     final appInfo = ref.watch(appsInfoProvider);
 
-    return notifications.hasValue && appInfo.hasValue
-        ? notifications.value!.isEmpty
-            ? EmptyListIndicator(
-                info: context.locale.notifications_empty_list_hint,
-              ).sliver
-            : SliverImplicitlyAnimatedList(
-                items: notifications.value!,
-                keyBuilder: (e) => e.id.toString(),
-                itemBuilder: (context, i, notification, position) {
-                  return NotificationTile(
-                    position: position,
-                    leading: appInfo.value!
-                            .containsKey(notification.packageName)
-                        ? ApplicationIcon(
-                            appInfo: appInfo.value![notification.packageName]!,
-                          )
-                        : const Icon(
-                            FluentIcons.error_circle_20_filled,
-                            size: 36,
-                          ),
-                    notification: notification,
-                    onDismissed: onDismissed,
-                  );
-                },
-              )
-        : const SliverShimmerList(
-            includeLeading: true,
-            includeSubtitle: true,
-            includeTrailing: true,
-          );
+    return notifications.when(
+      data: (notificationList) {
+        final appInfoMap = appInfo.valueOrNull ?? {};
+        
+        if (notificationList.isEmpty) {
+          return EmptyListIndicator(
+            info: context.locale.notifications_empty_list_hint,
+          ).sliver;
+        }
+        
+        return SliverImplicitlyAnimatedList(
+          items: notificationList,
+          keyBuilder: (e) => e.id.toString(),
+          itemBuilder: (context, i, notification, position) {
+            final appItem = appInfoMap[notification.packageName];
+            return NotificationTile(
+              position: position,
+              leading: appItem != null
+                  ? ApplicationIcon(appInfo: appItem)
+                  : const Icon(
+                      FluentIcons.error_circle_20_filled,
+                      size: 36,
+                    ),
+              notification: notification,
+              onDismissed: onDismissed,
+            );
+          },
+        );
+      },
+      loading: () => const SliverShimmerList(
+        includeLeading: true,
+        includeSubtitle: true,
+        includeTrailing: true,
+      ),
+      error: (error, stack) => EmptyListIndicator(
+        info: 'Failed to load notifications',
+      ).sliver,
+    );
   }
 }
 
@@ -147,34 +155,44 @@ class _SliverConversationList extends ConsumerWidget {
     final notificationsByApp = ref.watch(datedConversationProvider(timeRange));
     final appInfo = ref.watch(appsInfoProvider);
 
-    return notificationsByApp.hasValue && appInfo.hasValue
-        ? notificationsByApp.value!.isEmpty
-            ? EmptyListIndicator(
-                info: context.locale.notifications_empty_list_hint,
-              ).sliver
-            : SliverImplicitlyAnimatedList(
-                items: notificationsByApp.value!.entries.toList(),
-                keyBuilder: (entry) => entry.key,
-                itemBuilder: (context, i, entry, position) {
-                  return ConversationTile(
-                    appName: appInfo.value![entry.key]?.name ?? entry.key,
-                    leading: appInfo.value!.containsKey(entry.key)
-                        ? ApplicationIcon(
-                            appInfo: appInfo.value![entry.key]!,
-                          )
-                        : const Icon(
-                            FluentIcons.error_circle_20_filled,
-                            size: 36,
-                          ),
-                    packageName: entry.key,
-                    conversations: entry.value,
-                    position: position,
-                  );
-                })
-        : const SliverShimmerList(
-            includeLeading: true,
-            includeSubtitle: true,
-            includeTrailing: true,
-          );
+    return notificationsByApp.when(
+      data: (notificationMap) {
+        final appInfoMap = appInfo.valueOrNull ?? {};
+        
+        if (notificationMap.isEmpty) {
+          return EmptyListIndicator(
+            info: context.locale.notifications_empty_list_hint,
+          ).sliver;
+        }
+        
+        return SliverImplicitlyAnimatedList(
+          items: notificationMap.entries.toList(),
+          keyBuilder: (entry) => entry.key,
+          itemBuilder: (context, i, entry, position) {
+            final appItem = appInfoMap[entry.key];
+            return ConversationTile(
+              appName: appItem?.name ?? entry.key,
+              leading: appItem != null
+                  ? ApplicationIcon(appInfo: appItem)
+                  : const Icon(
+                      FluentIcons.error_circle_20_filled,
+                      size: 36,
+                    ),
+              packageName: entry.key,
+              conversations: entry.value,
+              position: position,
+            );
+          },
+        );
+      },
+      loading: () => const SliverShimmerList(
+        includeLeading: true,
+        includeSubtitle: true,
+        includeTrailing: true,
+      ),
+      error: (error, stack) => EmptyListIndicator(
+        info: 'Failed to load conversations',
+      ).sliver,
+    );
   }
 }

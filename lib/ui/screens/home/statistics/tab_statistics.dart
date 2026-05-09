@@ -15,22 +15,20 @@ import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/providers/apps/apps_info_provider.dart';
 import 'package:nlp_digitox/providers/apps/filtered_packages_provider.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/sliver_implicitly_animated_list.dart';
 import 'package:nlp_digitox/ui/common/sliver_usage_chart_panel.dart';
 import 'package:nlp_digitox/ui/common/sliver_usage_cards.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/statistics/application_tile.dart';
 import 'package:nlp_digitox/ui/common/sliver_shimmer_list.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:sliver_tools/sliver_tools.dart';
 
 class TabStatistics extends ConsumerStatefulWidget {
-  const TabStatistics({
-    super.key,
-  });
+  const TabStatistics({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _TabStatisticsState();
@@ -42,107 +40,219 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
 
   @override
   Widget build(BuildContext context) {
-    /// Aggregated usage for whole week on the basis of full day
-    final weeklyUsages =
-        ref.watch(weeklyDeviceUsageProvider(_filter.selectedWeek));
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    /// Filtered and sorted apps based on usage type and day of this week
+    final weeklyUsages = ref.watch(weeklyDeviceUsageProvider(_filter.selectedWeek));
     final filteredApps = ref.watch(filteredPackagesProvider(_filter));
 
     return DefaultRefreshIndicator(
       onRefresh: () async {
         setState(() => _isLoading = true);
-
-        /// Refresh apps info and todays usage
         ref.read(appsInfoProvider.notifier).refreshAppsInfo();
         await ref.read(todaysAppsUsageProvider.notifier).refreshTodaysUsage();
-
         if (!mounted) return;
         setState(() => _isLoading = false);
       },
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          /// Usage type selector and usage info card
-          SliverSkeletonizer.zone(
-            enabled: _isLoading,
-            child: SliverUsageCards(
-              usageType: _filter.usageType,
-              usage: weeklyUsages[_filter.selectedDay] ?? const UsageModel(),
-              onUsageTypeChanged: (type) => setState(
-                () => _filter = _filter.copyWith(usageType: type),
+          /// Background gradient
+          SliverToBoxAdapter(
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colorScheme.primary.withValues(alpha: 0.08),
+                    colorScheme.secondary.withValues(alpha: 0.05),
+                  ],
+                ),
               ),
             ),
           ),
 
-          20.vSliverBox,
-
-          /// Usage bar chart and selected day changer
-          SliverUsageChartPanel(
-            selectedDay: _filter.selectedDay,
-            selectedWeek: _filter.selectedWeek,
-            usageType: _filter.usageType,
-            barChartData: _isLoading
-                ? generateEmptyWeekUsage(_filter.selectedDay)
-                : weeklyUsages,
-            onDayOfWeekChanged: (day) =>
-                setState(() => _filter = _filter.copyWith(selectedDay: day)),
-            onWeekChanged: (day) => setState(
-                () => _filter = _filter.copyWith(selectedWeek: day.weekRange)),
-          ),
-
-          Row(
-            children: [
-              ContentSectionHeader(
-                title: context.locale.most_used_apps_heading,
-              ),
-
-              const Spacer(),
-
-              /// Current day
-              ContentSectionHeader(
-                title: _filter.selectedDay.dateString(context),
-              ),
-            ],
-          ).sliver,
-
-
-          /// Most used apps list
-          SliverAnimatedSwitcher(
-            duration: AppConstants.defaultAnimDuration,
-            switchInCurve: AppConstants.defaultCurve,
-            switchOutCurve: AppConstants.defaultCurve.flipped,
-            child: filteredApps.isLoading
-                ? const SliverShimmerList(includeSubtitle: true)
-                : SliverImplicitlyAnimatedList<String>(
-                    items: filteredApps.value ?? [],
-                    animationDurationMultiplier: 1.5,
-                    keyBuilder: (item) => item,
-                    itemBuilder: (context, i, package, itemPosition) =>
-                        ApplicationTile(
-                      packageName: package,
-                      usageType: _filter.usageType,
-                      selectedDay: _filter.selectedDay,
-                      position: itemPosition,
+          /// Modern Stats Header
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const ModernSectionHeader(
+                      title: 'Statistics',
+                      subtitle: 'Track your device usage',
                     ),
+                    const SizedBox(height: 16),
+                    Skeletonizer.zone(
+                      enabled: _isLoading,
+                      child: _buildModernUsageCards(context, _filter, weeklyUsages, colorScheme, isDark),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            /// Usage chart section
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverUsageChartPanel(
+                selectedDay: _filter.selectedDay,
+                selectedWeek: _filter.selectedWeek,
+                usageType: _filter.usageType,
+                barChartData: _isLoading ? generateEmptyWeekUsage(_filter.selectedDay) : weeklyUsages,
+                onDayOfWeekChanged: (day) => setState(() => _filter = _filter.copyWith(selectedDay: day)),
+                onWeekChanged: (day) => setState(() => _filter = _filter.copyWith(selectedWeek: day.weekRange)),
+              ),
+            ),
+
+            24.vSliverBox,
+
+            /// Most used apps section
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StyledText(
+                    context.locale.most_used_apps_heading,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
+                  StyledText(
+                    _filter.selectedDay.dateString(context),
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ],
+              ),
+            ),
           ),
+
+          16.vSliverBox,
+
+          /// Apps list
+          filteredApps.isLoading
+              ? const SliverShimmerList(includeSubtitle: true)
+              : SliverImplicitlyAnimatedList<String>(
+                  items: filteredApps.value ?? [],
+                  animationDurationMultiplier: 1.5,
+                  keyBuilder: (item) => item,
+                  itemBuilder: (context, i, package, itemPosition) =>
+                      ApplicationTile(
+                        packageName: package,
+                        usageType: _filter.usageType,
+                        selectedDay: _filter.selectedDay,
+                        position: itemPosition,
+                      ),
+                ),
 
           20.vSliverBox,
 
           /// Show all apps button
           if (!_filter.includeAll && filteredApps.hasValue)
-            DefaultListTile(
-              isPrimary: true,
-              leading: const Icon(FluentIcons.select_all_off_20_regular),
-              titleText: context.locale.show_all_apps_tile_title,
-              trailing: const Icon(FluentIcons.chevron_down_20_filled),
-              onPressed: () => setState(
-                () => _filter = _filter.copyWith(includeAll: true),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ModernListTile(
+                  title: context.locale.show_all_apps_tile_title,
+                  subtitle: 'View all installed apps',
+                  icon: FluentIcons.select_all_off_20_regular,
+                  iconColor: colorScheme.primary,
+                  showChevron: true,
+                  onTap: () => setState(() => _filter = _filter.copyWith(includeAll: true)),
+                ),
               ),
-            ).sliver,
+            ),
 
           const SliverTabsBottomPadding(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernUsageCards(BuildContext context, UsageFilterModel filter, Map<DateTime, UsageModel> weeklyUsages, ColorScheme colorScheme, bool isDark) {
+    final usage = weeklyUsages[filter.selectedDay] ?? const UsageModel();
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildModernStatCard(
+            context: context,
+            title: 'Screen Time',
+            value: usage.screenTime.toString(),
+            icon: FluentIcons.phone_screen_time_20_regular,
+            color: const Color(0xFF4DD6D9),
+            isDark: isDark,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildModernStatCard(
+            context: context,
+            title: 'Data',
+            value: '${(usage.mobileData / 1024).toStringAsFixed(0)}MB',
+            icon: FluentIcons.cellular_data_1_20_filled,
+            color: const Color(0xFFF59E0B),
+            isDark: isDark,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildModernStatCard(
+            context: context,
+            title: 'WiFi',
+            value: '${(usage.wifiData / 1024 / 1024).toStringAsFixed(1)}GB',
+            icon: FluentIcons.wifi_1_20_filled,
+            color: const Color(0xFFEC4899),
+            isDark: isDark,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModernStatCard({
+    required BuildContext context,
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required bool isDark,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black : Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(height: 8),
+          StyledText(value, fontSize: 16, fontWeight: FontWeight.bold),
+          const SizedBox(height: 2),
+          StyledText(title, fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         ],
       ),
     );
