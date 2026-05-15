@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

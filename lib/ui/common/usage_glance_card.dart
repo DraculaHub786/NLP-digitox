@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';

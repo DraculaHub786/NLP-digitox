@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 /// Position of the item in a list or section
 enum ItemPosition {

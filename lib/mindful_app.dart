@@ -1,5 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
-
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

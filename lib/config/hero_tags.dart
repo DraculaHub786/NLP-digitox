@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 class HeroTags {
   /// Tag used to identify the beta warning container

@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -81,10 +80,6 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const ModernSectionHeader(
-                      title: 'Statistics',
-                      subtitle: 'Track your device usage',
-                    ),
                     const SizedBox(height: 16),
                     Skeletonizer.zone(
                       enabled: _isLoading,

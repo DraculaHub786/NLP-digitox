@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';

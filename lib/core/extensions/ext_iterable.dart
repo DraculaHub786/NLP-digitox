@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 extension ExtIterable on Iterable<dynamic> {
   /// Iterates over [this] and check if [other] contains any one of the element from [this]

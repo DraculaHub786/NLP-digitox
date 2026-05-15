@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -82,10 +81,6 @@ class TabBedtime extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const ModernSectionHeader(
-                  title: 'Bedtime',
-                  subtitle: 'Set your sleep schedule',
-                ),
                 const SizedBox(height: 8),
                 StyledText(
                   context.locale.bedtime_tab_info,

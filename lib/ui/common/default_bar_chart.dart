@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';

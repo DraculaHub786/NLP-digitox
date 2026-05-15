@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
