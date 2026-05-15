@@ -39,23 +39,6 @@ class TabDashboard extends ConsumerWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          /// Background gradient
-          SliverToBoxAdapter(
-            child: Container(
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primary.withValues(alpha: 0.08),
-                    colorScheme.secondary.withValues(alpha: 0.05),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
           /// Active session
           const SliverActiveSessionAlert(),
 
