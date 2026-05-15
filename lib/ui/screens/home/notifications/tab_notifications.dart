@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -76,10 +75,6 @@ return DefaultRefreshIndicator(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const ModernSectionHeader(
-                    title: 'Notifications',
-                    subtitle: 'Manage your alerts',
-                  ),
                   const SizedBox(height: 16),
                   StyledText(
                     context.locale.notifications_tab_info,

@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 /// Enumeration of possible app usage intents/categories
 enum AppIntent {

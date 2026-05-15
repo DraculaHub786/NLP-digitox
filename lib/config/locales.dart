@@ -1,5 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
-
 class Locales {
   static const Map<String, String> knownLocales = {
     "af": "Afrikaans (Afrikaans)",

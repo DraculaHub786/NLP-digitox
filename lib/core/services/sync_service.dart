@@ -1,4 +1,3 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/Mindful)
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
