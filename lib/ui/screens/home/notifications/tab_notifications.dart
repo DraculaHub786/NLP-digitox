@@ -51,31 +51,13 @@ return DefaultRefreshIndicator(
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          /// Background gradient
-          SliverToBoxAdapter(
-            child: Container(
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primary.withValues(alpha: 0.08),
-                    colorScheme.secondary.withValues(alpha: 0.05),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
           /// Modern Header Section
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
                   StyledText(
                     context.locale.notifications_tab_info,
                     fontSize: 13,
