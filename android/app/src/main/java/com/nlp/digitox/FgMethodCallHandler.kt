@@ -143,6 +143,10 @@ class FgMethodCallHandler(
                 result.success(SharedPrefsHelper.getSetShortsScreenTimeMs(context, null))
             }
 
+            "getDeviceUnlockCount" -> {
+                result.success(SharedPrefsHelper.getSetDeviceUnlockCount(context, null))
+            }
+
             "getNativeCrashLogs" -> {
                 result.success(SharedPrefsHelper.getCrashLogsArrayJsonString(context))
             }
@@ -157,7 +161,8 @@ class FgMethodCallHandler(
             // ==============================================================================================================
 
             "updateAppRestrictions" -> {
-                val appRestrictions = JsonUtils.parseAppRestrictionsMap(
+                val appRestrictions = SharedPrefsHelper.getSetAppRestrictions(
+                    context,
                     call.arguments() ?: ""
                 )
                 updateTrackerServiceRestrictions(appRestrictions, null)
@@ -165,7 +170,8 @@ class FgMethodCallHandler(
             }
 
             "updateRestrictionsGroups" -> {
-                val restrictionGroups = JsonUtils.parseRestrictionGroupsMap(
+                val restrictionGroups = SharedPrefsHelper.getSetRestrictionGroups(
+                    context,
                     call.arguments() ?: ""
                 )
                 updateTrackerServiceRestrictions(null, restrictionGroups)
@@ -173,8 +179,10 @@ class FgMethodCallHandler(
             }
 
             "updateInternetBlockedApps" -> {
-                val blockedApps =
-                    JsonUtils.parseStringSet(call.arguments() ?: "")
+                val blockedApps = SharedPrefsHelper.getSetInternetBlockedApps(
+                    context,
+                    call.arguments() ?: ""
+                )
                 if (vpnServiceConn.isActive) {
                     vpnServiceConn.service?.updateBlockedApps(blockedApps)
                 } else if (blockedApps.isNotEmpty() && getAndAskVpnPermission(false)) {

@@ -38,12 +38,20 @@ class MindfulTrackerService : Service() {
             cancelReminders = { reminderManager.cancelReminders() },
         )
         super.onCreate()
+        restoreRestrictionsFromPrefs()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         if (intent?.action == ServiceBinder.ACTION_START_MINDFUL_SERVICE) {
             startFgService()
+            return START_STICKY
+        }
+
+        if (intent == null) {
+            startFgService()
+            restoreRestrictionsFromPrefs()
+            stopIfNoUsage()
             return START_STICKY
         }
 
@@ -116,6 +124,14 @@ class MindfulTrackerService : Service() {
             overlayManager.dismissSheetOverlay()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
+        }
+    }
+
+    private fun restoreRestrictionsFromPrefs() {
+        val appRestrictions = SharedPrefsHelper.getSetAppRestrictions(this, null)
+        val restrictionGroups = SharedPrefsHelper.getSetRestrictionGroups(this, null)
+        if (appRestrictions.isNotEmpty() || restrictionGroups.isNotEmpty()) {
+            restrictionManager.updateRestrictions(appRestrictions, restrictionGroups)
         }
     }
 

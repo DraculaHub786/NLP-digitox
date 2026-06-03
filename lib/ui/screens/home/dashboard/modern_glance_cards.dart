@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,6 +6,8 @@ import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/extensions/ext_duration.dart';
 import 'package:nlp_digitox/core/extensions/ext_int.dart';
 import 'package:nlp_digitox/core/utils/date_time_utils.dart';
+import 'package:nlp_digitox/providers/notifications/today_notifications_count_provider.dart';
+import 'package:nlp_digitox/providers/usage/device_unlock_count_provider.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/providers/focus/monthly_focus_provider.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -16,6 +17,7 @@ class ModernStatsCards extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final (todayScreenTime, yesterdayScreenTime) = ref.watch(
       weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => (
             v[dateToday]?.screenTime ?? 0,
@@ -40,10 +42,7 @@ class ModernStatsCards extends ConsumerWidget {
             value: todayScreenTime.seconds.toTimeShort(context),
             icon: FluentIcons.phone_screen_time_20_regular,
             trend: todayScreenTime.toDiffPercentage(yesterdayScreenTime),
-            gradientColors: [
-              const Color(0xFF4DD6D9),
-              const Color(0xFF3B82F6),
-            ],
+            accentColor: colorScheme.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -54,10 +53,7 @@ class ModernStatsCards extends ConsumerWidget {
             icon: FluentIcons.target_20_filled,
             trend: todayFocus.toDiffPercentage(yesterdayFocus),
             invertTrend: true,
-            gradientColors: [
-              const Color(0xFF10B981),
-              const Color(0xFF059669),
-            ],
+            accentColor: colorScheme.secondary,
           ),
         ),
       ],
@@ -71,7 +67,7 @@ class _ModernStatCard extends StatelessWidget {
   final IconData icon;
   final int trend;
   final bool invertTrend;
-  final List<Color> gradientColors;
+  final Color accentColor;
 
   const _ModernStatCard({
     required this.title,
@@ -79,73 +75,57 @@ class _ModernStatCard extends StatelessWidget {
     required this.icon,
     required this.trend,
     this.invertTrend = false,
-    required this.gradientColors,
+    required this.accentColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: gradientColors,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: gradientColors[0].withValues(alpha: 0.3),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: gradientColors[0].withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final colorScheme = Theme.of(context).colorScheme;
+    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
+    final borderColor = colorScheme.outline.withOpacity(0.2);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
-                  _TrendBadge(trend: trend, invertTrend: invertTrend),
-                ],
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  icon,
+                  color: accentColor,
+                  size: 22,
+                ),
               ),
-              const SizedBox(height: 16),
-              StyledText(
-                title,
-                fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.8),
-              ),
-              const SizedBox(height: 4),
-              StyledText(
-                value,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              _TrendBadge(trend: trend, invertTrend: invertTrend),
             ],
           ),
-        ),
+          const SizedBox(height: 16),
+          StyledText(
+            title,
+            fontSize: 13,
+            color: colorScheme.onSurface.withValues(alpha: 0.75),
+          ),
+          const SizedBox(height: 4),
+          StyledText(
+            value,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: accentColor,
+          ),
+        ],
       ),
     );
   }
@@ -193,59 +173,58 @@ class ModernGlanceGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final todayUsage = ref.watch(
       weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday]),
     );
+    final unlockCount = ref.watch(deviceUnlockCountProvider).valueOrNull ?? 0;
+    final notificationsCount = ref.watch(todayNotificationsCountProvider).valueOrNull ?? 0;
 
     final mobileData = todayUsage?.mobileData ?? 0;
     final wifiData = todayUsage?.wifiData ?? 0;
 
-    return Column(
-      children: [
-        Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 10.0;
+        final itemWidth = (constraints.maxWidth - spacing) / 2;
+        final childAspectRatio = itemWidth / 86;
+
+        return GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          childAspectRatio: childAspectRatio,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
           children: [
-            Expanded(
-              child: _ModernMiniCard(
-                title: 'Mobile Data',
-                value: '${(mobileData / 1024).toStringAsFixed(1)} MB',
-                icon: FluentIcons.cellular_data_1_20_filled,
-                color: const Color(0xFF8B5CF6),
-              ),
+            _ModernMiniCard(
+              title: 'Mobile Data',
+              value: '${(mobileData / 1024).toStringAsFixed(1)} MB',
+              icon: FluentIcons.cellular_data_1_20_filled,
+              color: colorScheme.primary,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _ModernMiniCard(
-                title: 'WiFi Data',
-                value: '${(wifiData / 1024 / 1024).toStringAsFixed(1)} GB',
-                icon: FluentIcons.wifi_1_20_regular,
-                color: const Color(0xFF06B6D4),
-              ),
+            _ModernMiniCard(
+              title: 'WiFi Data',
+              value: '${(wifiData / 1024 / 1024).toStringAsFixed(1)} GB',
+              icon: FluentIcons.wifi_1_20_regular,
+              color: colorScheme.secondary,
+            ),
+            _ModernMiniCard(
+              title: 'Unlocks',
+              value: unlockCount.toString(),
+              icon: FluentIcons.lock_open_20_regular,
+              color: colorScheme.tertiary,
+            ),
+            _ModernMiniCard(
+              title: 'Notifications',
+              value: notificationsCount.toString(),
+              icon: FluentIcons.alert_20_regular,
+              color: colorScheme.primaryContainer,
+              iconColor: colorScheme.onPrimaryContainer,
             ),
           ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _ModernMiniCard(
-                title: 'Unlocks',
-                value: '42',
-                icon: FluentIcons.lock_open_20_regular,
-                color: const Color(0xFFF59E0B),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _ModernMiniCard(
-                title: 'Notifications',
-                value: '128',
-                icon: FluentIcons.alert_20_regular,
-                color: const Color(0xFFEC4899),
-              ),
-            ),
-          ],
-        ),
-      ],
+        );
+      },
     ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.1, end: 0);
   }
 }
@@ -255,79 +234,66 @@ class _ModernMiniCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
+  final Color? iconColor;
 
   const _ModernMiniCard({
     required this.title,
     required this.value,
     required this.icon,
     required this.color,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final iconTint = iconColor ?? color;
+    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
+    final borderColor = colorScheme.outline.withOpacity(0.2);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [Colors.white.withValues(alpha: 0.08), Colors.white.withValues(alpha: 0.04)]
-                  : [Colors.white.withValues(alpha: 0.9), Colors.white.withValues(alpha: 0.7)],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.3),
-              width: 1.5,
+            child: Icon(icon, color: iconTint, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StyledText(
+                  title,
+                  fontSize: 11,
+                  color: colorScheme.onSurface.withValues(alpha: 0.75),
+                ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: StyledText(
+                    value,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    StyledText(
-                      title,
-                      fontSize: 11,
-                      color: isDark ? Colors.white60 : Colors.black54,
-                    ),
-                    const SizedBox(height: 2),
-                    StyledText(
-                      value,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : null,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -349,6 +315,10 @@ class ModernQuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
+    final borderColor = colorScheme.outline.withOpacity(0.2);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -357,11 +327,9 @@ class ModernQuickActionButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: color.withValues(alpha: 0.2),
-            ),
+            border: Border.all(color: borderColor),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

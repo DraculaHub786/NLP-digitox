@@ -93,6 +93,9 @@ class MidnightResetReceiver : BroadcastReceiver() {
                     SharedPrefsHelper.getSetShortsScreenTimeMs(context, 0L)
                 }
 
+                // Reset daily unlock tracking.
+                SharedPrefsHelper.getSetDeviceUnlockCount(context, 0)
+
                 Log.d(TAG, "doWork: Midnight reset work completed successfully")
                 return Result.success()
             } catch (e: Exception) {

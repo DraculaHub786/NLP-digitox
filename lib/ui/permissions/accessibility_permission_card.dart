@@ -3,8 +3,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/services/method_channel_service.dart';
-import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/sliver_primary_action_container.dart';
 import 'package:nlp_digitox/ui/permissions/permission_sheet.dart';
@@ -25,11 +23,6 @@ class AccessibilityPermissionCard extends ConsumerWidget {
       icon: FluentIcons.accessibility_20_regular,
       title: context.locale.permission_accessibility_title,
       information: context.locale.permission_accessibility_required,
-      negativeBtn: TextButton(
-        onPressed: () =>
-            MethodChannelService.instance.launchUrl(AppConstants.faqsUrl),
-        child: Text(context.locale.permission_button_help),
-      ),
       positiveBtn: FilledButton(
         child: Text(context.locale.permission_button_grant_permission),
         onPressed: () => showAccessibilityPermissionSheet(context, ref),
