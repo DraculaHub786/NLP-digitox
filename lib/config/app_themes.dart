@@ -61,18 +61,22 @@ class AppTheme {
     return MaterialColor(color.value, swatch);
   }
 
-  static ThemeData darkTheme({Color? seedColor, required bool isAmoled}) =>
-      ThemeData.from(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor ?? _kSeedColor,
-          brightness: Brightness.dark,
-          surface: isAmoled ? Colors.black : const Color(0xFF0F172A), // Modern dark blue
-        ),
-      ).copyWith(
-        pageTransitionsTheme: _kPageTransitionTheme,
-        scaffoldBackgroundColor: isAmoled ? Colors.black : const Color(0xFF0F172A),
-        extensions: [SkeletonizerConfigData.dark(effect: _kShimmerEffect)],
+  static ThemeData darkTheme({Color? seedColor, required bool isAmoled}) {
+    final base = ThemeData.from(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor ?? _kSeedColor,
+        brightness: Brightness.dark,
+        surface: isAmoled ? Colors.black : const Color(0xFF0F172A), // Modern dark blue
+      ),
+    );
+
+    return base.copyWith(
+      pageTransitionsTheme: _kPageTransitionTheme,
+      textTheme: base.textTheme.apply(fontFamily: 'Alice'),
+      primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
+      scaffoldBackgroundColor: isAmoled ? Colors.black : const Color(0xFF0F172A),
+      extensions: [SkeletonizerConfigData.dark(effect: _kShimmerEffect)],
         // Modern card theme with elevation and rounded corners
         cardTheme: CardThemeData(
           elevation: 0,
@@ -112,25 +116,31 @@ class AppTheme {
           ),
         ),
         // Modern app bar theme
-        appBarTheme: AppBarTheme(
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
-        ),
-      );
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
 
-  static ThemeData lightTheme({Color? seedColor}) => ThemeData.from(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor ?? _kSeedColor,
-          brightness: Brightness.light,
-          surface: const Color(0xFFF8FAFC), // Light blue-grey background
-        ),
-      ).copyWith(
-        pageTransitionsTheme: _kPageTransitionTheme,
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-        extensions: [SkeletonizerConfigData(effect: _kShimmerEffect)],
+  static ThemeData lightTheme({Color? seedColor}) {
+    final base = ThemeData.from(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor ?? _kSeedColor,
+        brightness: Brightness.light,
+        surface: const Color(0xFFF8FAFC), // Light blue-grey background
+      ),
+    );
+
+    return base.copyWith(
+      pageTransitionsTheme: _kPageTransitionTheme,
+      textTheme: base.textTheme.apply(fontFamily: 'Alice'),
+      primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
+      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      extensions: [SkeletonizerConfigData(effect: _kShimmerEffect)],
         // Modern card theme
         cardTheme: const CardThemeData(
           elevation: 0,
@@ -170,11 +180,12 @@ class AppTheme {
           ),
         ),
         // Modern app bar theme
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          foregroundColor: Color(0xFF0F172A),
-        ),
-      );
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Color(0xFF0F172A),
+      ),
+    );
+  }
 }

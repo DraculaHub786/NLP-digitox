@@ -14,6 +14,7 @@ class AppConstants {
   static const defaultAnimDuration = Duration(milliseconds: 350);
 
   // Custom packages
+  static const appPackageName = "com.nlp.digitox";
   static const removedAppPackage = "com.android.removed";
   static const tetheringAppPackage = "com.android.tethering";
 

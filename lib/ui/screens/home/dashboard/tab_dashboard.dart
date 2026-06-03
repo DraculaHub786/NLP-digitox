@@ -112,6 +112,7 @@ class TabDashboard extends ConsumerWidget {
   }
 
   Widget _buildQuickActionsSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -128,9 +129,9 @@ class TabDashboard extends ConsumerWidget {
                   child: ModernQuickActionButton(
                     title: "Focus Now",
                     icon: FluentIcons.target_20_filled,
-                    color: const Color(0xFF10B981),
-                    onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
-                      DefaultHomeTab.statistics.index,
+                    color: colorScheme.primary,
+                    onTap: () => Navigator.of(context).pushNamed(
+                      AppRoutes.focusModePath,
                     ),
                   ),
                 ),
@@ -139,7 +140,7 @@ class TabDashboard extends ConsumerWidget {
                   child: ModernQuickActionButton(
                     title: "View Stats",
                     icon: FluentIcons.chart_multiple_20_regular,
-                    color: const Color(0xFF3B82F6),
+                    color: colorScheme.secondary,
                     onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
                       DefaultHomeTab.statistics.index,
                     ),
@@ -220,7 +221,7 @@ class TabDashboard extends ConsumerWidget {
               title: context.locale.grouped_apps_blocking_tile_title,
               subtitle: context.locale.grouped_apps_blocking_tile_subtitle,
               icon: FluentIcons.app_recent_20_regular,
-              iconColor: const Color(0xFF8B5CF6),
+              iconColor: colorScheme.secondary,
               onTap: () => Navigator.of(context).pushNamed(
                 AppRoutes.restrictionGroupsPath,
               ),
@@ -231,7 +232,7 @@ class TabDashboard extends ConsumerWidget {
               title: context.locale.shorts_blocking_tab_title,
               subtitle: context.locale.shorts_blocking_tile_subtitle,
               icon: FluentIcons.resize_video_20_regular,
-              iconColor: const Color(0xFFEC4899),
+              iconColor: colorScheme.tertiary,
               onTap: () => Navigator.of(context).pushNamed(
                 AppRoutes.shortsBlockingPath,
               ),
@@ -242,7 +243,7 @@ class TabDashboard extends ConsumerWidget {
               title: context.locale.websites_blocking_tab_title,
               subtitle: context.locale.websites_blocking_tile_subtitle,
               icon: FluentIcons.earth_20_regular,
-              iconColor: const Color(0xFF06B6D4),
+              iconColor: colorScheme.primary,
               onTap: () => Navigator.of(context).pushNamed(
                 AppRoutes.websitesBlockingPath,
               ),
@@ -267,7 +268,7 @@ class TabDashboard extends ConsumerWidget {
               title: "Habits",
               subtitle: "Build better habits and track them.",
               icon: FluentIcons.drink_coffee_20_regular,
-              iconColor: const Color(0xFFF59E0B),
+              iconColor: colorScheme.secondary,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const HabitsScreen()),
               ),
@@ -278,7 +279,7 @@ class TabDashboard extends ConsumerWidget {
               title: "Tasks and Todos",
               subtitle: "Plan your future with tasks and todos.",
               icon: FluentIcons.reading_list_20_regular,
-              iconColor: const Color(0xFF10B981),
+              iconColor: colorScheme.primary,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const TasksScreen()),
               ),
@@ -289,7 +290,7 @@ class TabDashboard extends ConsumerWidget {
               title: "Notes and Lists",
               subtitle: "Capture thoughts, checklists, or ideas.",
               icon: FluentIcons.note_20_regular,
-              iconColor: const Color(0xFF3B82F6),
+              iconColor: colorScheme.tertiary,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const NotesScreen()),
               ),
@@ -300,7 +301,7 @@ class TabDashboard extends ConsumerWidget {
               title: context.locale.parental_controls_tab_title,
               subtitle: context.locale.parental_controls_tile_subtitle,
               icon: FluentIcons.shield_keyhole_20_regular,
-              iconColor: const Color(0xFFEF4444),
+              iconColor: colorScheme.primary,
               onTap: () => Navigator.of(context).pushNamed(
                 AppRoutes.parentalControlsPath,
               ),

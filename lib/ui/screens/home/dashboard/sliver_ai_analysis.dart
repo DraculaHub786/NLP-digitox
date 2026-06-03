@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:sliver_tools/sliver_tools.dart' as sliver show MultiSliver;
 import 'package:nlp_digitox/providers/ai_providers.dart';
@@ -16,6 +15,7 @@ import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/ui/screens/chat_settings/chat_settings_screen.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 
 class SliverAIAnalysis extends ConsumerStatefulWidget {
   const SliverAIAnalysis({super.key});
@@ -56,12 +56,17 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
     
     return sliver.MultiSliver(
       children: [
-        const ContentSectionHeader(title: "AI Analysis"),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: ModernSectionHeader(title: "AI Analysis"),
+          ),
+        ),
         
         // Sentiment Analysis and Recommendations Row
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
             child: sentimentAsync.when(
               data: (sentimentData) => recommendationsAsync.when(
                 data: (recommendations) => Row(

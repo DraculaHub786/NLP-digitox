@@ -16,6 +16,8 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.util.Log
 import com.nlp.digitox.enums.DndWakeLock
+import com.nlp.digitox.models.AppRestriction
+import com.nlp.digitox.models.RestrictionGroup
 import com.nlp.digitox.models.Wellbeing
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.JsonUtils
@@ -30,9 +32,13 @@ object SharedPrefsHelper {
     private var mUniquePrefs: SharedPreferences? = null
     private const val UNIQUE_PREFS_BOX = "UniquePrefs"
     private const val PREF_KEY_NOTIFICATION_PERMISSION_COUNT = "notificationPermissionCount"
+    private const val PREF_KEY_DEVICE_UNLOCK_COUNT = "deviceUnlockCount"
     private const val PREF_KEY_SHORTS_SCREEN_TIME = "shortsScreenTime"
     private const val PREF_KEY_DND_WAKE_LOCK = "dndWakeLock"
     private const val PREF_KEY_EXCLUDED_APPS = "excludedApps"
+    private const val PREF_KEY_APP_RESTRICTIONS = "appRestrictions"
+    private const val PREF_KEY_RESTRICTION_GROUPS = "restrictionGroups"
+    private const val PREF_KEY_INTERNET_BLOCKED_APPS = "internetBlockedApps"
 
     private var mListenablePrefs: SharedPreferences? = null
     private const val LISTENABLE_PREFS_BOX = "UniquePrefs"
@@ -152,6 +158,24 @@ object SharedPrefsHelper {
 
 
     /**
+     * Get the device unlock count if count is null else store it.
+     *
+     * @param context The application context.
+     * @param count   The number of unlocks.
+     */
+    fun getSetDeviceUnlockCount(context: Context, count: Int?): Int {
+        checkAndInitializeUniquePrefs(context)
+
+        count?.let {
+            mUniquePrefs!!.edit().putInt(PREF_KEY_DEVICE_UNLOCK_COUNT, it).apply()
+            return it
+        }
+
+        return mUniquePrefs!!.getInt(PREF_KEY_DEVICE_UNLOCK_COUNT, 0)
+    }
+
+
+    /**
      * Fetches the hashset of excluded apps if jsonExcludedApps is null else store it's json.
      *
      * @param context          The application context.
@@ -167,6 +191,69 @@ object SharedPrefsHelper {
             mUniquePrefs!!.edit().putString(PREF_KEY_EXCLUDED_APPS, jsonExcludedApps).apply()
             return JsonUtils.parseStringSet(jsonExcludedApps)
         }
+    }
+
+    /**
+     * Fetches the app restrictions map if jsonAppRestrictions is null else stores it as json.
+     *
+     * @param context             The application context.
+     * @param jsonAppRestrictions The JSON string of app restrictions.
+     */
+    fun getSetAppRestrictions(
+        context: Context,
+        jsonAppRestrictions: String?,
+    ): HashMap<String, AppRestriction> {
+        checkAndInitializeUniquePrefs(context)
+        if (jsonAppRestrictions == null) {
+            return JsonUtils.parseAppRestrictionsMap(
+                mUniquePrefs!!.getString(PREF_KEY_APP_RESTRICTIONS, "")
+            )
+        }
+
+        mUniquePrefs!!.edit().putString(PREF_KEY_APP_RESTRICTIONS, jsonAppRestrictions).apply()
+        return JsonUtils.parseAppRestrictionsMap(jsonAppRestrictions)
+    }
+
+    /**
+     * Fetches the restriction groups map if jsonRestrictionGroups is null else stores it as json.
+     *
+     * @param context                The application context.
+     * @param jsonRestrictionGroups  The JSON string of restriction groups.
+     */
+    fun getSetRestrictionGroups(
+        context: Context,
+        jsonRestrictionGroups: String?,
+    ): HashMap<Int, RestrictionGroup> {
+        checkAndInitializeUniquePrefs(context)
+        if (jsonRestrictionGroups == null) {
+            return JsonUtils.parseRestrictionGroupsMap(
+                mUniquePrefs!!.getString(PREF_KEY_RESTRICTION_GROUPS, "")
+            )
+        }
+
+        mUniquePrefs!!.edit().putString(PREF_KEY_RESTRICTION_GROUPS, jsonRestrictionGroups).apply()
+        return JsonUtils.parseRestrictionGroupsMap(jsonRestrictionGroups)
+    }
+
+    /**
+     * Fetches the set of internet blocked apps if jsonBlockedApps is null else stores it as json.
+     *
+     * @param context         The application context.
+     * @param jsonBlockedApps The JSON string of blocked apps.
+     */
+    fun getSetInternetBlockedApps(
+        context: Context,
+        jsonBlockedApps: String?,
+    ): Set<String> {
+        checkAndInitializeUniquePrefs(context)
+        if (jsonBlockedApps == null) {
+            return JsonUtils.parseStringSet(
+                mUniquePrefs!!.getString(PREF_KEY_INTERNET_BLOCKED_APPS, "")
+            )
+        }
+
+        mUniquePrefs!!.edit().putString(PREF_KEY_INTERNET_BLOCKED_APPS, jsonBlockedApps).apply()
+        return JsonUtils.parseStringSet(jsonBlockedApps)
     }
 
     /**

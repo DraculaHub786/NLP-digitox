@@ -153,6 +153,8 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
 
   Widget _buildModernUsageCards(BuildContext context, UsageFilterModel filter, Map<DateTime, UsageModel> weeklyUsages, ColorScheme colorScheme, bool isDark) {
     final usage = weeklyUsages[filter.selectedDay] ?? const UsageModel();
+    final screenTimeHours = Duration(seconds: usage.screenTime).inMinutes / 60;
+    final screenTimeLabel = '${screenTimeHours.toStringAsFixed(1)}h';
 
     return Row(
       children: [
@@ -160,9 +162,9 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
           child: _buildModernStatCard(
             context: context,
             title: 'Screen Time',
-            value: usage.screenTime.toString(),
+            value: screenTimeLabel,
             icon: FluentIcons.phone_screen_time_20_regular,
-            color: const Color(0xFF4DD6D9),
+            color: colorScheme.primary,
             isDark: isDark,
           ),
         ),
@@ -173,7 +175,7 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
             title: 'Data',
             value: '${(usage.mobileData / 1024).toStringAsFixed(0)}MB',
             icon: FluentIcons.cellular_data_1_20_filled,
-            color: const Color(0xFFF59E0B),
+            color: colorScheme.secondary,
             isDark: isDark,
           ),
         ),
@@ -184,7 +186,7 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
             title: 'WiFi',
             value: '${(usage.wifiData / 1024 / 1024).toStringAsFixed(1)}GB',
             icon: FluentIcons.wifi_1_20_filled,
-            color: const Color(0xFFEC4899),
+            color: colorScheme.tertiary,
             isDark: isDark,
           ),
         ),
@@ -200,17 +202,15 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     required Color color,
     required bool isDark,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
-        ),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black : Colors.grey.withValues(alpha: 0.1),
+            color: isDark ? Colors.black : color.withValues(alpha: 0.12),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -227,9 +227,18 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
             child: Icon(icon, color: color, size: 18),
           ),
           const SizedBox(height: 8),
-          StyledText(value, fontSize: 16, fontWeight: FontWeight.bold),
+          StyledText(
+            value,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : colorScheme.onSurface,
+          ),
           const SizedBox(height: 2),
-          StyledText(title, fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+          StyledText(
+            title,
+            fontSize: 10,
+            color: colorScheme.onSurface.withValues(alpha: 0.75),
+          ),
         ],
       ),
     );

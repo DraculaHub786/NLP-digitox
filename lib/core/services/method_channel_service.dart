@@ -80,6 +80,12 @@ class MethodChannelService {
     return time ~/ 1000;
   }
 
+  /// Gets the number of times the device has been unlocked today.
+  Future<int> getDeviceUnlockCount() async {
+    final count = await _methodChannel.invokeMethod('getDeviceUnlockCount');
+    return (count as int?) ?? 0;
+  }
+
   /// Gets all the stored native crash logs and clears them afterward.
   Future<List<CrashLogsTableCompanion>> getNativeCrashLogs() async {
     List<CrashLogsTableCompanion> crashLogs = [];

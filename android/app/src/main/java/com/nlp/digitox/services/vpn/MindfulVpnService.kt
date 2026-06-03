@@ -48,7 +48,20 @@ class MindfulVpnService : VpnService() {
 
         if (intent?.action == ServiceBinder.ACTION_START_MINDFUL_SERVICE) {
             startFgService()
+            restoreBlockedAppsFromPrefs()
+            if (mBlockedApps.isNotEmpty()) {
+                connectVpn()
+            }
             return START_STICKY
+        }
+
+        if (intent == null) {
+            startFgService()
+            restoreBlockedAppsFromPrefs()
+            if (mBlockedApps.isNotEmpty()) {
+                connectVpn()
+                return START_STICKY
+            }
         }
 
         stopAndDisposeService()
@@ -193,6 +206,10 @@ class MindfulVpnService : VpnService() {
         Log.d(TAG, "updateBlockedApps: Internet blocked apps updated successfully")
         if (mBlockedApps.isEmpty()) stopAndDisposeService()
         else reconnectVpn()
+    }
+
+    private fun restoreBlockedAppsFromPrefs() {
+        mBlockedApps = SharedPrefsHelper.getSetInternetBlockedApps(this, null)
     }
 
     override fun onDestroy() {

@@ -63,6 +63,8 @@ class DeviceLockUnlockReceiver(
             when (intent.action) {
                 Intent.ACTION_USER_PRESENT -> {
                     Log.d(TAG, "onReceive: User UNLOCKED the device and device is ACTIVE")
+                    val unlockCount = SharedPrefsHelper.getSetDeviceUnlockCount(context, null) + 1
+                    SharedPrefsHelper.getSetDeviceUnlockCount(context, unlockCount)
                     onDeviceLockChanged.invoke(true)
                 }
 

@@ -20,22 +20,25 @@ class ApplicationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isAppLogo = appInfo.packageName == AppConstants.appPackageName;
     final useCustomIcon = appInfo.icon.isEmpty ||
         appInfo.packageName == AppConstants.removedAppPackage ||
         appInfo.packageName == AppConstants.tetheringAppPackage;
 
     return CircleAvatar(
       backgroundColor:
-          useCustomIcon ? Theme.of(context).focusColor : Colors.transparent,
+          useCustomIcon && !isAppLogo ? theme.focusColor : Colors.transparent,
       radius: size,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size),
         child: Skeleton.replace(
           replacement: Bone.iconButton(size: size * 2),
           child: useCustomIcon
-              ? _resolveIcon()
+              ? _resolveIcon(context, isAppLogo)
               : Image.memory(
                   appInfo.icon,
+                  fit: BoxFit.cover,
                   color: isGrayedOut ? Colors.white : null,
                   colorBlendMode: isGrayedOut ? BlendMode.saturation : null,
                 ),
@@ -44,7 +47,16 @@ class ApplicationIcon extends StatelessWidget {
     );
   }
 
-  Widget _resolveIcon() {
+  Widget _resolveIcon(BuildContext context, bool isAppLogo) {
+    if (isAppLogo) {
+      return Image.asset(
+        'assets/logo.png',
+        width: size * 2,
+        height: size * 2,
+        fit: BoxFit.cover,
+      );
+    }
+
     return Icon(
       appInfo.icon.isEmpty
           ? FluentIcons.question_circle_20_filled
@@ -52,6 +64,7 @@ class ApplicationIcon extends StatelessWidget {
               ? FluentIcons.communication_20_filled
               : FluentIcons.delete_20_filled,
       size: size,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }

@@ -113,12 +113,10 @@ flutter:
     - assets/vectors/facebook.svg
     - assets/vectors/reddit.svg
 
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  fonts:
+    - family: Alice
+      fonts:
+        - asset: assets/fonts/Alice-Regular.ttf
 
 # Flutter Launcher Icons Configuration
 flutter_launcher_icons:

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
@@ -72,80 +71,69 @@ class ModernListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final tileColor = iconColor ?? colorScheme.primary;
+    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
+    final borderColor = colorScheme.outline.withOpacity(0.2);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: isDark
-                      ? [Colors.white.withValues(alpha: 0.08), Colors.white.withValues(alpha: 0.04)]
-                      : [Colors.white.withValues(alpha: 0.9), Colors.white.withValues(alpha: 0.7)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: tileColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: tileColor,
-                      size: 20,
-                    ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: tileColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                  child: Icon(
+                    icon,
+                    color: tileColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      StyledText(
+                        title,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
                         StyledText(
-                          title,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : null,
+                          subtitle!,
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.75),
                         ),
-                        if (subtitle != null) ...[
-                          const SizedBox(height: 2),
-                          StyledText(
-                            subtitle!,
-                            fontSize: 12,
-                            color: isDark ? Colors.white60 : Colors.black54,
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
                   ),
-                  trailing ??
-                      (showChevron
-                          ? Icon(
-                              Icons.chevron_right_rounded,
-                              color: isDark ? Colors.white38 : Colors.black38,
-                              size: 22,
-                            )
-                          : const SizedBox.shrink()),
-                ],
-              ),
+                ),
+                trailing ??
+                    (showChevron
+                        ? Icon(
+                            Icons.chevron_right_rounded,
+                            color: colorScheme.onSurface.withValues(alpha: 0.45),
+                            size: 22,
+                          )
+                        : const SizedBox.shrink()),
+              ],
             ),
           ),
         ),
@@ -175,75 +163,64 @@ class ModernSettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final tileColor = iconColor ?? colorScheme.primary;
+    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
+    final borderColor = colorScheme.outline.withOpacity(0.2);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [Colors.white.withValues(alpha: 0.08), Colors.white.withValues(alpha: 0.04)]
-                  : [Colors.white.withValues(alpha: 0.9), Colors.white.withValues(alpha: 0.7)],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.3),
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: tileColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  icon,
-                  color: tileColor,
-                  size: 20,
-                ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: tileColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(14),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              child: Icon(
+                icon,
+                color: tileColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StyledText(
+                    title,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
                     StyledText(
-                      title,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : null,
+                      subtitle!,
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.75),
                     ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      StyledText(
-                        subtitle!,
-                        fontSize: 12,
-                        color: isDark ? Colors.white60 : Colors.black54,
-                      ),
-                    ],
                   ],
-                ),
+                ],
               ),
-              Transform.scale(
-                scale: 0.85,
-                child: Switch.adaptive(
-                  value: value,
-                  onChanged: onChanged,
-                  activeColor: colorScheme.primary,
-                ),
+            ),
+            Transform.scale(
+              scale: 0.85,
+              child: Switch.adaptive(
+                value: value,
+                onChanged: onChanged,
+                activeColor: colorScheme.primary,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

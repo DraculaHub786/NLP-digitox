@@ -88,7 +88,7 @@ return DefaultRefreshIndicator(
                             title: 'Notifications',
                             value: notificationsCount.toString(),
                             icon: FluentIcons.alert_badge_20_regular,
-                            color: const Color(0xFFEC4899),
+                            color: colorScheme.primary,
                             onTap: () => Navigator.of(context)
                                 .pushNamed(AppRoutes.notificationsPath),
                           ),
@@ -101,7 +101,7 @@ return DefaultRefreshIndicator(
                             title: 'Batched Apps',
                             value: settings.batchedApps.length.toString(),
                             icon: FluentIcons.app_recent_20_regular,
-                            color: const Color(0xFF8B5CF6),
+                            color: colorScheme.secondary,
                             onTap: () => showDefaultBottomSheet(
                               context: context,
                               sliverBody: const SliverBatchedAppsList(),
@@ -137,7 +137,7 @@ return DefaultRefreshIndicator(
                     title: context.locale.store_all_tile_title,
                     subtitle: context.locale.store_all_tile_subtitle,
                     icon: FluentIcons.save_20_regular,
-                    iconColor: const Color(0xFF10B981),
+                    iconColor: colorScheme.tertiary,
                     value: settings.storeNonBatchedToo,
                     onChanged: (_) => ref
                         .read(notificationSettingsProvider.notifier)
@@ -224,21 +224,19 @@ return DefaultRefreshIndicator(
     required Color color,
     VoidCallback? onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [color, color.withValues(alpha: 0.8)],
-          ),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.4),
-              blurRadius: 15,
+              color: color.withValues(alpha: 0.12),
+              blurRadius: 14,
               offset: const Offset(0, 6),
             ),
           ],
@@ -256,10 +254,14 @@ return DefaultRefreshIndicator(
                     Container(
                       padding: EdgeInsets.all(isCompact ? 8 : 10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: color.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(icon, color: Colors.white, size: isCompact ? 20 : 22),
+                      child: Icon(
+                        icon,
+                        color: color,
+                        size: isCompact ? 20 : 22,
+                      ),
                     ),
                     const GoToBadgeIcon(),
                   ],
@@ -272,7 +274,7 @@ return DefaultRefreshIndicator(
                     value,
                     fontSize: isCompact ? 24 : 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: color,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -281,7 +283,7 @@ return DefaultRefreshIndicator(
                   fontSize: 13,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: colorScheme.onSurface.withValues(alpha: 0.75),
                 ),
               ],
             );
