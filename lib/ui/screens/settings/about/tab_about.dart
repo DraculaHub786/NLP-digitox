@@ -141,8 +141,7 @@ class TabAbout extends ConsumerWidget {
         FilledButton.tonalIcon(
           icon: const Icon(FluentIcons.info_20_regular),
           label: Text(context.locale.more_details_button),
-          onPressed: () => MethodChannelService.instance
-              .launchUrl(AppConstants.privacyPolicyUrl),
+          onPressed: null,
         ).rightCentered.sliver,
 
         const SliverTabsBottomPadding(),
