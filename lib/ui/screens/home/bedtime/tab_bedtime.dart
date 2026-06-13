@@ -2,19 +2,14 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/providers/restrictions/bedtime_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/screens/home/bedtime/bedtime_schedule_card.dart';
 import 'package:nlp_digitox/ui/screens/home/bedtime/bedtime_quick_actions.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 
 class TabBedtime extends ConsumerWidget {
   const TabBedtime({super.key});
@@ -67,7 +62,6 @@ class TabBedtime extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isScheduleOn =
         ref.watch(bedtimeScheduleProvider.select((v) => v.isScheduleOn));
 
@@ -96,7 +90,7 @@ class TabBedtime extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _buildScheduleToggleCard(context, ref, isScheduleOn, colorScheme, isDark),
+            child: _buildScheduleToggleCard(context, ref, isScheduleOn, colorScheme),
           ),
         ),
 
@@ -109,18 +103,9 @@ class TabBedtime extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark ? Colors.black : Colors.grey.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,12 +115,12 @@ class TabBedtime extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                          color: colorScheme.primary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           FluentIcons.calendar_clock_20_regular,
-                          color: Color(0xFF6366F1),
+                          color: colorScheme.primary,
                           size: 20,
                         ),
                       ),
@@ -168,27 +153,15 @@ class TabBedtime extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleToggleCard(BuildContext context, WidgetRef ref, bool isScheduleOn, ColorScheme colorScheme, bool isDark) {
+  Widget _buildScheduleToggleCard(BuildContext context, WidgetRef ref, bool isScheduleOn, ColorScheme colorScheme) {
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isScheduleOn
-              ? [const Color(0xFF6366F1), const Color(0xFF8B5CF6)]
-              : [colorScheme.surfaceContainerHighest, colorScheme.surfaceContainerHighest],
-        ),
+        color: isScheduleOn ? colorScheme.primary.withValues(alpha: 0.15) : cardColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: isScheduleOn
-                ? const Color(0xFF6366F1).withValues(alpha: 0.4)
-                : Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        border: Border.all(color: isScheduleOn ? colorScheme.primary.withValues(alpha: 0.3) : borderColor),
       ),
       child: Row(
         children: [
@@ -196,13 +169,13 @@ class TabBedtime extends ConsumerWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: isScheduleOn
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : colorScheme.primary.withValues(alpha: 0.1),
+                  ? colorScheme.primary.withValues(alpha: 0.25)
+                  : colorScheme.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               FluentIcons.sleep_20_filled,
-              color: isScheduleOn ? Colors.white : colorScheme.primary,
+              color: isScheduleOn ? colorScheme.primary : colorScheme.primary,
               size: 24,
             ),
           ),
@@ -215,15 +188,13 @@ class TabBedtime extends ConsumerWidget {
                   isScheduleOn ? 'Sleep Mode Active' : 'Sleep Mode',
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isScheduleOn ? Colors.white : null,
+                  color: colorScheme.onSurface,
                 ),
                 const SizedBox(height: 4),
                 StyledText(
                   context.locale.schedule_tile_subtitle,
                   fontSize: 12,
-                  color: isScheduleOn
-                      ? Colors.white.withValues(alpha: 0.8)
-                      : colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ],
             ),
@@ -233,8 +204,6 @@ class TabBedtime extends ConsumerWidget {
             child: Switch.adaptive(
               value: isScheduleOn,
               onChanged: (_) => _setScheduleStatus(ref, context, !isScheduleOn),
-              activeColor: Colors.white,
-              activeTrackColor: Colors.white.withValues(alpha: 0.3),
             ),
           ),
         ],

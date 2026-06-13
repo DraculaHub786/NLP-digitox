@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
-import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/core/utils/provider_utils.dart';
 import 'package:nlp_digitox/models/usage_filter_model.dart';
 import 'package:nlp_digitox/models/usage_model.dart';
@@ -15,10 +13,8 @@ import 'package:nlp_digitox/providers/apps/apps_info_provider.dart';
 import 'package:nlp_digitox/providers/apps/filtered_packages_provider.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/sliver_implicitly_animated_list.dart';
 import 'package:nlp_digitox/ui/common/sliver_usage_chart_panel.dart';
-import 'package:nlp_digitox/ui/common/sliver_usage_cards.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/statistics/application_tile.dart';
@@ -203,35 +199,31 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     required bool isDark,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: isDark ? Colors.black : color.withValues(alpha: 0.12),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: color, size: 18),
+            child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           StyledText(
             value,
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : colorScheme.onSurface,
+            color: colorScheme.onSurface,
           ),
           const SizedBox(height: 2),
           StyledText(

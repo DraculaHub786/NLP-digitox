@@ -12,7 +12,6 @@ import 'package:nlp_digitox/providers/notifications/notification_settings_provid
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/default_dropdown_tile.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
-import 'package:nlp_digitox/ui/common/go_to_badge_icon.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/modal_bottom_sheet.dart';
@@ -225,21 +224,17 @@ return DefaultRefreshIndicator(
     VoidCallback? onTap,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.12),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          color: cardColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: borderColor),
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -254,8 +249,8 @@ return DefaultRefreshIndicator(
                     Container(
                       padding: EdgeInsets.all(isCompact ? 8 : 10),
                       decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
+                      color: color.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
                         icon,
@@ -263,7 +258,7 @@ return DefaultRefreshIndicator(
                         size: isCompact ? 20 : 22,
                       ),
                     ),
-                    const GoToBadgeIcon(),
+                    const SizedBox.shrink(),
                   ],
                 ),
                 const Spacer(),
@@ -274,7 +269,7 @@ return DefaultRefreshIndicator(
                     value,
                     fontSize: isCompact ? 24 : 28,
                     fontWeight: FontWeight.bold,
-                    color: color,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
