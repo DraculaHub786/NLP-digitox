@@ -152,41 +152,54 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     final screenTimeHours = Duration(seconds: usage.screenTime).inMinutes / 60;
     final screenTimeLabel = '${screenTimeHours.toStringAsFixed(1)}h';
 
-    return Row(
-      children: [
-        Expanded(
-          child: _buildModernStatCard(
-            context: context,
-            title: 'Screen Time',
-            value: screenTimeLabel,
-            icon: FluentIcons.phone_screen_time_20_regular,
-            color: colorScheme.primary,
-            isDark: isDark,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildModernStatCard(
-            context: context,
-            title: 'Data',
-            value: '${(usage.mobileData / 1024).toStringAsFixed(0)}MB',
-            icon: FluentIcons.cellular_data_1_20_filled,
-            color: colorScheme.secondary,
-            isDark: isDark,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildModernStatCard(
-            context: context,
-            title: 'WiFi',
-            value: '${(usage.wifiData / 1024 / 1024).toStringAsFixed(1)}GB',
-            icon: FluentIcons.wifi_1_20_filled,
-            color: colorScheme.tertiary,
-            isDark: isDark,
-          ),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // For very narrow screens, use 3 small cards
+        final isCompact = constraints.maxWidth < 340;
+        final spacing = isCompact ? 8.0 : 12.0;
+        return Row(
+          children: [
+            Flexible(
+              flex: 1,
+              child: _buildModernStatCard(
+                context: context,
+                title: 'Screen Time',
+                value: screenTimeLabel,
+                icon: FluentIcons.phone_screen_time_20_regular,
+                color: colorScheme.primary,
+                isDark: isDark,
+                isCompact: isCompact,
+              ),
+            ),
+            SizedBox(width: spacing),
+            Flexible(
+              flex: 1,
+              child: _buildModernStatCard(
+                context: context,
+                title: 'Data',
+                value: '${(usage.mobileData / 1024).toStringAsFixed(0)}MB',
+                icon: FluentIcons.cellular_data_1_20_filled,
+                color: colorScheme.secondary,
+                isDark: isDark,
+                isCompact: isCompact,
+              ),
+            ),
+            SizedBox(width: spacing),
+            Flexible(
+              flex: 1,
+              child: _buildModernStatCard(
+                context: context,
+                title: 'WiFi',
+                value: '${(usage.wifiData / 1024 / 1024).toStringAsFixed(1)}GB',
+                icon: FluentIcons.wifi_1_20_filled,
+                color: colorScheme.tertiary,
+                isDark: isDark,
+                isCompact: isCompact,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -197,39 +210,45 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     required IconData icon,
     required Color color,
     required bool isDark,
+    bool isCompact = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isCompact ? 10 : 16),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(isCompact ? 14 : 20),
         border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(isCompact ? 8 : 10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(isCompact ? 10 : 14),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: color, size: isCompact ? 16 : 20),
           ),
-          const SizedBox(height: 12),
-          StyledText(
-            value,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
+          SizedBox(height: isCompact ? 8 : 12),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: StyledText(
+              value,
+              fontSize: isCompact ? 13 : 16,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: isCompact ? 1 : 2),
           StyledText(
             title,
-            fontSize: 10,
+            fontSize: isCompact ? 9 : 10,
             color: colorScheme.onSurface.withValues(alpha: 0.75),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

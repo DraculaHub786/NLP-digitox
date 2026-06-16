@@ -16,7 +16,6 @@ class ModernSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -113,6 +112,8 @@ class ModernListTile extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 2),
@@ -120,6 +121,8 @@ class ModernListTile extends StatelessWidget {
                           subtitle!,
                           fontSize: 12,
                           color: colorScheme.onSurface.withValues(alpha: 0.75),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ],
@@ -200,6 +203,8 @@ class ModernSettingsTile extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
@@ -207,17 +212,22 @@ class ModernSettingsTile extends StatelessWidget {
                       subtitle!,
                       fontSize: 12,
                       color: colorScheme.onSurface.withValues(alpha: 0.75),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ],
               ),
             ),
-            Transform.scale(
-              scale: 0.85,
-              child: Switch.adaptive(
-                value: value,
-                onChanged: onChanged,
-                activeColor: colorScheme.primary,
+            Flexible(
+              flex: 0,
+              child: Transform.scale(
+                scale: 0.85,
+                child: Switch.adaptive(
+                  value: value,
+                  onChanged: onChanged,
+                  activeColor: colorScheme.primary,
+                ),
               ),
             ),
           ],

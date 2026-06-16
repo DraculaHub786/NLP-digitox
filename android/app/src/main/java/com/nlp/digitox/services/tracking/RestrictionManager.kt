@@ -13,16 +13,9 @@ import com.nlp.digitox.utils.DateTimeUtils
 
 class RestrictionManager(
     private val context: Context,
-    private val stopIfNoUsage: () -> Unit,
     private val usageStatsManager: UsageStatsManager = context.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager,
 ) {
     private val TAG = "Mindful.RestrictionManager"
-
-    val isIdle: Boolean
-        get() = focusedApps.isEmpty()
-                && bedtimeApps.isEmpty()
-                && appsRestrictions.isEmpty()
-                && restrictionGroups.isEmpty()
 
     // Restrictions
     private var appsRestrictions = HashMap<String, AppRestriction>()
@@ -60,18 +53,15 @@ class RestrictionManager(
             alreadyRestrictedGroups.clear()
             Log.d(TAG, "updateRestrictions: Restriction groups updated")
         }
-        stopIfNoUsage.invoke()
     }
 
     fun updateFocusedApps(apps: Set<String>?) {
         focusedApps = apps ?: emptySet()
-        if (apps == null) stopIfNoUsage.invoke()
         Log.d(TAG, "updateFocusedApps: Focus apps updated: $focusedApps")
     }
 
     fun updateBedtimeApps(apps: Set<String>?) {
         bedtimeApps = apps ?: emptySet()
-        if (apps == null) stopIfNoUsage.invoke()
         Log.d(TAG, "updateBedtimeApps: Bedtime apps updated: $bedtimeApps")
     }
 

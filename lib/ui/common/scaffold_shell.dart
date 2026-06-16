@@ -245,7 +245,7 @@ class _ScaffoldShellState extends State<ScaffoldShell>
         destinations: widget.items.map((e) {
           final title = e.titleText!;
           final trimmedTitle =
-              title.length >= 14 ? "${title.substring(0, 9)}..." : title;
+              title.length >= 10 ? "${title.substring(0, 8)}..." : title;
 
           return NavigationDestination(
             label: trimmedTitle,

@@ -1,14 +1,4 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2024 Mindful (https://github.com/akaMrNagar/Mindful)
- *  *  * Author : Pawan Nagar (https://github.com/akaMrNagar)
- *  *  *
- *  *  * This source code is licensed under the GPL-2.0 license license found in the
- *  *  * LICENSE file in the root directory of this source tree.
- *  *
- *
- */
+
 package com.nlp.digitox.receivers
 
 import android.content.BroadcastReceiver
@@ -20,9 +10,12 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
+import com.nlp.digitox.generics.ServiceBinder
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
+import com.nlp.digitox.services.tracking.MindfulTrackerService
+import com.nlp.digitox.services.vpn.MindfulVpnService
 import com.nlp.digitox.workers.FlutterBgExecutionWorker
 import com.nlp.digitox.workers.FlutterBgExecutionWorker.Companion.FLUTTER_TASK_ID
 
@@ -52,7 +45,26 @@ class DeviceBootReceiver : BroadcastReceiver() {
                     // Reschedule midnight reset task
                     AlarmTasksSchedulingHelper.scheduleMidnightResetTask(context, false)
 
+                    // *** DIRECTLY START FOREGROUND SERVICES ***
+                    // Start tracker service immediately as a persistent foreground service
+                    // This ensures app blocking and usage tracking resume right after boot
+                    val trackerIntent = Intent(context.applicationContext, MindfulTrackerService::class.java)
+                        .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                    context.applicationContext.startService(trackerIntent)
+                    Log.d(TAG, "onReceive: MindfulTrackerService started on boot")
+
+                    // Start VPN service immediately if internet blocking was enabled
+                    // (the service will restore its config from SharedPrefs)
+                    val blockedApps = SharedPrefsHelper.getSetInternetBlockedApps(context, null)
+                    if (blockedApps.isNotEmpty()) {
+                        val vpnIntent = Intent(context.applicationContext, MindfulVpnService::class.java)
+                            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                        context.applicationContext.startService(vpnIntent)
+                        Log.d(TAG, "onReceive: MindfulVpnService started on boot")
+                    }
+
                     // Queue a one-time work request to execute BootWorker tasks
+                    // This initializes Flutter-side services (database, notifications, etc.)
                     WorkManager.getInstance(context).enqueueUniqueWork(
                         TAG, ExistingWorkPolicy.KEEP,
                         OneTimeWorkRequest

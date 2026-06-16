@@ -5,21 +5,16 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
+import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
-import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/core/utils/db_utils.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/dialogs/time_countdown_dialog.dart';
-import 'package:nlp_digitox/ui/transitions/default_hero.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 class ImportExportDb extends ConsumerStatefulWidget {
@@ -35,46 +30,71 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return MultiSliver(
       children: [
-        ContentSectionHeader(title: context.locale.database_tab_title).sliver,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ModernSectionHeader(title: 'Database'),
+                12.vBox,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      /// Import
+                      ModernListTile(
+                        title: context.locale.import_db_tile_title,
+                        subtitle: context.locale.import_db_tile_subtitle,
+                        icon: FluentIcons.arrow_download_20_regular,
+                        iconColor: colorScheme.primary,
+                        showChevron: true,
+                        trailing: _isImporting
+                            ? const SizedBox.square(
+                                dimension: 24,
+                                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+                              )
+                            : null,
+                        onTap: _importDatabase,
+                      ),
+                      8.vBox,
 
-        /// Import
-        DefaultHero(
-          tag: HeroTags.importDatabaseTileTag,
-          child: DefaultListTile(
-            position: ItemPosition.top,
-            titleText: context.locale.import_db_tile_title,
-            subtitleText: context.locale.import_db_tile_subtitle,
-            leadingIcon: FluentIcons.arrow_download_20_regular,
-            trailing: _isImporting
-                ? const SizedBox.square(
-                    dimension: 24,
-                    child:
-                        CircularProgressIndicator(strokeCap: StrokeCap.round),
-                  )
-                : const Icon(FluentIcons.chevron_right_20_regular),
-            onPressed: _importDatabase,
+                      /// Export
+                      ModernListTile(
+                        title: context.locale.export_db_tile_title,
+                        subtitle: context.locale.export_db_tile_subtitle,
+                        icon: FluentIcons.arrow_upload_20_regular,
+                        iconColor: colorScheme.secondary,
+                        showChevron: true,
+                        trailing: _isExporting
+                            ? const SizedBox.square(
+                                dimension: 24,
+                                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+                              )
+                            : null,
+                        onTap: _exportDatabase,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ).sliver,
-
-        /// Export
-        DefaultListTile(
-          position: ItemPosition.bottom,
-          titleText: context.locale.export_db_tile_title,
-          subtitleText: context.locale.export_db_tile_subtitle,
-          leadingIcon: FluentIcons.arrow_upload_20_regular,
-          trailing: _isExporting
-              ? const SizedBox.square(
-                  dimension: 24,
-                  child: CircularProgressIndicator(strokeCap: StrokeCap.round),
-                )
-              : const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: _exportDatabase,
-        ).sliver,
+        ),
       ],
     );
   }
+
+  // --- ALL LOGIC METHODS REMAIN EXACTLY THE SAME ---
 
   void _importDatabase() async {
     try {
@@ -108,7 +128,7 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
         mounted
             ? await showCountDownDialog(
                 context: context,
-                heroTag: HeroTags.importDatabaseTileTag,
+                heroTag: 'import_database',
                 timerDuration: 5.seconds,
                 title: context.locale.app_restart_dialog_title,
                 info: context.locale.app_restart_dialog_info,

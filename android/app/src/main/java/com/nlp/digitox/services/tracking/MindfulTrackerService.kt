@@ -17,6 +17,7 @@ class MindfulTrackerService : Service() {
     }
 
     private val mBinder = ServiceBinder(this@MindfulTrackerService)
+    private var isFgRunning = false
 
     private lateinit var overlayManager: OverlayManager
     private lateinit var reminderManager: ReminderManager
@@ -30,7 +31,7 @@ class MindfulTrackerService : Service() {
     override fun onCreate() {
         overlayManager = OverlayManager(this)
         reminderManager = ReminderManager(overlayManager, ::onNewAppLaunch)
-        restrictionManager = RestrictionManager(this, ::stopIfNoUsage)
+        restrictionManager = RestrictionManager(this)
         launchTrackingManager = LaunchTrackingManager(
             context = this,
             onNewAppLaunched = ::onNewAppLaunch,
@@ -42,35 +43,27 @@ class MindfulTrackerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        if (intent?.action == ServiceBinder.ACTION_START_MINDFUL_SERVICE) {
+        if (!isFgRunning) {
             startFgService()
-            return START_STICKY
         }
-
-        if (intent == null) {
-            startFgService()
-            restoreRestrictionsFromPrefs()
-            stopIfNoUsage()
-            return START_STICKY
-        }
-
-        stopIfNoUsage()
-        return START_NOT_STICKY
+        restoreRestrictionsFromPrefs()
+        Log.d(TAG, "onStartCommand: TRACKER service command received, staying alive (startId=$startId)")
+        return START_STICKY
     }
 
     private fun startFgService() {
+        if (isFgRunning) return
         try {
             val notification = NotificationHelper.buildFgServiceNotification(
                 this,
                 getString(R.string.app_blocker_running_notification_info)
             )
             startForeground(AppConstants.TRACKER_SERVICE_NOTIFICATION_ID, notification)
-            Log.d(TAG, "startFgService: TRACKER service started successfully")
+            isFgRunning = true
+            Log.d(TAG, "startFgService: TRACKER service started successfully as persistent foreground service")
         } catch (e: Exception) {
             Log.e(TAG, "startFgService: Failed to start TRACKER service", e)
             SharedPrefsHelper.insertCrashLogToPrefs(this, e)
-            stopIfNoUsage()
         }
     }
 
@@ -116,17 +109,6 @@ class MindfulTrackerService : Service() {
         }
     }
 
-    private fun stopIfNoUsage() {
-        if (restrictionManager.isIdle) {
-            Log.d(TAG, "Service no longer needed, stopping")
-            launchTrackingManager.dispose()
-            reminderManager.cancelReminders()
-            overlayManager.dismissSheetOverlay()
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
-        }
-    }
-
     private fun restoreRestrictionsFromPrefs() {
         val appRestrictions = SharedPrefsHelper.getSetAppRestrictions(this, null)
         val restrictionGroups = SharedPrefsHelper.getSetRestrictionGroups(this, null)
@@ -136,7 +118,11 @@ class MindfulTrackerService : Service() {
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy: TRACKER service destroyed successfully")
+        Log.d(TAG, "onDestroy: TRACKER service destroyed - system will restart")
+        // Re-start ourselves with a sticky intent so Android restarts us
+        val restartIntent = Intent(this, MindfulTrackerService::class.java)
+            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+        startService(restartIntent)
         super.onDestroy()
     }
 

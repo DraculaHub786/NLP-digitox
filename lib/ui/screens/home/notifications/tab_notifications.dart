@@ -74,14 +74,12 @@ return DefaultRefreshIndicator(
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final textScale = MediaQuery.textScalerOf(context).scale(1);
-                  final cardHeight = textScale > 1.1 ? 164.0 : 140.0;
-                  final cardWidth = (constraints.maxWidth - 12) / 2;
+                  final cardHeight = textScale > 1.1 ? 180.0 : 140.0;
                   return SizedBox(
                     height: cardHeight,
                     child: Row(
                       children: [
-                        SizedBox(
-                          width: cardWidth,
+                        Expanded(
                           child: _buildModernStatCard(
                             context: context,
                             title: 'Notifications',
@@ -93,8 +91,7 @@ return DefaultRefreshIndicator(
                           ),
                         ),
                         const SizedBox(width: 12),
-                        SizedBox(
-                          width: cardWidth,
+                        Expanded(
                           child: _buildModernStatCard(
                             context: context,
                             title: 'Batched Apps',

@@ -165,18 +165,21 @@ class TabBedtime extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: isScheduleOn
-                  ? colorScheme.primary.withValues(alpha: 0.25)
-                  : colorScheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              FluentIcons.sleep_20_filled,
-              color: isScheduleOn ? colorScheme.primary : colorScheme.primary,
-              size: 24,
+          Flexible(
+            flex: 0,
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isScheduleOn
+                    ? colorScheme.primary.withValues(alpha: 0.25)
+                    : colorScheme.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                FluentIcons.sleep_20_filled,
+                color: colorScheme.primary,
+                size: 24,
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -189,21 +192,28 @@ class TabBedtime extends ConsumerWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: colorScheme.onSurface,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 StyledText(
                   context.locale.schedule_tile_subtitle,
                   fontSize: 12,
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          Transform.scale(
-            scale: 1.2,
-            child: Switch.adaptive(
-              value: isScheduleOn,
-              onChanged: (_) => _setScheduleStatus(ref, context, !isScheduleOn),
+          Flexible(
+            flex: 0,
+            child: Transform.scale(
+              scale: 1.2,
+              child: Switch.adaptive(
+                value: isScheduleOn,
+                onChanged: (_) => _setScheduleStatus(ref, context, !isScheduleOn),
+              ),
             ),
           ),
         ],

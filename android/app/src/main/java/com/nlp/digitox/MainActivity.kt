@@ -1,14 +1,4 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2024 Mindful (https://github.com/akaMrNagar/Mindful)
- *  *  * Author : Pawan Nagar (https://github.com/akaMrNagar)
- *  *  *
- *  *  * This source code is licensed under the GPL-2.0 license license found in the
- *  *  * LICENSE file in the root directory of this source tree.
- *  *
- *
- */
+
 package com.nlp.digitox
 
 import android.content.Intent
@@ -55,6 +45,11 @@ class MainActivity : FlutterFragmentActivity() {
         super.onCreate(savedInstanceState)
     }
 
+    override fun onStart() {
+        super.onStart()
+        // Ensure all our services are running and bound when activity becomes visible
+        fgMethodCallHandler.ensureAllServicesRunning()
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         val methodChannel = MethodChannel(
@@ -74,7 +69,13 @@ class MainActivity : FlutterFragmentActivity() {
 
 
     override fun onDestroy() {
-        fgMethodCallHandler.dispose()
+        // Do NOT dispose the method call handler on destroy - it needs to survive
+        // activity restarts. Only dispose when truly finished.
+        fgMethodCallHandler = FgMethodCallHandler(
+            context = this,
+            activity = this,
+            vpnPermLauncher = vpnPermissionLauncher
+        )
         super.onDestroy()
     }
 
