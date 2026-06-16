@@ -70,11 +70,8 @@ class FgMethodCallHandler(
 
 
     init {
-        // Bind to Services if they are already running
-        trackerServiceConn.bindService()
-        vpnServiceConn.bindService()
-        notificationServiceConn.bindService()
-        focusServiceConn.bindService()
+        // Start all services and bind to them
+        ensureAllServicesRunning()
     }
 
 
@@ -84,6 +81,70 @@ class FgMethodCallHandler(
         vpnServiceConn.unBindService()
         notificationServiceConn.unBindService()
         focusServiceConn.unBindService()
+    }
+
+    /**
+     * Ensures all background services are running and bound.
+     * Called when activity restarts or on service recovery.
+     * Also restores all settings to native services to ensure accessibility and
+     * other services have the latest configuration after a process restart.
+     */
+    fun ensureAllServicesRunning() {
+        // Start tracker service if not running - it will run as persistent foreground
+        if (!Utils.isServiceRunning(context, MindfulTrackerService::class.java)) {
+            trackerServiceConn.startAndBind()
+        } else {
+            trackerServiceConn.bindService()
+        }
+
+        // Start VPN service if not running - foreground persistent
+        if (!Utils.isServiceRunning(context, MindfulVpnService::class.java)) {
+            vpnServiceConn.startAndBind()
+        } else {
+            vpnServiceConn.bindService()
+        }
+
+        // Bind to already running services
+        notificationServiceConn.bindService()
+        focusServiceConn.bindService()
+
+        // Restore all settings to native services - this triggers accessibility service
+        // to reload shorts/feature blocking configuration from SharedPrefs
+        restoreAllSettingsOnReconnect()
+
+        Log.d("Mindful.FgMethodCallHandler", "ensureAllServicesRunning: All services running, settings restored")
+    }
+
+    /**
+     * Restores all settings to native services. Called on activity restart to
+     * ensure accessibility service and other native components have the latest config
+     * even if Flutter process was killed and recreated.
+     *
+     * This triggers SharedPrefs change listeners, so the accessibility service
+     * will reload its Wellbeing/shorts blocking configuration automatically.
+     */
+    fun restoreAllSettingsOnReconnect() {
+        // Re-push wellbeing settings - this triggers SharedPrefs listener in MindfulAccessibilityService
+        // which will call refreshServiceConfig() and restore shorts/feature blocking
+        SharedPrefsHelper.getSetWellBeingSettings(
+            context,
+            SharedPrefsHelper.getSetWellBeingSettingsAsJsonString(context)
+        )
+
+        // Re-push app restrictions to tracker service
+        val appRestrictions = SharedPrefsHelper.getSetAppRestrictions(context, null)
+        val restrictionGroups = SharedPrefsHelper.getSetRestrictionGroups(context, null)
+        if (appRestrictions.isNotEmpty() || restrictionGroups.isNotEmpty()) {
+            updateTrackerServiceRestrictions(appRestrictions, restrictionGroups)
+        }
+
+        // Re-push internet blocked apps to VPN service
+        val blockedApps = SharedPrefsHelper.getSetInternetBlockedApps(context, null)
+        if (blockedApps.isNotEmpty() && vpnServiceConn.isActive) {
+            vpnServiceConn.service?.updateBlockedApps(blockedApps)
+        }
+
+        Log.d("Mindful.FgMethodCallHandler", "restoreAllSettingsOnReconnect: All settings restored to native services")
     }
 
     private fun updateLocale(languageCode: String) {

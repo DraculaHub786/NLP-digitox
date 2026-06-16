@@ -1,14 +1,4 @@
-/*
- *
- *  *
- *  *  * Copyright (c) 2024 Mindful (https://github.com/akaMrNagar/Mindful)
- *  *  * Author : Pawan Nagar (https://github.com/akaMrNagar)
- *  *  *
- *  *  * This source code is licensed under the GPL-2.0 license license found in the
- *  *  * LICENSE file in the root directory of this source tree.
- *  *
- *
- */
+
 package com.nlp.digitox.helpers.storage
 
 import android.content.Context
@@ -116,6 +106,19 @@ object SharedPrefsHelper {
                 .apply()
             return Wellbeing.fromJson(jsonWellBeing)
         }
+    }
+
+    /**
+     * Retrieves the well-being settings JSON string from SharedPreferences.
+     * Used to re-trigger SharedPrefs change listeners in the accessibility service
+     * after a process restart.
+     *
+     * @param context The application context.
+     * @return The JSON string of well-being settings, or "{}" if not set.
+     */
+    fun getSetWellBeingSettingsAsJsonString(context: Context): String {
+        checkAndInitializeListenablePrefs(context)
+        return mListenablePrefs!!.getString(PREF_KEY_WELLBEING_SETTINGS, "{}")!!
     }
 
 

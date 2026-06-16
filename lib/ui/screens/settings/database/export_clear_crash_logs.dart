@@ -7,21 +7,16 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
-import 'package:nlp_digitox/config/hero_tags.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
 import 'package:nlp_digitox/ui/dialogs/modal_bottom_sheet.dart';
 import 'package:nlp_digitox/ui/screens/settings/database/sliver_crash_logs_list.dart';
-import 'package:nlp_digitox/ui/transitions/default_hero.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 class ExportClearCrashLogs extends ConsumerStatefulWidget {
@@ -43,55 +38,86 @@ class _ExportClearCrashLogsState extends ConsumerState<ExportClearCrashLogs> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return MultiSliver(
       children: [
-        ContentSectionHeader(title: context.locale.crash_logs_heading).sliver,
-        StyledText(context.locale.crash_logs_info).sliver,
-        16.vSliverBox,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ModernSectionHeader(title: 'Crash Logs'),
+                8.vBox,
+                StyledText(
+                  context.locale.crash_logs_info,
+                  fontSize: 12,
+                  color: colorScheme.onSurface.withValues(alpha: 0.65),
+                ),
+                16.vBox,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      /// Export
+                      ModernListTile(
+                        title: context.locale.crash_logs_export_tile_title,
+                        subtitle: context.locale.crash_logs_export_tile_subtitle,
+                        icon: FluentIcons.arrow_upload_20_regular,
+                        iconColor: colorScheme.primary,
+                        showChevron: true,
+                        trailing: _isExporting
+                            ? const SizedBox.square(
+                                dimension: 24,
+                                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+                              )
+                            : null,
+                        onTap: _exportLogs,
+                      ),
+                      8.vBox,
 
-        /// Export
-        DefaultListTile(
-          position: ItemPosition.top,
-          titleText: context.locale.crash_logs_export_tile_title,
-          subtitleText: context.locale.crash_logs_export_tile_subtitle,
-          leadingIcon: FluentIcons.arrow_upload_20_regular,
-          trailing: _isExporting
-              ? const SizedBox.square(
-                  dimension: 24,
-                  child: CircularProgressIndicator(strokeCap: StrokeCap.round),
-                )
-              : const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: _exportLogs,
-        ).sliver,
+                      /// View
+                      ModernListTile(
+                        title: context.locale.crash_logs_view_tile_title,
+                        subtitle: context.locale.crash_logs_view_tile_subtitle,
+                        icon: FluentIcons.notepad_20_regular,
+                        iconColor: colorScheme.secondary,
+                        showChevron: true,
+                        onTap: () => showDefaultBottomSheet(
+                          context: context,
+                          headerTitle: context.locale.crash_logs_heading,
+                          sliverBody: const SliverCrashLogsList(),
+                        ),
+                      ),
+                      8.vBox,
 
-        /// view
-        DefaultListTile(
-          position: ItemPosition.mid,
-          titleText: context.locale.crash_logs_view_tile_title,
-          subtitleText: context.locale.crash_logs_view_tile_subtitle,
-          leadingIcon: FluentIcons.notepad_20_regular,
-          trailing: const Icon(FluentIcons.chevron_right_20_regular),
-          onPressed: () => showDefaultBottomSheet(
-            context: context,
-            headerTitle: context.locale.crash_logs_heading,
-            sliverBody: const SliverCrashLogsList(),
+                      /// Clear
+                      ModernListTile(
+                        title: context.locale.crash_logs_clear_tile_title,
+                        subtitle: context.locale.crash_logs_clear_tile_subtitle,
+                        icon: FluentIcons.delete_lines_20_regular,
+                        iconColor: colorScheme.error,
+                        showChevron: false,
+                        onTap: _clearLogs,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ).sliver,
-
-        /// Clear
-        DefaultHero(
-          tag: HeroTags.clearCrashLogsTileTag,
-          child: DefaultListTile(
-            position: ItemPosition.bottom,
-            titleText: context.locale.crash_logs_clear_tile_title,
-            subtitleText: context.locale.crash_logs_clear_tile_subtitle,
-            leadingIcon: FluentIcons.delete_lines_20_regular,
-            onPressed: _clearLogs,
-          ),
-        ).sliver,
+        ),
       ],
     );
   }
+
+  // --- ALL LOGIC METHODS REMAIN EXACTLY THE SAME ---
 
   void _exportLogs() async {
     try {
@@ -137,7 +163,7 @@ class _ExportClearCrashLogsState extends ConsumerState<ExportClearCrashLogs> {
   void _clearLogs() async {
     final confirm = await showConfirmationDialog(
       context: context,
-      heroTag: HeroTags.clearCrashLogsTileTag,
+      heroTag: 'clear_crash_logs',
       title: context.locale.crash_logs_clear_tile_title,
       info: context.locale.crash_logs_clear_dialog_info,
       icon: FluentIcons.delete_lines_20_filled,

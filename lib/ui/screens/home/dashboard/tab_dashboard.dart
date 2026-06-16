@@ -30,7 +30,6 @@ class TabDashboard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isUsageLoading =
         ref.watch(todaysAppsUsageProvider.select((v) => v.isLoading));
-    final colorScheme = Theme.of(context).colorScheme;
 
     return DefaultRefreshIndicator(
       onRefresh: () async => ref
@@ -123,30 +122,59 @@ class TabDashboard extends ConsumerWidget {
               title: "Quick Actions",
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: ModernQuickActionButton(
-                    title: "Focus Now",
-                    icon: FluentIcons.target_20_filled,
-                    color: colorScheme.primary,
-                    onTap: () => Navigator.of(context).pushNamed(
-                      AppRoutes.focusModePath,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                // Only show side-by-side if width allows
+                final useRow = constraints.maxWidth >= 240;
+                if (useRow) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: ModernQuickActionButton(
+                          title: "Focus Now",
+                          icon: FluentIcons.target_20_filled,
+                          color: colorScheme.primary,
+                          onTap: () => Navigator.of(context).pushNamed(
+                            AppRoutes.focusModePath,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ModernQuickActionButton(
+                          title: "View Stats",
+                          icon: FluentIcons.chart_multiple_20_regular,
+                          color: colorScheme.secondary,
+                          onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
+                            DefaultHomeTab.statistics.index,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return Column(
+                  spacing: 10,
+                  children: [
+                    ModernQuickActionButton(
+                      title: "Focus Now",
+                      icon: FluentIcons.target_20_filled,
+                      color: colorScheme.primary,
+                      onTap: () => Navigator.of(context).pushNamed(
+                        AppRoutes.focusModePath,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ModernQuickActionButton(
-                    title: "View Stats",
-                    icon: FluentIcons.chart_multiple_20_regular,
-                    color: colorScheme.secondary,
-                    onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
-                      DefaultHomeTab.statistics.index,
+                    ModernQuickActionButton(
+                      title: "View Stats",
+                      icon: FluentIcons.chart_multiple_20_regular,
+                      color: colorScheme.secondary,
+                      onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
+                        DefaultHomeTab.statistics.index,
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ],
         ),

@@ -118,15 +118,77 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
 
   /// Handles permission updates when the app resumes from background and when window focus changes.
   /// This ensures permissions are re-checked whenever the app returns to foreground.
+  /// Now re-checks ALL permissions on every resume, not just the last requested one.
   @override
   void didChangeAppLifecycleState(AppLifecycleState appState) async {
     if (appState != AppLifecycleState.resumed) return;
 
-    // Re-check specific permission if one was just requested
-    await _recheckPermissionAfterResume();
+    // Re-check ALL permissions on resume - this ensures permissions don't reset
+    // when the app comes back from background. The old behavior only checked the
+    // last _askedPermission, which meant accessibility/shorts blocking permission
+    // would appear to "reset" when the app was killed and reopened.
+    await recheckAllPermissions();
+  }
+
+  /// Re-check ALL permissions when app resumes - not just the last requested one.
+  /// This is critical for accessibility/shorts blocking permission persistence.
+  Future<void> recheckAllPermissions() async {
+    try {
+      state = PermissionsModel(
+        haveNotificationPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskNotificationPermission(),
+          'notification',
+        ),
+        haveUsageAccessPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskUsageAccessPermission(),
+          'usage access',
+        ),
+        haveDisplayOverlayPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskDisplayOverlayPermission(),
+          'display overlay',
+        ),
+        haveDndPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskDndPermission(),
+          'DND',
+        ),
+        haveAccessibilityPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAccessibilityPermission(),
+          'accessibility',
+        ),
+        haveVpnPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskVpnPermission(),
+          'VPN',
+        ),
+        haveAlarmsPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskExactAlarmPermission(),
+          'exact alarm',
+        ),
+        haveIgnoreOptimizationPermission: await _safeGetPermission(
+          () => MethodChannelService.instance
+              .getAndAskIgnoreBatteryOptimizationPermission(),
+          'ignore optimization',
+        ),
+        haveAdminPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAdminPermission(),
+          'admin',
+        ),
+        haveNotificationAccessPermission: await _safeGetPermission(
+          () =>
+              MethodChannelService.instance.getAndAskNotificationAccessPermission(),
+          'notification access',
+        ),
+      );
+
+      _askedPermission = PermissionType.none;
+      debugPrint('PermissionNotifier: All permissions re-checked on app resume');
+    } catch (e) {
+      debugPrint('PermissionNotifier: Error rechecking all permissions on resume: $e');
+      _askedPermission = PermissionType.none;
+    }
   }
 
   /// Re-check the specific permission that was last requested when app resumes
+  /// (kept for backward compatibility but no longer the primary resume handler)
   Future<void> _recheckPermissionAfterResume() async {
     try {
       state = switch (_askedPermission) {

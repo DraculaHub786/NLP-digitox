@@ -1,15 +1,15 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/profile_service.dart';
 import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 
 class TabAccount extends ConsumerStatefulWidget {
   const TabAccount({super.key});
@@ -46,7 +46,6 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   Widget build(BuildContext context) {
     final user = _authService.currentUser;
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -59,78 +58,191 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 user?.displayName,
                 user?.email,
                 colorScheme,
-                isDark,
               ),
 
               const SizedBox(height: 20),
 
               /// Profile Picture Management
-              _buildProfileSection(colorScheme, isDark),
+              _buildProfileSection(colorScheme),
 
               const SizedBox(height: 20),
 
-              /// Account Actions
-              DefaultListTile(
-                leadingIcon: FluentIcons.lock_closed_20_regular,
-                titleText: 'Change Password',
-                subtitleText: 'Update your account password',
-                onPressed: () => _showChangePasswordDialog(),
-              ),
-
-              DefaultListTile(
-                leadingIcon: FluentIcons.mail_20_regular,
-                titleText: 'Change Email',
-                subtitleText: 'Update your email address',
-                onPressed: () => _showChangeEmailDialog(),
-              ),
-
-              DefaultListTile(
-                leadingIcon: FluentIcons.person_edit_20_regular,
-                titleText: 'Change Display Name',
-                subtitleText: 'Update your profile name',
-                onPressed: () => _showChangeNameDialog(),
-              ),
-
-              DefaultListTile(
-                leadingIcon: FluentIcons.trophy_20_regular,
-                titleText: 'Achievements',
-                subtitleText: 'View points, badges, and streaks',
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AchievementsScreen(),
-                  ),
+              /// Account Actions Card
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              FluentIcons.person_settings_20_regular,
+                              color: colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          StyledText(
+                            'Account Actions',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ],
+                      ),
+                    ),
+                    ModernListTile(
+                      title: 'Change Password',
+                      subtitle: 'Update your account password',
+                      icon: FluentIcons.lock_closed_20_regular,
+                      iconColor: colorScheme.primary,
+                      onTap: () => _showChangePasswordDialog(),
+                    ),
+                    8.vBox,
+                    ModernListTile(
+                      title: 'Change Email',
+                      subtitle: 'Update your email address',
+                      icon: FluentIcons.mail_20_regular,
+                      iconColor: colorScheme.secondary,
+                      onTap: () => _showChangeEmailDialog(),
+                    ),
+                    8.vBox,
+                    ModernListTile(
+                      title: 'Change Display Name',
+                      subtitle: 'Update your profile name',
+                      icon: FluentIcons.person_edit_20_regular,
+                      iconColor: colorScheme.tertiary,
+                      onTap: () => _showChangeNameDialog(),
+                    ),
+                    8.vBox,
+                    ModernListTile(
+                      title: 'Achievements',
+                      subtitle: 'View points, badges, and streaks',
+                      icon: FluentIcons.trophy_20_regular,
+                      iconColor: colorScheme.primary,
+                      showChevron: true,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AchievementsScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              const SizedBox(height: 20),
+              20.vBox,
 
-              /// Data Management
-              DefaultListTile(
-                leadingIcon: FluentIcons.arrow_download_20_regular,
-                titleText: 'Export My Data',
-                subtitleText: 'Download all your data (GDPR)',
-                onPressed: () => _exportUserData(),
+              /// Data Management Card
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              FluentIcons.data_bar_vertical_20_regular,
+                              color: colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          StyledText(
+                            'Data Management',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ],
+                      ),
+                    ),
+                    ModernListTile(
+                      title: 'Export My Data',
+                      subtitle: 'Download all your data (GDPR)',
+                      icon: FluentIcons.arrow_download_20_regular,
+                      iconColor: colorScheme.secondary,
+                      showChevron: true,
+                      onTap: () => _exportUserData(),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 40),
+              20.vBox,
 
-              /// Danger Zone
-              _buildDangerZoneHeader(),
-
-              DefaultListTile(
-                leadingIcon: FluentIcons.sign_out_20_regular,
-                titleText: 'Sign Out',
-                subtitleText: 'Log out of your account',
-                color: Colors.blue,
-                onPressed: () => _signOut(),
-              ),
-
-              DefaultListTile(
-                leadingIcon: FluentIcons.delete_20_regular,
-                titleText: 'Delete Account',
-                subtitleText: 'Permanently delete your account and data',
-                color: Colors.red,
-                onPressed: () => _showDeleteAccountDialog(),
+              /// Danger Zone Card
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            FluentIcons.warning_20_filled,
+                            color: Colors.red,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          const StyledText(
+                            'Danger Zone',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+                    ModernListTile(
+                      title: 'Sign Out',
+                      subtitle: 'Log out of your account',
+                      icon: FluentIcons.sign_out_20_regular,
+                      iconColor: Colors.blue,
+                      showChevron: false,
+                      onTap: () => _signOut(),
+                    ),
+                    8.vBox,
+                    ModernListTile(
+                      title: 'Delete Account',
+                      subtitle: 'Permanently delete your account and data',
+                      icon: FluentIcons.delete_20_regular,
+                      iconColor: Colors.red,
+                      showChevron: false,
+                      onTap: () => _showDeleteAccountDialog(),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 40),
@@ -141,7 +253,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
     );
   }
 
-  Widget _buildUserInfoCard(String? name, String? email, ColorScheme colorScheme, bool isDark) {
+  Widget _buildUserInfoCard(String? name, String? email, ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.all(20.0),
       padding: const EdgeInsets.all(20.0),
@@ -245,83 +357,151 @@ class _TabAccountState extends ConsumerState<TabAccount> {
     );
   }
 
-  Widget _buildProfileSection(ColorScheme colorScheme, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
+  Widget _buildProfileSection(ColorScheme colorScheme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            StyledText(
-              'Profile Picture',
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            const SizedBox(height: 4),
-            StyledText(
-              'Upload a photo to personalize your profile',
-              fontSize: 12,
-              color: colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _ProfilePicWidget(
-                    size: 80,
-                    profileUrl: _profileUrl,
-                    isLoading: _isUploading,
-                  ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: _isUploading ? null : _uploadProfilePic,
-                          icon: _isUploading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Icon(FluentIcons.image_add_20_filled),
-                          label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
+                child: Icon(
+                  FluentIcons.image_20_regular,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StyledText(
+                    'Profile Picture',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  StyledText(
+                    'Upload a photo to personalize your profile',
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 280;
+              final avatarSize = isNarrow ? 56.0 : 80.0;
+              // For narrow screens, switch to vertical layout
+              if (isNarrow) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: _ProfilePicWidget(
+                        size: avatarSize,
+                        profileUrl: _profileUrl,
+                        isLoading: _isUploading,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: _isUploading ? null : _uploadProfilePic,
+                      icon: _isUploading
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(FluentIcons.image_add_20_filled),
+                      label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
+                    ),
+                    if (_profileUrl != null && _profileUrl!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: _isUploading ? null : _removeProfilePic,
+                        icon: const Icon(FluentIcons.delete_20_regular),
+                        label: const Text('Remove Photo'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
                         ),
                       ),
-                      if (_profileUrl != null && _profileUrl!.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton.icon(
-                            onPressed: _isUploading ? null : _removeProfilePic,
-                            icon: const Icon(FluentIcons.delete_20_regular),
-                            label: const Text('Remove Photo'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
-                            ),
+                    ],
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: constraints.maxWidth < 200 ? 8 : 0),
+                    child: _ProfilePicWidget(
+                      size: avatarSize,
+                      profileUrl: _profileUrl,
+                      isLoading: _isUploading,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: FilledButton.icon(
+                            onPressed: _isUploading ? null : _uploadProfilePic,
+                            icon: _isUploading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(FluentIcons.image_add_20_filled),
+                            label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
                           ),
                         ),
+                        if (_profileUrl != null && _profileUrl!.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: TextButton.icon(
+                              onPressed: _isUploading ? null : _removeProfilePic,
+                              icon: const Icon(FluentIcons.delete_20_regular),
+                              label: const Text('Remove Photo'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -448,27 +628,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
     }
   }
 
-  Widget _buildDangerZoneHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-      child: Row(
-        children: [
-          const Icon(
-            FluentIcons.warning_20_filled,
-            color: Colors.red,
-            size: 20.0,
-          ),
-          const SizedBox(width: 8.0),
-          const StyledText(
-            'Danger Zone',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.red,
-          ),
-        ],
-      ),
-    );
-  }
+  // --- ALL DIALOG METHODS REMAIN EXACTLY THE SAME ---
 
   void _showChangePasswordDialog() {
     final currentPasswordController = TextEditingController();
@@ -620,7 +780,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
 
   void _showDeleteAccountDialog() {
     final isGoogleUser = _authService.isSignedInWithGoogle();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

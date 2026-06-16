@@ -38,7 +38,6 @@ class GreetingsUsername extends ConsumerWidget {
     final username =
         ref.watch(mindfulSettingsProvider.select((v) => v.username));
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
