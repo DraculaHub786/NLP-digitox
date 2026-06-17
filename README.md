@@ -6,12 +6,6 @@
 
 **NLP-Digitox** is a free and open-source app designed to help you regain control over your digital habits, improve your focus, and boost productivity. Whether you're battling social media addiction, struggling to stay focused, or simply looking for a way to better manage your screen time, NLP-Digitox is here to assist.
 
----
-
-| <img src="docs/assets/screenshots/screenshot_1.png"> | <img src="docs/assets/screenshots/screenshot_2.png"> | <img src="docs/assets/screenshots/screenshot_3.png"> | <img src="docs/assets/screenshots/screenshot_4.png"> |
-| ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
-| <img src="docs/assets/screenshots/screenshot_5.png"> | <img src="docs/assets/screenshots/screenshot_6.png"> | <img src="docs/assets/screenshots/screenshot_7.png"> | <img src="docs/assets/screenshots/screenshot_8.png"> |
-
 # 💪 Features
 
 - ### 1. Focus Mode
