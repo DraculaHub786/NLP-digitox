@@ -241,14 +241,41 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   ),
                   const SizedBox(height: 16),
                   ModernDashboardCard(
-                    title: 'Points (Live)',
-                    subtitle: 'Real-time lifetime points earned',
+                    title: 'Lifetime Points',
+                    subtitle: 'Total points earned (all time)',
                     icon: const Icon(FluentIcons.chart_multiple_20_filled),
                     accentColor: colorScheme.primary,
                     children: [
-                      if ((currentUser?.pointsBreakdown ?? {}).isEmpty)
-                        const Text('No points breakdown yet')
-                      else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Total Lifetime Points',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              '${currentUser?.lifetimePoints ?? 0}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 22,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if ((currentUser?.pointsBreakdown ?? {}).isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        const Divider(),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'This Week\'s Breakdown',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
                         ...(currentUser!.pointsBreakdown!.entries.map(
                           (e) => Padding(
                             padding: const EdgeInsets.only(bottom: 10),
@@ -264,6 +291,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                             ),
                           ),
                         )),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 16),

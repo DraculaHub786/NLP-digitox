@@ -71,9 +71,13 @@ class Initializer {
     /// Check and reset leaderboard streak if user was inactive
     await LeaderboardService.instance.checkAndResetStreakIfNeeded();
 
+    /// Evaluate streak based on today's screen time (< 8hrs = +1, > 8hrs = reset)
+    await LeaderboardService.instance.evaluateAndUpdateStreak();
+
     /// Check and perform weekly leaderboard reset (resets points but keeps streaks)
     await LeaderboardService.instance.checkAndPerformWeeklyReset();
     LeaderboardService.instance.startWeeklyResetMonitor();
+    LeaderboardService.instance.startDailyStreakEvaluation();
 
     debugPrint(
       "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",
