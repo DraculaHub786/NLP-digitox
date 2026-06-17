@@ -1,5 +1,3 @@
-// Copyright (c) 2024 NLP digitox
-
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -237,9 +235,6 @@ class ProductivityPointsService {
         'Daily Streaks',
       );
 
-      // Update streak in leaderboard
-      await _leaderboardService.updateStreak(streak);
-
       // Save last awarded date
       await prefs.setInt(_lastStreakPointsDateKey, now.millisecondsSinceEpoch);
 
@@ -290,13 +285,11 @@ class ProductivityPointsService {
         'Screen Time Goals',
       );
 
-      // Increment screen time streak
+      // Increment local screen time streak (does NOT overwrite leaderboard streak
+      // — that is managed by evaluateAndUpdateStreak based on < 8hr screen time)
       final currentStreak = prefs.getInt(_screenTimeStreakKey) ?? 0;
       final newStreak = currentStreak + 1;
       await prefs.setInt(_screenTimeStreakKey, newStreak);
-      
-      // Update leaderboard with screen time streak
-      await _leaderboardService.updateStreak(newStreak);
       debugPrint('Screen time streak updated to $newStreak days');
 
       // Save last awarded date
@@ -415,7 +408,9 @@ class ProductivityPointsService {
     }
   }
 
-  /// Reset screen time streak (call when goal is not met)
+  /// Reset screen time streak (call when goal is not met).
+  /// Only resets the local streak counter — the leaderboard streak is managed
+  /// exclusively by evaluateAndUpdateStreak (screen time < 8hrs = +1, > 8hrs = reset).
   Future<void> resetScreenTimeStreak() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -423,7 +418,6 @@ class ProductivityPointsService {
       
       if (currentStreak > 0) {
         await prefs.setInt(_screenTimeStreakKey, 0);
-        await _leaderboardService.updateStreak(0);
         debugPrint('Screen time streak reset to 0 (goal not met)');
       }
     } catch (e) {
