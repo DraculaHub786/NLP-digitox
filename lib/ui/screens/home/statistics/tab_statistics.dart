@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,14 +55,9 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Skeletonizer.zone(
-                    enabled: _isLoading,
-                    child: _buildModernUsageCards(context, _filter, weeklyUsages, colorScheme, isDark),
-                  ),
-                ],
+              child: Skeletonizer.zone(
+                enabled: _isLoading,
+                child: _buildModernUsageCards(context, _filter, weeklyUsages, colorScheme, isDark),
               ),
             ),
           ),
@@ -159,8 +153,7 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
         final spacing = isCompact ? 8.0 : 12.0;
         return Row(
           children: [
-            Flexible(
-              flex: 1,
+            Expanded(
               child: _buildModernStatCard(
                 context: context,
                 title: 'Screen Time',
@@ -172,8 +165,7 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
               ),
             ),
             SizedBox(width: spacing),
-            Flexible(
-              flex: 1,
+            Expanded(
               child: _buildModernStatCard(
                 context: context,
                 title: 'Data',
@@ -185,8 +177,7 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
               ),
             ),
             SizedBox(width: spacing),
-            Flexible(
-              flex: 1,
+            Expanded(
               child: _buildModernStatCard(
                 context: context,
                 title: 'WiFi',

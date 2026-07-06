@@ -1,20 +1,12 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/task_model.dart';
 import 'package:nlp_digitox/providers/productivity/tasks_provider.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
+import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class TasksScreen extends ConsumerWidget {
@@ -23,159 +15,172 @@ class TasksScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final tasksAsync = ref.watch(tasksProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text('Tasks & To-dos'),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-      ),
-      body: ModernGradientBackground(
-        child: SafeArea(
-          child: tasksAsync.when(
+    return ScaffoldShell(
+      canGoBack: true,
+      items: [
+        NavbarItem(
+          icon: FluentIcons.reading_list_20_regular,
+          filledIcon: FluentIcons.reading_list_20_filled,
+          titleText: 'Tasks & To-dos',
+          fab: GlassFAB(
+            icon: FluentIcons.add_20_filled,
+            label: 'New Task',
+            onPressed: () => _showAddTaskDialog(context, ref),
+          ),
+          sliverBody: tasksAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('Error: $error')),
+            error: (error, _) => Center(child: StyledText('Error: $error')),
             data: (tasks) {
               final pendingTasks = tasks.where((t) => !t.completed).length;
               final completedTasks = tasks.where((t) => t.completed).length;
 
-              return ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  // Statistics
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ModernMetricCard(
-                          label: 'Pending',
-                          value: '$pendingTasks',
-                          icon: FluentIcons.clock_20_filled,
-                          color: Colors.orange,
-                        ),
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Statistics Cards
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ModernMetricCard(
+                              label: 'Pending',
+                              value: '$pendingTasks',
+                              icon: FluentIcons.clock_20_filled,
+                              color: colorScheme.tertiary,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ModernMetricCard(
+                              label: 'Completed',
+                              value: '$completedTasks',
+                              icon: FluentIcons.checkmark_circle_20_filled,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ModernMetricCard(
-                          label: 'Completed',
-                          value: '$completedTasks',
-                          icon: FluentIcons.checkmark_circle_20_filled,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
 
-                  const SizedBox(height: 24),
-
                   if (tasks.isEmpty)
-                    Center(
+                    SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(
-                              FluentIcons.task_list_square_ltr_20_regular,
-                              size: 64,
-                              color: theme.colorScheme.primary.withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No tasks yet',
-                              style: theme.textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Tap the + button to create your first task',
-                              style: theme.textTheme.bodyMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                FluentIcons.task_list_square_ltr_20_regular,
+                                size: 64,
+                                color: colorScheme.primary.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              StyledText(
+                                'No tasks yet',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              const SizedBox(height: 8),
+                              StyledText(
+                                'Tap the + button to create your first task',
+                                fontSize: 14,
+                                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
 
                   // Pending Tasks
-                  if (pendingTasks > 0) ...[
-                    ModernDashboardCard(
-                      title: 'Pending Tasks',
-                      subtitle: '$pendingTasks tasks remaining',
-                      icon: const Icon(
-                          FluentIcons.task_list_square_ltr_20_filled),
-                      accentColor: Colors.orange,
-                      children: [
-                        ...tasks.where((t) => !t.completed).map((task) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: ModernListTile(
-                              leading:
-                                  const Icon(FluentIcons.circle_20_regular),
-                              title: task.title,
-                              subtitle:
-                                  '${_priorityText(task.priority)} • ${_formatDueDate(task.dueDate)}',
-                              color: task.color,
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Checkbox(
-                                    value: task.completed,
-                                    onChanged: (_) => ref
-                                        .read(tasksProvider.notifier)
-                                        .toggleTask(task.id),
+                  if (pendingTasks > 0)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                        child: ModernDashboardCard(
+                          title: 'Pending Tasks',
+                          subtitle: '$pendingTasks tasks remaining',
+                          icon: const Icon(FluentIcons.task_list_square_ltr_20_filled),
+                          accentColor: colorScheme.tertiary,
+                          children: [
+                            ...tasks.where((t) => !t.completed).map((task) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: ModernListTile(
+                                  leading: const Icon(FluentIcons.circle_20_regular),
+                                  title: task.title,
+                                  subtitle: '${_priorityText(task.priority)} • ${_formatDueDate(task.dueDate)}',
+                                  color: task.color,
+                                  trailing: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Checkbox(
+                                          value: task.completed,
+                                          onChanged: (_) => ref
+                                              .read(tasksProvider.notifier)
+                                              .toggleTask(task.id),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                              onTap: () => ref
-                                  .read(tasksProvider.notifier)
-                                  .toggleTask(task.id),
-                            ),
-                          );
-                        }),
-                      ],
+                                  onTap: () => ref
+                                      .read(tasksProvider.notifier)
+                                      .toggleTask(task.id),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                  ],
 
                   // Completed Tasks
                   if (completedTasks > 0)
-                    ModernDashboardCard(
-                      title: 'Completed',
-                      subtitle: '$completedTasks tasks done',
-                      icon: const Icon(FluentIcons.checkmark_circle_20_filled),
-                      accentColor: Colors.green,
-                      children: [
-                        ...tasks.where((t) => t.completed).map((task) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: ModernListTile(
-                              leading: const Icon(
-                                  FluentIcons.checkmark_circle_20_filled),
-                              title: task.title,
-                              subtitle: 'Completed',
-                              color: Colors.green,
-                              trailing: IconButton(
-                                icon: const Icon(FluentIcons.delete_20_regular),
-                                onPressed: () =>
-                                    _showDeleteDialog(context, ref, task),
-                              ),
-                            ),
-                          );
-                        }),
-                      ],
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                        child: ModernDashboardCard(
+                          title: 'Completed',
+                          subtitle: '$completedTasks tasks done',
+                          icon: const Icon(FluentIcons.checkmark_circle_20_filled),
+                          accentColor: colorScheme.primary,
+                          children: [
+                            ...tasks.where((t) => t.completed).map((task) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: ModernListTile(
+                                  leading: const Icon(FluentIcons.checkmark_circle_20_filled),
+                                  title: task.title,
+                                  subtitle: 'Completed',
+                                  color: colorScheme.primary,
+                                  trailing: IconButton(
+                                    icon: const Icon(FluentIcons.delete_20_regular),
+                                    onPressed: () =>
+                                        _showDeleteDialog(context, ref, task),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
                     ),
+
+                  const SliverTabsBottomPadding(),
                 ],
               );
             },
           ),
-        ),
-      ),
-      floatingActionButton: GlassFAB(
-        icon: FluentIcons.add_20_filled,
-        label: 'New Task',
-        onPressed: () => _showAddTaskDialog(context, ref),
-      ),
+        )
+      ],
     );
   }
 
@@ -203,17 +208,18 @@ class TasksScreen extends ConsumerWidget {
   }
 
   void _showAddTaskDialog(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
     final titleController = TextEditingController();
     final descController = TextEditingController();
     TaskPriority selectedPriority = TaskPriority.medium;
     DateTime? selectedDueDate;
-    Color selectedColor = Colors.orange;
+    Color selectedColor = cs.tertiary;
 
-    final colors = [
-      Colors.red,
-      Colors.orange,
-      Colors.amber,
-      Colors.green,
+    final colors = <Color>[
+      cs.tertiary,
+      cs.primary,
+      cs.secondary,
+      cs.primaryContainer,
       Colors.blue,
       Colors.purple,
     ];
@@ -369,7 +375,7 @@ class TasksScreen extends ConsumerWidget {
               Navigator.pop(context);
             },
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('Delete'),
           ),

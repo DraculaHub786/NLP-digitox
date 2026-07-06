@@ -22,23 +22,29 @@ class ModernSectionHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              StyledText(
-                title,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 StyledText(
-                  subtitle!,
-                  fontSize: 12,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  title,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  StyledText(
+                    subtitle!,
+                    fontSize: 12,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
           trailing ?? const SizedBox.shrink(),
         ],
@@ -103,7 +109,7 @@ class ModernListTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
+                Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -130,10 +136,13 @@ class ModernListTile extends StatelessWidget {
                 ),
                 trailing ??
                     (showChevron
-                        ? Icon(
-                            Icons.chevron_right_rounded,
-                            color: colorScheme.onSurface.withValues(alpha: 0.45),
-                            size: 22,
+                        ? FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Icon(
+                              Icons.chevron_right_rounded,
+                              color: colorScheme.onSurface.withValues(alpha: 0.45),
+                              size: 22,
+                            ),
                           )
                         : const SizedBox.shrink()),
               ],

@@ -65,38 +65,49 @@ class BedtimeScheduleCard extends ConsumerWidget {
 
           /// Schedule selected Days
           24.vBox,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              7,
-              (index) => Expanded(
-                child: RoundedContainer(
-                  circularRadius: 200,
-                  height: 48,
-                  width: 48,
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  color: scheduleDays[index]
-                      ? isScheduleOn
-                          ? Theme.of(context).disabledColor
-                          : Theme.of(context).colorScheme.primary
-                      : Colors.transparent,
-                  onPressed: isScheduleOn
-                      ? null
-                      : () => ref
-                          .read(bedtimeScheduleProvider.notifier)
-                          .toggleScheduleDay(index),
-                  child: StyledText(
-                    AppConstants.daysShort(context)[index],
-                    fontSize: 12,
-                    isSubtitle: isScheduleOn,
-                    textAlign: TextAlign.center,
-                    color: scheduleDays[index]
-                        ? Theme.of(context).colorScheme.surface
-                        : null,
-                  ).centered,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // 7 items + gaps: compute width per item
+              final gap = 2.0;
+              final totalGaps = 7 * gap * 2;
+              final availableWidth = constraints.maxWidth - totalGaps;
+              final itemWidth = (availableWidth / 7).clamp(24.0, 48.0);
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(
+                  7,
+                  (index) => Container(
+                    width: itemWidth,
+                    height: 48,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    child: RoundedContainer(
+                      circularRadius: 200,
+                      height: 48,
+                      width: itemWidth,
+                      color: scheduleDays[index]
+                          ? isScheduleOn
+                              ? Theme.of(context).disabledColor
+                              : Theme.of(context).colorScheme.primary
+                          : Colors.transparent,
+                      onPressed: isScheduleOn
+                          ? null
+                          : () => ref
+                              .read(bedtimeScheduleProvider.notifier)
+                              .toggleScheduleDay(index),
+                      child: StyledText(
+                        AppConstants.daysShort(context)[index],
+                        fontSize: 12,
+                        isSubtitle: isScheduleOn,
+                        textAlign: TextAlign.center,
+                        color: scheduleDays[index]
+                            ? Theme.of(context).colorScheme.surface
+                            : null,
+                      ).centered,
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

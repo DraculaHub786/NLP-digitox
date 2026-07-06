@@ -141,12 +141,16 @@
         <receiver
             android:name=".receivers.DeviceBootReceiver"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".helpers.KeepAliveHelper$KeepAliveReceiver"
+            android:enabled="true"
+            android:exported="false" />
         <receiver
             android:name=".receivers.alarm.BedtimeRoutineReceiver"
             android:enabled="true"

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
@@ -33,7 +32,7 @@ class SliverBatteryPermissionSwitchTile extends ConsumerWidget {
       onPressed: ref
           .read(permissionProvider.notifier)
           .askIgnoreBatteryOptimizationPermission,
-    ).sliver;
+    );
   }
 }
 

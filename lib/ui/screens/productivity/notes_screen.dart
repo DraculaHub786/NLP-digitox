@@ -1,20 +1,12 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/note_model.dart';
 import 'package:nlp_digitox/providers/productivity/notes_provider.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
+import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class NotesScreen extends ConsumerWidget {
@@ -23,154 +15,163 @@ class NotesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final notesAsync = ref.watch(notesProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text('Notes & Lists'),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-      ),
-      body: ModernGradientBackground(
-        child: SafeArea(
-          child: notesAsync.when(
+    return ScaffoldShell(
+      canGoBack: true,
+      items: [
+        NavbarItem(
+          icon: FluentIcons.note_20_regular,
+          filledIcon: FluentIcons.note_20_filled,
+          titleText: 'Notes & Lists',
+          fab: GlassFAB(
+            icon: FluentIcons.add_20_filled,
+            label: 'New Note',
+            onPressed: () => _showAddNoteDialog(context, ref),
+          ),
+          sliverBody: notesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('Error: $error')),
+            error: (error, _) => Center(child: StyledText('Error: $error')),
             data: (notes) {
-              return ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  // Statistics
-                  ModernMetricCard(
-                    label: 'Total Notes',
-                    value: '${notes.length}',
-                    icon: FluentIcons.note_20_filled,
-                    color: theme.colorScheme.primary,
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Statistics Card
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: ModernMetricCard(
+                        label: 'Total Notes',
+                        value: '${notes.length}',
+                        icon: FluentIcons.note_20_filled,
+                        color: colorScheme.primary,
+                      ),
+                    ),
                   ),
 
-                  const SizedBox(height: 24),
-
                   if (notes.isEmpty)
-                    Center(
+                    SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(
-                              FluentIcons.note_20_regular,
-                              size: 64,
-                              color: theme.colorScheme.primary.withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No notes yet',
-                              style: theme.textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Tap the + button to create your first note',
-                              style: theme.textTheme.bodyMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                FluentIcons.note_20_regular,
+                                size: 64,
+                                color: colorScheme.primary.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              StyledText(
+                                'No notes yet',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              const SizedBox(height: 8),
+                              StyledText(
+                                'Tap the + button to create your first note',
+                                fontSize: 14,
+                                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
                   else
-                    // Notes Grid
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: notes.length,
-                      itemBuilder: (context, index) {
-                        final note = notes[index];
-                        return InkWell(
-                          onTap: () => _showNoteDetailDialog(context, ref, note),
-                          onLongPress: () => _showDeleteDialog(context, ref, note),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: note.color.withValues(alpha: 0.1),
+                    // Notes Grid in a SliverToBoxAdapter
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1,
+                          ),
+                          itemCount: notes.length,
+                          itemBuilder: (context, index) {
+                            final note = notes[index];
+                            return InkWell(
+                              onTap: () => _showNoteDetailDialog(context, ref, note),
+                              onLongPress: () => _showDeleteDialog(context, ref, note),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: note.color.withValues(alpha: 0.3),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: note.color.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: note.color.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: note.color.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        note.icon,
-                                        color: note.color,
-                                        size: 20,
-                                      ),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: note.color.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            note.icon,
+                                            color: note.color,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Flexible(
+                                          child: StyledText(
+                                            _formatDate(note.updatedAt),
+                                            fontSize: 10,
+                                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const Spacer(),
-                                    Text(
-                                      _formatDate(note.updatedAt),
-                                      style: theme.textTheme.labelSmall?.copyWith(
-                                        color: theme.brightness == Brightness.dark
-                                            ? Colors.white60
-                                            : Colors.black45,
-                                      ),
+                                    const SizedBox(height: 12),
+                                    StyledText(
+                                      note.title,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: colorScheme.onSurface,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    StyledText(
+                                      note.content,
+                                      fontSize: 12,
+                                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  note.title,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  note.content,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.brightness == Brightness.dark
-                                        ? Colors.white70
-                                        : Colors.black54,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
+
+                  const SliverTabsBottomPadding(),
                 ],
               );
             },
           ),
-        ),
-      ),
-      floatingActionButton: GlassFAB(
-        icon: FluentIcons.add_20_filled,
-        label: 'New Note',
-        onPressed: () => _showAddNoteDialog(context, ref),
-      ),
+        )
+      ],
     );
   }
 
@@ -190,10 +191,11 @@ class NotesScreen extends ConsumerWidget {
   }
 
   void _showAddNoteDialog(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
     final titleController = TextEditingController();
     final contentController = TextEditingController();
     IconData selectedIcon = FluentIcons.note_20_filled;
-    Color selectedColor = Colors.blue;
+    Color selectedColor = cs.primary;
 
     final icons = [
       FluentIcons.note_20_filled,
@@ -206,15 +208,15 @@ class NotesScreen extends ConsumerWidget {
       FluentIcons.calendar_20_filled,
     ];
 
-    final colors = [
-      Colors.blue,
+    final colors = <Color>[
+      cs.primary,
       Colors.green,
       Colors.purple,
-      Colors.orange,
+      cs.tertiary,
       Colors.red,
       Colors.pink,
       Colors.teal,
-      Colors.amber,
+      cs.secondary,
     ];
 
     showDialog(
@@ -257,8 +259,8 @@ class NotesScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? selectedColor.withOpacity(0.3)
-                              : Colors.grey.withOpacity(0.1),
+                              ? selectedColor.withValues(alpha: 0.3)
+                              : cs.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
@@ -267,7 +269,7 @@ class NotesScreen extends ConsumerWidget {
                             width: 2,
                           ),
                         ),
-                        child: Icon(icon, color: selectedColor),
+                        child: Icon(icon, color: selectedColor, size: 20),
                       ),
                     );
                   }).toList(),
@@ -374,8 +376,8 @@ class NotesScreen extends ConsumerWidget {
               Navigator.pop(context);
               _showDeleteDialog(context, ref, note);
             },
-            icon: const Icon(FluentIcons.delete_20_regular, color: Colors.red),
-            label: const Text('Delete', style: TextStyle(color: Colors.red)),
+            icon: Icon(FluentIcons.delete_20_regular, color: Theme.of(context).colorScheme.error),
+            label: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
           const Spacer(),
           TextButton(
@@ -419,7 +421,7 @@ class NotesScreen extends ConsumerWidget {
               Navigator.pop(context);
             },
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('Delete'),
           ),

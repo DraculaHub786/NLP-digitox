@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -180,15 +179,19 @@ class _AppDashboardScreenState extends ConsumerState<AppDashboardScreen> {
                 /// Available app setting or functions
                 Row(
                   children: [
-                    ContentSectionHeader(
-                      title: context.locale.restrictions_heading,
+                    Flexible(
+                      child: ContentSectionHeader(
+                        title: context.locale.restrictions_heading,
+                      ),
                     ),
 
                     const Spacer(),
 
                     /// Current day
-                    ContentSectionHeader(
-                      title: _filter.selectedDay.dateString(context),
+                    Flexible(
+                      child: ContentSectionHeader(
+                        title: _filter.selectedDay.dateString(context),
+                      ),
                     ),
                   ],
                 ).sliver,

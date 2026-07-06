@@ -2,10 +2,14 @@ import 'dart:async';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
+import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -115,17 +119,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text('Achievements'),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-      ),
-      body: ModernGradientBackground(
-        child: SafeArea(
-          child: StreamBuilder<List<LeaderboardUser>>(
+    return ScaffoldShell(
+      items: [
+        NavbarItem(
+          icon: FluentIcons.ribbon_star_20_regular,
+          filledIcon: FluentIcons.ribbon_star_20_filled,
+          titleText: 'Achievements',
+          sliverBody: StreamBuilder<List<LeaderboardUser>>(
             stream: _leaderboardService.streamTopUsers(limit: 100),
             builder: (context, snapshot) {
               final users = snapshot.data ?? const <LeaderboardUser>[];
@@ -139,195 +139,217 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
               final leaderboardStreak = currentUser?.streak ?? 0;
 
-              return ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00D6FF).withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: const Color(0xFF00D6FF).withValues(alpha: 0.35),
-                        width: 1.2,
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Section header
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: ModernSectionHeader(
+                        title: 'Achievements Earned',
+                        subtitle: 'Digital badges (cyclic preview)',
+                        trailing: currentUser != null
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: StyledText(
+                                  '${currentUser.lifetimePoints} pts',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
+                              )
+                            : null,
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00D6FF).withValues(alpha: 0.20),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                FluentIcons.ribbon_star_20_filled,
-                                color: Color(0xFF007F99),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Achievements Earned',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                  ),
+
+                  // Badge carousel
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: ModernDashboardCard(
+                        title: 'Badge Carousel',
+                        icon: const Icon(FluentIcons.ribbon_star_20_filled),
+                        accentColor: colorScheme.primary,
+                        children: [
+                          SizedBox(
+                            height: 130,
+                            child: PageView.builder(
+                              controller: _badgePageController,
+                              itemCount: 3,
+                              onPageChanged: (index) {
+                                _currentBadgePage = index;
+                              },
+                              itemBuilder: (context, index) {
+                                final labels = <String>[
+                                  '7-Day Streak Badge (Coming soon)',
+                                  '21-Day Streak Badge (Coming soon)',
+                                  '30-Day Streak Badge (Coming soon)',
+                                ];
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.primary.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: colorScheme.primary.withValues(alpha: 0.25),
                                     ),
                                   ),
-                                  SizedBox(height: 2),
-                                  Text('Digital badges (cyclic preview)'),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 24,
+                                        backgroundColor:
+                                            colorScheme.primary.withValues(alpha: 0.22),
+                                        child: Icon(
+                                          FluentIcons.ribbon_star_20_filled,
+                                          color: colorScheme.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: StyledText(
+                                          labels[index],
+                                          fontWeight: FontWeight.w600,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  12.vSliverBox,
+
+                  // Stats row: Lifetime points
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ModernMetricCard(
+                              label: 'Lifetime Points',
+                              value: '${currentUser?.lifetimePoints ?? 0}',
+                              icon: FluentIcons.chart_multiple_20_filled,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ModernMetricCard(
+                              label: 'Current Streak',
+                              value: '${currentUser?.streak ?? 0}',
+                              icon: FluentIcons.fire_20_filled,
+                              color: leaderboardStreak >= 7 ? Colors.orange : colorScheme.tertiary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Points breakdown
+                  if ((currentUser?.pointsBreakdown ?? {}).isNotEmpty) ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                        child: ModernDashboardCard(
+                          title: 'This Week\'s Breakdown',
+                          icon: const Icon(FluentIcons.chart_multiple_20_filled),
+                          accentColor: colorScheme.primary,
+                          children: currentUser!.pointsBreakdown!.entries.map(
+                            (e) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: StyledText(
+                                      e.key,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: StyledText(
+                                      '${e.value}',
+                                      fontWeight: FontWeight.w700,
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          height: 130,
-                          child: PageView.builder(
-                            controller: _badgePageController,
-                            itemCount: 3,
-                            onPageChanged: (index) {
-                              _currentBadgePage = index;
-                            },
-                            itemBuilder: (context, index) {
-                              final labels = <String>[
-                                '7-Day Streak Badge (Coming soon)',
-                                '21-Day Streak Badge (Coming soon)',
-                                '30-Day Streak Badge (Coming soon)',
-                              ];
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 6),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00D6FF).withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: const Color(0xFF00D6FF).withValues(alpha: 0.35),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 24,
-                                      backgroundColor:
-                                          const Color(0xFF00D6FF).withValues(alpha: 0.22),
-                                      child: const Icon(
-                                        FluentIcons.ribbon_star_20_filled,
-                                        color: Color(0xFF007F99),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        labels[index],
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ModernDashboardCard(
-                    title: 'Lifetime Points',
-                    subtitle: 'Total points earned (all time)',
-                    icon: const Icon(FluentIcons.chart_multiple_20_filled),
-                    accentColor: colorScheme.primary,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Total Lifetime Points',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              '${currentUser?.lifetimePoints ?? 0}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 22,
-                              ),
-                            ),
-                          ],
+                          ).toList(),
                         ),
                       ),
-                      if ((currentUser?.pointsBreakdown ?? {}).isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        const Divider(),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'This Week\'s Breakdown',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        ...(currentUser!.pointsBreakdown!.entries.map(
-                          (e) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(child: Text(e.key)),
-                                Text(
-                                  '${e.value}',
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )),
-                      ],
-                    ],
+                    ),
+                    12.vSliverBox,
+                  ],
+
+                  // Max Streaks section
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: ModernDashboardCard(
+                        title: 'Max Streaks',
+                        subtitle: 'Across productivity and leaderboard',
+                        icon: const Icon(FluentIcons.trophy_20_filled),
+                        accentColor: Colors.orange,
+                        children: [
+                          if (_loadingStreaks)
+                            const Center(child: CircularProgressIndicator())
+                          else ...[
+                            _StreakRow(label: 'Habits max streak', value: _maxHabitStreak, colorScheme: colorScheme),
+                            const SizedBox(height: 10),
+                            _StreakRow(label: 'Tasks/Todos max streak', value: _maxTaskStreak, colorScheme: colorScheme),
+                            const SizedBox(height: 10),
+                            _StreakRow(label: 'Leaderboard streak', value: leaderboardStreak, colorScheme: colorScheme),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  ModernDashboardCard(
-                    title: 'Badges',
-                    subtitle: 'Coming soon',
-                    icon: const Icon(FluentIcons.badge_20_filled),
-                    accentColor: colorScheme.tertiary,
-                    children: const [
-                      Text('No badges yet. This section will be updated in future.'),
-                    ],
+
+                  // Badges section
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: ModernDashboardCard(
+                        title: 'Badges',
+                        subtitle: 'Coming soon',
+                        icon: const Icon(FluentIcons.badge_20_filled),
+                        accentColor: colorScheme.tertiary,
+                        children: const [
+                          StyledText('No badges yet. This section will be updated in future.'),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  ModernDashboardCard(
-                    title: 'Max Streaks',
-                    subtitle: 'Across productivity and leaderboard',
-                    icon: const Icon(FluentIcons.trophy_20_filled),
-                    accentColor: Colors.orange,
-                    children: [
-                      if (_loadingStreaks)
-                        const Center(child: CircularProgressIndicator())
-                      else ...[
-                        _StreakRow(label: 'Habits max streak', value: _maxHabitStreak),
-                        const SizedBox(height: 10),
-                        _StreakRow(label: 'Tasks/Todos max streak', value: _maxTaskStreak),
-                        const SizedBox(height: 10),
-                        _StreakRow(label: 'Leaderboard streak', value: leaderboardStreak),
-                      ],
-                    ],
-                  ),
+
+                  const SliverTabsBottomPadding(),
                 ],
               );
             },
           ),
-        ),
-      ),
+        )
+      ],
     );
   }
 }
@@ -336,20 +358,33 @@ class _StreakRow extends StatelessWidget {
   const _StreakRow({
     required this.label,
     required this.value,
+    required this.colorScheme,
   });
 
   final String label;
   final int value;
+  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: Text(label)),
-        Text(
-          '$value',
-          style: const TextStyle(fontWeight: FontWeight.w700),
+        Expanded(
+          child: StyledText(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: StyledText(
+            '$value',
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+          ),
         ),
       ],
     );

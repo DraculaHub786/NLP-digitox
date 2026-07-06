@@ -25,59 +25,128 @@ class SearchFilterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        /// Search bar
-        Expanded(
-          child: DefaultSearchBar(
-            hintText: context.locale.search_apps_hint,
-            onSubmitted: (value) => onFilterChanged(
-              filter.copyWith(query: value),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // On narrow screens, use Wrap; on wider screens, use Row for compact layout
+        final useWrap = constraints.maxWidth < 360;
+        if (useWrap) {
+          return Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              /// Search bar
+              SizedBox(
+                width: constraints.maxWidth,
+                child: DefaultSearchBar(
+                  hintText: context.locale.search_apps_hint,
+                  onSubmitted: (value) => onFilterChanged(
+                    filter.copyWith(query: value),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// Select/Deselect all
+                  IconButton.filledTonal(
+                    onPressed: () => onToggleSelectAll(!isSelectedAll),
+                    icon: Icon(
+                      isSelectedAll
+                          ? FluentIcons.select_all_on_20_regular
+                          : FluentIcons.select_all_off_20_regular,
+                    ),
+                  ),
+
+                  /// Sort by screen time, network usage, alphabetically
+                  IconButton.filledTonal(
+                    icon: Icon(
+                      [
+                        FluentIcons.phone_screen_time_20_regular,
+                        FluentIcons.earth_20_regular,
+                        FluentIcons.text_case_lowercase_20_regular,
+                      ][filter.usageType.index],
+                      size: 20,
+                    ),
+                    onPressed: () => onFilterChanged(
+                      filter.copyWith(
+                        usageType: UsageType.values[
+                            (filter.usageType.index + 1) % UsageType.values.length],
+                      ),
+                    ),
+                  ),
+
+                  /// Ascending - Descending
+                  IconButton.filledTonal(
+                    icon: Icon(
+                      filter.reverse
+                          ? FluentIcons.arrow_up_20_regular
+                          : FluentIcons.arrow_down_20_regular,
+                      size: 20,
+                    ),
+                    onPressed: () => onFilterChanged(
+                      filter.copyWith(reverse: !filter.reverse),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            /// Search bar
+            Expanded(
+              child: DefaultSearchBar(
+                hintText: context.locale.search_apps_hint,
+                onSubmitted: (value) => onFilterChanged(
+                  filter.copyWith(query: value),
+                ),
+              ),
             ),
-          ),
-        ),
 
-        /// Select/Deselect all
-        IconButton.filledTonal(
-          onPressed: () => onToggleSelectAll(!isSelectedAll),
-          icon: Icon(
-            isSelectedAll
-                ? FluentIcons.select_all_on_20_regular
-                : FluentIcons.select_all_off_20_regular,
-          ),
-        ),
-
-        /// Sort by screen time, network usage, alphabetically
-        IconButton.filledTonal(
-          icon: Icon(
-            [
-              FluentIcons.phone_screen_time_20_regular,
-              FluentIcons.earth_20_regular,
-              FluentIcons.text_case_lowercase_20_regular,
-            ][filter.usageType.index],
-            size: 20,
-          ),
-          onPressed: () => onFilterChanged(
-            filter.copyWith(
-              usageType: UsageType.values[
-                  (filter.usageType.index + 1) % UsageType.values.length],
+            /// Select/Deselect all
+            IconButton.filledTonal(
+              onPressed: () => onToggleSelectAll(!isSelectedAll),
+              icon: Icon(
+                isSelectedAll
+                    ? FluentIcons.select_all_on_20_regular
+                    : FluentIcons.select_all_off_20_regular,
+              ),
             ),
-          ),
-        ),
 
-        /// Ascending - Descending
-        IconButton.filledTonal(
-          icon: Icon(
-            filter.reverse
-                ? FluentIcons.arrow_up_20_regular
-                : FluentIcons.arrow_down_20_regular,
-            size: 20,
-          ),
-          onPressed: () => onFilterChanged(
-            filter.copyWith(reverse: !filter.reverse),
-          ),
-        ),
-      ],
+            /// Sort by screen time, network usage, alphabetically
+            IconButton.filledTonal(
+              icon: Icon(
+                [
+                  FluentIcons.phone_screen_time_20_regular,
+                  FluentIcons.earth_20_regular,
+                  FluentIcons.text_case_lowercase_20_regular,
+                ][filter.usageType.index],
+                size: 20,
+              ),
+              onPressed: () => onFilterChanged(
+                filter.copyWith(
+                  usageType: UsageType.values[
+                      (filter.usageType.index + 1) % UsageType.values.length],
+                ),
+              ),
+            ),
+
+            /// Ascending - Descending
+            IconButton.filledTonal(
+              icon: Icon(
+                filter.reverse
+                    ? FluentIcons.arrow_up_20_regular
+                    : FluentIcons.arrow_down_20_regular,
+                size: 20,
+              ),
+              onPressed: () => onFilterChanged(
+                filter.copyWith(reverse: !filter.reverse),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

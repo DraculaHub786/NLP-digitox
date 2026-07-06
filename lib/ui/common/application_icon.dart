@@ -20,51 +20,71 @@ class ApplicationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isAppLogo = appInfo.packageName == AppConstants.appPackageName;
     final useCustomIcon = appInfo.icon.isEmpty ||
         appInfo.packageName == AppConstants.removedAppPackage ||
         appInfo.packageName == AppConstants.tetheringAppPackage;
 
+    /// For custom/fallback icons, don't use CircleAvatar+ClipRRect which
+    /// clips icon widgets badly. Use a simple Container with the icon.
+    if (useCustomIcon) {
+      if (isAppLogo) {
+        return CircleAvatar(
+          backgroundColor: Colors.transparent,
+          radius: size,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(size),
+            child: Image.asset(
+              'assets/logo.png',
+              width: size * 2,
+              height: size * 2,
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
+      }
+
+      final colorScheme = Theme.of(context).colorScheme;
+      return Skeleton.replace(
+        replacement: Bone.iconButton(size: size * 2),
+        child: Container(
+          width: size * 2,
+          height: size * 2,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(size * 2),
+          ),
+          child: Icon(
+            appInfo.icon.isEmpty
+                ? FluentIcons.apps_20_filled
+                : appInfo.packageName == AppConstants.tetheringAppPackage
+                    ? FluentIcons.communication_20_filled
+                    : FluentIcons.delete_20_filled,
+            size: size,
+            color: appInfo.icon.isEmpty
+                ? colorScheme.onSurface.withValues(alpha: 0.55)
+                : colorScheme.primary,
+          ),
+        ),
+      );
+    }
+
+    /// For real app icons (image bytes), use CircleAvatar with ClipRRect
     return CircleAvatar(
-      backgroundColor:
-          useCustomIcon && !isAppLogo ? theme.focusColor : Colors.transparent,
+      backgroundColor: Colors.transparent,
       radius: size,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size),
         child: Skeleton.replace(
           replacement: Bone.iconButton(size: size * 2),
-          child: useCustomIcon
-              ? _resolveIcon(context, isAppLogo)
-              : Image.memory(
-                  appInfo.icon,
-                  fit: BoxFit.cover,
-                  color: isGrayedOut ? Colors.white : null,
-                  colorBlendMode: isGrayedOut ? BlendMode.saturation : null,
-                ),
+          child: Image.memory(
+            appInfo.icon,
+            fit: BoxFit.cover,
+            color: isGrayedOut ? Colors.white : null,
+            colorBlendMode: isGrayedOut ? BlendMode.saturation : null,
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _resolveIcon(BuildContext context, bool isAppLogo) {
-    if (isAppLogo) {
-      return Image.asset(
-        'assets/logo.png',
-        width: size * 2,
-        height: size * 2,
-        fit: BoxFit.cover,
-      );
-    }
-
-    return Icon(
-      appInfo.icon.isEmpty
-          ? FluentIcons.question_circle_20_filled
-          : appInfo.packageName == AppConstants.tetheringAppPackage
-              ? FluentIcons.communication_20_filled
-              : FluentIcons.delete_20_filled,
-      size: size,
-      color: Theme.of(context).colorScheme.primary,
     );
   }
 }

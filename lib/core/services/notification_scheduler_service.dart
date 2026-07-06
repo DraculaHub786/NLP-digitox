@@ -1,12 +1,4 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
+
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

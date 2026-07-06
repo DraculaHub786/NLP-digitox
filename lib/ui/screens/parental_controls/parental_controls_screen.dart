@@ -1,19 +1,15 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
-import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/core/services/auth_service.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:nlp_digitox/ui/dialogs/time_picker_dialog.dart';
 import 'package:nlp_digitox/ui/dialogs/parental_password_management_dialog.dart';
 import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
@@ -32,10 +28,8 @@ class ParentalControlsScreen extends ConsumerWidget {
       if (!isAccessProtected) {
         final isAuthenticated = await AuthService.instance.authenticate();
 
-        /// Return if not mounted
         if (!context.mounted) return;
 
-        /// If no locks available
         if (isAuthenticated == null) {
           context.showSnackAlert(
             context.locale.protected_access_no_lock_snack_alert,
@@ -44,13 +38,11 @@ class ParentalControlsScreen extends ConsumerWidget {
           return;
         }
 
-        /// If aborted the auth
         if (!isAuthenticated) {
           context.showSnackAlert(
             context.locale.protected_access_failed_lock_snack_alert,
             icon: FluentIcons.fingerprint_20_filled,
           );
-
           return;
         }
       }
@@ -63,6 +55,7 @@ class ParentalControlsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final parentalControls = ref.watch(parentalControlsProvider);
     final isAdminEnabled =
         ref.watch(permissionProvider.select((v) => v.haveAdminPermission));
@@ -76,81 +69,147 @@ class ParentalControlsScreen extends ConsumerWidget {
           sliverBody: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
+              // Section header for invincible mode
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+                  child: ModernSectionHeader(
+                    title: context.locale.parental_controls_tab_title,
+                    subtitle: parentalControls.protectedAccess
+                        ? 'Protected access is on'
+                        : 'Configure parental controls',
+                  ),
+                ),
+              ),
+
               /// Invincible mode
               const InvincibleModeSettings(),
 
-              /// Parental controls
-              ContentSectionHeader(
-                title: context.locale.parental_controls_tab_title,
-              ).sliver,
+              // Parental controls section header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+                  child: ModernSectionHeader(
+                    title: 'Access Control',
+                  ),
+                ),
+              ),
 
               /// Protected access
-              DefaultListTile(
-                position: ItemPosition.top,
-                switchValue: parentalControls.protectedAccess,
-                leadingIcon: FluentIcons.fingerprint_20_regular,
-                titleText: context.locale.protected_access_tile_title,
-                subtitleText: context.locale.protected_access_tile_subtitle,
-                onPressed: () => _toggleProtectedAccess(
-                  context,
-                  ref,
-                  parentalControls.protectedAccess,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                  child: DefaultHero(
+                    tag: HeroTags.invincibleModeTileTag,
+                    child: ModernSettingsTile(
+                      title: context.locale.protected_access_tile_title,
+                      subtitle: context.locale.protected_access_tile_subtitle,
+                      icon: FluentIcons.fingerprint_20_regular,
+                      iconColor: colorScheme.primary,
+                      value: parentalControls.protectedAccess,
+                      onChanged: (_) => _toggleProtectedAccess(
+                        context,
+                        ref,
+                        parentalControls.protectedAccess,
+                      ),
+                    ),
+                  ),
                 ),
-              ).sliver,
+              ),
 
               /// Tamper protection
-              const AdminPermissionTile().sliver,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                  child: const AdminPermissionTile(),
+                ),
+              ),
 
               /// Uninstall window
-              DefaultHero(
-                tag: HeroTags.uninstallWindowTileTag,
-                child: DefaultListTile(
-                  position: ItemPosition.mid,
-                  titleText: context.locale.uninstall_window_tile_title,
-                  subtitleText: context.locale.uninstall_window_tile_subtitle,
-                  trailing: StyledText(
-                    parentalControls.uninstallWindowTime.format(context),
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                  child: DefaultHero(
+                    tag: HeroTags.uninstallWindowTileTag,
+                    child: ModernListTile(
+                      title: context.locale.uninstall_window_tile_title,
+                      subtitle: context.locale.uninstall_window_tile_subtitle,
+                      icon: FluentIcons.clock_20_regular,
+                      iconColor: colorScheme.primary,
+                      showChevron: true,
+                      trailing: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: StyledText(
+                            parentalControls.uninstallWindowTime.format(context),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                      onTap: () async {
+                        if (isAdminEnabled &&
+                            !ref
+                                .read(parentalControlsProvider.notifier)
+                                .isBetweenUninstallWindow) {
+                          context.showSnackAlert(
+                            context.locale.permission_admin_snack_alert,
+                          );
+                          return;
+                        }
+
+                        final pickedTime = await showCustomTimePickerDialog(
+                          context: context,
+                          heroTag: HeroTags.uninstallWindowTileTag,
+                          initialTime: parentalControls.uninstallWindowTime,
+                          info: context.locale.uninstall_window_tile_title,
+                        );
+
+                        if (pickedTime != null && context.mounted) {
+                          ref
+                              .read(parentalControlsProvider.notifier)
+                              .changeUninstallWindowTime(pickedTime);
+                        }
+                      },
+                    ),
                   ),
-                  onPressed: () async {
-                    /// Check if between the specified window
-                    if (isAdminEnabled &&
-                        !ref
-                            .read(parentalControlsProvider.notifier)
-                            .isBetweenUninstallWindow) {
-                      context.showSnackAlert(
-                        context.locale.permission_admin_snack_alert,
-                      );
-                      return;
-                    }
-
-                    final pickedTime = await showCustomTimePickerDialog(
-                      context: context,
-                      heroTag: HeroTags.uninstallWindowTileTag,
-                      initialTime: parentalControls.uninstallWindowTime,
-                      info: context.locale.uninstall_window_tile_title,
-                    );
-
-                    if (pickedTime != null && context.mounted) {
-                      ref
-                          .read(parentalControlsProvider.notifier)
-                          .changeUninstallWindowTime(pickedTime);
-                    }
-                  },
                 ),
-              ).sliver,
+              ),
+
+              // Password section header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+                  child: ModernSectionHeader(
+                    title: 'Security',
+                  ),
+                ),
+              ),
 
               /// Parental password management
-              DefaultListTile(
-                position: ItemPosition.bottom,
-                leadingIcon: FluentIcons.password_20_regular,
-                titleText: "Manage Parental Password",
-                subtitleText: "Change your parental control password",
-                onPressed: () => showParentalPasswordManagementDialog(
-                  context: context,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                  child: ModernListTile(
+                    title: "Manage Parental Password",
+                    subtitle: "Change your parental control password",
+                    icon: FluentIcons.password_20_regular,
+                    iconColor: colorScheme.primary,
+                    onTap: () => showParentalPasswordManagementDialog(
+                      context: context,
+                    ),
+                  ),
                 ),
-              ).sliver,
+              ),
 
               const SliverTabsBottomPadding(),
             ],

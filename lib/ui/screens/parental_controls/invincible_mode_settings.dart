@@ -86,10 +86,13 @@ class InvincibleModeSettings extends ConsumerWidget {
             isPrimary: true,
             titleText: context.locale.invincible_window_tile_title,
             subtitleText: context.locale.invincible_window_tile_subtitle,
-            trailing: StyledText(
-              parentalControls.invincibleWindowTime.format(context),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+            trailing: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: StyledText(
+                parentalControls.invincibleWindowTime.format(context),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             onPressed: () async {
               /// Check if between the specified window

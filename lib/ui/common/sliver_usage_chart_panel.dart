@@ -58,7 +58,7 @@ class SliverUsageChartPanel extends StatelessWidget {
         /// Selected day changer
         Container(
           height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             children: [
               /// Previous week
@@ -70,10 +70,15 @@ class SliverUsageChartPanel extends StatelessWidget {
               const Spacer(),
 
               /// Current day
-              StyledText(
-                "${selectedWeek.start.dateStringShort(context)} - ${selectedWeek.end.dateStringShort(context)}",
-                color: Theme.of(context).hintColor,
-                fontSize: 14,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: StyledText(
+                    "${selectedWeek.start.dateStringShort(context)} - ${selectedWeek.end.dateStringShort(context)}",
+                    color: Theme.of(context).hintColor,
+                    fontSize: 14,
+                  ),
+                ),
               ),
 
               /// Reset button
