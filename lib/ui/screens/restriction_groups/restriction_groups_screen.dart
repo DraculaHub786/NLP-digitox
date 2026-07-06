@@ -1,10 +1,8 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/core/utils/widget_utils.dart';
 import 'package:nlp_digitox/providers/restrictions/restriction_groups_provider.dart';
@@ -12,6 +10,7 @@ import 'package:nlp_digitox/ui/common/default_fab_button.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:nlp_digitox/ui/screens/restriction_groups/create_update_group_screen.dart';
 import 'package:nlp_digitox/ui/screens/restriction_groups/restriction_group_card.dart';
 import 'package:nlp_digitox/ui/screens/restriction_groups/sample_restriction_group.dart';
@@ -22,6 +21,7 @@ class RestrictionGroupsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final groups =
         ref.watch(restrictionGroupsProvider.select((v) => v.values.toList()));
 
@@ -44,10 +44,74 @@ class RestrictionGroupsScreen extends ConsumerWidget {
           sliverBody: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              /// Information about groups
-              StyledText(context.locale.restriction_groups_tab_info).sliver,
+              // Quick summary header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                  child: ModernSectionHeader(
+                    title: context.locale.restriction_groups_tab_title,
+                    subtitle: '${groups.length} group${groups.length == 1 ? '' : 's'} • ${groups.where((g) => g.timerSec > 0).length} with timers',
+                    trailing: groups.isNotEmpty
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: StyledText(
+                              '${groups.length}',
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
 
-              16.vSliverBox,
+              // Info card in modern style
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            FluentIcons.info_20_filled,
+                            color: colorScheme.primary,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: StyledText(
+                            context.locale.restriction_groups_tab_info,
+                            fontSize: 13,
+                            color: colorScheme.onSurface.withValues(alpha: 0.75),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
 
               SliverAnimatedSwitcher(
                 duration: 250.ms,

@@ -183,11 +183,22 @@ class MindfulVpnService : VpnService() {
 
     override fun onDestroy() {
         disconnectVpn()
-        Log.d(TAG, "onDestroy: VPN service destroyed - system may restart")
-        // Re-start ourselves so we come back if system kills us
-        val restartIntent = Intent(this, MindfulVpnService::class.java)
-            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
-        startService(restartIntent)
+        Log.d(TAG, "onDestroy: VPN service destroyed - re-launching immediately")
+        try {
+            val restartIntent = Intent(this, MindfulVpnService::class.java)
+                .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                .putExtra("isRestart", true)
+            startForegroundService(restartIntent)
+        } catch (e: Exception) {
+            Log.w(TAG, "onDestroy: startForegroundService failed, fallback to startService", e)
+            try {
+                val restartIntent = Intent(this, MindfulVpnService::class.java)
+                    .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                startService(restartIntent)
+            } catch (e2: Exception) {
+                SharedPrefsHelper.insertCrashLogToPrefs(this, e2)
+            }
+        }
         super.onDestroy()
     }
 

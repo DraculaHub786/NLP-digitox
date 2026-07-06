@@ -72,7 +72,7 @@ class TabAbout extends ConsumerWidget {
                     context.locale.mindful_tagline,
                     fontSize: 14,
                     color: colorScheme.onSurface.withValues(alpha: 0.65),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.justify,
                   ),
                   16.vBox,
 
@@ -253,6 +253,7 @@ class TabAbout extends ConsumerWidget {
                     context.locale.privacy_policy_info,
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    textAlign: TextAlign.justify,
                   ),
                   16.vBox,
                   Align(
@@ -343,6 +344,7 @@ class TabAbout extends ConsumerWidget {
                     subtitle,
                     fontSize: 12,
                     color: colorScheme.onSurface.withValues(alpha: 0.75),
+                    textAlign: TextAlign.justify,
                   ),
                 ],
               ],
@@ -350,7 +352,10 @@ class TabAbout extends ConsumerWidget {
           ),
           if (trailing != null) ...[
             8.hBox,
-            trailing,
+            Align(
+              alignment: Alignment.centerRight,
+              child: trailing,
+            ),
           ],
         ],
       ),

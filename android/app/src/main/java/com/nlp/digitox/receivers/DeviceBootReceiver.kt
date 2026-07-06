@@ -12,6 +12,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.nlp.digitox.generics.ServiceBinder
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper
+import com.nlp.digitox.helpers.KeepAliveHelper
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.services.tracking.MindfulTrackerService
@@ -62,6 +63,10 @@ class DeviceBootReceiver : BroadcastReceiver() {
                         context.applicationContext.startService(vpnIntent)
                         Log.d(TAG, "onReceive: MindfulVpnService started on boot")
                     }
+
+                    // Schedule periodic keep-alive alarm to restart services if killed
+                    // This is the primary defense against OEM/Android background kill
+                    KeepAliveHelper.scheduleKeepAlive(context)
 
                     // Queue a one-time work request to execute BootWorker tasks
                     // This initializes Flutter-side services (database, notifications, etc.)

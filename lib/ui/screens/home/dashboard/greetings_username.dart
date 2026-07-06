@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,66 +42,74 @@ class GreetingsUsername extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         /// Left side - Greeting and username
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                StyledText(
-                  _getGreeting(),
-                  fontSize: 13,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '👋',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.8),
+        Flexible(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: StyledText(
+                      _getGreeting(),
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '👋',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorScheme.onSurface.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              DefaultHero(
+                tag: HeroTags.editUsernameTag,
+                child: InkWell(
+                  onLongPress: () => _editUserName(context, ref, username),
+                  onTap: () => context.showSnackAlert(
+                    context.locale.username_snack_alert,
+                    icon: FluentIcons.edit_20_filled,
+                  ),
+                  splashColor: Theme.of(context).colorScheme.surfaceContainerLow,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: StyledText(
+                          username,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          FluentIcons.edit_16_regular,
+                          size: 14,
+                          color: colorScheme.primary.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            DefaultHero(
-              tag: HeroTags.editUsernameTag,
-              child: InkWell(
-                onLongPress: () => _editUserName(context, ref, username),
-                onTap: () => context.showSnackAlert(
-                  context.locale.username_snack_alert,
-                  icon: FluentIcons.edit_20_filled,
-                ),
-                splashColor: Theme.of(context).colorScheme.surfaceContainerLow,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: StyledText(
-                        username,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        FluentIcons.edit_16_regular,
-                        size: 14,
-                        color: colorScheme.primary.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
 
         /// Right side - Profile pic shortcut

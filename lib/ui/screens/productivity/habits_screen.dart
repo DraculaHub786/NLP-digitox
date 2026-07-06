@@ -1,20 +1,12 @@
-/*
- *
- *  * Copyright (c) 2024 NLP digitox
- *  * Author : Pawan Nagar
- *  *
- *  * This source code is licensed under the GPL-2.0 license license found in the
- *  * LICENSE file in the root directory of this source tree.
- *
- */
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/habit_model.dart';
 import 'package:nlp_digitox/providers/productivity/habits_provider.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
+import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class HabitsScreen extends ConsumerWidget {
@@ -25,19 +17,32 @@ class HabitsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final habitsAsync = ref.watch(habitsProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text('Habits'),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-      ),
-      body: ModernGradientBackground(
-        child: SafeArea(
-          child: habitsAsync.when(
+    return ScaffoldShell(
+      items: [
+        NavbarItem(
+          icon: FluentIcons.drink_coffee_20_regular,
+          filledIcon: FluentIcons.drink_coffee_20_filled,
+          titleText: 'Habits',
+          fab: GlassFAB(
+            icon: FluentIcons.add_20_filled,
+            label: 'New Habit',
+            onPressed: () {
+              final habits = ref.read(habitsProvider).value ?? [];
+              if (habits.length >= 4) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Maximum 4 habits allowed'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              _showAddHabitDialog(context, ref);
+            },
+          ),
+          sliverBody: habitsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('Error: $error')),
+            error: (error, _) => Center(child: StyledText('Error: $error')),
             data: (habits) {
               final bestStreak = habits.isEmpty
                   ? 0
@@ -45,126 +50,123 @@ class HabitsScreen extends ConsumerWidget {
               final completedCount =
                   habits.where((h) => h.completedToday).length;
 
-              return ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
                   // Statistics Cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ModernMetricCard(
-                          label: 'Active Habits',
-                          value: '${habits.length}',
-                          icon: FluentIcons.drink_coffee_20_filled,
-                          color: theme.colorScheme.primary,
-                        ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ModernMetricCard(
+                              label: 'Active Habits',
+                              value: '${habits.length}',
+                              icon: FluentIcons.drink_coffee_20_filled,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ModernMetricCard(
+                              label: 'Best Streak',
+                              value: '$bestStreak',
+                              icon: FluentIcons.trophy_20_filled,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ModernMetricCard(
-                          label: 'Best Streak',
-                          value: '$bestStreak',
-                          icon: FluentIcons.trophy_20_filled,
-                          color: Colors.amber,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
 
-                  const SizedBox(height: 24),
-
                   if (habits.isEmpty)
-                    Center(
+                    SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(
-                              FluentIcons.drink_coffee_20_regular,
-                              size: 64,
-                              color: theme.colorScheme.primary.withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No habits yet',
-                              style: theme.textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Tap the + button to create your first habit',
-                              style: theme.textTheme.bodyMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                FluentIcons.drink_coffee_20_regular,
+                                size: 64,
+                                color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              StyledText(
+                                'No habits yet',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              const SizedBox(height: 8),
+                              StyledText(
+                                'Tap the + button to create your first habit',
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
                   else
                     // Habits List
-                    ModernDashboardCard(
-                      title: 'Today\'s Habits',
-                      subtitle:
-                          '$completedCount of ${habits.length} completed',
-                      icon:
-                          const Icon(FluentIcons.checkmark_circle_20_filled),
-                      accentColor: theme.colorScheme.primary,
-                      children: [
-                        ...habits.map((habit) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: ModernListTile(
-                              leading: Icon(habit.icon),
-                              title: habit.name,
-                              subtitle: '${habit.streak} day streak 🔥',
-                              color: habit.color,
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Checkbox(
-                                    value: habit.completedToday,
-                                    onChanged: (_) => ref
-                                        .read(habitsProvider.notifier)
-                                        .toggleHabit(habit.id),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                        child: ModernDashboardCard(
+                          title: 'Today\'s Habits',
+                          subtitle: '$completedCount of ${habits.length} completed',
+                          icon: const Icon(FluentIcons.checkmark_circle_20_filled),
+                          accentColor: theme.colorScheme.primary,
+                          children: [
+                            ...habits.map((habit) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: ModernListTile(
+                                  leading: Icon(habit.icon),
+                                  title: habit.name,
+                                  subtitle: '${habit.streak} day streak 🔥',
+                                  color: habit.color,
+                                  trailing: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Checkbox(
+                                          value: habit.completedToday,
+                                          onChanged: (_) => ref
+                                              .read(habitsProvider.notifier)
+                                              .toggleHabit(habit.id),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                              FluentIcons.delete_20_regular),
+                                          onPressed: () => _showDeleteDialog(
+                                              context, ref, habit),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(
-                                        FluentIcons.delete_20_regular),
-                                    onPressed: () => _showDeleteDialog(
-                                        context, ref, habit),
-                                  ),
-                                ],
-                              ),
-                              onTap: () => ref
-                                  .read(habitsProvider.notifier)
-                                  .toggleHabit(habit.id),
-                            ),
-                          );
-                        }),
-                      ],
+                                  onTap: () => ref
+                                      .read(habitsProvider.notifier)
+                                      .toggleHabit(habit.id),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
                     ),
+
+                  const SliverTabsBottomPadding(),
                 ],
               );
             },
           ),
-        ),
-      ),
-      floatingActionButton: GlassFAB(
-        icon: FluentIcons.add_20_filled,
-        label: 'New Habit',
-        onPressed: () {
-          final habits = ref.read(habitsProvider).value ?? [];
-          if (habits.length >= 4) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Maximum 4 habits allowed'),
-                backgroundColor: Colors.red,
-              ),
-            );
-            return;
-          }
-          _showAddHabitDialog(context, ref);
-        },
-      ),
+        )
+      ],
     );
   }
 
@@ -226,8 +228,8 @@ class HabitsScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? selectedColor.withOpacity(0.3)
-                              : Colors.grey.withOpacity(0.1),
+                              ? selectedColor.withValues(alpha: 0.3)
+                              : Colors.grey.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected

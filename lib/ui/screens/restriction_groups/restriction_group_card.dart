@@ -134,31 +134,41 @@ class RestrictionGroupCard extends ConsumerWidget {
                     ),
                   ),
 
-                  12.hBox,
+                  8.hBox,
 
                   /// Timer and Time used
-                  if (group.timerSec > 0) ...[
-                    /// Time used
-                    TimeTextShort(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      timeDuration: timeSpent.seconds,
-                      secondaryFontWeight: FontWeight.w600,
-                    ),
+                  if (group.timerSec > 0)
+                    Flexible(
+                      flex: 0,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            /// Time used
+                            TimeTextShort(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              timeDuration: timeSpent.seconds,
+                              secondaryFontWeight: FontWeight.w600,
+                            ),
 
-                    const StyledText(
-                      " / ",
-                      fontSize: 14,
-                    ),
+                            StyledText(
+                              " / ",
+                              fontSize: 14,
+                            ),
 
-                    /// Timer limit
-                    TimeTextShort(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      timeDuration: group.timerSec.seconds,
-                      secondaryFontWeight: FontWeight.w600,
+                            /// Timer limit
+                            TimeTextShort(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              timeDuration: group.timerSec.seconds,
+                              secondaryFontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
                 ],
               ),
               12.vBox,

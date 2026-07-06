@@ -50,9 +50,13 @@ class UsageGlanceCard extends StatelessWidget {
               StyledText(
                 title,
                 fontSize: 12,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               Skeleton.leaf(
                 child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
                   child: StyledText(
                     info.isEmpty ? " " : info,
                     fontSize: 24,

@@ -283,6 +283,8 @@ class _ModernMiniCard extends StatelessWidget {
                 StyledText(
                   title,
                   fontSize: 11,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   color: colorScheme.onSurface.withValues(alpha: 0.75),
                 ),
                 const SizedBox(height: 2),

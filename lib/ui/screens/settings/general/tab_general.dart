@@ -247,6 +247,7 @@ class TabGeneral extends ConsumerWidget {
                     context.locale.service_stopping_warning,
                     fontSize: 13,
                     color: colorScheme.onSurface.withOpacity(0.7),
+                    textAlign: TextAlign.justify,
                   ),
                   12.vBox,
                   const SliverBatteryPermissionSwitchTile(),

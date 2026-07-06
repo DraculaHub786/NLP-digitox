@@ -118,11 +118,23 @@ class MindfulTrackerService : Service() {
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy: TRACKER service destroyed - system will restart")
-        // Re-start ourselves with a sticky intent so Android restarts us
-        val restartIntent = Intent(this, MindfulTrackerService::class.java)
-            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
-        startService(restartIntent)
+        Log.d(TAG, "onDestroy: TRACKER service destroyed - re-launching immediately")
+        // Use startForegroundService for Android 12+ compatibility (it's a foreground service)
+        try {
+            val restartIntent = Intent(this, MindfulTrackerService::class.java)
+                .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                .putExtra("isRestart", true)
+            startForegroundService(restartIntent)
+        } catch (e: Exception) {
+            Log.w(TAG, "onDestroy: startForegroundService failed, fallback to startService", e)
+            try {
+                val restartIntent = Intent(this, MindfulTrackerService::class.java)
+                    .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                startService(restartIntent)
+            } catch (e2: Exception) {
+                SharedPrefsHelper.insertCrashLogToPrefs(this, e2)
+            }
+        }
         super.onDestroy()
     }
 

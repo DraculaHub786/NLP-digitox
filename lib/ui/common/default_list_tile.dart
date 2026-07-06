@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
@@ -82,11 +81,16 @@ class DefaultListTile extends StatelessWidget {
               children: [
                 /// Title widget
                 titleText != null
-                    ? StyledText(
-                        titleText!,
-                        fontSize: 16,
-                        fontWeight: isPrimary ? FontWeight.w500 : null,
-                        color: enabled ? accent : Theme.of(context).hintColor,
+                    ? FittedBox(
+                        fit: BoxFit.scaleDown,
+                        clipBehavior: Clip.none,
+                        child: StyledText(
+                          titleText!,
+                          fontSize: 16,
+                          maxLines: 1,
+                          fontWeight: isPrimary ? FontWeight.w500 : null,
+                          color: enabled ? accent : Theme.of(context).hintColor,
+                        ),
                       )
                     : title ?? 0.vBox,
 
@@ -96,6 +100,8 @@ class DefaultListTile extends StatelessWidget {
                         subtitleText!,
                         fontSize: 14,
                         isSubtitle: true,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       )
                     : subtitle ?? 0.vBox,
               ],

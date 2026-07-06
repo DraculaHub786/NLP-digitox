@@ -156,24 +156,36 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                   
                                   return Row(
                                     children: [
-                                      Icon(
-                                        sentimentIcon,
-                                        size: 12,
-                                        color: sentimentColor,
+                                      Flexible(
+                                        flex: 0,
+                                        child: Icon(
+                                          sentimentIcon,
+                                          size: 12,
+                                          color: sentimentColor,
+                                        ),
                                       ),
                                       const SizedBox(width: 6),
                                       Expanded(
+                                        flex: 1,
                                         child: StyledText(
                                           entry.key,
                                           fontSize: 12,
                                           overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                         ),
                                       ),
-                                      StyledText(
-                                        '${entry.value.toStringAsFixed(0)}%',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: sentimentColor,
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        flex: 0,
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: StyledText(
+                                            '${entry.value.toStringAsFixed(0)}%',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: sentimentColor,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   );
@@ -318,26 +330,31 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                     : 'Tap to start conversation',
                                 fontSize: 11,
                                 color: colorScheme.onSurface.withOpacity(0.6),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
                         // Settings button
-                        IconButton(
-                          icon: Icon(
-                            FluentIcons.settings_20_regular,
-                            size: 18,
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                        Flexible(
+                          flex: 0,
+                          child: IconButton(
+                            icon: Icon(
+                              FluentIcons.settings_20_regular,
+                              size: 18,
+                              color: colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ChatSettingsScreen(),
+                                ),
+                              );
+                            },
+                            tooltip: 'Chat Settings',
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ChatSettingsScreen(),
-                              ),
-                            );
-                          },
-                          tooltip: 'Chat Settings',
                         ),
                         Icon(
                           _isChatExpanded 
@@ -539,10 +556,16 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          StyledText(
-                            '${entry.value.toStringAsFixed(0)}%',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                          Flexible(
+                            flex: 0,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: StyledText(
+                                '${entry.value.toStringAsFixed(0)}%',
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       );

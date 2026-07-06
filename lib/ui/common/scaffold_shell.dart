@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -237,6 +236,7 @@ class _ScaffoldShellState extends State<ScaffoldShell>
         selectedIndex: _selectedTabIndex,
         animationDuration: AppConstants.defaultAnimDuration,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: (index) => _tabController.animateTo(
           index,
           duration: AppConstants.defaultAnimDuration,
@@ -244,18 +244,19 @@ class _ScaffoldShellState extends State<ScaffoldShell>
         ),
         destinations: widget.items.map((e) {
           final title = e.titleText!;
-          final trimmedTitle =
-              title.length >= 10 ? "${title.substring(0, 8)}..." : title;
 
           return NavigationDestination(
-            label: trimmedTitle,
+            label: title,
             icon: Icon(e.icon),
-            selectedIcon: Icon(e.filledIcon).animate().scale(
-                  begin: const Offset(0.5, 0.5),
-                  end: const Offset(1.05, 1.05),
-                  curve: Curves.elasticOut,
-                  duration: 1.seconds,
-                ),
+            selectedIcon: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(e.filledIcon).animate().scale(
+                    begin: const Offset(0.5, 0.5),
+                    end: const Offset(1.05, 1.05),
+                    curve: Curves.elasticOut,
+                    duration: 1.seconds,
+                  ),
+            ),
           );
         }).toList(),
       ),

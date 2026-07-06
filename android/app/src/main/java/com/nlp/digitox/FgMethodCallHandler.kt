@@ -10,6 +10,7 @@ import com.nlp.digitox.enums.DndWakeLock
 import com.nlp.digitox.generics.SafeServiceConnection
 import com.nlp.digitox.generics.ServiceBinder
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.cancelBedtimeRoutineTasks
+import com.nlp.digitox.helpers.KeepAliveHelper
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.cancelNotificationBatchTask
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.scheduleBedtimeRoutineTasks
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.scheduleNotificationBatchTask
@@ -108,6 +109,9 @@ class FgMethodCallHandler(
         // Bind to already running services
         notificationServiceConn.bindService()
         focusServiceConn.bindService()
+
+        // Schedule periodic keep-alive alarm to restart services if killed
+        KeepAliveHelper.scheduleKeepAlive(context)
 
         // Restore all settings to native services - this triggers accessibility service
         // to reload shorts/feature blocking configuration from SharedPrefs
