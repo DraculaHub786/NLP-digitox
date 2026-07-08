@@ -112,21 +112,9 @@ class TabAbout extends ConsumerWidget {
                   child: Column(
                     children: [
                       /// Donation
-                      _buildActionTile(
+                      _buildDonationTile(
                         context: context,
-                        icon: FluentIcons.handshake_20_regular,
-                        iconColor: colorScheme.primary,
-                        title: context.locale.donation_card_title,
-                        subtitle: context.locale.donation_card_info,
-                        trailing: FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: colorScheme.primary,
-                            foregroundColor: colorScheme.onPrimary,
-                          ),
-                          icon: const Icon(FluentIcons.heart_20_filled, size: 16),
-                          label: Text(context.locale.donation_card_button_donate),
-                          onPressed: () {},
-                        ),
+                        colorScheme: colorScheme,
                       ),
                       8.vBox,
 
@@ -294,6 +282,67 @@ class TabAbout extends ConsumerWidget {
             fontSize: 12,
             color: colorScheme.primary,
             fontWeight: FontWeight.w600,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDonationTile({
+    required BuildContext context,
+    required ColorScheme colorScheme,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(FluentIcons.handshake_20_regular, color: colorScheme.primary, size: 20),
+          ),
+          16.hBox,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StyledText(
+                  context.locale.donation_card_title,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+                2.vBox,
+                StyledText(
+                  context.locale.donation_card_info,
+                  fontSize: 12,
+                  color: colorScheme.onSurface.withValues(alpha: 0.75),
+                  textAlign: TextAlign.justify,
+                ),
+                12.vBox,
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                    ),
+                    icon: const Icon(FluentIcons.heart_20_filled, size: 16),
+                    label: Text(context.locale.donation_card_button_donate),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -816,6 +816,30 @@ abstract class AppLocalizations {
   /// **'Finish Setup'**
   String get onboarding_finish_setup_btn_label;
 
+  /// No description provided for @onboarding_page_welcome_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to NLP digitox.'**
+  String get onboarding_page_welcome_title;
+
+  /// No description provided for @onboarding_page_welcome_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.'**
+  String get onboarding_page_welcome_info;
+
+  /// No description provided for @onboarding_page_statistics_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Know Your Habits.'**
+  String get onboarding_page_statistics_title;
+
+  /// No description provided for @onboarding_page_statistics_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.'**
+  String get onboarding_page_statistics_info;
+
   /// No description provided for @onboarding_page_one_title.
   ///
   /// In en, this message translates to:

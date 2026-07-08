@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -225,9 +226,39 @@ class FirebaseAuthService {
     }
   }
 
-  /// Delete user account
+  /// Delete user account and clean up all associated Firestore documents.
   Future<void> deleteAccount() async {
     try {
+      final uid = _auth.currentUser?.uid;
+
+      if (uid != null) {
+        final firestore = FirebaseFirestore.instance;
+        final batch = firestore.batch();
+
+        // Clean up all docs associated with this uid
+        for (final collection in [
+          'users',
+          'leaderboard',
+          'signup_events',
+          'streak_badges_awarded',
+        ]) {
+          final docRef = firestore.collection(collection).doc(uid);
+          batch.delete(docRef);
+        }
+
+        // Delete any badges docs referencing this uid
+        final badgesSnapshot = await firestore
+            .collection('badges')
+            .where('userId', isEqualTo: uid)
+            .get();
+        for (final doc in badgesSnapshot.docs) {
+          batch.delete(doc.reference);
+        }
+
+        await batch.commit();
+        debugPrint('Cleaned up Firestore docs for uid: $uid');
+      }
+
       await _auth.currentUser?.delete();
       debugPrint('User account deleted');
     } on FirebaseAuthException catch (e) {
@@ -236,6 +267,27 @@ class FirebaseAuthService {
     } catch (e) {
       debugPrint('Delete account error: $e');
       throw Exception('Failed to delete account. Please try again.');
+    }
+  }
+
+  /// Send email verification to the current user.
+  /// Returns true if the email was sent, false if already verified.
+  Future<bool> sendEmailVerification() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('No user logged in');
+
+      if (user.emailVerified) {
+        debugPrint('Email already verified');
+        return false;
+      }
+
+      await user.sendEmailVerification();
+      debugPrint('Verification email sent to: ${user.email}');
+      return true;
+    } catch (e) {
+      debugPrint('Send email verification error: $e');
+      throw Exception('Failed to send verification email. Please try again.');
     }
   }
 
@@ -276,30 +328,6 @@ class FirebaseAuthService {
     } catch (e) {
       debugPrint('Update password error: $e');
       throw Exception('Failed to update password. Please try again.');
-    }
-  }
-
-  /// Re-authenticate user (required for sensitive operations)
-  Future<void> reauthenticateWithPassword(String password) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null || user.email == null) {
-        throw Exception('No user logged in');
-      }
-
-      final credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: password,
-      );
-
-      await user.reauthenticateWithCredential(credential);
-      debugPrint('User re-authenticated successfully');
-    } on FirebaseAuthException catch (e) {
-      debugPrint('Re-authentication error: ${e.code} - ${e.message}');
-      throw _handleAuthException(e);
-    } catch (e) {
-      debugPrint('Re-authentication error: $e');
-      throw Exception('Failed to verify password. Please try again.');
     }
   }
 

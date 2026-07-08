@@ -1,2 +1,0 @@
-UNUSED_ASSET: assets\illustrations\onboarding_5.png
-UNUSED_ASSET: assets\illustrations\onboarding_6.png

@@ -15,7 +15,6 @@ import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
 import 'package:nlp_digitox/ui/screens/home/bedtime/tab_bedtime.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/customize_glance_cards.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/focus_now_fab.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/greetings_username.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/tab_dashboard.dart';
@@ -85,7 +84,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             titleBuilder: (_) => const GreetingsUsername(),
             fab: const FocusNowFab(),
             actions: const [
-              CustomizeGlanceCards(),
               _SettingsButton(),
             ],
           ),

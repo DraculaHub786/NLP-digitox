@@ -16,6 +16,9 @@ class LeaderboardUser {
   final bool isCurrentUser;
   final Map<String, int>? pointsBreakdown;
   final int lifetimePoints;
+  final int monthlyPoints;
+  final DateTime? lastActiveAt;
+  final String? email;
 
   LeaderboardUser({
     required this.userId,
@@ -27,6 +30,9 @@ class LeaderboardUser {
     required this.isCurrentUser,
     this.pointsBreakdown,
     required this.lifetimePoints,
+    this.monthlyPoints = 0,
+    this.lastActiveAt,
+    this.email,
   });
 
   factory LeaderboardUser.fromFirestore(
@@ -47,6 +53,9 @@ class LeaderboardUser {
           ? Map<String, int>.from(data['pointsBreakdown'])
           : null,
       lifetimePoints: data['lifetimePoints'] ?? 0,
+      monthlyPoints: data['monthlyPoints'] ?? 0,
+      lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
+      email: data['email'] as String?,
     );
   }
 
@@ -58,7 +67,12 @@ class LeaderboardUser {
       'avatarEmoji': avatarEmoji ?? '👤',
       'pointsBreakdown': pointsBreakdown ?? {},
       'lifetimePoints': lifetimePoints,
+      'monthlyPoints': monthlyPoints,
+      if (email != null) 'email': email,
       'lastUpdated': FieldValue.serverTimestamp(),
+      'lastActiveAt': lastActiveAt != null
+          ? Timestamp.fromDate(lastActiveAt!)
+          : FieldValue.serverTimestamp(),
     };
   }
 }
@@ -157,6 +171,7 @@ class LeaderboardService {
 
   /// Update user's leaderboard data.
   /// Preserves existing points and lifetimePoints from Firestore if they exist.
+  /// If this is the first write (new user), seeds email from Firebase Auth.
   Future<void> updateUserData({
     required String username,
     int? points,
@@ -198,6 +213,8 @@ class LeaderboardService {
         isCurrentUser: true,
         pointsBreakdown: pointsBreakdown ?? existingBreakdown,
         lifetimePoints: existingLifetimePoints,
+        lastActiveAt: DateTime.now(),
+        email: FirebaseAuthService.instance.userEmail,
       );
 
       await _firestore
@@ -223,6 +240,9 @@ class LeaderboardService {
   /// Add points to current user.
   /// `points` field tracks weekly points (reset every Monday 4am).
   /// `lifetimePoints` tracks all-time total (never reset).
+  /// `monthlyPoints` tracks monthly total (reset monthly by n8n).
+  /// If the doc does not exist yet, seeds username/email/avatarEmoji to
+  /// prevent "Anonymous" showing on the leaderboard before updateUserData runs.
   Future<void> addPoints(int points, String category) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
@@ -236,6 +256,9 @@ class LeaderboardService {
         final currentPoints = snapshot.exists
             ? (snapshot.data()?['points'] ?? 0) as int
             : 0;
+        final currentMonthlyPoints = snapshot.exists
+            ? (snapshot.data()?['monthlyPoints'] ?? 0) as int
+            : 0;
         final currentBreakdown = snapshot.exists
             ? Map<String, int>.from(
                 snapshot.data()?['pointsBreakdown'] ?? {})
@@ -247,16 +270,25 @@ class LeaderboardService {
         currentBreakdown[category] =
             (currentBreakdown[category] ?? 0) + points;
 
-        transaction.set(
-          docRef,
-          {
-            'points': currentPoints + points,
-            'pointsBreakdown': currentBreakdown,
-            'lifetimePoints': currentLifetimePoints + points,
-            'lastUpdated': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        final auth = FirebaseAuthService.instance;
+        final data = <String, dynamic>{
+          'points': currentPoints + points,
+          'monthlyPoints': currentMonthlyPoints + points,
+          'pointsBreakdown': currentBreakdown,
+          'lifetimePoints': currentLifetimePoints + points,
+          'lastUpdated': FieldValue.serverTimestamp(),
+          'lastActiveAt': FieldValue.serverTimestamp(),
+        };
+
+        // If this is the first-ever write to the leaderboard doc, seed
+        // identity fields so the user never appears as "Anonymous".
+        if (!snapshot.exists) {
+          data['username'] = auth.userDisplayName ?? 'User';
+          data['email'] = auth.userEmail;
+          data['avatarEmoji'] = '👤';
+        }
+
+        transaction.set(docRef, data, SetOptions(merge: true));
       });
 
       // Invalidate cache
@@ -321,9 +353,29 @@ class LeaderboardService {
   // =========================================================================
   // STREAK — Screen-time-based streak evaluation
   // =========================================================================
+  //
+  // TIMEZONE POLICY (decision for #11):
+  // All streak day-boundary logic uses the device's local clock
+  // (DateTime.now()) — this means "a streak day" is defined per-user
+  // in their own timezone. This is an intentional design choice:
+  //   - A user who travels across timezones sees their streak boundary shift
+  //     with them, which is the less surprising UX.
+  //   - Computing the effective day from a server timestamp would require
+  //     knowing the user's IANA timezone (not just UTC offset), adds
+  //     network latency to every check, and would break if the user
+  //     legitimately moves to a new timezone.
+  //   - The 4am reset rule (also local) keeps the streak day aligned with
+  //     the same "late-night grace period" pattern used elsewhere in the
+  //     leaderboard system.
+  // Accepted trade-off: two users in different timezones who each have <8hr
+  // screen time on the same UTC day may see different streak increments.
+  // This is consistent with how mobile OSes report "today's screen time."
+  // =========================================================================
 
   /// Check if user was inactive (app not opened for >1 day) and reset streak.
   /// Called on app initialization to handle long absences.
+  /// Uses `lastActiveAt` (set only by real user activity) instead of
+  /// `lastUpdated` (which is stamped by batch resets too).
   Future<void> checkAndResetStreakIfNeeded() async {
     try {
       final userId = FirebaseAuthService.instance.userId;
@@ -337,18 +389,20 @@ class LeaderboardService {
       final data = snapshot.data();
       if (data == null) return;
 
-      final lastUpdated = (data['lastUpdated'] as Timestamp?)?.toDate();
+      // Key off lastActiveAt — this is ONLY written by real user activity,
+      // never by the weekly/monthly batch reset.
+      final lastActiveAt = (data['lastActiveAt'] as Timestamp?)?.toDate();
       final currentStreak = (data['streak'] ?? 0) as int;
 
-      if (lastUpdated != null && currentStreak > 0) {
-        final daysSinceLastUpdate =
-            DateTime.now().difference(lastUpdated).inDays;
+      if (lastActiveAt != null && currentStreak > 0) {
+        final daysSinceLastActive =
+            DateTime.now().difference(lastActiveAt).inDays;
 
         // Reset streak if user was inactive for more than 1 day
-        if (daysSinceLastUpdate > 1) {
+        if (daysSinceLastActive > 1) {
           await updateStreak(0);
           debugPrint(
-              'Streak reset due to $daysSinceLastUpdate days of inactivity');
+              'Streak reset due to $daysSinceLastActive days of inactivity');
         }
       }
     } catch (e) {
@@ -359,7 +413,8 @@ class LeaderboardService {
   /// Evaluate today's total screen time and update streak accordingly.
   /// If total screen time < 8 hours → streak increments by 1
   /// If total screen time >= 8 hours → streak resets to 0
-  /// Uses SharedPrefs to ensure at most one evaluation per day (after 4am reset).
+  /// Checks both SharedPrefs (fast local skip) AND the Firestore doc's
+  /// `lastStreakEvalDate` (source of truth across devices).
   Future<void> evaluateAndUpdateStreak() async {
     try {
       final userId = FirebaseAuthService.instance.userId;
@@ -373,22 +428,31 @@ class LeaderboardService {
       final effectiveDay = now.hour < 4
           ? DateTime(now.year, now.month, now.day - 1)
           : DateTime(now.year, now.month, now.day);
+      final effectiveDayTs = effectiveDay.millisecondsSinceEpoch;
 
-      // Check if already evaluated today (after 4am)
+      // Fast local skip via SharedPrefs
       final prefs = await SharedPreferences.getInstance();
-      final lastEvalTimestamp = prefs.getInt(_lastStreakEvalDateKey);
-      if (lastEvalTimestamp != null) {
-        final lastEvalDate =
-            DateTime.fromMillisecondsSinceEpoch(lastEvalTimestamp);
-        final lastEvalDay = lastEvalDate.hour < 4
-            ? DateTime(lastEvalDate.year, lastEvalDate.month,
-                lastEvalDate.day - 1)
-            : DateTime(lastEvalDate.year, lastEvalDate.month,
-                lastEvalDate.day);
-        if (lastEvalDay == effectiveDay) {
-          debugPrint(
-              'Streak already evaluated for effective day $effectiveDay, skipping');
-          return;
+      final localEvalTs = prefs.getInt(_lastStreakEvalDateKey);
+      if (localEvalTs != null && localEvalTs >= effectiveDayTs) {
+        debugPrint('Streak already evaluated today (local), skipping');
+        return;
+      }
+
+      // Source-of-truth check: read lastStreakEvalDate from Firestore doc
+      final docRef = _firestore.collection('leaderboard').doc(userId);
+      final docSnapshot = await docRef.get();
+      if (docSnapshot.exists) {
+        final firestoreEvalDate = (docSnapshot.data()?['lastStreakEvalDate'] as Timestamp?)?.toDate();
+        if (firestoreEvalDate != null) {
+          final firestoreEvalDay = firestoreEvalDate.hour < 4
+              ? DateTime(firestoreEvalDate.year, firestoreEvalDate.month, firestoreEvalDate.day - 1)
+              : DateTime(firestoreEvalDate.year, firestoreEvalDate.month, firestoreEvalDate.day);
+          if (firestoreEvalDay == effectiveDay) {
+            debugPrint('Streak already evaluated today (Firestore), skipping');
+            // Update local cache to match
+            await prefs.setInt(_lastStreakEvalDateKey, firestoreEvalDate.millisecondsSinceEpoch);
+            return;
+          }
         }
       }
 
@@ -409,11 +473,8 @@ class LeaderboardService {
         'Threshold: ${_screenTimeStreakThresholdSec}s (8 hours)',
       );
 
-      // Get current streak from leaderboard
-      final docRef = _firestore.collection('leaderboard').doc(userId);
-      final snapshot = await docRef.get();
-      final currentStreak = snapshot.exists
-          ? (snapshot.data()?['streak'] ?? 0) as int
+      final currentStreak = docSnapshot.exists
+          ? (docSnapshot.data()?['streak'] ?? 0) as int
           : 0;
 
       int newStreak;
@@ -427,10 +488,18 @@ class LeaderboardService {
         debugPrint('Screen time exceeded 8hrs ✗ — streak reset to 0');
       }
 
-      // Update streak in Firestore
-      await updateStreak(newStreak);
+      // Update streak in Firestore AND stamp lastStreakEvalDate
+      await docRef.set({
+        'streak': newStreak,
+        'lastStreakEvalDate': FieldValue.serverTimestamp(),
+        'lastUpdated': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
-      // Save last evaluation date
+      // Invalidate cache
+      _cachedLeaderboard = null;
+      _lastFetchTime = null;
+
+      // Save last evaluation date locally for fast skip
       await prefs.setInt(_lastStreakEvalDateKey, now.millisecondsSinceEpoch);
 
       debugPrint(
@@ -450,6 +519,23 @@ class LeaderboardService {
       (_) => evaluateAndUpdateStreak(),
     );
     debugPrint('Daily streak evaluation monitor started (6 hour interval)');
+  }
+
+  /// Stamp `lastActiveAt` to mark real user activity (app opened, screen visited).
+  /// This is used by `checkAndResetStreakIfNeeded()` to distinguish genuine
+  /// user presence from batch writes (weekly/monthly reset).
+  Future<void> markActive() async {
+    try {
+      final userId = FirebaseAuthService.instance.userId;
+      if (userId == null) return;
+
+      await _firestore.collection('leaderboard').doc(userId).set({
+        'lastActiveAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      debugPrint('📱 lastActiveAt heartbeat written');
+    } catch (e) {
+      debugPrint('Error marking active: $e');
+    }
   }
 
   /// Stop periodic streak evaluation
@@ -711,7 +797,12 @@ class LeaderboardService {
   /// Manual reset for testing purposes
   /// Forces a weekly reset regardless of time
   /// WARNING: This should only be used for testing!
+  /// GUARD: No-op in release builds — only works in debug/profile mode.
   Future<void> forceWeeklyReset() async {
+    if (kReleaseMode) {
+      debugPrint('🔒 forceWeeklyReset is disabled in release builds');
+      return;
+    }
     try {
       debugPrint('🔴 FORCING WEEKLY RESET (TESTING ONLY)');
       await _resetAllUsersPoints();

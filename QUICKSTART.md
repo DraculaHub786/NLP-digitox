@@ -1,4 +1,3 @@
-# 🚀 Quick Start Guide - Mindful App Customization
 
 ## ✅ What Has Been Done
 
@@ -21,12 +20,7 @@
 1. **Start your Pixel 7 emulator** in Android Studio
 2. **In VS Code:** Press `F5` or click "Run" > "Start Debugging"
 3. **Select your Pixel 7 device** from the list
-4. **App will install and launch**
-
-### Option 2: Using Terminal
-```bash
-# Navigate to project
-cd "c:\Users\afjal\Documents\Final destination\Mindful-main"
+4. **App will install and launch**"
 
 # Run on connected device/emulator
 flutter run
@@ -46,7 +40,7 @@ flutter run
 
 | Table | Purpose |
 |-------|---------|
-| **MindfulSettingsTable** | App-wide settings, theme, language |
+| **SettingsTable** | App-wide settings, theme, language |
 | **AppRestrictionTable** | Per-app time limits and rules |
 | **AppUsageTable** | Daily usage statistics per app |
 | **FocusModeTable** | Focus mode configurations |
@@ -65,7 +59,7 @@ flutter run
 
 1. **Initialization:**
    - App starts → `DriftDbService.instance.database` is created
-   - Database file: `{app_documents}/mindful_db.sqlite`
+   - Database file: `{app_documents}/nlp-digitox_db.sqlite`
    - All tables created automatically if first launch
 
 2. **Data Access:**
@@ -76,7 +70,7 @@ flutter run
 3. **Example Usage:**
 ```dart
 // Get settings
-final settings = await database.uniqueRecordsDao.getMindfulSettings();
+final settings = await database.uniqueRecordsDao.getSettings();
 
 // Get today's app usage
 final usage = await database.dynamicRecordsDao.fetchTodayUsageForAllApps();
@@ -132,7 +126,7 @@ if (authenticated == true) {
 
 **Add Password/PIN:**
 ```dart
-// 1. Add field to MindfulSettingsTable
+// 1. Add field to SettingsTable
 // 2. Store hashed password
 // 3. Create password verification method
 Future<bool> verifyPassword(String password) async {
@@ -197,7 +191,7 @@ android {
 
 **Also rename folder:**
 ```
-android/app/src/main/kotlin/com/mindful/android/
+android/app/src/main/kotlin/com/nlp-digitox/android/
 →
 android/app/src/main/kotlin/com/mycompany/wellbeingapp/
 ```

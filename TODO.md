@@ -1,155 +1,228 @@
-# Task: Fix known bugs in NLP-digitox (sequenced by priority)
+# Task: Restructure onboarding flow
 
-## Context
-Full read-through of `lib/core/services/leaderboard_service.dart` and
-`lib/core/services/firebase_auth_service.dart`. Fix in the order below —
-later items assume earlier ones are done (e.g. don't build the monthly
-reset before the `monthlyPoints` field exists).
+Target sequence
+1. Welcome
+2. About the Statistics (feature)
+3. Focus
+4. Block Distractions
+5. Privacy First
+6. Permissions / "allowance" screen — uses `onboarding_4.png`
+7. Quiz — matched to everything shown above
+8. App starts
 
----
+# Assumption I'm making — confirm before implementation
+6 illustrations exist (`assets/illustrations/onboarding_1.png` through
+`_6.png`), but only 1/2/3 are currently wired up (Focus/Block/Privacy), and
+you explicitly said Permissions uses `onboarding_4.png`. That leaves
+`onboarding_5.png` and `onboarding_6.png` unassigned. I'm assuming:
+- **Welcome → `onboarding_5.png`**
+- **Statistics → `onboarding_6.png`**
 
-## P0 — Breaks the leaderboard/automation outright
-
-### 1. Weekly reset only runs on-device (already being fixed via n8n)
-`checkAndPerformWeeklyReset()` is driven by a `Timer.periodic` in
-`lib/initializer.dart` (lines 77-79) — no device open at/after Monday 4 AM
-means no reset. **Action:** remove the two calls in `initializer.dart`
-(`checkAndPerformWeeklyReset()` and `startWeeklyResetMonitor()`); reset moves
-entirely to the n8n cron job. Keep `getLeaderboardWeekInfo()` — it's
-read-only and fine for a UI countdown.
-
-### 2. `firestore.rules` has no rule for the `leaderboard` collection
-Confirm the updated `firestore.rules` (already provided) is actually
-deployed via `firebase deploy --only firestore:rules` — check this against
-whatever is currently live in the Firebase Console, since the two may differ.
-
-### 3. Mass reset corrupts the "last active" signal used for streak resets
-`checkAndResetStreakIfNeeded()` resets a user's streak if
-`daysSinceLastUpdate > 1`, computed from the `lastUpdated` field. But every
-write to a leaderboard doc — including the **weekly/monthly batch reset** —
-also sets `lastUpdated: FieldValue.serverTimestamp()`. So the moment n8n's
-weekly reset runs, it stamps `lastUpdated` for every user simultaneously,
-which makes a genuinely-inactive user look like they were "just active,"
-defeating the inactivity check the next time it runs.
-**Fix:** add a separate `lastActiveAt` field that is ONLY updated by real
-user activity (`evaluateAndUpdateStreak()`, app opens, point-earning
-actions) — never by the reset job. Update
-`checkAndResetStreakIfNeeded()` to key off `lastActiveAt` instead of
-`lastUpdated`. Leave `lastUpdated` as a generic "last write of any kind"
-field. Make sure n8n's reset write does NOT touch `lastActiveAt`.
-
-### 4. Multi-device streak evaluation is tracked locally, not in Firestore
-`evaluateAndUpdateStreak()`'s "already evaluated today" guard reads/writes
-`SharedPreferences` (`_lastStreakEvalDateKey`) — purely local to one device.
-A user on two devices (or after a reinstall) can have their streak
-incremented or reset twice for the same effective day, since neither device
-knows what the other already did.
-**Fix:** store `lastStreakEvalDate` on the `leaderboard/{uid}` Firestore doc
-itself and check/set it there as the source of truth (keep the local
-SharedPreferences check too, as a fast local skip, but Firestore must win).
-
-### 5. No `monthlyPoints` field exists
-Required for the monthly leaderboard/badge to have any data. Add to the
-`LeaderboardUser` model (`fromFirestore`, `toMap`) and increment it inside
-the same transaction in `addPoints()` that increments `points` and
-`lifetimePoints`. Leave it untouched by the weekly reset; only the monthly
-n8n job resets it.
-
-### 6. No email stored on `leaderboard` or `users` docs
-Blocks all mail automation (covered in the earlier user-profile-data prompt
-— implement that one alongside this list, not separately).
+If you actually want a different pairing (or new artwork instead of reusing
+5/6), say so before starting Task 1 — everything below is written assuming
+this mapping.
 
 ---
 
-## P1 — Real bugs / data hygiene
+# TASK 1 — Add copy for the 2 new slides (Welcome, Statistics)
 
-### 7. `deleteAccount()` never cleans up Firestore data
-`firebase_auth_service.dart`'s `deleteAccount()` deletes the Firebase Auth
-user but leaves `users/{uid}`, `leaderboard/{uid}`, `signup_events/{uid}`,
-`streak_badges_awarded/{uid}`, and any `badges/{...}` entries referencing
-that uid orphaned in Firestore forever.
-**Fix:** before or after calling `_auth.currentUser?.delete()`, batch-delete
-all of the above documents for that uid.
+### 1.1 Add English source strings
+File: `lib/l10n/app_en.arb`
+Add 4 new keys, following the exact naming pattern already used for the
+other 3 slides (`onboarding_page_one_title`, `_one_info`, etc.):
+```
+onboarding_page_welcome_title
+onboarding_page_welcome_info
+onboarding_page_statistics_title
+onboarding_page_statistics_info
+```
+Content should introduce the app (Welcome) and the Statistics/insights
+feature (Statistics) in the same tone as the existing 3 slides — short
+title, 1-2 sentence description.
 
-### 8. No account-linking path for "email exists with different credential"
-If a user signs up with email/password, then later taps "Sign in with
-Google" using the same email address, Firebase throws
-`account-exists-with-different-credential` and the app just shows a generic
-error — there's no way for them to actually link the two sign-in methods.
-**Fix:** on that specific error code, fetch the existing sign-in methods for
-the email (`fetchSignInMethodsForEmail`) and guide the user to sign in with
-their original method, then offer `linkWithCredential` to attach Google as
-an additional provider.
+### 1.2 Regenerate localization bindings
+Run `flutter gen-l10n` (or equivalent build step already used in this repo)
+so `context.locale.onboarding_page_welcome_title` etc. become available as
+typed getters.
 
-### 9. Duplicate dead code
-`reauthenticate(String password)` and `reauthenticateWithPassword(String
-password)` in `firebase_auth_service.dart` are identical methods. Keep one,
-delete the other, update call sites.
-
-### 10. `addPoints()` can silently create an "Anonymous" leaderboard doc
-The transaction in `addPoints()` uses `set(..., merge: true)` and will
-happily create a brand-new leaderboard doc if one doesn't exist yet — but it
-never writes `username`, `avatarEmoji`, or `email`. If `addPoints()` ever
-runs before `updateUserData()` has completed for a new user (a real
-possibility right at signup, since both are fired off close together),
-that user shows up on the leaderboard as "Anonymous" with no email, so the
-mail automation can't reach them either.
-**Fix:** when the transaction detects the doc doesn't exist, seed
-`username`, `email`, and a default `avatarEmoji` from
-`FirebaseAuthService.instance` (`userDisplayName`, `userEmail`) at the same
-time, not just points fields.
-
-### 11. Client logic keys off device-local time, not a fixed timezone
-`DateTime.now()` is used throughout `leaderboard_service.dart`
-(`_getWeekStart`, `evaluateAndUpdateStreak`, etc.) — this is the device's
-local clock, not a canonical app timezone. Removing the client-side weekly
-reset (item #1) mostly neutralizes this for the leaderboard, but
-`evaluateAndUpdateStreak()`'s daily streak logic still has the same
-exposure: a user who changes their phone's timezone (or travels) gets a
-different "day boundary" than everyone else.
-**Decision needed, not just a fix:** either (a) explicitly accept "streak
-days are per-user local time" as intended behavior and document it, or (b)
-compute the effective day from a server timestamp instead of
-`DateTime.now()`. Flag this rather than silently leaving it ambiguous.
+### 1.3 Flag for translation (don't fabricate)
+There are **28 locale files** in `lib/l10n/` (`app_af.arb` through
+`app_zh.arb`). Only add real content to `app_en.arb` in this task — do not
+invent translations for the other 27. Missing keys in non-English `.arb`
+files typically fall back to English at runtime (verify this repo's
+`gen-l10n` config confirms that), so the app won't break, but plan a
+separate translation pass before shipping so non-English users don't see
+English text on 2 of 7 onboarding screens.
 
 ---
 
-## P2 — UX/completeness gaps (lower priority, do after P0/P1)
+## TASK 2 — Reorder the onboarding page sequence
 
-### 12. No `emailVerified` enforcement anywhere
-Once `sendEmailVerification()` is added (per the earlier prompt), nothing in
-the app actually checks or surfaces verification status. Add a soft
-"verify your email" banner/reminder somewhere reasonable (e.g. profile
-screen) — don't hard-block usage on it.
+File: `lib/ui/onboarding/onboarding_screen.dart`, the `_pages` list
+(currently 5 entries: 3x `OnboardingPage`, `PermissionsPage`,
+`OnboardingQuizPage`).
 
-### 13. Leaderboard cache can show stale competitive rankings
-`getTopUsers()` caches results for 5 minutes and is only invalidated by the
-*local* user's own writes — so a user can see a stale Top 100 for up to 5
-minutes after someone else scores. You already have `streamTopUsers()`
-(real-time) implemented but apparently unused in the actual leaderboard
-screen — since the user experience should feel "competitive," consider
-switching the leaderboard UI to `streamTopUsers()` instead of the cached
-`getTopUsers()`.
+### 2.1 Rebuild the list in the new order
+```
+_pages = [
+  OnboardingPage(title: ...welcome_title, imgArtPath: "assets/illustrations/onboarding_5.png", description: ...welcome_info),
+  OnboardingPage(title: ...statistics_title, imgArtPath: "assets/illustrations/onboarding_6.png", description: ...statistics_info),
+  OnboardingPage(title: ...page_one_title, imgArtPath: "assets/illustrations/onboarding_1.png", description: ...page_one_info),      // Focus
+  OnboardingPage(title: ...page_two_title, imgArtPath: "assets/illustrations/onboarding_2.png", description: ...page_two_info),      // Block Distractions
+  OnboardingPage(title: ...page_three_title, imgArtPath: "assets/illustrations/onboarding_3.png", description: ...page_three_info),  // Privacy First
+  const PermissionsPage(),
+  const OnboardingQuizPage(),
+];
+```
+Existing Focus/Block/Privacy `OnboardingPage` entries themselves don't need
+new copy — just reordering.
 
-### 14. `forceWeeklyReset()` has no guard and ships in the app binary
-It's not reachable by end users through normal UI, but make sure it's not
-wired into any debug/test button in a production build — anyone who found a
-way to trigger it would wipe every user's weekly points instantly.
+### 2.2 Sanity-check `_skipToLastPage()` and the returning-user shortcut
+No code change needed here — both already reference `_pages.length - 1`,
+not a hardcoded index, so they'll correctly still land on the quiz page
+after reordering. Just re-verify this after the list change, don't assume.
 
 ---
+
+## TASK 3 — Turn the Permissions page into the "allowance" screen with `onboarding_4.png`
+
+File: `lib/ui/onboarding/permission_page.dart` (262 lines, not yet read in
+full for this task — read it first before editing).
+
+### 3.1 Add the illustration
+Currently `PermissionsPage` likely doesn't use an `OnboardingPage`-style
+illustration layout. Add `onboarding_4.png` at the top, in the same visual
+style as the other slides (see `lib/ui/onboarding/onboarding_page.dart`'s
+`AspectRatio` + `Image.asset` pattern) — but keep whatever actual
+permission-request UI (toggles/buttons per permission) already exists below
+it; this task is about adding the illustration/header, not rebuilding the
+permission-granting mechanics.
+
+### 3.2 Confirm all 4 required permissions are represented
+`onboarding_screen.dart` checks these 4 via `permissionProvider`:
+`haveUsageAccessPermission`, `haveDisplayOverlayPermission`,
+`haveAlarmsPermission`, `haveNotificationPermission`. Read
+`permission_page.dart` and confirm all 4 have a visible request control —
+if any are missing from the UI, add them.
+
+### 3.3 Fix the auto-advance behavior — this is the important one
+Right now, `onboarding_screen.dart`'s `initState()` sets up:
+```dart
+_subscription = ref.listenManual<PermissionsModel>(
+  permissionProvider,
+  (_, perms) {
+    final haveAllEssentialPermissions = ...;
+    if (!haveAllEssentialPermissions) return;
+    _finishOnboarding();       // <-- ends onboarding immediately
+    _subscription?.close();
+  },
+);
+```
+This **ends onboarding the instant all 4 permissions are granted**,
+regardless of which page the user is on — meaning in the new flow, a user
+could finish granting permissions and get dropped straight into the app,
+**skipping the quiz entirely**. Since you explicitly want the quiz to
+always run after permissions, change this listener to advance to the next
+page (the quiz) instead of calling `_finishOnboarding()` directly:
+```dart
+if (!haveAllEssentialPermissions) return;
+_controller.animateToPage(
+  _pages.length - 1,   // quiz is now always the last page
+  duration: _animDuration,
+  curve: _animCurve,
+);
+_subscription?.close();
+```
+Only call `_finishOnboarding()` from the quiz's completion action (see Task
+5).
+
+---
+
+## TASK 4 — Redesign the quiz to reference what was just shown
+
+File: `lib/features/onboarding/quiz.dart` (`OnboardingQuizPage`).
+
+### 4.1 Don't discard the existing persona-fingerprinting logic
+The current quiz isn't just cosmetic — it drives `PersonaService` and
+personalizes the app (Professional/Student/Parent/Senior/Social-User/General
+modes). Keep `_determinePersona()`, `_getPersonaInfo()`, and the underlying
+question→persona mapping intact.
+
+### 4.2 Reframe question copy to reference the onboarding slides
+Rewrite the question text/options (currently generic: "What best describes
+your current situation?", "What is your primary goal?", etc.) so they read
+as a recap tied to what was just shown — e.g. referencing Focus, Block
+Distractions, Privacy, and Statistics by name where it naturally fits the
+existing persona-mapping logic, so it feels like "matching" rather than a
+disconnected generic quiz. This is a copywriting task — I can draft
+suggested question/option text as a follow-up if you want, once the Welcome
+and Statistics copy from Task 1 is finalized (the quiz should reference
+consistent terminology).
+
+### 4.3 Keep the existing 5-question structure unless you want more
+No indication more questions are needed — reuse the current
+`occupation` / `primary_goal` / `biggest_distraction` / `usage_time` /
+`motivation` structure, just re-worded.
+
+---
+
+## TASK 5 — Fix onboarding completion so the app actually starts correctly
+
+### 5.1 The bug
+`_completeQuiz()` → `_showPersonaResult()` in `quiz.dart` currently does:
+```dart
+Navigator.of(context).pop();
+Navigator.of(context).pushReplacementNamed('/home');
+```
+This is a real, pre-existing bug: it never calls
+`mindfulSettingsProvider.notifier.markOnboardingDone()`. So `isOnboardingDone`
+stays `false` in the user's settings. Next time they open the app,
+`splash_screen.dart` checks `settings.isOnboardingDone` and sends them right
+back into onboarding — even though they already completed it.
+
+### 5.2 The fix
+`OnboardingQuizPage` needs access to the same completion path
+`onboarding_screen.dart` uses. Two ways to do this, pick one:
+- **(a)** Have `OnboardingQuizPage` accept an `onComplete` callback passed
+  down from `OnboardingScreen` (which already has `_finishOnboarding()`),
+  and call that instead of navigating directly.
+- **(b)** Have the "Get Started" button call
+  `ref.read(mindfulSettingsProvider.notifier).markOnboardingDone()` directly,
+  then call `NavigationService.instance.init(...)` (matching exactly what
+  `_finishOnboarding()` in `onboarding_screen.dart` already does), instead
+  of a raw `pushReplacementNamed('/home')`.
+
+Option (a) is cleaner (one source of truth for "onboarding is done",
+matching the existing skip/permissions-driven completion paths already in
+`onboarding_screen.dart`) — recommended unless there's a reason
+`OnboardingQuizPage` needs to stay decoupled from its parent.
+
+### 5.3 Verify end-to-end
+After the fix: complete onboarding → force-close the app → relaunch →
+confirm it goes straight to the dashboard, not back into onboarding.
+
+---
+
+## Suggested implementation order
+1. Task 1 (copy) — needed before Task 2 can reference the new keys
+2. Task 2 (reorder pages)
+3. Task 3 (permissions screen + auto-advance fix)
+4. Task 5 (completion bug fix) — do this before Task 4's copy pass so the
+   flow is functionally correct first
+5. Task 4 (quiz copy rewrite) — cosmetic/content pass last, once the
+   structural flow works
 
 ## Acceptance checklist
-- [ ] `initializer.dart` no longer calls the client-side weekly reset
-- [ ] `lastActiveAt` field exists and drives `checkAndResetStreakIfNeeded()`;
-      n8n's reset job never writes to it
-- [ ] Streak "already evaluated today" check reads/writes Firestore, not
-      just local SharedPreferences
-- [ ] `monthlyPoints` exists, increments alongside `points`, untouched by
-      weekly reset
-- [ ] `deleteAccount()` cleans up every Firestore doc tied to that uid
-- [ ] `account-exists-with-different-credential` has a real linking flow
-- [ ] Duplicate reauthenticate method removed
-- [ ] `addPoints()` seeds username/email/avatar on first-ever write, not
-      just points fields
-- [ ] Timezone behavior for streak day-boundary is a documented decision,
-      not an accident
+- [ ] Confirmed image mapping (Welcome=5, Statistics=6) or corrected it
+- [ ] Welcome and Statistics slides show correct copy in English
+- [ ] Other 27 locale files flagged for translation, not fabricated
+- [ ] Page order is: Welcome → Statistics → Focus → Block Distractions →
+      Privacy First → Permissions → Quiz
+- [ ] Permissions page shows `onboarding_4.png` and all 4 required
+      permission controls
+- [ ] Granting all permissions mid-onboarding advances to the quiz, does
+      NOT skip straight into the app
+- [ ] Quiz question copy references Focus/Block/Privacy/Statistics content
+- [ ] Completing the quiz calls `markOnboardingDone()` before navigating in
+- [ ] Force-close + relaunch after completing onboarding goes straight to
+      the dashboard, not back into onboarding

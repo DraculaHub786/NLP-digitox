@@ -52,6 +52,18 @@ service cloud.firestore {
       allow create: if request.auth != null;
     }
     
+    // Leaderboard - all authenticated users can read; each user can write only their own doc
+    match /leaderboard/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Leaderboard config - readable by all authenticated; only service accounts can write
+    match /leaderboard_config/{configDoc} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only n8n cron / admin writes
+    }
+    
     // Public content - readable by all authenticated users
     match /public/{document=**} {
       allow read: if request.auth != null;
