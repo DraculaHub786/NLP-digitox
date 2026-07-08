@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -11,9 +10,6 @@ import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
-import 'package:nlp_digitox/ui/common/glassmorphic_container.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -58,6 +54,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         debugPrint('📝 Creating Firestore user data...');
         await FirestoreService.instance.initializeUserData(
           username: _nameController.text.trim(),
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
           initialSettings: {
             'themeMode': 'system',
             'accentColor': 'Indigo',
@@ -119,6 +117,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         debugPrint('📝 Creating Firestore user data for Google user...');
         await FirestoreService.instance.initializeUserData(
           username: username,
+          name: user?.displayName ?? username,
+          email: user?.email,
           initialSettings: {
             'themeMode': 'system',
             'accentColor': 'Indigo',
@@ -160,287 +160,297 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     }
   }
 
+  InputDecoration _modernFieldDecoration(
+    BuildContext context, {
+    required String label,
+    required String hint,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fillColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+
+    OutlineInputBorder border(Color color, double width) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: color, width: width),
+        );
+
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(prefixIcon, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: fillColor,
+      border: border(borderColor, 1),
+      enabledBorder: border(borderColor, 1),
+      focusedBorder: border(colorScheme.primary, 1.5),
+      errorBorder: border(colorScheme.error, 1),
+      focusedErrorBorder: border(colorScheme.error, 1.5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      body: ModernGradientBackground(
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    /// Modern App Logo with gradient
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.secondary,
-                          ],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                            blurRadius: 30,
-                            offset: const Offset(0, 15),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        FluentIcons.brain_circuit_20_filled,
-                        size: 50.0,
-                        color: Colors.white,
-                      ),
-                    ).animate(effects: DefaultEffects.transitionIn),
-                    
-                    const SizedBox(height: 24.0),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  /// App icon — matches the icon-chip style used across the dashboard
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      FluentIcons.brain_circuit_20_filled,
+                      size: 36.0,
+                      color: colorScheme.primary,
+                    ),
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    /// Title with gradient text
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
-                        ],
-                      ).createShader(bounds),
-                      child: const StyledText(
-                        'Create Account',
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        textAlign: TextAlign.center,
-                        color: Colors.white,
-                      ),
-                    ).animate(effects: DefaultEffects.transitionIn),
+                  const SizedBox(height: 20.0),
 
-                    const SizedBox(height: 8.0),
+                  /// Title
+                  StyledText(
+                    'Create Account',
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
+                    color: colorScheme.onSurface,
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    StyledText(
-                      'Sign up to get started with NLP digitox',
-                      fontSize: 16,
-                      color: theme.brightness == Brightness.dark
-                          ? Colors.white70
-                          : Colors.black54,
-                      textAlign: TextAlign.center,
-                    ).animate(effects: DefaultEffects.transitionIn),
+                  const SizedBox(height: 6.0),
 
-                    const SizedBox(height: 40.0),
+                  StyledText(
+                    'Sign up to get started with NLP digitox',
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    textAlign: TextAlign.center,
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    /// Name Field with glass effect
-                    GlassTextField(
-                      controller: _nameController,
-                      hintText: 'Enter your full name',
-                      labelText: 'Full Name',
+                  const SizedBox(height: 32.0),
+
+                  /// Name field
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: _modernFieldDecoration(
+                      context,
+                      label: 'Full Name',
+                      hint: 'Enter your full name',
                       prefixIcon: FluentIcons.person_20_regular,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
-                        }
-                        return null;
-                      },
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                    /// Email Field with glass effect
-                    GlassTextField(
-                      controller: _emailController,
-                      hintText: 'Enter your email',
-                      labelText: 'Email',
+                  /// Email field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: _modernFieldDecoration(
+                      context,
+                      label: 'Email',
+                      hint: 'Enter your email',
                       prefixIcon: FluentIcons.mail_20_regular,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                    /// Password Field with glass effect
-                    GlassTextField(
-                      controller: _passwordController,
-                      hintText: 'Create a password',
-                      labelText: 'Password',
+                  /// Password field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: _modernFieldDecoration(
+                      context,
+                      label: 'Password',
+                      hint: 'Create a password',
                       prefixIcon: FluentIcons.lock_closed_20_regular,
-                      obscureText: _obscurePassword,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? FluentIcons.eye_20_regular
                               : FluentIcons.eye_off_20_regular,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
                         },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                    /// Confirm Password Field with glass effect
-                    GlassTextField(
-                      controller: _confirmPasswordController,
-                      hintText: 'Re-enter your password',
-                      labelText: 'Confirm Password',
+                  /// Confirm password field
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    decoration: _modernFieldDecoration(
+                      context,
+                      label: 'Confirm Password',
+                      hint: 'Re-enter your password',
                       prefixIcon: FluentIcons.lock_closed_20_regular,
-                      obscureText: _obscureConfirmPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureConfirmPassword
                               ? FluentIcons.eye_20_regular
                               : FluentIcons.eye_off_20_regular,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         onPressed: () {
                           setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
                         },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 32.0),
+                  const SizedBox(height: 28.0),
 
-                    /// Modern Sign Up Button with glass effect
-                    GlassButton(
-                      onPressed: _isLoading ? null : _signup,
-                      width: double.infinity,
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20.0,
-                              width: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Sign Up'),
-                    ).animate(effects: DefaultEffects.transitionIn),
-
-                    const SizedBox(height: 24.0),
-
-                    /// Divider with glass effect
-                    Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: GlassmorphicContainer(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            borderRadius: 12,
-                            opacity: 0.05,
-                            blur: 5,
-                            enableBorder: false,
-                            child: StyledText(
-                              'OR',
-                              fontSize: 12,
-                              color: theme.brightness == Brightness.dark
-                                  ? Colors.white60
-                                  : Colors.black45,
+                  /// Sign up button
+                  FilledButton(
+                    onPressed: _isLoading ? null : _signup,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
                             ),
-                          ),
+                          )
+                        : const Text('Sign Up'),
+                  ).animate(effects: DefaultEffects.transitionIn),
+
+                  const SizedBox(height: 20.0),
+
+                  /// Divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: StyledText(
+                          'OR',
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
-                        const Expanded(child: Divider()),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ).animate(effects: DefaultEffects.transitionIn),
+
+                  const SizedBox(height: 20.0),
+
+                  /// Google sign-in button
+                  OutlinedButton(
+                    onPressed: _isLoading ? null : _signupWithGoogle,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FluentIcons.person_20_regular,
+                          size: 20.0,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Continue with Google',
+                          style: TextStyle(color: colorScheme.primary),
+                        ),
                       ],
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 24.0),
+                  const SizedBox(height: 28.0),
 
-                    /// Google Sign In Button with outlined glass effect
-                    GlassButton(
-                      onPressed: _isLoading ? null : _signupWithGoogle,
-                      width: double.infinity,
-                      isOutlined: true,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            FluentIcons.person_20_regular,
-                            size: 20.0,
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Continue with Google',
-                            style: TextStyle(color: theme.colorScheme.primary),
-                          ),
-                        ],
+                  /// Login link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      StyledText(
+                        'Already have an account? ',
+                        fontSize: 14,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                    ).animate(effects: DefaultEffects.transitionIn),
-
-                    const SizedBox(height: 32.0),
-
-                    /// Login Link with glass background
-                    GlassmorphicContainer(
-                      padding: const EdgeInsets.all(16),
-                      borderRadius: 16,
-                      opacity: 0.05,
-                      blur: 10,
-                      enableBorder: false,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          StyledText(
-                            'Already have an account? ',
-                            fontSize: 14,
-                            color: theme.brightness == Brightness.dark
-                                ? Colors.white70
-                                : Colors.black54,
-                          ),
-                          GestureDetector(
-                            onTap: _isLoading
-                                ? null
-                                : () {
-                                    Navigator.of(context).pushReplacementNamed(
-                                      AppRoutes.loginPath,
-                                    );
-                                  },
-                            child: StyledText(
-                              'Login',
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: _isLoading
+                            ? null
+                            : () {
+                                Navigator.of(context).pushReplacementNamed(
+                                  AppRoutes.loginPath,
+                                );
+                              },
+                        child: StyledText(
+                          'Login',
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
                       ),
-                    ).animate(effects: DefaultEffects.transitionIn),
-                  ],
-                ),
+                    ],
+                  ).animate(effects: DefaultEffects.transitionIn),
+                ],
               ),
             ),
           ),

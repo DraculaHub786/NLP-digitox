@@ -1,5 +1,0 @@
-UNUSED: lib\config\api_keys_template.dart
-UNUSED: lib\core\enums\sorting_type.dart
-UNUSED: lib\core\extensions\ext_iterable.dart
-UNUSED: lib\ui\controllers\scroll_controller_provider.dart
-UNUSED: lib\ui\screens\home\dashboard\sliver_tips_and_tricks.dart

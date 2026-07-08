@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
@@ -27,6 +26,10 @@ class FirestoreService {
   /// Initialize user document (call after signup/signin)
   Future<void> initializeUserData({
     required String username,
+    String? email,
+    String? name,
+    String? phoneNumber,
+    int? age,
     Map<String, dynamic>? initialSettings,
   }) async {
     try {
@@ -39,7 +42,11 @@ class FirestoreService {
       // Only create if doesn't exist
       if (!docSnapshot.exists) {
         await _userDoc!.set({
+          'name': name ?? username,
           'username': username,
+          'email': email ?? FirebaseAuthService.instance.userEmail,
+          if (phoneNumber != null) 'phoneNumber': phoneNumber,
+          if (age != null) 'age': age,
           'createdAt': FieldValue.serverTimestamp(),
           'settings': initialSettings ?? {
             'themeMode': 'system',
@@ -50,7 +57,24 @@ class FirestoreService {
           },
           'lastUpdated': FieldValue.serverTimestamp(),
         });
-        debugPrint('User data initialized');
+        debugPrint('✅ User data initialized for: $username (email: $email)');
+      } else {
+        // If doc exists but missing key fields, merge them
+        final existingData = docSnapshot.data() as Map<String, dynamic>? ?? {};
+        final updates = <String, dynamic>{};
+        
+        if (existingData['email'] == null && email != null) {
+          updates['email'] = email;
+        }
+        if (existingData['name'] == null) {
+          updates['name'] = name ?? username;
+        }
+        
+        if (updates.isNotEmpty) {
+          updates['lastUpdated'] = FieldValue.serverTimestamp();
+          await _userDoc!.update(updates);
+          debugPrint('✅ Existing user doc updated with missing fields');
+        }
       }
     } catch (e) {
       debugPrint('Initialize user data error: $e');

@@ -100,7 +100,7 @@ class TabBedtime extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(20),
@@ -131,7 +131,7 @@ class TabBedtime extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   const BedtimeScheduleCard(),
                 ],
               ),

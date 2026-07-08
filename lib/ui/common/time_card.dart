@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/core/database/adapters/time_of_day_adapter.dart';
@@ -82,8 +81,11 @@ class TimeCard extends StatelessWidget {
                 StyledText(
                   label,
                   isSubtitle: !enabled,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 4.vBox,
+                /// Fully dynamic time display — FittedBox handles all overflow
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Row(
@@ -92,17 +94,16 @@ class TimeCard extends StatelessWidget {
                       /// Time in hour and minutes
                       StyledText(
                         timeParts.firstOrNull ?? timeString,
-                        height: 1,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         isSubtitle: !enabled,
                       ),
                       4.hBox,
-
                       /// Time period AM/PM
                       StyledText(
                         timeParts.elementAtOrNull(1) ?? "",
-                        height: 2,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         isSubtitle: !enabled,
                       ),
                     ],

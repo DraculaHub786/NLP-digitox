@@ -22,11 +22,21 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   final _authService = FirebaseAuthService.instance;
   String? _profileUrl;
   bool _isUploading = false;
+  bool _isEmailVerified = false;
+  bool _isSendingVerification = false;
 
   @override
   void initState() {
     super.initState();
     _loadProfilePic();
+    _checkEmailVerification();
+  }
+
+  void _checkEmailVerification() {
+    final user = _authService.currentUser;
+    if (user != null) {
+      _isEmailVerified = user.emailVerified;
+    }
   }
 
   Future<void> _loadProfilePic() async {
@@ -39,6 +49,27 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       }
     } catch (e) {
       debugPrint('Error loading profile pic: $e');
+    }
+  }
+
+  Future<void> _sendVerificationEmail() async {
+    setState(() => _isSendingVerification = true);
+    try {
+      final sent = await _authService.sendEmailVerification();
+      if (mounted) {
+        if (sent) {
+          context.showSnackAlert('Verification email sent! Check your inbox.');
+        } else {
+          context.showSnackAlert('Email is already verified.');
+          setState(() => _isEmailVerified = true);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        context.showSnackAlert('Failed to send: ${e.toString().replaceAll('Exception: ', '')}');
+      }
+    } finally {
+      if (mounted) setState(() => _isSendingVerification = false);
     }
   }
 
@@ -60,145 +91,91 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 colorScheme,
               ),
 
-              const SizedBox(height: 20),
+              /// Email Verification Banner (soft reminder, not a hard block)
+              if (!_isEmailVerified) ...[
+                12.vBox,
+                _buildEmailVerificationBanner(colorScheme),
+              ],
+
+              20.vBox,
 
               /// Profile Picture Management
               _buildProfileSection(colorScheme),
 
-              const SizedBox(height: 20),
+              20.vBox,
 
               /// Account Actions Card
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              FluentIcons.person_settings_20_regular,
-                              color: colorScheme.primary,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          StyledText(
-                            'Account Actions',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ],
+              _buildResponsiveCard(
+                colorScheme: colorScheme,
+                icon: FluentIcons.person_settings_20_regular,
+                iconColor: colorScheme.primary,
+                title: 'Account Actions',
+                children: [
+                  ModernListTile(
+                    title: 'Change Password',
+                    subtitle: 'Update your account password',
+                    icon: FluentIcons.lock_closed_20_regular,
+                    iconColor: colorScheme.primary,
+                    onTap: () => _showChangePasswordDialog(),
+                  ),
+                  8.vBox,
+                  ModernListTile(
+                    title: 'Change Email',
+                    subtitle: 'Update your email address',
+                    icon: FluentIcons.mail_20_regular,
+                    iconColor: colorScheme.secondary,
+                    onTap: () => _showChangeEmailDialog(),
+                  ),
+                  8.vBox,
+                  ModernListTile(
+                    title: 'Change Display Name',
+                    subtitle: 'Update your profile name',
+                    icon: FluentIcons.person_edit_20_regular,
+                    iconColor: colorScheme.tertiary,
+                    onTap: () => _showChangeNameDialog(),
+                  ),
+                  8.vBox,
+                  ModernListTile(
+                    title: 'Achievements',
+                    subtitle: 'View points, badges, and streaks',
+                    icon: FluentIcons.trophy_20_regular,
+                    iconColor: colorScheme.primary,
+                    showChevron: true,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AchievementsScreen(),
                       ),
                     ),
-                    ModernListTile(
-                      title: 'Change Password',
-                      subtitle: 'Update your account password',
-                      icon: FluentIcons.lock_closed_20_regular,
-                      iconColor: colorScheme.primary,
-                      onTap: () => _showChangePasswordDialog(),
-                    ),
-                    8.vBox,
-                    ModernListTile(
-                      title: 'Change Email',
-                      subtitle: 'Update your email address',
-                      icon: FluentIcons.mail_20_regular,
-                      iconColor: colorScheme.secondary,
-                      onTap: () => _showChangeEmailDialog(),
-                    ),
-                    8.vBox,
-                    ModernListTile(
-                      title: 'Change Display Name',
-                      subtitle: 'Update your profile name',
-                      icon: FluentIcons.person_edit_20_regular,
-                      iconColor: colorScheme.tertiary,
-                      onTap: () => _showChangeNameDialog(),
-                    ),
-                    8.vBox,
-                    ModernListTile(
-                      title: 'Achievements',
-                      subtitle: 'View points, badges, and streaks',
-                      icon: FluentIcons.trophy_20_regular,
-                      iconColor: colorScheme.primary,
-                      showChevron: true,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AchievementsScreen(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
 
               20.vBox,
 
               /// Data Management Card
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              FluentIcons.data_bar_vertical_20_regular,
-                              color: colorScheme.primary,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          StyledText(
-                            'Data Management',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ],
-                      ),
-                    ),
-                    ModernListTile(
-                      title: 'Export My Data',
-                      subtitle: 'Download all your data (GDPR)',
-                      icon: FluentIcons.arrow_download_20_regular,
-                      iconColor: colorScheme.secondary,
-                      showChevron: true,
-                      onTap: () => _exportUserData(),
-                    ),
-                  ],
-                ),
+              _buildResponsiveCard(
+                colorScheme: colorScheme,
+                icon: FluentIcons.data_bar_vertical_20_regular,
+                iconColor: colorScheme.primary,
+                title: 'Data Management',
+                children: [
+                  ModernListTile(
+                    title: 'Export My Data',
+                    subtitle: 'Download all your data (GDPR)',
+                    icon: FluentIcons.arrow_download_20_regular,
+                    iconColor: colorScheme.secondary,
+                    showChevron: true,
+                    onTap: () => _exportUserData(),
+                  ),
+                ],
               ),
 
               20.vBox,
 
               /// Danger Zone Card
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                   borderRadius: BorderRadius.circular(20),
@@ -206,7 +183,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.only(bottom: 12),
                       child: Row(
                         children: [
                           const Icon(
@@ -245,7 +222,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              40.vBox,
             ],
           ),
         ),
@@ -357,10 +334,78 @@ class _TabAccountState extends ConsumerState<TabAccount> {
     );
   }
 
+  Widget _buildEmailVerificationBanner(ColorScheme colorScheme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            FluentIcons.mail_unread_20_filled,
+            color: Colors.orange.shade700,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                StyledText(
+                  'Email not verified',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange.shade800,
+                ),
+                const SizedBox(height: 2),
+                StyledText(
+                  'Please verify your email to secure your account.',
+                  fontSize: 11,
+                  color: Colors.orange.shade700.withValues(alpha: 0.8),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            height: 32,
+            child: FilledButton.tonal(
+              onPressed: _isSendingVerification ? null : _sendVerificationEmail,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                backgroundColor: Colors.orange.withValues(alpha: 0.2),
+                foregroundColor: Colors.orange.shade800,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: _isSendingVerification
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 1.5),
+                    )
+                  : StyledText(
+                      'Verify',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProfileSection(ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(20),
@@ -384,28 +429,32 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 ),
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  StyledText(
-                    'Profile Picture',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  StyledText(
-                    'Upload a photo to personalize your profile',
-                    fontSize: 12,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StyledText(
+                      'Profile Picture',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    StyledText(
+                      'Upload a photo to personalize your profile',
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
               final isNarrow = constraints.maxWidth < 280;
-              final avatarSize = isNarrow ? 56.0 : 80.0;
+              final avatarSize = isNarrow ? 48.0 : 64.0;
               // For narrow screens, switch to vertical layout
               if (isNarrow) {
                 return Column(
@@ -418,7 +467,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                         isLoading: _isUploading,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     FilledButton.icon(
                       onPressed: _isUploading ? null : _uploadProfilePic,
                       icon: _isUploading
@@ -458,39 +507,33 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                       isLoading: _isUploading,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: FilledButton.icon(
-                            onPressed: _isUploading ? null : _uploadProfilePic,
-                            icon: _isUploading
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Icon(FluentIcons.image_add_20_filled),
-                            label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
-                          ),
+                        FilledButton.icon(
+                          onPressed: _isUploading ? null : _uploadProfilePic,
+                          icon: _isUploading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(FluentIcons.image_add_20_filled),
+                          label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
                         ),
                         if (_profileUrl != null && _profileUrl!.isNotEmpty) ...[
                           const SizedBox(height: 8),
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: TextButton.icon(
-                              onPressed: _isUploading ? null : _removeProfilePic,
-                              icon: const Icon(FluentIcons.delete_20_regular),
-                              label: const Text('Remove Photo'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
-                              ),
+                          TextButton.icon(
+                            onPressed: _isUploading ? null : _removeProfilePic,
+                            icon: const Icon(FluentIcons.delete_20_regular),
+                            label: const Text('Remove Photo'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
                             ),
                           ),
                         ],
@@ -501,6 +544,57 @@ class _TabAccountState extends ConsumerState<TabAccount> {
               );
             },
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Reusable responsive card builder that avoids overflow by using compact padding.
+  Widget _buildResponsiveCard({
+    required ColorScheme colorScheme,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: StyledText(
+                    title,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...children,
         ],
       ),
     );

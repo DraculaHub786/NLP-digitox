@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -19,8 +18,6 @@ import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/breathing_widget.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
-import 'package:nlp_digitox/ui/common/glassmorphic_container.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -131,6 +128,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return PopScope(
       onPopInvokedWithResult: (didPop, _) => SystemNavigator.pop(),
       child: Scaffold(
@@ -141,112 +140,89 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
         ),
-        backgroundColor: Colors.transparent,
-        extendBodyBehindAppBar: true,
-        body: ModernGradientBackground(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              /// Modern breathing logo with glassmorphic effect
-              BreathingWidget(
-                dimension: min(320, MediaQuery.of(context).size.width * 0.7),
-                child: GlassmorphicContainer(
-                  borderRadius: 160,
-                  blur: 20,
-                  opacity: 0.1,
-                  padding: const EdgeInsets.all(60),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.secondary,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                          blurRadius: 30,
-                          offset: const Offset(0, 15),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(40),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/logo.png',
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            /// Breathing logo — icon-chip style, consistent with the rest of the app
+            BreathingWidget(
+              dimension: min(220, MediaQuery.of(context).size.width * 0.55),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colorScheme.primary.withValues(alpha: 0.15),
+                ),
+                padding: const EdgeInsets.all(32),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/logo.png',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-
-              Column(
-                children: [
-                  /// Title with gradient
-                  ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.secondary,
-                      ],
-                    ).createShader(bounds),
-                    child: const StyledText(
-                      "NLP digitox",
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  /// Tag line
-                  StyledText(
-                    "Your digital detox companion",
-                    fontSize: 18,
-                    isSubtitle: true,
-                  ),
-                ],
-              ),
-
-              const Divider(color: Colors.transparent),
-              _isAccessProtected
-                  ? GlassButton(
-                      onPressed: _authenticate,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(FluentIcons.fingerprint_20_regular, color: Colors.white),
-                          const SizedBox(width: 12),
-                          Text(context.locale.unlock_button_label),
-                        ],
-                      ),
-                    )
-                  : 0.vBox,
-
-              ///Presence Over Pixels
-              GlassmorphicContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                borderRadius: 16,
-                opacity: 0.05,
-                blur: 10,
-                child: const StyledText(
-                  "Presence Over Pixels",
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ].animate(
-              effects: DefaultEffects.transitionIn,
-              delay: 100.ms,
-              interval: 100.ms,
             ),
+
+            Column(
+              children: [
+                /// Title
+                StyledText(
+                  "NLP digitox",
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+
+                const SizedBox(height: 10),
+
+                /// Tag line
+                StyledText(
+                  "Your digital detox companion",
+                  fontSize: 16,
+                  isSubtitle: true,
+                ),
+              ],
+            ),
+
+            const Divider(color: Colors.transparent),
+            _isAccessProtected
+                ? FilledButton(
+                    onPressed: _authenticate,
+                    style: FilledButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(FluentIcons.fingerprint_20_regular),
+                        const SizedBox(width: 12),
+                        Text(context.locale.unlock_button_label),
+                      ],
+                    ),
+                  )
+                : 0.vBox,
+
+            ///Presence Over Pixels
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+              ),
+              child: const StyledText(
+                "Presence Over Pixels",
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ].animate(
+            effects: DefaultEffects.transitionIn,
+            delay: 100.ms,
+            interval: 100.ms,
           ),
         ),
       ),

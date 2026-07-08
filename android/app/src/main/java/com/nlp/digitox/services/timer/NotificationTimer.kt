@@ -51,7 +51,7 @@ class NotificationTimer(
 
     private val notificationBuilder: NotificationCompat.Builder =
         NotificationCompat.Builder(context, notificationChannelId)
-            .setSmallIcon(R.drawable.ic_mindful_notification)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)

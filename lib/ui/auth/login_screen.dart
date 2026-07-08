@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -9,9 +8,6 @@ import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
-import 'package:nlp_digitox/ui/common/modern_background.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
-import 'package:nlp_digitox/ui/common/glassmorphic_container.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -117,241 +113,244 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  InputDecoration _modernFieldDecoration(
+    BuildContext context, {
+    required String label,
+    required String hint,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fillColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+
+    OutlineInputBorder border(Color color, double width) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: color, width: width),
+        );
+
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(prefixIcon, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: fillColor,
+      border: border(borderColor, 1),
+      enabledBorder: border(borderColor, 1),
+      focusedBorder: border(colorScheme.primary, 1.5),
+      errorBorder: border(colorScheme.error, 1),
+      focusedErrorBorder: border(colorScheme.error, 1.5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      body: ModernGradientBackground(
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    /// Modern App Logo with gradient
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.secondary,
-                          ],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                            blurRadius: 30,
-                            offset: const Offset(0, 15),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        FluentIcons.brain_circuit_20_filled,
-                        size: 50.0,
-                        color: Colors.white,
-                      ),
-                    ).animate(effects: DefaultEffects.transitionIn),
-                    
-                    const SizedBox(height: 24.0),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  /// App icon — matches the icon-chip style used across the dashboard
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      FluentIcons.brain_circuit_20_filled,
+                      size: 36.0,
+                      color: colorScheme.primary,
+                    ),
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    /// Title with gradient text
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
-                        ],
-                      ).createShader(bounds),
-                      child: const StyledText(
-                        'Welcome Back',
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        textAlign: TextAlign.center,
-                        color: Colors.white,
-                      ),
-                    ).animate(effects: DefaultEffects.transitionIn),
+                  const SizedBox(height: 20.0),
 
-                    const SizedBox(height: 8.0),
+                  /// Title
+                  StyledText(
+                    'Welcome Back',
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
+                    color: colorScheme.onSurface,
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    StyledText(
-                      'Sign in to continue your digital detox journey',
-                      fontSize: 16,
-                      color: theme.brightness == Brightness.dark
-                          ? Colors.white70
-                          : Colors.black54,
-                      textAlign: TextAlign.center,
-                    ).animate(effects: DefaultEffects.transitionIn),
+                  const SizedBox(height: 6.0),
 
-                    const SizedBox(height: 48.0),
+                  StyledText(
+                    'Sign in to continue your digital detox journey',
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    textAlign: TextAlign.center,
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    /// Email Field with glass effect
-                    GlassTextField(
-                      controller: _emailController,
-                      hintText: 'Enter your email',
-                      labelText: 'Email',
+                  const SizedBox(height: 40.0),
+
+                  /// Email field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: _modernFieldDecoration(
+                      context,
+                      label: 'Email',
+                      hint: 'Enter your email',
                       prefixIcon: FluentIcons.mail_20_regular,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 20.0),
+                  const SizedBox(height: 16.0),
 
-                    /// Password Field with glass effect
-                    GlassTextField(
-                      controller: _passwordController,
-                      hintText: 'Enter your password',
-                      labelText: 'Password',
+                  /// Password field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: _modernFieldDecoration(
+                      context,
+                      label: 'Password',
+                      hint: 'Enter your password',
                       prefixIcon: FluentIcons.lock_closed_20_regular,
-                      obscureText: _obscurePassword,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? FluentIcons.eye_20_regular
                               : FluentIcons.eye_off_20_regular,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
                         },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 32.0),
+                  const SizedBox(height: 28.0),
 
-                    /// Modern Login Button with glass effect
-                    GlassButton(
-                      onPressed: _isLoading ? null : _login,
-                      width: double.infinity,
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20.0,
-                              width: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Login'),
-                    ).animate(effects: DefaultEffects.transitionIn),
-
-                    const SizedBox(height: 24.0),
-
-                    /// Divider with glass effect
-                    Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: GlassmorphicContainer(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            borderRadius: 12,
-                            opacity: 0.05,
-                            blur: 5,
-                            enableBorder: false,
-                            child: StyledText(
-                              'OR',
-                              fontSize: 12,
-                              color: theme.brightness == Brightness.dark
-                                  ? Colors.white60
-                                  : Colors.black45,
+                  /// Login button
+                  FilledButton(
+                    onPressed: _isLoading ? null : _login,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
                             ),
-                          ),
+                          )
+                        : const Text('Login'),
+                  ).animate(effects: DefaultEffects.transitionIn),
+
+                  const SizedBox(height: 20.0),
+
+                  /// Divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: StyledText(
+                          'OR',
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
-                        const Expanded(child: Divider()),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ).animate(effects: DefaultEffects.transitionIn),
+
+                  const SizedBox(height: 20.0),
+
+                  /// Google sign-in button
+                  OutlinedButton(
+                    onPressed: _isLoading ? null : _loginWithGoogle,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FluentIcons.person_20_regular,
+                          size: 20.0,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Continue with Google',
+                          style: TextStyle(color: colorScheme.primary),
+                        ),
                       ],
-                    ).animate(effects: DefaultEffects.transitionIn),
+                    ),
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                    const SizedBox(height: 24.0),
+                  const SizedBox(height: 28.0),
 
-                    /// Google Sign In Button with outlined glass effect
-                    GlassButton(
-                      onPressed: _isLoading ? null : _loginWithGoogle,
-                      width: double.infinity,
-                      isOutlined: true,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            FluentIcons.person_20_regular,
-                            size: 20.0,
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Continue with Google',
-                            style: TextStyle(color: theme.colorScheme.primary),
-                          ),
-                        ],
+                  /// Sign up link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      StyledText(
+                        "Don't have an account? ",
+                        fontSize: 14,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                    ).animate(effects: DefaultEffects.transitionIn),
-
-                    const SizedBox(height: 32.0),
-
-                    /// Sign Up Link with glass background
-                    GlassmorphicContainer(
-                      padding: const EdgeInsets.all(16),
-                      borderRadius: 16,
-                      opacity: 0.05,
-                      blur: 10,
-                      enableBorder: false,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          StyledText(
-                            "Don't have an account? ",
-                            fontSize: 14,
-                            color: theme.brightness == Brightness.dark
-                                ? Colors.white70
-                                : Colors.black54,
-                          ),
-                          GestureDetector(
-                            onTap: _isLoading
-                                ? null
-                                : () {
-                                    Navigator.of(context).pushReplacementNamed(
-                                      AppRoutes.signupPath,
-                                    );
-                                  },
-                            child: StyledText(
-                              'Sign Up',
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: _isLoading
+                            ? null
+                            : () {
+                                Navigator.of(context).pushReplacementNamed(
+                                  AppRoutes.signupPath,
+                                );
+                              },
+                        child: StyledText(
+                          'Sign Up',
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
                       ),
-                    ).animate(effects: DefaultEffects.transitionIn),
-                  ],
-                ),
+                    ],
+                  ).animate(effects: DefaultEffects.transitionIn),
+                ],
               ),
             ),
           ),

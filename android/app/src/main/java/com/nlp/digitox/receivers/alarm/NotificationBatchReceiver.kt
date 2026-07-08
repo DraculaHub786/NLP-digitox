@@ -105,7 +105,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
                 context,
                 NotificationHelper.NOTIFICATION_BATCHING_CHANNEL_ID
             )
-                .setSmallIcon(R.drawable.ic_mindful_notification)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.notification_schedule_batch_title))
                 .setContentIntent(mindfulPendingIntent)
@@ -175,7 +175,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
                             context,
                             NotificationHelper.CRITICAL_CHANNEL_ID
                         )
-                            .setSmallIcon(R.drawable.ic_mindful_notification)
+                            .setSmallIcon(R.mipmap.ic_launcher)
                             .setLargeIcon(appIcon)
                             .setContentTitle(appName)
                             .setGroup(packageName)
@@ -210,7 +210,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
                         context,
                         NotificationHelper.NOTIFICATION_BATCHING_CHANNEL_ID
                     )
-                        .setSmallIcon(R.drawable.ic_mindful_notification)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setStyle(summaryStyle)
                         .setGroup(packageName)
                         .setGroupSummary(true)

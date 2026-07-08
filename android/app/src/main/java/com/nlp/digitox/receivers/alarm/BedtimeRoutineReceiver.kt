@@ -150,7 +150,7 @@ class BedtimeRoutineReceiver : BroadcastReceiver() {
                     context,
                     NotificationHelper.BEDTIME_CHANNEL_ID
                 )
-                    .setSmallIcon(R.drawable.ic_mindful_notification)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     .setOngoing(false)
                     .setOnlyAlertOnce(true)
                     .setContentIntent(

@@ -463,6 +463,20 @@ class AppLocalizationsUk extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Завершити налаштування';
 
   @override
+  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+
+  @override
+  String get onboarding_page_welcome_info =>
+      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+
+  @override
+  String get onboarding_page_statistics_title => 'Know Your Habits.';
+
+  @override
+  String get onboarding_page_statistics_info =>
+      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+
+  @override
   String get onboarding_page_one_title => 'Опануйте Зосередження.';
 
   @override
