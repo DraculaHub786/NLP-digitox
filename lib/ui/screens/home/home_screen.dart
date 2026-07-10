@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
@@ -15,14 +13,13 @@ import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
 import 'package:nlp_digitox/ui/screens/home/bedtime/tab_bedtime.dart';
-import 'package:nlp_digitox/ui/screens/home/dashboard/focus_now_fab.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/settings_fab.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/greetings_username.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/tab_dashboard.dart';
 import 'package:nlp_digitox/ui/screens/home/notifications/new_notification_schedule_fab.dart';
 import 'package:nlp_digitox/ui/screens/home/statistics/tab_statistics.dart';
 import 'package:nlp_digitox/ui/screens/home/notifications/tab_notifications.dart';
 import 'package:nlp_digitox/ui/screens/leaderboard/leaderboard_screen.dart';
-import 'package:nlp_digitox/ui/transitions/default_hero.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -82,10 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             filledIcon: FluentIcons.home_20_filled,
             sliverBody: const TabDashboard(),
             titleBuilder: (_) => const GreetingsUsername(),
-            fab: const FocusNowFab(),
-            actions: const [
-              _SettingsButton(),
-            ],
+            fab: const SettingsFab(),
           ),
           NavbarItem(
             titleText: context.locale.statistics_tab_title,
@@ -113,35 +107,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             sliverBody: const LeaderboardScreen(),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SettingsButton extends StatelessWidget {
-  const _SettingsButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return DefaultHero(
-      tag: HeroTags.donationDialogTag,
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-        ),
-        child: IconButton(
-          icon: Icon(
-            FluentIcons.settings_20_filled,
-            color: colorScheme.onSurface,
-          ),
-          onPressed: () =>
-              Navigator.of(context).pushNamed(AppRoutes.settingsPath),
-        ),
       ),
     );
   }

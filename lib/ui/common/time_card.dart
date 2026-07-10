@@ -60,6 +60,7 @@ class TimeCard extends StatelessWidget {
             : null,
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             /// Icon
             if (icon != null)
@@ -72,44 +73,58 @@ class TimeCard extends StatelessWidget {
                 ),
               ),
 
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// Label
-                StyledText(
-                  label,
-                  isSubtitle: !enabled,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                4.vBox,
-                /// Fully dynamic time display — FittedBox handles all overflow
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      /// Time in hour and minutes
-                      StyledText(
-                        timeParts.firstOrNull ?? timeString,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        isSubtitle: !enabled,
-                      ),
-                      4.hBox,
-                      /// Time period AM/PM
-                      StyledText(
-                        timeParts.elementAtOrNull(1) ?? "",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        isSubtitle: !enabled,
-                      ),
-                    ],
+            /// Flexible forces this column to be laid out within the space
+            /// actually left over in the Row, instead of being sized to its
+            /// own natural (unbounded) content width. Without this, the
+            /// FittedBox below only receives a loose width suggestion, not
+            /// an enforced one, which is what was causing the few-pixel
+            /// RenderFlex overflow on narrow screens.
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// Label
+                  StyledText(
+                    label,
+                    isSubtitle: !enabled,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                  4.vBox,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        /// Time in hour and minutes
+                        StyledText(
+                          timeParts.firstOrNull ?? timeString,
+                          height: 1,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          isSubtitle: !enabled,
+                          maxLines: 1,
+                          overflow: TextOverflow.visible,
+                        ),
+                        4.hBox,
+
+                        /// Time period AM/PM
+                        StyledText(
+                          timeParts.elementAtOrNull(1) ?? "",
+                          height: 2,
+                          isSubtitle: !enabled,
+                          maxLines: 1,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
