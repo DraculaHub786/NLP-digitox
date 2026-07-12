@@ -17,6 +17,7 @@ import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/sliver_ai_analysis.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/sliver_funny_motivation.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_glance_cards.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -76,6 +77,9 @@ class TabDashboard extends ConsumerWidget {
               interval: 80.ms,
             ),
           ),
+
+          /// Funny Motivation — dismissible, tonally separate from AI Analysis
+          const SliverFunnyMotivation(),
 
           /// AI Analysis Section - KEEP EXACTLY AS IS
           const SliverAIAnalysis(),

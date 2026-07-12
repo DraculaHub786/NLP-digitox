@@ -4279,7 +4279,15 @@ class $WellbeingTableTable extends WellbeingTable
       'allowed_shorts_time_sec', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
-      defaultValue: const Constant(30 * 60));
+      defaultValue: const Constant(7 * 60 * 60));
+  static const VerificationMeta _dailyScreenTimeGoalSecMeta =
+      const VerificationMeta('dailyScreenTimeGoalSec');
+  @override
+  late final GeneratedColumn<int> dailyScreenTimeGoalSec = GeneratedColumn<int>(
+      'daily_screen_time_goal_sec', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(4 * 60 * 60));
   @override
   late final GeneratedColumnWithTypeConverter<List<PlatformFeatures>, String>
       blockedFeatures = GeneratedColumn<String>(
@@ -4321,6 +4329,7 @@ class $WellbeingTableTable extends WellbeingTable
   List<GeneratedColumn> get $columns => [
         id,
         allowedShortsTimeSec,
+        dailyScreenTimeGoalSec,
         blockedFeatures,
         blockNsfwSites,
         blockedWebsites,
@@ -4345,6 +4354,13 @@ class $WellbeingTableTable extends WellbeingTable
           allowedShortsTimeSec.isAcceptableOrUnknown(
               data['allowed_shorts_time_sec']!, _allowedShortsTimeSecMeta));
     }
+    if (data.containsKey('daily_screen_time_goal_sec')) {
+      context.handle(
+          _dailyScreenTimeGoalSecMeta,
+          dailyScreenTimeGoalSec.isAcceptableOrUnknown(
+              data['daily_screen_time_goal_sec']!,
+              _dailyScreenTimeGoalSecMeta));
+    }
     if (data.containsKey('block_nsfw_sites')) {
       context.handle(
           _blockNsfwSitesMeta,
@@ -4364,6 +4380,9 @@ class $WellbeingTableTable extends WellbeingTable
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       allowedShortsTimeSec: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}allowed_shorts_time_sec'])!,
+      dailyScreenTimeGoalSec: attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}daily_screen_time_goal_sec'])!,
       blockedFeatures: $WellbeingTableTable.$converterblockedFeatures.fromSql(
           attachedDatabase.typeMapping.read(DriftSqlType.string,
               data['${effectivePrefix}blocked_features'])!),
@@ -4399,6 +4418,11 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
   /// Allowed time for short content in SECONDS
   final int allowedShortsTimeSec;
 
+  /// Daily screen-time goal in SECONDS (used by sentiment analysis, AI features).
+  /// Separate from the Shorts time limit — this is a general daily screen time
+  /// target the user sets for themselves. Default 4 hours (14400 sec).
+  final int dailyScreenTimeGoalSec;
+
   /// List of feature which are blocked
   final List<PlatformFeatures> blockedFeatures;
 
@@ -4414,6 +4438,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
   const Wellbeing(
       {required this.id,
       required this.allowedShortsTimeSec,
+      required this.dailyScreenTimeGoalSec,
       required this.blockedFeatures,
       required this.blockNsfwSites,
       required this.blockedWebsites,
@@ -4423,6 +4448,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['allowed_shorts_time_sec'] = Variable<int>(allowedShortsTimeSec);
+    map['daily_screen_time_goal_sec'] = Variable<int>(dailyScreenTimeGoalSec);
     {
       map['blocked_features'] = Variable<String>($WellbeingTableTable
           .$converterblockedFeatures
@@ -4445,6 +4471,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
     return WellbeingTableCompanion(
       id: Value(id),
       allowedShortsTimeSec: Value(allowedShortsTimeSec),
+      dailyScreenTimeGoalSec: Value(dailyScreenTimeGoalSec),
       blockedFeatures: Value(blockedFeatures),
       blockNsfwSites: Value(blockNsfwSites),
       blockedWebsites: Value(blockedWebsites),
@@ -4459,6 +4486,8 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
       id: serializer.fromJson<int>(json['id']),
       allowedShortsTimeSec:
           serializer.fromJson<int>(json['allowedShortsTimeSec']),
+      dailyScreenTimeGoalSec:
+          serializer.fromJson<int>(json['dailyScreenTimeGoalSec']),
       blockedFeatures:
           serializer.fromJson<List<PlatformFeatures>>(json['blockedFeatures']),
       blockNsfwSites: serializer.fromJson<bool>(json['blockNsfwSites']),
@@ -4473,6 +4502,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'allowedShortsTimeSec': serializer.toJson<int>(allowedShortsTimeSec),
+      'dailyScreenTimeGoalSec': serializer.toJson<int>(dailyScreenTimeGoalSec),
       'blockedFeatures':
           serializer.toJson<List<PlatformFeatures>>(blockedFeatures),
       'blockNsfwSites': serializer.toJson<bool>(blockNsfwSites),
@@ -4484,6 +4514,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
   Wellbeing copyWith(
           {int? id,
           int? allowedShortsTimeSec,
+          int? dailyScreenTimeGoalSec,
           List<PlatformFeatures>? blockedFeatures,
           bool? blockNsfwSites,
           List<String>? blockedWebsites,
@@ -4491,6 +4522,8 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
       Wellbeing(
         id: id ?? this.id,
         allowedShortsTimeSec: allowedShortsTimeSec ?? this.allowedShortsTimeSec,
+        dailyScreenTimeGoalSec:
+            dailyScreenTimeGoalSec ?? this.dailyScreenTimeGoalSec,
         blockedFeatures: blockedFeatures ?? this.blockedFeatures,
         blockNsfwSites: blockNsfwSites ?? this.blockNsfwSites,
         blockedWebsites: blockedWebsites ?? this.blockedWebsites,
@@ -4502,6 +4535,9 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
       allowedShortsTimeSec: data.allowedShortsTimeSec.present
           ? data.allowedShortsTimeSec.value
           : this.allowedShortsTimeSec,
+      dailyScreenTimeGoalSec: data.dailyScreenTimeGoalSec.present
+          ? data.dailyScreenTimeGoalSec.value
+          : this.dailyScreenTimeGoalSec,
       blockedFeatures: data.blockedFeatures.present
           ? data.blockedFeatures.value
           : this.blockedFeatures,
@@ -4522,6 +4558,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
     return (StringBuffer('Wellbeing(')
           ..write('id: $id, ')
           ..write('allowedShortsTimeSec: $allowedShortsTimeSec, ')
+          ..write('dailyScreenTimeGoalSec: $dailyScreenTimeGoalSec, ')
           ..write('blockedFeatures: $blockedFeatures, ')
           ..write('blockNsfwSites: $blockNsfwSites, ')
           ..write('blockedWebsites: $blockedWebsites, ')
@@ -4531,14 +4568,21 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
   }
 
   @override
-  int get hashCode => Object.hash(id, allowedShortsTimeSec, blockedFeatures,
-      blockNsfwSites, blockedWebsites, nsfwWebsites);
+  int get hashCode => Object.hash(
+      id,
+      allowedShortsTimeSec,
+      dailyScreenTimeGoalSec,
+      blockedFeatures,
+      blockNsfwSites,
+      blockedWebsites,
+      nsfwWebsites);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Wellbeing &&
           other.id == this.id &&
           other.allowedShortsTimeSec == this.allowedShortsTimeSec &&
+          other.dailyScreenTimeGoalSec == this.dailyScreenTimeGoalSec &&
           other.blockedFeatures == this.blockedFeatures &&
           other.blockNsfwSites == this.blockNsfwSites &&
           other.blockedWebsites == this.blockedWebsites &&
@@ -4548,6 +4592,7 @@ class Wellbeing extends DataClass implements Insertable<Wellbeing> {
 class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
   final Value<int> id;
   final Value<int> allowedShortsTimeSec;
+  final Value<int> dailyScreenTimeGoalSec;
   final Value<List<PlatformFeatures>> blockedFeatures;
   final Value<bool> blockNsfwSites;
   final Value<List<String>> blockedWebsites;
@@ -4555,6 +4600,7 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
   const WellbeingTableCompanion({
     this.id = const Value.absent(),
     this.allowedShortsTimeSec = const Value.absent(),
+    this.dailyScreenTimeGoalSec = const Value.absent(),
     this.blockedFeatures = const Value.absent(),
     this.blockNsfwSites = const Value.absent(),
     this.blockedWebsites = const Value.absent(),
@@ -4563,6 +4609,7 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
   WellbeingTableCompanion.insert({
     this.id = const Value.absent(),
     this.allowedShortsTimeSec = const Value.absent(),
+    this.dailyScreenTimeGoalSec = const Value.absent(),
     this.blockedFeatures = const Value.absent(),
     this.blockNsfwSites = const Value.absent(),
     this.blockedWebsites = const Value.absent(),
@@ -4571,6 +4618,7 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
   static Insertable<Wellbeing> custom({
     Expression<int>? id,
     Expression<int>? allowedShortsTimeSec,
+    Expression<int>? dailyScreenTimeGoalSec,
     Expression<String>? blockedFeatures,
     Expression<bool>? blockNsfwSites,
     Expression<String>? blockedWebsites,
@@ -4580,6 +4628,8 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
       if (id != null) 'id': id,
       if (allowedShortsTimeSec != null)
         'allowed_shorts_time_sec': allowedShortsTimeSec,
+      if (dailyScreenTimeGoalSec != null)
+        'daily_screen_time_goal_sec': dailyScreenTimeGoalSec,
       if (blockedFeatures != null) 'blocked_features': blockedFeatures,
       if (blockNsfwSites != null) 'block_nsfw_sites': blockNsfwSites,
       if (blockedWebsites != null) 'blocked_websites': blockedWebsites,
@@ -4590,6 +4640,7 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
   WellbeingTableCompanion copyWith(
       {Value<int>? id,
       Value<int>? allowedShortsTimeSec,
+      Value<int>? dailyScreenTimeGoalSec,
       Value<List<PlatformFeatures>>? blockedFeatures,
       Value<bool>? blockNsfwSites,
       Value<List<String>>? blockedWebsites,
@@ -4597,6 +4648,8 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
     return WellbeingTableCompanion(
       id: id ?? this.id,
       allowedShortsTimeSec: allowedShortsTimeSec ?? this.allowedShortsTimeSec,
+      dailyScreenTimeGoalSec:
+          dailyScreenTimeGoalSec ?? this.dailyScreenTimeGoalSec,
       blockedFeatures: blockedFeatures ?? this.blockedFeatures,
       blockNsfwSites: blockNsfwSites ?? this.blockNsfwSites,
       blockedWebsites: blockedWebsites ?? this.blockedWebsites,
@@ -4613,6 +4666,10 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
     if (allowedShortsTimeSec.present) {
       map['allowed_shorts_time_sec'] =
           Variable<int>(allowedShortsTimeSec.value);
+    }
+    if (dailyScreenTimeGoalSec.present) {
+      map['daily_screen_time_goal_sec'] =
+          Variable<int>(dailyScreenTimeGoalSec.value);
     }
     if (blockedFeatures.present) {
       map['blocked_features'] = Variable<String>($WellbeingTableTable
@@ -4640,6 +4697,7 @@ class WellbeingTableCompanion extends UpdateCompanion<Wellbeing> {
     return (StringBuffer('WellbeingTableCompanion(')
           ..write('id: $id, ')
           ..write('allowedShortsTimeSec: $allowedShortsTimeSec, ')
+          ..write('dailyScreenTimeGoalSec: $dailyScreenTimeGoalSec, ')
           ..write('blockedFeatures: $blockedFeatures, ')
           ..write('blockNsfwSites: $blockNsfwSites, ')
           ..write('blockedWebsites: $blockedWebsites, ')
@@ -8067,6 +8125,7 @@ typedef $$WellbeingTableTableCreateCompanionBuilder = WellbeingTableCompanion
     Function({
   Value<int> id,
   Value<int> allowedShortsTimeSec,
+  Value<int> dailyScreenTimeGoalSec,
   Value<List<PlatformFeatures>> blockedFeatures,
   Value<bool> blockNsfwSites,
   Value<List<String>> blockedWebsites,
@@ -8076,6 +8135,7 @@ typedef $$WellbeingTableTableUpdateCompanionBuilder = WellbeingTableCompanion
     Function({
   Value<int> id,
   Value<int> allowedShortsTimeSec,
+  Value<int> dailyScreenTimeGoalSec,
   Value<List<PlatformFeatures>> blockedFeatures,
   Value<bool> blockNsfwSites,
   Value<List<String>> blockedWebsites,
@@ -8096,6 +8156,10 @@ class $$WellbeingTableTableFilterComposer
 
   ColumnFilters<int> get allowedShortsTimeSec => $composableBuilder(
       column: $table.allowedShortsTimeSec,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dailyScreenTimeGoalSec => $composableBuilder(
+      column: $table.dailyScreenTimeGoalSec,
       builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<List<PlatformFeatures>, List<PlatformFeatures>,
@@ -8135,6 +8199,10 @@ class $$WellbeingTableTableOrderingComposer
       column: $table.allowedShortsTimeSec,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get dailyScreenTimeGoalSec => $composableBuilder(
+      column: $table.dailyScreenTimeGoalSec,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get blockedFeatures => $composableBuilder(
       column: $table.blockedFeatures,
       builder: (column) => ColumnOrderings(column));
@@ -8166,6 +8234,9 @@ class $$WellbeingTableTableAnnotationComposer
 
   GeneratedColumn<int> get allowedShortsTimeSec => $composableBuilder(
       column: $table.allowedShortsTimeSec, builder: (column) => column);
+
+  GeneratedColumn<int> get dailyScreenTimeGoalSec => $composableBuilder(
+      column: $table.dailyScreenTimeGoalSec, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<List<PlatformFeatures>, String>
       get blockedFeatures => $composableBuilder(
@@ -8209,6 +8280,7 @@ class $$WellbeingTableTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> allowedShortsTimeSec = const Value.absent(),
+            Value<int> dailyScreenTimeGoalSec = const Value.absent(),
             Value<List<PlatformFeatures>> blockedFeatures =
                 const Value.absent(),
             Value<bool> blockNsfwSites = const Value.absent(),
@@ -8218,6 +8290,7 @@ class $$WellbeingTableTableTableManager extends RootTableManager<
               WellbeingTableCompanion(
             id: id,
             allowedShortsTimeSec: allowedShortsTimeSec,
+            dailyScreenTimeGoalSec: dailyScreenTimeGoalSec,
             blockedFeatures: blockedFeatures,
             blockNsfwSites: blockNsfwSites,
             blockedWebsites: blockedWebsites,
@@ -8226,6 +8299,7 @@ class $$WellbeingTableTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> allowedShortsTimeSec = const Value.absent(),
+            Value<int> dailyScreenTimeGoalSec = const Value.absent(),
             Value<List<PlatformFeatures>> blockedFeatures =
                 const Value.absent(),
             Value<bool> blockNsfwSites = const Value.absent(),
@@ -8235,6 +8309,7 @@ class $$WellbeingTableTableTableManager extends RootTableManager<
               WellbeingTableCompanion.insert(
             id: id,
             allowedShortsTimeSec: allowedShortsTimeSec,
+            dailyScreenTimeGoalSec: dailyScreenTimeGoalSec,
             blockedFeatures: blockedFeatures,
             blockNsfwSites: blockNsfwSites,
             blockedWebsites: blockedWebsites,

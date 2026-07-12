@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -371,6 +370,41 @@ class MethodChannelService {
         'getAndAskNotificationAccessPermission',
         askPermissionToo,
       );
+
+  // ===========================================================================================
+  // ========================== ACCESSIBILITY SERVICE STATUS ===================================
+  // ===========================================================================================
+
+  /// Checks whether the accessibility service *process* is currently running/alive.
+  /// Unlike [getAndAskAccessibilityPermission], this returns runtime liveness:
+  /// `true` = service process is active, `false` = killed by OEM.
+  Future<bool> isAccessibilityServiceActive() async =>
+      await _methodChannel.invokeMethod('isAccessibilityServiceActive') ?? false;
+
+  /// Checks whether the accessibility service is in the "paused" state — i.e.
+  /// permission is granted but the service process was found dead on the last
+  /// keep-alive heartbeat. Flutter UI uses this to show a lightweight reconnect
+  /// nudge instead of a full re-permission prompt.
+  Future<bool> isAccessibilityServicePaused() async =>
+      await _methodChannel.invokeMethod('isAccessibilityServicePaused') ?? false;
+
+  /// Clears the "paused" flag on the native side (called when user taps "resume"
+  /// or the service is confirmed active again).
+  Future<void> clearAccessibilityServicePausedFlag() async =>
+      await _methodChannel.invokeMethod('clearAccessibilityServicePausedFlag');
+
+  /// Checks whether Device Admin permission was previously granted but has been
+  /// silently revoked by the OEM (detected by the keep-alive heartbeat on the
+  /// native side). When true, the UI should show a lightweight one-tap re-enable
+  /// nudge instead of requiring the user to discover it on their own.
+  Future<bool> isDeviceAdminRevoked() async =>
+      await _methodChannel.invokeMethod('isDeviceAdminRevoked') ?? false;
+
+  /// Clears the Device Admin revoked flag on the native side (called when user
+  /// taps the re-enable nudge and the permission check confirms it's active again,
+  /// or when the user explicitly dismisses the warning).
+  Future<void> clearDeviceAdminRevokedFlag() async =>
+      await _methodChannel.invokeMethod('clearDeviceAdminRevokedFlag');
 
   /// Disable device Admin if active.
   Future<bool> disableDeviceAdmin() async =>

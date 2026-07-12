@@ -326,6 +326,31 @@ object SharedPrefsHelper {
     }
 
     /**
+     * Stores a boolean value in UniquePrefs.
+     *
+     * @param context The application context.
+     * @param key     The key for the boolean value.
+     * @param value   The boolean value to store.
+     */
+    fun putBoolean(context: Context, key: String, value: Boolean) {
+        checkAndInitializeUniquePrefs(context)
+        mUniquePrefs!!.edit().putBoolean(key, value).apply()
+    }
+
+    /**
+     * Retrieves a boolean value from UniquePrefs.
+     *
+     * @param context      The application context.
+     * @param key          The key for the boolean value.
+     * @param defaultValue The default value if the key is not found.
+     * @return The stored boolean value, or defaultValue if not set.
+     */
+    fun getBoolean(context: Context, key: String, defaultValue: Boolean): Boolean {
+        checkAndInitializeUniquePrefs(context)
+        return mUniquePrefs!!.getBoolean(key, defaultValue)
+    }
+
+    /**
      * Clears all the stored crash logs from shared prefs.
      *
      * @param context The application context used to access SharedPreferences.

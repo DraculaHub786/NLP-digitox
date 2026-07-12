@@ -77,7 +77,7 @@
 
                 <data
                     android:host="open"
-                    android:scheme="com.mindful.android" />
+                    android:scheme="com.nlp.digitox" />
             </intent-filter>
 
             <!-- Default -->

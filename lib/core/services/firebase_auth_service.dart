@@ -59,6 +59,15 @@ class FirebaseAuthService {
         throw Exception('Failed to create user account');
       }
 
+      // B.2: Auto-send email verification so users don't need to tap "resend" manually.
+      try {
+        await userCredential.user!.sendEmailVerification();
+        debugPrint('Verification email sent to: ${userCredential.user!.email}');
+      } catch (e) {
+        // Non-blocking — the manual "resend" button in Account settings still works.
+        debugPrint('Failed to auto-send verification email: $e');
+      }
+
       debugPrint('User signed up: ${userCredential.user!.uid}');
       return userCredential.user!;
     } on FirebaseAuthException catch (e) {

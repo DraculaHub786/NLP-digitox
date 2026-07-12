@@ -1,8 +1,6 @@
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nlp_digitox/core/enums/permission_type.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/models/permissions_model.dart';
 
@@ -24,9 +22,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
     WidgetsBinding.instance.addObserver(this);
     _initializePermissions();
   }
-
-  /// Tracks the last requested permission type for handling lifecycle changes.
-  PermissionType _askedPermission = PermissionType.none;
 
   /// Flag to track if initialization is complete
   bool _isInitialized = false;
@@ -85,13 +80,24 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
               MethodChannelService.instance.getAndAskNotificationAccessPermission(),
           'notification access',
         ),
+        isAccessibilityServiceActive: await _safeGetPermission(
+          () => MethodChannelService.instance.isAccessibilityServiceActive(),
+          'accessibility service active',
+        ),
+        isAccessibilityServicePaused: await _safeGetPermission(
+          () => MethodChannelService.instance.isAccessibilityServicePaused(),
+          'accessibility service paused',
+        ),
+        isDeviceAdminRevoked: await _safeGetPermission(
+          () => MethodChannelService.instance.isDeviceAdminRevoked(),
+          'device admin revoked',
+        ),
       );
 
       state = cache;
       return cache;
     } catch (e) {
       debugPrint('PermissionNotifier: Error fetching permissions: $e');
-      // Return current state with safe defaults
       return state;
     }
   }
@@ -105,7 +111,7 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
       return await permissionCall();
     } catch (e) {
       debugPrint('PermissionNotifier: Error checking $permissionName permission: $e');
-      return false; // Safe default: assume permission denied if error
+      return false;
     }
   }
 
@@ -117,21 +123,13 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
   }
 
   /// Handles permission updates when the app resumes from background and when window focus changes.
-  /// This ensures permissions are re-checked whenever the app returns to foreground.
-  /// Now re-checks ALL permissions on every resume, not just the last requested one.
   @override
   void didChangeAppLifecycleState(AppLifecycleState appState) async {
     if (appState != AppLifecycleState.resumed) return;
-
-    // Re-check ALL permissions on resume - this ensures permissions don't reset
-    // when the app comes back from background. The old behavior only checked the
-    // last _askedPermission, which meant accessibility/shorts blocking permission
-    // would appear to "reset" when the app was killed and reopened.
     await recheckAllPermissions();
   }
 
   /// Re-check ALL permissions when app resumes - not just the last requested one.
-  /// This is critical for accessibility/shorts blocking permission persistence.
   Future<void> recheckAllPermissions() async {
     try {
       state = PermissionsModel(
@@ -177,108 +175,29 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
               MethodChannelService.instance.getAndAskNotificationAccessPermission(),
           'notification access',
         ),
+        isAccessibilityServiceActive: await _safeGetPermission(
+          () => MethodChannelService.instance.isAccessibilityServiceActive(),
+          'accessibility service active',
+        ),
+        isAccessibilityServicePaused: await _safeGetPermission(
+          () => MethodChannelService.instance.isAccessibilityServicePaused(),
+          'accessibility service paused',
+        ),
+        isDeviceAdminRevoked: await _safeGetPermission(
+          () => MethodChannelService.instance.isDeviceAdminRevoked(),
+          'device admin revoked',
+        ),
       );
 
-      _askedPermission = PermissionType.none;
       debugPrint('PermissionNotifier: All permissions re-checked on app resume');
     } catch (e) {
       debugPrint('PermissionNotifier: Error rechecking all permissions on resume: $e');
-      _askedPermission = PermissionType.none;
-    }
-  }
-
-  /// Re-check the specific permission that was last requested when app resumes
-  /// (kept for backward compatibility but no longer the primary resume handler)
-  Future<void> _recheckPermissionAfterResume() async {
-    try {
-      state = switch (_askedPermission) {
-        PermissionType.none => state,
-        PermissionType.notification => state.copyWith(
-            haveNotificationPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskNotificationPermission(),
-              'notification',
-            ),
-          ),
-        PermissionType.usageAccess => state.copyWith(
-            haveUsageAccessPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskUsageAccessPermission(),
-              'usage access',
-            ),
-          ),
-        PermissionType.displayOverlay => state.copyWith(
-            haveDisplayOverlayPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskDisplayOverlayPermission(),
-              'display overlay',
-            ),
-          ),
-        PermissionType.doNotDisturb => state.copyWith(
-            haveDndPermission: await _safeGetPermission(
-              () => MethodChannelService.instance.getAndAskDndPermission(),
-              'DND',
-            ),
-          ),
-        PermissionType.accessibility => state.copyWith(
-            haveAccessibilityPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskAccessibilityPermission(),
-              'accessibility',
-            ),
-          ),
-        PermissionType.vpn => state.copyWith(
-            haveVpnPermission: await _safeGetPermission(
-              () => MethodChannelService.instance.getAndAskVpnPermission(),
-              'VPN',
-            ),
-          ),
-        PermissionType.exactAlarm => state.copyWith(
-            haveAlarmsPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskExactAlarmPermission(),
-              'exact alarm',
-            ),
-          ),
-        PermissionType.ignoreOptimization => state.copyWith(
-            haveIgnoreOptimizationPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskIgnoreBatteryOptimizationPermission(),
-              'ignore optimization',
-            ),
-            haveAlarmsPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskExactAlarmPermission(),
-              'exact alarm',
-            ),
-          ),
-        PermissionType.admin => state.copyWith(
-            haveAdminPermission: await _safeGetPermission(
-              () => MethodChannelService.instance.getAndAskAdminPermission(),
-              'admin',
-            ),
-          ),
-        PermissionType.notificationAccess => state.copyWith(
-            haveNotificationAccessPermission: await _safeGetPermission(
-              () => MethodChannelService.instance
-                  .getAndAskNotificationAccessPermission(),
-              'notification access',
-            ),
-          ),
-      };
-
-      _askedPermission = PermissionType.none;
-    } catch (e) {
-      debugPrint('PermissionNotifier: Error rechecking permissions on resume: $e');
-      _askedPermission = PermissionType.none;
     }
   }
 
   /// Request all critical permissions at once
-  /// This should be called during onboarding to ensure all necessary permissions are granted
   Future<void> requestAllCriticalPermissions() async {
     try {
-      // Request critical permissions in sequence for better UX
       await askNotificationPermission();
       await Future.delayed(500.ms);
 
@@ -294,7 +213,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
       await askAdminPermission();
       await Future.delayed(500.ms);
 
-      // Re-fetch all permissions after requests
       await fetchPermissionsStatus();
       debugPrint('PermissionNotifier: All critical permissions requested');
     } catch (e) {
@@ -302,101 +220,60 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
     }
   }
 
-  /// Internal helper to request permission and track state
-  Future<void> _requestPermissionInternal(
-    PermissionType permissionType,
-    Future<void> Function() requestFunc,
-  ) async {
-    try {
-      _askedPermission = permissionType;
-      await requestFunc();
-    } catch (e) {
-      debugPrint('PermissionNotifier: Error requesting permission: $e');
-      _askedPermission = PermissionType.none;
-    }
-  }
-
   /// Requests the notification permission and updates the internal state.
   Future<void> askNotificationPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.notification,
-      () async => await MethodChannelService.instance
-          .getAndAskNotificationPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskNotificationPermission(askPermissionToo: true);
   }
 
   /// Requests the usage access permission and updates the internal state.
   Future<void> askUsageAccessPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.usageAccess,
-      () async => await MethodChannelService.instance
-          .getAndAskUsageAccessPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskUsageAccessPermission(askPermissionToo: true);
   }
 
   /// Requests the display overlay permission and updates the internal state.
   Future<void> askDisplayOverlayPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.displayOverlay,
-      () async => await MethodChannelService.instance
-          .getAndAskDisplayOverlayPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskDisplayOverlayPermission(askPermissionToo: true);
   }
 
   /// Requests the accessibility permission and updates the internal state.
-  /// This permission is required for app overlay blocking features.
   Future<void> askAccessibilityPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.accessibility,
-      () async => await MethodChannelService.instance
-          .getAndAskAccessibilityPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskAccessibilityPermission(askPermissionToo: true);
+    // Clear the paused flag since we're re-granting
+    await MethodChannelService.instance.clearAccessibilityServicePausedFlag();
   }
 
   /// Requests the VPN permission and updates the internal state.
   Future<void> askVpnPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.vpn,
-      () async => await MethodChannelService.instance
-          .getAndAskVpnPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskVpnPermission(askPermissionToo: true);
   }
 
   /// Requests the Do Not Disturb permission and updates the internal state.
   Future<void> askDndPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.doNotDisturb,
-      () async => await MethodChannelService.instance
-          .getAndAskDndPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskDndPermission(askPermissionToo: true);
   }
 
   /// Requests the Set Exact Alarm permission and updates the internal state.
   Future<void> askExactAlarmPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.exactAlarm,
-      () async => await MethodChannelService.instance
-          .getAndAskExactAlarmPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskExactAlarmPermission(askPermissionToo: true);
   }
 
   /// Requests the Ignore Battery Optimization permission and updates the internal state.
   Future<void> askIgnoreBatteryOptimizationPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.ignoreOptimization,
-      () async => await MethodChannelService.instance
-          .getAndAskIgnoreBatteryOptimizationPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskIgnoreBatteryOptimizationPermission(askPermissionToo: true);
   }
 
   /// Requests the Admin permission and updates the internal state.
-  /// This permission is required for Device Policy Manager features.
   Future<void> askAdminPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.admin,
-      () async => await MethodChannelService.instance
-          .getAndAskAdminPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskAdminPermission(askPermissionToo: true);
   }
 
   /// Request the device to disable admin if already enabled
@@ -417,10 +294,41 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
 
   /// Requests the notification access permission and updates the internal state.
   Future<void> askNotificationAccessPermission() async {
-    await _requestPermissionInternal(
-      PermissionType.notificationAccess,
-      () async => await MethodChannelService.instance
-          .getAndAskNotificationAccessPermission(askPermissionToo: true),
-    );
+    await MethodChannelService.instance
+        .getAndAskNotificationAccessPermission(askPermissionToo: true);
+  }
+
+  /// Clears the "paused" flag and updates state to reflect the service is active.
+  /// Called from the UI when user taps "resume" or the reconnect nudge.
+  Future<void> clearAccessibilityServicePausedFlag() async {
+    try {
+      await MethodChannelService.instance.clearAccessibilityServicePausedFlag();
+      state = state.copyWith(
+        isAccessibilityServicePaused: false,
+        isAccessibilityServiceActive: await _safeGetPermission(
+          () => MethodChannelService.instance.isAccessibilityServiceActive(),
+          'accessibility service active',
+        ),
+      );
+    } catch (e) {
+      debugPrint('PermissionNotifier: Error clearing paused flag: $e');
+    }
+  }
+
+  /// Clears the Device Admin revoked flag and updates state.
+  /// Called from the UI when user taps the re-enable nudge.
+  Future<void> clearDeviceAdminRevokedFlag() async {
+    try {
+      await MethodChannelService.instance.clearDeviceAdminRevokedFlag();
+      state = state.copyWith(
+        isDeviceAdminRevoked: false,
+        haveAdminPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAdminPermission(),
+          'admin',
+        ),
+      );
+    } catch (e) {
+      debugPrint('PermissionNotifier: Error clearing admin revoked flag: $e');
+    }
   }
 }

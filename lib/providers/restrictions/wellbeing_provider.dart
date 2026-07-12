@@ -66,4 +66,8 @@ class WellBeingNotifier extends StateNotifier<Wellbeing> {
   /// Sets the allowed time limit for short content consumption.
   void setAllowedShortContentTime(int timeSec) =>
       state = state.copyWith(allowedShortsTimeSec: timeSec > 0 ? timeSec : -1);
+
+  /// Sets the daily screen-time goal used by sentiment/AI analysis.
+  void setDailyScreenTimeGoal(int timeSec) =>
+      state = state.copyWith(dailyScreenTimeGoalSec: timeSec > 0 ? timeSec : 4 * 60 * 60);
 }

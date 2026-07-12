@@ -2,8 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nlp_digitox/core/services/persona_service.dart';
-import 'package:nlp_digitox/models/persona_model.dart';
 
 /// Onboarding Quiz Page
 /// Implements persona fingerprinting based on user responses
@@ -11,7 +9,16 @@ import 'package:nlp_digitox/models/persona_model.dart';
 /// This quiz helps identify the user type (Professional, Student, Senior, Parent, etc.)
 /// and customizes the app experience accordingly.
 class OnboardingQuizPage extends ConsumerStatefulWidget {
-  const OnboardingQuizPage({super.key});
+  const OnboardingQuizPage({
+    super.key,
+    this.onComplete,
+  });
+
+  /// Called when the user completes the quiz and taps "Get Started".
+  /// Should call [MindfulSettingsNotifier.markOnboardingDone] and navigate
+  /// into the app (instead of the quiz navigating directly, which would
+  /// bypass persisting the onboarding-done state).
+  final VoidCallback? onComplete;
 
   @override
   ConsumerState<OnboardingQuizPage> createState() => _OnboardingQuizPageState();
@@ -22,60 +29,62 @@ class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
   final Map<String, dynamic> _responses = {};
 
   // Quiz questions for persona fingerprinting
+  // Reframed to reference the onboarding topics (Focus, Block Distractions,
+  // Privacy First, Know Your Habits) by name.
   final List<QuizQuestion> _questions = [
     QuizQuestion(
       id: 'occupation',
       question: 'What best describes your current situation?',
       options: [
-        QuizOption('Working Professional', 'professional', Icons.work),
-        QuizOption('Student', 'student', Icons.school),
-        QuizOption('Parent', 'parent', Icons.family_restroom),
-        QuizOption('Senior/Retired', 'senior', Icons.elderly),
+        QuizOption('Working Professional — needs Focus mode most', 'professional', Icons.work),
+        QuizOption('Student — wants to Block Distractions', 'student', Icons.school),
+        QuizOption('Parent — needs Family Wellness', 'parent', Icons.family_restroom),
+        QuizOption('Senior/Retired — values Privacy First', 'senior', Icons.elderly),
         QuizOption('Other', 'other', Icons.person),
       ],
     ),
     QuizQuestion(
       id: 'primary_goal',
-      question: 'What is your primary goal with this app?',
+      question: 'Which area matters most to you right now?',
       options: [
-        QuizOption('Reduce social media usage', 'reduce_social', Icons.phone_android),
-        QuizOption('Improve work focus', 'improve_focus', Icons.psychology),
-        QuizOption('Better sleep habits', 'better_sleep', Icons.bedtime),
-        QuizOption('Reduce screen time', 'reduce_screen', Icons.timer_off),
+        QuizOption('Master Focus — improve deep work', 'improve_focus', Icons.psychology),
+        QuizOption('Block Distractions — reduce social media', 'reduce_social', Icons.phone_android),
+        QuizOption('Know My Habits — track screen time', 'reduce_screen', Icons.timer_off),
+        QuizOption('Better sleep — set Bedtime boundaries', 'better_sleep', Icons.bedtime),
         QuizOption('Family digital wellness', 'family_wellness', Icons.family_restroom),
       ],
     ),
     QuizQuestion(
       id: 'biggest_distraction',
-      question: 'What distracts you the most?',
+      question: 'What pulls you away from your focus the most?',
       options: [
-        QuizOption('Social media', 'social_media', Icons.chat),
-        QuizOption('News & content', 'news', Icons.article),
+        QuizOption('Social media scrolling', 'social_media', Icons.chat),
+        QuizOption('News & articles', 'news', Icons.article),
         QuizOption('Games', 'games', Icons.videogame_asset),
-        QuizOption('YouTube/Videos', 'videos', Icons.play_circle),
+        QuizOption('YouTube/Videos (Shorts)', 'videos', Icons.play_circle),
         QuizOption('Shopping apps', 'shopping', Icons.shopping_cart),
       ],
     ),
     QuizQuestion(
       id: 'usage_time',
-      question: 'When do you use your phone most?',
+      question: 'When do you usually reach for your phone?',
       options: [
-        QuizOption('Morning (6am-12pm)', 'morning', Icons.wb_sunny),
+        QuizOption('Morning (6am-12pm) — check Statistics first', 'morning', Icons.wb_sunny),
         QuizOption('Afternoon (12pm-6pm)', 'afternoon', Icons.light_mode),
-        QuizOption('Evening (6pm-10pm)', 'evening', Icons.nightlight),
-        QuizOption('Late night (10pm-2am)', 'night', Icons.dark_mode),
-        QuizOption('All throughout the day', 'all_day', Icons.access_time),
+        QuizOption('Evening (6pm-10pm) — Block Distractions needed', 'evening', Icons.nightlight),
+        QuizOption('Late night (10pm-2am) — use Bedtime Mode', 'night', Icons.dark_mode),
+        QuizOption('All day — let\'s Know My Habits', 'all_day', Icons.access_time),
       ],
     ),
     QuizQuestion(
       id: 'motivation',
-      question: 'What motivates you most?',
+      question: 'What keeps you going on your digital wellness journey?',
       options: [
-        QuizOption('Achieving goals', 'goals', Icons.flag),
-        QuizOption('Earning rewards', 'rewards', Icons.emoji_events),
-        QuizOption('Seeing progress', 'progress', Icons.trending_up),
-        QuizOption('Competing with others', 'competition', Icons.leaderboard),
-        QuizOption('Personal growth', 'growth', Icons.self_improvement),
+        QuizOption('Achieving Focus goals', 'goals', Icons.flag),
+        QuizOption('Earning rewards and streaks', 'rewards', Icons.emoji_events),
+        QuizOption('Seeing Statistics progress', 'progress', Icons.trending_up),
+        QuizOption('Competing on the Leaderboard', 'competition', Icons.leaderboard),
+        QuizOption('Personal growth — Privacy First', 'growth', Icons.self_improvement),
       ],
     ),
   ];
@@ -335,8 +344,10 @@ class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // Navigate to main app
-              Navigator.of(context).pushReplacementNamed('/home');
+              // Call onComplete (provided by OnboardingScreen) which
+              // calls markOnboardingDone() and navigates into the app.
+              // This ensures onboarding state is persisted.
+              widget.onComplete?.call();
             },
             child: const Text('Get Started'),
           ),

@@ -52,7 +52,7 @@ class PermissionGrantingSteps extends StatelessWidget {
                 size: 32,
               ),
             ),
-            titleText: "Mindful",
+            titleText: "NLP digitox",
             subtitleText: isAccessibilityPerm
                 ? context.locale.permission_status_off
                 : context.locale.permission_status_not_allowed,

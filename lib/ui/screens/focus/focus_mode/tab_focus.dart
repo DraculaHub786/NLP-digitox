@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +23,53 @@ class TabFocus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        /// Information
-        StyledText(context.locale.focus_tab_info).sliver,
+        /// Information card with modern styling
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.15),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      FluentIcons.info_20_filled,
+                      color: colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: StyledText(
+                      context.locale.focus_tab_info,
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withValues(alpha: 0.75),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
 
         8.vSliverBox,
 
@@ -42,39 +83,42 @@ class TabFocus extends StatelessWidget {
           builder: (_, WidgetRef ref, __) {
             final thumbWidth = MediaQuery.of(context).size.width * 0.25;
 
-            return SlideAction(
-              trackHeight: 64,
-              actionSnapThreshold: 0.6,
-              stretchThumb: true,
-              thumbWidth: thumbWidth,
-              thumbDragStartBehavior: DragStartBehavior.down,
-              trackBuilder: (context, currentState) => DefaultListTile(
-                margin: EdgeInsets.zero,
-                color: Theme.of(context).colorScheme.primary,
-                position: ItemPosition.bottom,
-                title: Padding(
-                  padding: EdgeInsetsGeometry.only(left: thumbWidth),
-                  child: StyledText(
-                    context.locale.focus_session_start_button,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 16,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    fontWeight: FontWeight.w500,
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SlideAction(
+                trackHeight: 64,
+                actionSnapThreshold: 0.6,
+                stretchThumb: true,
+                thumbWidth: thumbWidth,
+                thumbDragStartBehavior: DragStartBehavior.down,
+                trackBuilder: (context, currentState) => DefaultListTile(
+                  margin: EdgeInsets.zero,
+                  color: Theme.of(context).colorScheme.primary,
+                  position: ItemPosition.bottom,
+                  title: Padding(
+                    padding: EdgeInsetsGeometry.only(left: thumbWidth),
+                    child: StyledText(
+                      context.locale.focus_session_start_button,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
-              ),
-              thumbBuilder: (context, currentState) => RoundedContainer(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                margin: EdgeInsets.all(0),
-                borderRadius:
-                    BorderRadius.only(bottomLeft: Radius.circular(24)),
-                child: Icon(
-                  FluentIcons.chevron_right_20_filled,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                thumbBuilder: (context, currentState) => RoundedContainer(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  margin: EdgeInsets.all(0),
+                  borderRadius:
+                      BorderRadius.only(bottomLeft: Radius.circular(24)),
+                  child: Icon(
+                    FluentIcons.chevron_right_20_filled,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
+                action: () => _startFocusSession(context, ref),
               ),
-              action: () => _startFocusSession(context, ref),
             );
           },
         ).sliver,

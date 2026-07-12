@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,8 +13,39 @@ class AccessibilityPermissionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final havePermission = ref
-        .watch(permissionProvider.select((v) => v.haveAccessibilityPermission));
+    final colorScheme = Theme.of(context).colorScheme;
+    final permState = ref.watch(permissionProvider);
+    final havePermission = permState.haveAccessibilityPermission;
+    final isPaused = permState.isAccessibilityServicePaused;
+
+    // Show "paused" nudge when permission is granted but service process is dead
+    if (havePermission && isPaused) {
+      return SliverPrimaryActionContainer(
+        isVisible: true,
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        icon: FluentIcons.accessibility_20_regular,
+        title: context.locale.permission_accessibility_title,
+        information: 'Shorts blocking is paused — tap to resume',
+        positiveBtn: FilledButton.icon(
+          icon: const Icon(FluentIcons.play_20_filled, size: 16),
+          label: const Text('Resume'),
+          onPressed: () {
+            // Clear the paused flag; re-check on next heartbeat
+            ref
+                .read(permissionProvider.notifier)
+                .clearAccessibilityServicePausedFlag();
+          },
+        ),
+        // Add a secondary "Re-grant" option too
+        negativeBtn: TextButton(
+          child: Text(
+            context.locale.permission_button_grant_permission,
+            style: TextStyle(color: colorScheme.error),
+          ),
+          onPressed: () => showAccessibilityPermissionSheet(context, ref),
+        ),
+      );
+    }
 
     return SliverPrimaryActionContainer(
       isVisible: !havePermission,

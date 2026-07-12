@@ -13,6 +13,7 @@ import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_component
 import 'package:nlp_digitox/ui/dialogs/time_picker_dialog.dart';
 import 'package:nlp_digitox/ui/dialogs/parental_password_management_dialog.dart';
 import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
+import 'package:nlp_digitox/ui/permissions/battery_optimization_recommendation_card.dart';
 import 'package:nlp_digitox/ui/screens/parental_controls/invincible_mode_settings.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
 
@@ -84,6 +85,9 @@ class ParentalControlsScreen extends ConsumerWidget {
 
               /// Invincible mode
               const InvincibleModeSettings(),
+
+              /// C.1 + C.2: Battery optimization recommendation & OEM autostart
+              const BatteryOptimizationRecommendationCard(),
 
               // Parental controls section header
               SliverToBoxAdapter(

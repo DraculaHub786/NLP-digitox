@@ -439,6 +439,52 @@ class FgMethodCallHandler(
             }
 
             // ==============================================================================================================
+            // ============================== ACCESSIBILITY SERVICE STATUS ==================================================
+            // ==============================================================================================================
+
+            "isAccessibilityServiceActive" -> {
+                result.success(PermissionsHelper.isAccessibilityServiceActive(context))
+            }
+
+            "isAccessibilityServicePaused" -> {
+                result.success(
+                    SharedPrefsHelper.getBoolean(
+                        context,
+                        KeepAliveHelper.PREF_KEY_ACCESSIBILITY_SERVICE_PAUSED,
+                        false
+                    )
+                )
+            }
+
+            "clearAccessibilityServicePausedFlag" -> {
+                SharedPrefsHelper.putBoolean(
+                    context,
+                    KeepAliveHelper.PREF_KEY_ACCESSIBILITY_SERVICE_PAUSED,
+                    false
+                )
+                result.success(true)
+            }
+
+            "isDeviceAdminRevoked" -> {
+                result.success(
+                    SharedPrefsHelper.getBoolean(
+                        context,
+                        KeepAliveHelper.PREF_KEY_DEVICE_ADMIN_REVOKED,
+                        false
+                    )
+                )
+            }
+
+            "clearDeviceAdminRevokedFlag" -> {
+                SharedPrefsHelper.putBoolean(
+                    context,
+                    KeepAliveHelper.PREF_KEY_DEVICE_ADMIN_REVOKED,
+                    false
+                )
+                result.success(true)
+            }
+
+            // ==============================================================================================================
             // ====================================== UTILS =================================================================
             // ==============================================================================================================
 

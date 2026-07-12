@@ -16,7 +16,6 @@ import 'package:nlp_digitox/providers/apps/apps_info_provider.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
 import 'package:nlp_digitox/ui/common/application_icon.dart';
 import 'package:nlp_digitox/ui/common/default_slide_to_remove.dart';
-import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/time_text_short.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
@@ -36,6 +35,7 @@ class RestrictionGroupCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final groupedAppsInfo = ref
         .watch(appsInfoProvider.select((v) => v.value?.values
             .where((e) => group.distractingApps.contains(e.packageName))))
@@ -60,6 +60,9 @@ class RestrictionGroupCard extends ConsumerWidget {
         ? 0
         : max(0, timeSpent / group.timerSec);
 
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+
     return DefaultHero(
       tag: HeroTags.removeRestrictionGroupTag(group.id),
       child: DefaultSlideToRemove(
@@ -67,145 +70,134 @@ class RestrictionGroupCard extends ConsumerWidget {
         key: Key("restrictionGroup.${group.id}"),
         position: position ?? ItemPosition.none,
         onDismiss: () => _deleteGroup(context, ref),
-        child: RoundedContainer(
-          borderRadius: BorderRadius.circular(0),
-          padding: const EdgeInsets.all(16),
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          onPressed: () => _goToEditScreen(context, ref),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  /// Remaining time indicator
-                  Container(
-                    height: 36,
-                    width: 36,
-                    padding: const EdgeInsets.all(4),
-                    child: Stack(
-                      children: [
-                        CircularProgressIndicator(
-                          value: 1,
-                          strokeWidth: 6,
-                          strokeCap: StrokeCap.round,
-                          color:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                        ),
-                        CircularProgressIndicator(
-                          strokeWidth: 6,
-                          strokeCap: StrokeCap.round,
-                          value: progress > 0 ? progress : 1,
-                          color: timeSpent > 0 &&
-                                  group.timerSec > 0 &&
-                                  progress >= 1
-                              ? Theme.of(context).colorScheme.error
-                              : null,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  12.hBox,
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// Group title
-                        StyledText(
-                          group.groupName,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        /// Active period
-                        StyledText(
-                          group.periodDurationInMins > 0
-                              ? context.locale.app_active_period_tile_subtitle(
-                                  group.activePeriodStart.format(context),
-                                  group.activePeriodEnd.format(context),
-                                )
-                              : context.locale.app_limit_status_not_set,
-                          color: Theme.of(context).hintColor,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  8.hBox,
-
-                  /// Timer and Time used
-                  if (group.timerSec > 0)
-                    Flexible(
-                      flex: 0,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            /// Time used
-                            TimeTextShort(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              timeDuration: timeSpent.seconds,
-                              secondaryFontWeight: FontWeight.w600,
-                            ),
-
-                            StyledText(
-                              " / ",
-                              fontSize: 14,
-                            ),
-
-                            /// Timer limit
-                            TimeTextShort(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              timeDuration: group.timerSec.seconds,
-                              secondaryFontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
+        child: GestureDetector(
+          onTap: () => _goToEditScreen(context, ref),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: borderColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    /// Remaining time indicator
+                    Container(
+                      height: 40,
+                      width: 40,
+                      padding: const EdgeInsets.all(4),
+                      child: Stack(
+                        children: [
+                          CircularProgressIndicator(
+                            value: 1,
+                            strokeWidth: 6,
+                            strokeCap: StrokeCap.round,
+                            color: colorScheme.secondaryContainer,
+                          ),
+                          CircularProgressIndicator(
+                            strokeWidth: 6,
+                            strokeCap: StrokeCap.round,
+                            value: progress > 0 ? progress : 1,
+                            color: timeSpent > 0 &&
+                                    group.timerSec > 0 &&
+                                    progress >= 1
+                                ? colorScheme.error
+                                : null,
+                          ),
+                        ],
                       ),
                     ),
-                ],
-              ),
-              12.vBox,
-
-              /// Apps
-              ClipRRect(
-                borderRadius: BorderRadius.circular(40),
-                child: Container(
-                  height: 40,
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  child: Skeletonizer.zone(
-                    enableSwitchAnimation: true,
-                    enabled: groupedAppsInfo == null,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: groupedAppsInfo?.length ??
-                          group.distractingApps.length,
-                      itemBuilder: (context, index) {
-                        final appInfo = groupedAppsInfo?.elementAtOrNull(index);
-
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: appInfo == null
-                              ? const Bone.icon(size: 28)
-                              : ApplicationIcon(
-                                  appInfo: appInfo,
-                                  size: 14,
-                                ),
-                        );
-                      },
+                    12.hBox,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          StyledText(
+                            group.groupName,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          StyledText(
+                            group.periodDurationInMins > 0
+                                ? context.locale.app_active_period_tile_subtitle(
+                                    group.activePeriodStart.format(context),
+                                    group.activePeriodEnd.format(context),
+                                  )
+                                : context.locale.app_limit_status_not_set,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontSize: 12,
+                          ),
+                        ],
+                      ),
+                    ),
+                    8.hBox,
+                    if (group.timerSec > 0)
+                      Flexible(
+                        flex: 0,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TimeTextShort(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                timeDuration: timeSpent.seconds,
+                                secondaryFontWeight: FontWeight.w600,
+                              ),
+                              StyledText(" / ", fontSize: 14),
+                              TimeTextShort(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                timeDuration: group.timerSec.seconds,
+                                secondaryFontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                12.vBox,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(40),
+                  child: Container(
+                    height: 40,
+                    color: colorScheme.surfaceContainerHigh,
+                    child: Skeletonizer.zone(
+                      enableSwitchAnimation: true,
+                      enabled: groupedAppsInfo == null,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: groupedAppsInfo?.length ??
+                            group.distractingApps.length,
+                        itemBuilder: (context, index) {
+                          final appInfo =
+                              groupedAppsInfo?.elementAtOrNull(index);
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: appInfo == null
+                                ? const Bone.icon(size: 28)
+                                : ApplicationIcon(
+                                    appInfo: appInfo,
+                                    size: 14,
+                                  ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -227,7 +219,6 @@ class RestrictionGroupCard extends ConsumerWidget {
         !isBetweenWindow &&
         group.periodDurationInMins > 0);
 
-    /// Return if cannot delete
     if (!canModifyTimer || !canModifyActivePeriod) {
       context.showSnackAlert(
         context.locale.invincible_mode_snack_alert,
@@ -235,7 +226,6 @@ class RestrictionGroupCard extends ConsumerWidget {
       return;
     }
 
-    /// Confirm first
     final confirm = await showConfirmationDialog(
       context: context,
       heroTag: HeroTags.removeRestrictionGroupTag(group.id),
@@ -248,14 +238,12 @@ class RestrictionGroupCard extends ConsumerWidget {
 
     if (!confirm) return;
 
-    /// update associated apps and remove group
     ref.read(appsRestrictionsProvider.notifier).updateAssociatedGroupId(
           appPackages: group.distractingApps,
           groupId: null,
           removeIds: true,
         );
 
-    /// Remove group
     ref.read(restrictionGroupsProvider.notifier).removeGroup(group: group);
   }
 
@@ -274,7 +262,6 @@ class RestrictionGroupCard extends ConsumerWidget {
         !isBetweenWindow &&
         group.periodDurationInMins > 0);
 
-    /// Go to screen
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CreateUpdateRestrictionGroupScreen(

@@ -194,7 +194,6 @@ class _IntentOption extends StatelessWidget {
   final Function(AppIntent) onSelected;
 
   const _IntentOption({
-    super.key,
     required this.intent,
     required this.isSelected,
     required this.onSelected,

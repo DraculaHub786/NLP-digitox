@@ -1044,7 +1044,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
         await AIChatbotService.instance.updateWithSentiment(
           sentiment: sentiment,
           screenTimeSeconds: todayUsage.screenTime,
-          goalSeconds: wellbeingSettings.allowedShortsTimeSec,
+          goalSeconds: wellbeingSettings.dailyScreenTimeGoalSec,
         );
       } catch (e) {
         debugPrint('⚠️ Error updating sentiment context: $e');
