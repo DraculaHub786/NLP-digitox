@@ -243,6 +243,101 @@ Focus on:
     }
   }
 
+  /// Get a funny, mood-based motivational message (separate from serious coaching).
+  /// Returns 1-2 sentences of lighthearted encouragement referencing the user's
+  /// actual mood, persona, and recent behaviour.
+  Future<String> getFunnyMotivation({
+    String? persona,
+    String? latestMood,
+    String? dominantSentiment,
+    List<String>? recentChatTopics,
+    String? usageContext,
+  }) async {
+    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
+      throw Exception('Groq API key is not configured.');
+    }
+
+    try {
+      final moodStr = latestMood ?? 'unknown';
+      final personaStr = persona ?? 'unknown';
+      final sentimentStr = dominantSentiment ?? 'neutral';
+      final chatStr = (recentChatTopics != null && recentChatTopics.isNotEmpty)
+          ? recentChatTopics.take(3).map((m) => '- $m').join('\n')
+          : 'No recent chat.';
+      final usageStr = usageContext ?? 'No usage context.';
+
+      final prompt = '''
+You are "ditixBot", the snarky-but-loving digital wellbeing sidekick. 
+Your job: make the user laugh while still landing an encouraging message.
+
+User context:
+- Mood: $moodStr
+- Persona: $personaStr
+- Dominant AI sentiment: $sentimentStr
+- Recent chat topics:
+$chatStr
+- Screen usage: $usageStr
+
+INSTRUCTIONS (follow strictly):
+1. Write exactly ONE sentence (max 20 words).
+2. Be FUNNY, not preachy. Use puns, exaggerations, self-deprecating AI humour.
+3. Tie the joke to their actual mood/persona/usage — generic jokes are boring.
+4. End with genuine encouragement, not sarcasm.
+5. Never mention death, depression, or anything dark.
+6. If screen time is way over goal, poke gentle fun: "Plot twist: your phone is now your plus-one."
+7. If mood is anxious, reassure with absurdity: "Good news: I checked — the WiFi is fine. You can breathe."
+8. If they're doing well, celebrate weirdly: "You're out here winning at life. I'm genuinely proud and also slightly intimidated."
+
+Examples of good tone:
+- "Your focus streak is impressive. I've alerted the authorities. (Just kidding — you're amazing.)"
+- "You've unlocked 'Professional Procrastination Avoider' status. The trophy is a deep breath. You're welcome."
+- "I see you're feeling anxious. Relax. I'm the AI — I've seen worse. You've got this."
+
+Respond with ONLY the funny sentence. No prefixes, no labels.
+''';
+
+      debugPrint('🤣 AISentimentService: Calling Groq API for funny motivation...');
+
+      final response = await http
+          .post(
+            Uri.parse(_apiUrl),
+            headers: {
+              'Authorization': 'Bearer $_apiKey',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'model': _model,
+              'messages': [
+                {'role': 'system', 'content': 'You are a witty, encouraging digital wellbeing sidekick. Short responses only.'},
+                {'role': 'user', 'content': prompt},
+              ],
+              'temperature': 0.9, // Higher temp for creative humour
+              'max_tokens': 80,
+            }),
+          )
+          .timeout(_requestTimeout);
+
+      if (response.statusCode != 200) {
+        debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
+        throw Exception('API error: ${response.statusCode}');
+      }
+
+      final jsonResponse = jsonDecode(response.body);
+      final text = (jsonResponse['choices'][0]['message']['content'] as String).trim();
+
+      // Clean up quotes the model might wrap around
+      final cleaned = text.replaceAll(RegExp("^[\"']|[\"']\$"), '').trim();
+      
+      debugPrint('✅ AISentimentService: Got funny motivation: $cleaned');
+      return cleaned;
+
+    } catch (e, stackTrace) {
+      debugPrint('❌ AISentimentService: Error getting funny motivation - $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
   /// Parse sentiment percentages from AI response
   Map<String, double> _parseSentiment(String text) {
     final Map<String, double> sentiments = {};
@@ -306,7 +401,3 @@ Focus on:
     return recommendations.take(4).toList();
   }
 }
-
-
-
-

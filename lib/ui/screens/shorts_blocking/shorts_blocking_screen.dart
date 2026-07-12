@@ -13,6 +13,7 @@ import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:nlp_digitox/ui/permissions/accessibility_permission_card.dart';
+import 'package:nlp_digitox/ui/permissions/battery_optimization_recommendation_card.dart';
 import 'package:nlp_digitox/ui/screens/shorts_blocking/shorts_timer_chart.dart';
 import 'package:nlp_digitox/ui/screens/shorts_blocking/sliver_shorts_quick_actions.dart';
 
@@ -79,7 +80,7 @@ class ShortsBlockingScreen extends ConsumerWidget {
                 ),
               ),
 
-              // Info card in modern style
+              // Info card
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
@@ -140,6 +141,9 @@ class ShortsBlockingScreen extends ConsumerWidget {
               ).sliver,
 
               const AccessibilityPermissionCard(),
+
+              // C.1 + C.2: Battery optimization recommendation & OEM autostart
+              const BatteryOptimizationRecommendationCard(),
 
               // Quick actions
               SliverShortsQuickActions(

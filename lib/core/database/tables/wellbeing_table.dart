@@ -18,6 +18,12 @@ class WellbeingTable extends Table {
   IntColumn get allowedShortsTimeSec =>
       integer().withDefault(const Constant(7 * 60 * 60))(); // 7 hours default
 
+  /// Daily screen-time goal in SECONDS (used by sentiment analysis, AI features).
+  /// Separate from the Shorts time limit — this is a general daily screen time
+  /// target the user sets for themselves. Default 4 hours (14400 sec).
+  IntColumn get dailyScreenTimeGoalSec =>
+      integer().withDefault(const Constant(4 * 60 * 60))(); // 4 hours default
+
   /// List of feature which are blocked
   TextColumn get blockedFeatures => text()
       .map(const EnumListConverter<PlatformFeatures>(PlatformFeatures.values))

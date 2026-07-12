@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class PermissionsPage extends ConsumerStatefulWidget {
   const PermissionsPage({super.key});
@@ -37,91 +39,95 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
     final permissions = ref.watch(permissionProvider);
     final permissionsNotifier = ref.read(permissionProvider.notifier);
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.security,
-            size: 80,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Permissions Required',
-            style: const TextStyle(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            // Illustration — same AspectRatio + Image.asset pattern as OnboardingPage
+            AspectRatio(
+              aspectRatio: 1.2,
+              child: Image.asset(
+                "assets/illustrations/onboarding_4.png",
+                fit: BoxFit.contain,
+              ),
+            ),
+            16.vBox,
+            StyledText(
+              'Essential Permissions.',
               fontSize: 28,
               fontWeight: FontWeight.bold,
+              textAlign: TextAlign.center,
+              color: Theme.of(context).colorScheme.primary,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'We need some permissions to help protect your digital wellbeing',
-            style: const TextStyle(fontSize: 16),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          _buildPermissionItem(
-            context,
-            icon: Icons.notifications,
-            title: 'Notifications',
-            description: 'Send reminders and focus alerts',
-            isGranted: permissions.haveNotificationPermission,
-            onTap: () => _requestPermission(
-              permissionsNotifier.askNotificationPermission,
-              'Notification',
+            8.vBox,
+            StyledText(
+              'NLP digitox requires following essential permissions to track and manage your screen time, helping reduce distractions and improve focus.',
+              fontSize: 14,
+              color: Theme.of(context).hintColor,
+              textAlign: TextAlign.center,
             ),
-          ),
-          _buildPermissionItem(
-            context,
-            icon: Icons.accessibility,
-            title: 'Accessibility',
-            description: 'Monitor and restrict app usage',
-            isGranted: permissions.haveAccessibilityPermission,
-            onTap: () => _requestPermission(
-              permissionsNotifier.askAccessibilityPermission,
-              'Accessibility',
-            ),
-          ),
-          _buildPermissionItem(
-            context,
-            icon: Icons.bar_chart,
-            title: 'Usage Stats',
-            description: 'Track screen time and app usage',
-            isGranted: permissions.haveUsageAccessPermission,
-            onTap: () => _requestPermission(
-              permissionsNotifier.askUsageAccessPermission,
-              'Usage Access',
-            ),
-          ),
-          _buildPermissionItem(
-            context,
-            icon: Icons.layers,
-            title: 'Display Overlay',
-            description: 'Show restriction overlays',
-            isGranted: permissions.haveDisplayOverlayPermission,
-            onTap: () => _requestPermission(
-              permissionsNotifier.askDisplayOverlayPermission,
-              'Display Overlay',
-            ),
-          ),
-          const SizedBox(height: 24),
-          if (_isRequesting)
-            const CircularProgressIndicator()
-          else
-            ElevatedButton(
-              onPressed: () => _requestAllPermissions(permissionsNotifier),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-              child: const Text(
-                'Grant All Permissions',
-                style: TextStyle(fontSize: 16),
+            24.vBox,
+            _buildPermissionItem(
+              context,
+              icon: Icons.notifications,
+              title: 'Notifications',
+              description: 'Send reminders and focus alerts',
+              isGranted: permissions.haveNotificationPermission,
+              onTap: () => _requestPermission(
+                permissionsNotifier.askNotificationPermission,
+                'Notification',
               ),
             ),
-        ],
+            _buildPermissionItem(
+              context,
+              icon: Icons.accessibility,
+              title: 'Accessibility',
+              description: 'Monitor and restrict app usage',
+              isGranted: permissions.haveAccessibilityPermission,
+              onTap: () => _requestPermission(
+                permissionsNotifier.askAccessibilityPermission,
+                'Accessibility',
+              ),
+            ),
+            _buildPermissionItem(
+              context,
+              icon: Icons.bar_chart,
+              title: 'Usage Stats',
+              description: 'Track screen time and app usage',
+              isGranted: permissions.haveUsageAccessPermission,
+              onTap: () => _requestPermission(
+                permissionsNotifier.askUsageAccessPermission,
+                'Usage Access',
+              ),
+            ),
+            _buildPermissionItem(
+              context,
+              icon: Icons.layers,
+              title: 'Display Overlay',
+              description: 'Show restriction overlays',
+              isGranted: permissions.haveDisplayOverlayPermission,
+              onTap: () => _requestPermission(
+                permissionsNotifier.askDisplayOverlayPermission,
+                'Display Overlay',
+              ),
+            ),
+            const SizedBox(height: 24),
+            if (_isRequesting)
+              const CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: () => _requestAllPermissions(permissionsNotifier),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+                child: const Text(
+                  'Grant All Permissions',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

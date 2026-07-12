@@ -1,5 +1,6 @@
 // Copyright (c) 2024 NLP digitox
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
@@ -41,7 +42,8 @@ final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
       recentIntentSignals: recentIntents.isNotEmpty ? recentIntents : null,
     );
     return sentiment;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('⚠️ aiSentimentProvider fallback triggered: $e');
     return _fallbackSentiment();
   }
 });
@@ -69,7 +71,8 @@ final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref)
       recentChatMessages: recentMessages.isNotEmpty ? recentMessages : null,
     );
     return recommendations;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('⚠️ aiRecommendationsProvider fallback triggered: $e');
     return _fallbackRecommendations();
   }
 });
@@ -164,8 +167,11 @@ List<String> _getRecentIntentSignals(Map<String, List<AppIntentModel>> history) 
 Future<int?> _loadScreenTimeGoalSeconds() async {
   try {
     final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
-    return wellbeingSettings.allowedShortsTimeSec;
-  } catch (_) {
+    // Use the dedicated dailyScreenTimeGoalSec field instead of the
+    // Shorts/Reels time limit (which was the wrong field to read).
+    return wellbeingSettings.dailyScreenTimeGoalSec;
+  } catch (e) {
+    debugPrint('⚠️ _loadScreenTimeGoalSeconds failed: $e');
     return null;
   }
 }

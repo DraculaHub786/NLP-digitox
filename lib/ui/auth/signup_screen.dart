@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -35,6 +36,132 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  /// Write a signup_events doc so n8n workflows can pick it up.
+  Future<void> _writeSignupEvent({
+    required String email,
+    required String username,
+  }) async {
+    try {
+      final uid = FirebaseAuthService.instance.userId;
+      if (uid == null) return;
+      await FirebaseFirestore.instance
+          .collection('signup_events')
+          .doc(uid)
+          .set({
+        'email': email,
+        'username': username,
+        'createdAt': FieldValue.serverTimestamp(),
+        'processed': false,
+      });
+      debugPrint('✅ signup_events doc created for uid: $uid');
+    } catch (e) {
+      debugPrint('❌ Failed to queue signup event: $e');
+      // Don't block signup on failure
+    }
+  }
+
+  /// Show a one-time, skippable profile completion dialog for phone/age.
+  Future<void> _showProfileCompletionDialog() async {
+    final phoneController = TextEditingController();
+    final ageController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    if (!mounted) return;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Complete Your Profile'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Optional — add your phone number and age for a more personalized experience.',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number (optional)',
+                  hintText: '+1 234 567 8900',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: ageController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Age (optional)',
+                  hintText: 'e.g. 25',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Skip for now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    // If user filled in anything, save it to Firestore
+    if (result == true || result == null) {
+      final phone = phoneController.text.trim();
+      final ageText = ageController.text.trim();
+      if (phone.isNotEmpty || ageText.isNotEmpty) {
+        try {
+          final uid = FirebaseAuthService.instance.userId;
+          if (uid != null) {
+            final updates = <String, dynamic>{
+              'profileCompletionPrompted': true,
+              'lastUpdated': FieldValue.serverTimestamp(),
+            };
+            if (phone.isNotEmpty) updates['phoneNumber'] = phone;
+            if (ageText.isNotEmpty) {
+              final age = int.tryParse(ageText);
+              if (age != null) updates['age'] = age;
+            }
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(uid)
+                .update(updates);
+            debugPrint('✅ Profile completion data saved');
+          }
+        } catch (e) {
+          debugPrint('❌ Failed to save profile data: $e');
+        }
+      } else {
+        // Mark as prompted so it doesn't show again
+        try {
+          final uid = FirebaseAuthService.instance.userId;
+          if (uid != null) {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(uid)
+                .update({
+              'profileCompletionPrompted': true,
+              'lastUpdated': FieldValue.serverTimestamp(),
+            });
+          }
+        } catch (_) {}
+      }
+    }
   }
 
   Future<void> _signup() async {
@@ -85,6 +212,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         debugPrint('❌ Failed to create leaderboard data: $e');
         // Don't block signup if leaderboard fails
       }
+
+      // B.1: Write signup_events doc for n8n
+      await _writeSignupEvent(
+        email: _emailController.text.trim(),
+        username: _nameController.text.trim(),
+      );
+
+      // B.3: Show optional profile completion (phone/age)
+      await _showProfileCompletionDialog();
 
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(
@@ -143,6 +279,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           pointsBreakdown: {},
         );
       }
+
+      // B.1: Write signup_events doc for n8n
+      await _writeSignupEvent(
+        email: user?.email ?? '',
+        username: username,
+      );
+
+      // B.3: Show optional profile completion (phone/age)
+      await _showProfileCompletionDialog();
 
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(

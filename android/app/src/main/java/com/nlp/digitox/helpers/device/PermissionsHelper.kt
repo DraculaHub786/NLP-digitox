@@ -17,6 +17,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -70,14 +71,58 @@ object PermissionsHelper {
     }
 
     /**
+     * Checks whether the user has actually granted the accessibility permission
+     * in Android Settings by reading the real OS accessibility-services record.
+     *
+     * This is NOT a process-liveness check — it reads
+     * `Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES` and looks for our
+     * [MindfulAccessibilityService] component name. This correctly reports
+     * `true` even when the OS has killed the service process (which OEMs
+     * routinely do to idle services).
+     */
+    fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        val expectedComponentName =
+            ComponentName(context, MindfulAccessibilityService::class.java)
+        val enabledServicesSetting = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+        ) ?: return false
+
+        val colonSplitter = TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServicesSetting)
+        while (colonSplitter.hasNext()) {
+            val componentName =
+                ComponentName.unflattenFromString(colonSplitter.next())
+            if (componentName == expectedComponentName) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Checks whether the accessibility service *process* is currently running/alive.
+     *
+     * Unlike [isAccessibilityServiceEnabled], this returns the service's runtime
+     * liveness — useful for detecting "permission granted but service is currently
+     * dead (killed by OEM)" so the app can show a lightweight reconnect nudge
+     * instead of asking the user to re-grant the permission.
+     */
+    fun isAccessibilityServiceActive(context: Context): Boolean =
+        Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)
+
+    /**
      * Checks if the accessibility permission is granted and optionally asks for it if not granted.
+     *
+     * Unlike the old implementation (which used process-liveness), this now reads the real
+     * OS accessibility-services record via [isAccessibilityServiceEnabled].
      *
      * @param context          The application context used to check permissions and start activities.
      * @param askPermissionToo Whether to prompt the user to enable accessibility permission if not granted.
      * @return True if accessibility permission is granted, false otherwise.
      */
     fun getAndAskAccessibilityPermission(context: Context, askPermissionToo: Boolean): Boolean {
-        if (Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)) {
+        if (isAccessibilityServiceEnabled(context)) {
             return true
         }
 

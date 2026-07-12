@@ -1,228 +1,245 @@
-# Task: Restructure onboarding flow
+# Task: Fix quiz-blocking bug, finish onboarding restructure, close data-storage gaps
 
-Target sequence
-1. Welcome
-2. About the Statistics (feature)
-3. Focus
-4. Block Distractions
-5. Privacy First
-6. Permissions / "allowance" screen — uses `onboarding_4.png`
-7. Quiz — matched to everything shown above
-8. App starts
-
-# Assumption I'm making — confirm before implementation
-6 illustrations exist (`assets/illustrations/onboarding_1.png` through
-`_6.png`), but only 1/2/3 are currently wired up (Focus/Block/Privacy), and
-you explicitly said Permissions uses `onboarding_4.png`. That leaves
-`onboarding_5.png` and `onboarding_6.png` unassigned. I'm assuming:
-- **Welcome → `onboarding_5.png`**
-- **Statistics → `onboarding_6.png`**
-
-If you actually want a different pairing (or new artwork instead of reusing
-5/6), say so before starting Task 1 — everything below is written assuming
-this mapping.
+## Priority order and why
+The quiz bug (Task A) is a **complete new-user blocker** — fix it first,
+before anything else, since it means nobody can currently finish signing up
+through onboarding. Task B (data storage) is needed before n8n can do
+anything useful. Task C (onboarding restructure) is the cosmetic/structural
+work from before, still pending — do it last since it's not blocking.
 
 ---
 
-# TASK 1 — Add copy for the 2 new slides (Welcome, Statistics)
+# TASK A — Fix the quiz-blocking overlay bug (CRITICAL, do first)
 
-### 1.1 Add English source strings
-File: `lib/l10n/app_en.arb`
-Add 4 new keys, following the exact naming pattern already used for the
-other 3 slides (`onboarding_page_one_title`, `_one_info`, etc.):
+### A.1 The problem, precisely
+`lib/ui/onboarding/onboarding_screen.dart`'s `build()` wraps the `PageView`
+and a persistent control overlay (skip button, page dots, prev/next arrows,
+"Finish setup" button) in a `Stack`. This overlay is rendered on **every**
+page including the quiz, and sits visually on top of `OnboardingQuizPage`'s
+own bottom button row (`lib/features/onboarding/quiz.dart` lines 141-176 —
+Back/Next/Complete buttons), which occupies the same bottom screen region.
+The outer overlay's bottom `Container` has an opaque background
+(`color: Theme.of(context).colorScheme.surface`), so it **visually and
+functionally covers** the quiz's real navigation buttons. Users can select
+an answer (that's in the scrollable middle area, unaffected) but can never
+reach a working Next/Complete button — the tap lands on the outer overlay
+instead, which shows a "Finish setup" button gated on
+`haveAllEssentialPermissions`, unrelated to quiz progress.
+
+### A.2 The fix
+The outer chrome (skip button, page dots, prev/next arrows, finish button)
+should not render at all while the quiz page is showing — the quiz has its
+own complete, self-contained navigation. In `onboarding_screen.dart`'s
+`build()`:
+
+```dart
+final isQuizPage = _pages[_currentPage] is OnboardingQuizPage;
 ```
-onboarding_page_welcome_title
-onboarding_page_welcome_info
-onboarding_page_statistics_title
-onboarding_page_statistics_info
+
+Wrap the entire `SafeArea(...)` overlay block in a conditional:
+```dart
+if (!isQuizPage)
+  SafeArea(
+    child: Padding(
+      ...
+    ),
+  ),
 ```
-Content should introduce the app (Welcome) and the Statistics/insights
-feature (Statistics) in the same tone as the existing 3 slides — short
-title, 1-2 sentence description.
+(i.e. only include the overlay in the `Stack`'s children when the current
+page isn't the quiz — when `isQuizPage` is true, the quiz's own Scaffold
+becomes the only source of navigation controls, unobstructed.)
 
-### 1.2 Regenerate localization bindings
-Run `flutter gen-l10n` (or equivalent build step already used in this repo)
-so `context.locale.onboarding_page_welcome_title` etc. become available as
-typed getters.
+### A.3 Also fix the "Skip" button's target
+`_skipToLastPage()` jumps to `_pages.length - 1`, which is already the quiz
+page — confirm this still works once the overlay hide logic in A.2 is in
+place (skipping should still land on the quiz, then the overlay should
+correctly disappear once there since `_currentPage` will equal the quiz
+index).
 
-### 1.3 Flag for translation (don't fabricate)
-There are **28 locale files** in `lib/l10n/` (`app_af.arb` through
-`app_zh.arb`). Only add real content to `app_en.arb` in this task — do not
-invent translations for the other 27. Missing keys in non-English `.arb`
-files typically fall back to English at runtime (verify this repo's
-`gen-l10n` config confirms that), so the app won't break, but plan a
-separate translation pass before shipping so non-English users don't see
-English text on 2 of 7 onboarding screens.
+### A.4 Verify end-to-end
+- Fresh signup → onboarding → reach the quiz page → confirm the outer
+  skip/dots/arrows are gone and only the quiz's own progress bar + Back/Next
+  buttons are visible.
+- Answer all 5 questions, tap "Complete" on the last one → confirm the
+  persona dialog appears and is dismissable.
+- Test on a device/emulator with a taller and a shorter screen — this class
+  of bug is easy to "half-fix" if the overlap only reproduces at certain
+  screen heights.
 
 ---
 
-## TASK 2 — Reorder the onboarding page sequence
+# TASK B — Close remaining data-storage gaps for n8n
 
-File: `lib/ui/onboarding/onboarding_screen.dart`, the `_pages` list
-(currently 5 entries: 3x `OnboardingPage`, `PermissionsPage`,
-`OnboardingQuizPage`).
+Do this before wiring up any n8n workflow — right now the onboarding-email
+workflow specifically has nothing to read.
 
-### 2.1 Rebuild the list in the new order
+### B.1 Actually write to `signup_events` at signup
+`signup_events` is currently only referenced in `deleteAccount()`'s cleanup
+list — nothing ever creates a document there. In `signup_screen.dart`,
+right after the `FirestoreService.instance.initializeUserData(...)` call
+succeeds (both the email/password path around line 55 and the Google path
+around line 118), add:
+```dart
+try {
+  await FirebaseFirestore.instance
+      .collection('signup_events')
+      .doc(FirebaseAuthService.instance.userId)
+      .set({
+    'email': _emailController.text.trim(), // or user?.email for the Google path
+    'username': _nameController.text.trim(), // or username for the Google path
+    'createdAt': FieldValue.serverTimestamp(),
+    'processed': false,
+  });
+} catch (e) {
+  debugPrint('Failed to queue signup event: $e');
+}
 ```
-_pages = [
-  OnboardingPage(title: ...welcome_title, imgArtPath: "assets/illustrations/onboarding_5.png", description: ...welcome_info),
-  OnboardingPage(title: ...statistics_title, imgArtPath: "assets/illustrations/onboarding_6.png", description: ...statistics_info),
-  OnboardingPage(title: ...page_one_title, imgArtPath: "assets/illustrations/onboarding_1.png", description: ...page_one_info),      // Focus
-  OnboardingPage(title: ...page_two_title, imgArtPath: "assets/illustrations/onboarding_2.png", description: ...page_two_info),      // Block Distractions
-  OnboardingPage(title: ...page_three_title, imgArtPath: "assets/illustrations/onboarding_3.png", description: ...page_three_info),  // Privacy First
+Wrap in try/catch, don't block signup on failure — consistent with the
+existing pattern in this file.
+
+### B.2 Auto-trigger email verification at signup
+Right now `sendEmailVerification()` only fires from a manual "resend"
+button in `tab_account.dart`. In `firebase_auth_service.dart`'s
+`signUpWithEmail()`, right before returning the created user, add a call to
+send verification automatically:
+```dart
+await userCredential.user?.sendEmailVerification();
+```
+(Google sign-in users don't need this — Google accounts are already
+verified.) Keep the existing manual "resend" button in Account settings too
+— useful if the first automatic email gets lost/delayed.
+
+### B.3 Collect phone number and age
+`FirestoreService.initializeUserData()` already accepts `phoneNumber` and
+`age`, but nothing in the UI collects them yet. Add a short, skippable
+"complete your profile" step — a small screen or dialog shown once after
+either signup path completes (or slotted into the onboarding Welcome/
+Statistics area from Task C, if that's done in the same pass) — that asks
+for phone number and age, both optional, with a clear "Skip for now"
+option. On submit or skip, write a `profileCompletionPrompted: true` flag
+to `users/{uid}` so it's never shown again automatically.
+
+### B.4 Verify end-to-end
+- Fresh signup → confirm a `signup_events/{uid}` doc exists with
+  `processed: false`
+- Confirm a verification email actually arrives without needing to tap
+  "resend" manually
+- Confirm the profile-completion step appears once, doesn't reappear after
+  being answered or skipped, and that entered phone/age actually land on
+  `users/{uid}`
+
+---
+
+# TASK C — Finish the onboarding restructure (from the earlier task list)
+
+Only the copy (Task 1) from the original plan was applied. The rest is
+still pending — re-doing the checklist here for a single source of truth:
+
+### C.1 Wire Welcome/Statistics into `_pages`
+The strings exist in `app_en.arb` but aren't referenced anywhere in
+`onboarding_screen.dart`. Add 2 more `OnboardingPage` entries at the front
+of the `_pages` list:
+```dart
+late final List<Widget> _pages = [
+  OnboardingPage(
+    title: context.locale.onboarding_page_welcome_title,
+    imgArtPath: "assets/illustrations/onboarding_5.png",
+    description: context.locale.onboarding_page_welcome_info,
+  ),
+  OnboardingPage(
+    title: context.locale.onboarding_page_statistics_title,
+    imgArtPath: "assets/illustrations/onboarding_6.png",
+    description: context.locale.onboarding_page_statistics_info,
+  ),
+  OnboardingPage(  // Focus — unchanged
+    title: context.locale.onboarding_page_one_title,
+    imgArtPath: "assets/illustrations/onboarding_1.png",
+    description: context.locale.onboarding_page_one_info,
+  ),
+  OnboardingPage(  // Block Distractions — unchanged
+    title: context.locale.onboarding_page_two_title,
+    imgArtPath: "assets/illustrations/onboarding_2.png",
+    description: context.locale.onboarding_page_two_info,
+  ),
+  OnboardingPage(  // Privacy First — unchanged
+    title: context.locale.onboarding_page_three_title,
+    imgArtPath: "assets/illustrations/onboarding_3.png",
+    description: context.locale.onboarding_page_three_info,
+  ),
   const PermissionsPage(),
   const OnboardingQuizPage(),
 ];
 ```
-Existing Focus/Block/Privacy `OnboardingPage` entries themselves don't need
-new copy — just reordering.
 
-### 2.2 Sanity-check `_skipToLastPage()` and the returning-user shortcut
-No code change needed here — both already reference `_pages.length - 1`,
-not a hardcoded index, so they'll correctly still land on the quiz page
-after reordering. Just re-verify this after the list change, don't assume.
+### C.2 Add `onboarding_4.png` to the Permissions page
+Read `lib/ui/onboarding/permission_page.dart` in full, then add the
+illustration at the top in the same visual style as `OnboardingPage` (see
+`lib/ui/onboarding/onboarding_page.dart`'s `AspectRatio` + `Image.asset`
+pattern), keeping the existing permission-request controls below it.
+Confirm all 4 required permissions (usage access, display overlay, alarms,
+notifications) have visible controls.
 
----
-
-## TASK 3 — Turn the Permissions page into the "allowance" screen with `onboarding_4.png`
-
-File: `lib/ui/onboarding/permission_page.dart` (262 lines, not yet read in
-full for this task — read it first before editing).
-
-### 3.1 Add the illustration
-Currently `PermissionsPage` likely doesn't use an `OnboardingPage`-style
-illustration layout. Add `onboarding_4.png` at the top, in the same visual
-style as the other slides (see `lib/ui/onboarding/onboarding_page.dart`'s
-`AspectRatio` + `Image.asset` pattern) — but keep whatever actual
-permission-request UI (toggles/buttons per permission) already exists below
-it; this task is about adding the illustration/header, not rebuilding the
-permission-granting mechanics.
-
-### 3.2 Confirm all 4 required permissions are represented
-`onboarding_screen.dart` checks these 4 via `permissionProvider`:
-`haveUsageAccessPermission`, `haveDisplayOverlayPermission`,
-`haveAlarmsPermission`, `haveNotificationPermission`. Read
-`permission_page.dart` and confirm all 4 have a visible request control —
-if any are missing from the UI, add them.
-
-### 3.3 Fix the auto-advance behavior — this is the important one
-Right now, `onboarding_screen.dart`'s `initState()` sets up:
-```dart
-_subscription = ref.listenManual<PermissionsModel>(
-  permissionProvider,
-  (_, perms) {
-    final haveAllEssentialPermissions = ...;
-    if (!haveAllEssentialPermissions) return;
-    _finishOnboarding();       // <-- ends onboarding immediately
-    _subscription?.close();
-  },
-);
-```
-This **ends onboarding the instant all 4 permissions are granted**,
-regardless of which page the user is on — meaning in the new flow, a user
-could finish granting permissions and get dropped straight into the app,
-**skipping the quiz entirely**. Since you explicitly want the quiz to
-always run after permissions, change this listener to advance to the next
-page (the quiz) instead of calling `_finishOnboarding()` directly:
+### C.3 Fix the permission-granted auto-advance
+Still unresolved: `initState()`'s `ref.listenManual` calls
+`_finishOnboarding()` directly the instant all 4 permissions are granted,
+which would skip the quiz entirely. Change it to advance to the quiz page
+instead:
 ```dart
 if (!haveAllEssentialPermissions) return;
 _controller.animateToPage(
-  _pages.length - 1,   // quiz is now always the last page
+  _pages.length - 1,
   duration: _animDuration,
   curve: _animCurve,
 );
 _subscription?.close();
 ```
-Only call `_finishOnboarding()` from the quiz's completion action (see Task
-5).
+Only call `_finishOnboarding()` from the quiz's own completion action
+(Task C.4).
+
+### C.4 Fix quiz completion to actually mark onboarding done
+`quiz.dart`'s `_showPersonaResult()` still does
+`Navigator.of(context).pushReplacementNamed('/home')` directly, never
+calling `markOnboardingDone()` — meaning even after Task A's fix makes the
+button tappable, completing the quiz still won't correctly persist
+"onboarding is done," and the user would be sent back into onboarding on
+next launch. Fix by either:
+- (a) passing an `onComplete` callback from `OnboardingScreen` (which has
+  `_finishOnboarding()`) down into `OnboardingQuizPage`, and calling that
+  instead of navigating directly — recommended, single source of truth; or
+- (b) having the "Get Started" button call
+  `ref.read(mindfulSettingsProvider.notifier).markOnboardingDone()` then
+  `NavigationService.instance.init(...)` directly, matching what
+  `_finishOnboarding()` already does.
+
+### C.5 Reframe quiz question copy (cosmetic, do last)
+Reword question/option text to reference Focus/Block Distractions/Privacy/
+Statistics by name where it fits the existing persona-mapping logic, so it
+reads as a recap rather than a generic quiz. Keep the underlying
+`_determinePersona()` logic and 5-question structure intact.
 
 ---
 
-## TASK 4 — Redesign the quiz to reference what was just shown
-
-File: `lib/features/onboarding/quiz.dart` (`OnboardingQuizPage`).
-
-### 4.1 Don't discard the existing persona-fingerprinting logic
-The current quiz isn't just cosmetic — it drives `PersonaService` and
-personalizes the app (Professional/Student/Parent/Senior/Social-User/General
-modes). Keep `_determinePersona()`, `_getPersonaInfo()`, and the underlying
-question→persona mapping intact.
-
-### 4.2 Reframe question copy to reference the onboarding slides
-Rewrite the question text/options (currently generic: "What best describes
-your current situation?", "What is your primary goal?", etc.) so they read
-as a recap tied to what was just shown — e.g. referencing Focus, Block
-Distractions, Privacy, and Statistics by name where it naturally fits the
-existing persona-mapping logic, so it feels like "matching" rather than a
-disconnected generic quiz. This is a copywriting task — I can draft
-suggested question/option text as a follow-up if you want, once the Welcome
-and Statistics copy from Task 1 is finalized (the quiz should reference
-consistent terminology).
-
-### 4.3 Keep the existing 5-question structure unless you want more
-No indication more questions are needed — reuse the current
-`occupation` / `primary_goal` / `biggest_distraction` / `usage_time` /
-`motivation` structure, just re-worded.
-
----
-
-## TASK 5 — Fix onboarding completion so the app actually starts correctly
-
-### 5.1 The bug
-`_completeQuiz()` → `_showPersonaResult()` in `quiz.dart` currently does:
-```dart
-Navigator.of(context).pop();
-Navigator.of(context).pushReplacementNamed('/home');
-```
-This is a real, pre-existing bug: it never calls
-`mindfulSettingsProvider.notifier.markOnboardingDone()`. So `isOnboardingDone`
-stays `false` in the user's settings. Next time they open the app,
-`splash_screen.dart` checks `settings.isOnboardingDone` and sends them right
-back into onboarding — even though they already completed it.
-
-### 5.2 The fix
-`OnboardingQuizPage` needs access to the same completion path
-`onboarding_screen.dart` uses. Two ways to do this, pick one:
-- **(a)** Have `OnboardingQuizPage` accept an `onComplete` callback passed
-  down from `OnboardingScreen` (which already has `_finishOnboarding()`),
-  and call that instead of navigating directly.
-- **(b)** Have the "Get Started" button call
-  `ref.read(mindfulSettingsProvider.notifier).markOnboardingDone()` directly,
-  then call `NavigationService.instance.init(...)` (matching exactly what
-  `_finishOnboarding()` in `onboarding_screen.dart` already does), instead
-  of a raw `pushReplacementNamed('/home')`.
-
-Option (a) is cleaner (one source of truth for "onboarding is done",
-matching the existing skip/permissions-driven completion paths already in
-`onboarding_screen.dart`) — recommended unless there's a reason
-`OnboardingQuizPage` needs to stay decoupled from its parent.
-
-### 5.3 Verify end-to-end
-After the fix: complete onboarding → force-close the app → relaunch →
-confirm it goes straight to the dashboard, not back into onboarding.
-
----
-
-## Suggested implementation order
-1. Task 1 (copy) — needed before Task 2 can reference the new keys
-2. Task 2 (reorder pages)
-3. Task 3 (permissions screen + auto-advance fix)
-4. Task 5 (completion bug fix) — do this before Task 4's copy pass so the
-   flow is functionally correct first
-5. Task 4 (quiz copy rewrite) — cosmetic/content pass last, once the
-   structural flow works
+## Suggested execution order
+1. **Task A** (unblock new users — nobody can sign up successfully until this lands)
+2. **Task B** (data storage — needed before n8n has anything to act on)
+3. **Task C.1 → C.4** (structural onboarding fixes)
+4. **Task C.5** (copy pass, cosmetic, lowest urgency)
 
 ## Acceptance checklist
-- [ ] Confirmed image mapping (Welcome=5, Statistics=6) or corrected it
-- [ ] Welcome and Statistics slides show correct copy in English
-- [ ] Other 27 locale files flagged for translation, not fabricated
-- [ ] Page order is: Welcome → Statistics → Focus → Block Distractions →
-      Privacy First → Permissions → Quiz
-- [ ] Permissions page shows `onboarding_4.png` and all 4 required
-      permission controls
+- [ ] Quiz page's own Next/Back/Complete buttons are visible and tappable,
+      outer overlay chrome hidden while on the quiz page
+- [ ] Completing the quiz successfully reaches the persona dialog and then
+      the app, tested on at least 2 different screen sizes
+- [ ] `signup_events/{uid}` is actually created at signup with
+      `processed: false`
+- [ ] A verification email arrives automatically after signup, no manual
+      resend needed
+- [ ] Phone/age collection step exists, is skippable, doesn't repeat
+- [ ] `_pages` includes Welcome and Statistics slides in the correct order
+- [ ] Permissions page shows `onboarding_4.png`
 - [ ] Granting all permissions mid-onboarding advances to the quiz, does
       NOT skip straight into the app
-- [ ] Quiz question copy references Focus/Block/Privacy/Statistics content
 - [ ] Completing the quiz calls `markOnboardingDone()` before navigating in
 - [ ] Force-close + relaunch after completing onboarding goes straight to
       the dashboard, not back into onboarding
+- [ ] Quiz question copy references the onboarding topics by name

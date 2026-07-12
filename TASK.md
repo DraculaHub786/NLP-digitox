@@ -1,161 +1,169 @@
-# Task: Fix Groq sentiment wiring, then build funny mood-based motivation
+# Task: Fix shorts-blocking / tamper-protection permissions resetting
 
-## Root cause summary (confirmed by reading the actual code, not assumed)
-
-1. **`lib/config/api_keys.dart` is gitignored** (`**/api_keys.dart` in
-   `.gitignore`) — only `lib/config/api_keys_template.dart` exists, with
-   `groqApiKey = 'YOUR_GROQ_API_KEY_HERE'`. `AISentimentService` checks
-   `if (_apiKey.isEmpty || _apiKey.contains('YOUR_'))` and throws if so.
-2. **`lib/providers/ai_providers.dart`'s `aiSentimentProvider` and
-   `aiRecommendationsProvider` both wrap their Groq calls in `try { ... }
-   catch (_) { return _fallbackSentiment()/_fallbackRecommendations(); }`**
-   — on ANY failure (missing key, network error, timeout, parse failure),
-   they silently return the same hardcoded static values. No error is
-   surfaced anywhere. This is indistinguishable from "working but boring"
-   unless you check `flutter logs`.
-3. **`_loadScreenTimeGoalSeconds()` reads the wrong field.** It reads
-   `allowedShortsTimeSec` from `WellbeingTable` (`lib/core/database/tables/wellbeing_table.dart`)
-   — confirmed by its own doc comment to be *"Allowed time for short content
-   in SECONDS"* (default 7 hours), i.e. the Shorts/Reels blocking limit, not
-   a general daily screen-time goal. No real "screen time goal" setting
-   exists anywhere in the app today (checked the DB schema, Firestore
-   settings, and UI strings — nothing).
+## Root cause summary
+1. **Confirmed code bug**: `PermissionsHelper.kt`'s
+   `getAndAskAccessibilityPermission()` (line ~79) checks whether the
+   `MindfulAccessibilityService` process happens to be alive right now
+   (`Utils.isServiceRunning()`), not whether the user has actually granted
+   the accessibility permission in Android Settings. OEMs (and Android's
+   own Doze/App Standby) routinely kill idle background/accessibility
+   services after a couple hours — the OS-level permission is untouched,
+   but this check misreports it as revoked.
+2. **Contributing factor**: battery-optimization exemption already exists
+   in the app (`BatteryPermissionTile` / `haveIgnoreOptimizationPermission`)
+   but is optional, not required during onboarding — most users never grant
+   it, so OEM battery managers kill the service more often than they need
+   to.
+3. **Tamper protection (Device Admin)** is checked via the correct OS API
+   (`isAdminActive()`), which isn't process-dependent — if this is
+   genuinely resetting too, it's most likely real OEM-level revocation
+   (common on Xiaomi/Oppo/Vivo/Samsung for apps without "Autostart"
+   enabled), not an app logic bug. Needs mitigation/guidance, not a code
+   fix to the check itself.
 
 ---
 
-## PHASE 1 — Diagnose your actual current state (do this first, don't skip)
+## TASK A — Fix the accessibility permission check (the definite bug)
 
-### 1.1 Check whether `api_keys.dart` exists and has a real key
+### A.1 Replace the process-liveness check with a real permission check
+File: `android/app/src/main/java/com/nlp/digitox/helpers/device/PermissionsHelper.kt`,
+`getAndAskAccessibilityPermission()` (~line 79).
+
+Replace the `Utils.isServiceRunning(...)` check with one that reads
+Android's actual accessibility-services record, e.g.:
+```kotlin
+fun isAccessibilityServiceEnabled(context: Context): Boolean {
+    val expectedComponentName = ComponentName(context, MindfulAccessibilityService::class.java)
+    val enabledServicesSetting = Settings.Secure.getString(
+        context.contentResolver,
+        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+    ) ?: return false
+
+    val colonSplitter = TextUtils.SimpleStringSplitter(':')
+    colonSplitter.setString(enabledServicesSetting)
+    while (colonSplitter.hasNext()) {
+        val componentName = ComponentName.unflattenFromString(colonSplitter.next())
+        if (componentName != null && componentName == expectedComponentName) {
+            return true
+        }
+    }
+    return false
+}
 ```
-ls lib/config/api_keys.dart
-cat lib/config/api_keys.dart
-```
-If the file doesn't exist, or `groqApiKey` still contains `'YOUR_'`, that's
-Bug 1 confirmed — copy `api_keys_template.dart` to `api_keys.dart` and put
-in a real key from https://console.groq.com/keys.
+Use this (or the equivalent `AccessibilityManager.getEnabledAccessibilityServiceList()`
+approach) in place of `Utils.isServiceRunning()` inside
+`getAndAskAccessibilityPermission()`.
 
-### 1.2 Temporarily make failures visible
-Bug 2 (silent catch) makes it impossible to tell success from failure just
-by looking at the UI. Before fixing anything, add a temporary
-`debugPrint('SENTIMENT ERROR: $e')` inside both `catch (_)` blocks in
-`ai_providers.dart` (lines 44 and 72), run the app, open the dashboard's AI
-Analysis card, and check `flutter logs` / the debug console. This tells you
-definitively whether calls are failing (and why) or actually succeeding
-with boring/static-looking results.
+### A.2 Don't discard the liveness check entirely — use it for a different purpose
+`isServiceRunning()` isn't useless — it's actually useful for detecting
+"permission granted but service process is currently dead," which is a
+real, different state from "permission not granted." Consider exposing
+both signals separately (e.g. `haveAccessibilityPermission` vs a new
+`isAccessibilityServiceActive`), so the app can distinguish:
+- Not granted → show the grant flow (Settings.ACTION_ACCESSIBILITY_SETTINGS)
+- Granted but currently killed → don't ask the user to re-grant anything;
+  instead trigger Task B's restart logic, or at most show a lightweight
+  "reconnecting protection..." indicator, not a re-permission prompt.
 
----
-
-## PHASE 2 — Fix the two confirmed bugs
-
-### 2.1 Set up the real API key (if Phase 1.1 confirmed it's missing)
-- Copy `lib/config/api_keys_template.dart` → `lib/config/api_keys.dart`
-- Add a real Groq key
-- Confirm `lib/config/api_keys.dart` is NOT accidentally tracked by git
-  (`git status` should not show it as a new/modified file, since it's
-  gitignored — if it does show up, something's wrong with the ignore rule)
-
-### 2.2 Add a real "screen time goal" setting — don't keep reusing Shorts time
-This requires a small schema addition since nothing like it exists:
-- Add a new column to `WellbeingTable` (or a more appropriate settings
-  table if one fits better) — e.g. `dailyScreenTimeGoalSec`, with a
-  sensible default (e.g. 3-4 hours in seconds).
-- Regenerate Drift code (`dart run build_runner build` or whatever this
-  repo's existing codegen command is — check for a `build_runner` script
-  already used elsewhere in the repo for consistency).
-- Add a UI control somewhere reasonable (Settings, or the existing
-  wellbeing/limits screen if one exists) so the user can actually set this
-  goal — a sentiment feature silently using an invisible, unconfigurable
-  number isn't very useful.
-- Update `_loadScreenTimeGoalSeconds()` in `ai_providers.dart` to read the
-  new field instead of `allowedShortsTimeSec`.
-
-### 2.3 Remove (or gate behind a debug flag) the silent catch-and-fallback
-Keep a fallback for genuine network failures (that's reasonable), but:
-- Log the actual error (`debugPrint` or a proper logging service if this
-  repo has one) every time the fallback path is hit, in production too —
-  not just during this debugging phase — so future "nothing's changing"
-  reports are diagnosable without re-adding temporary prints.
-- Consider surfacing a subtle UI indicator when showing fallback data (e.g.
-  a small "using default insights" label) so it's visibly different from a
-  live AI result, instead of looking identical.
-
-### 2.4 Verify end-to-end
-After 2.1-2.3: change your usage pattern meaningfully (e.g. big screen time
-swing, complete some habits, chat with the AI a bit), reload the dashboard's
-AI Analysis card, and confirm the sentiment percentages and recommendations
-actually differ from the previous load and from the old static fallback
-numbers.
+### A.3 Verify
+Force-kill the accessibility service process manually (via ADB:
+`adb shell am force-stop com.nlp.digitox` or by leaving the device idle for
+a few hours on a real device, ideally a MIUI/ColorOS device since those are
+the most aggressive), then reopen the app and confirm shorts blocking no
+longer prompts for permission it already has.
 
 ---
 
-## PHASE 3 — Build the funny, mood-based motivational message feature
+## TASK B — Make the accessibility service more resilient to being killed
 
-This builds on the now-fixed pipeline from Phase 2 — don't start this until
-Phase 2.4 is verified working, otherwise you'll be debugging two things at
-once.
+Fixing the check (Task A) stops the false "please re-grant" prompt, but if
+the OS genuinely killed the service, shorts blocking is actually not
+running until something rebinds it. Two complementary approaches:
 
-### 3.1 Unify the currently-separate mood/persona/chat inputs
-Today `MoodService` (heuristic + self-reported mood), `PersonaService`
-(quiz-derived persona), and `AIChatbotService` (chat history) are three
-separate systems that don't talk to each other. Add a small aggregator
-function/service (e.g. `MotivationContextService`) that pulls:
-- Latest `MoodEntry` from `MoodService.instance.latestMood`
-- Persona from `PersonaService`
-- Recent chat messages from `AIChatbotService.instance.getRecentMessages()`
-- Current sentiment from the (now-fixed) `AISentimentService`
-into one combined context object.
+### B.1 Rely on Android's own service reconnection where possible
+`AccessibilityService` is meant to be automatically rebound by the system
+`AccessibilityManager` framework when needed. Confirm
+`MindfulAccessibilityService`'s manifest declaration
+(`android:canRetrieveWindowContent`, service `<intent-filter>`, and the
+`accessibilityservice` XML config) don't have flags that would prevent
+normal auto-rebind — read the manifest entry and the accessibility service
+config XML and compare against Android's documented requirements for
+reliable rebinding.
 
-### 3.2 Add a new Groq prompt specifically for humor, not coaching
-Add a new method to `AISentimentService` — e.g. `getFunnyMotivation()` —
-separate from `getRecommendations()` (don't overload the existing serious
-one; different tone, different prompt, different consumers). Prompt should
-explicitly instruct: short (1-2 sentences), funny/light tone, references
-the user's actual mood/persona/recent behavior, still land on something
-encouraging, not just a joke with no point. Include few-shot examples in
-the prompt if you want more consistent comedic tone.
-
-### 3.3 Decide the trigger/frequency
-A funny message every screen refresh will get old fast. Pick one:
-- Time-based (e.g. once every few hours, cached in between)
-- Event-based (e.g. after completing a habit, after a long session, on app
-  open if it's been N hours since the last one)
-- Manual (a "cheer me up" button)
-Cache the last generated message (SharedPreferences, matching how
-mood/persona are already stored) so it doesn't regenerate on every widget
-rebuild — this also reduces Groq API usage.
-
-### 3.4 Surface it in the UI
-Options, pick based on how prominent you want it:
-- A small dismissible card on the dashboard (new, separate from the
-  existing serious "AI Analysis" section — don't conflate the two tones)
-- A local notification
-- Both, with the notification driving the person back to the dashboard
-  where the card lives
-
-### 3.5 Respect the mood-detection privacy angle
-`MoodService`'s heuristic detection (rapid unlocks, short sessions) and the
-sentiment analyzer's chat-snippet usage both mean real personal signals are
-being sent to a third-party API (Groq) via `AISentimentService`. Worth
-double-checking `lib/ui/screens/settings/privacy_settings_screen.dart` (it
-already exists — read it) to confirm whatever privacy toggle already
-exists there properly gates this new feature too, not just the existing
-sentiment card.
+### B.2 Add a lightweight heartbeat/restart nudge
+Where feasible, add a periodic check (e.g. via `WorkManager` or the
+existing alarm/receiver infrastructure already used elsewhere in this repo
+— see `lib/core/database/tables/bedtime_schedule_table.dart`'s alarm
+patterns for a precedent) that detects "permission granted but service not
+currently active" and prompts the system to rebind it, or at minimum
+surfaces a clear, low-friction in-app nudge ("Shorts blocking paused —
+tap to resume") rather than the current full re-permission flow.
 
 ---
+
+## TASK C — Make battery-optimization exemption part of the guided setup
+
+### C.1 Surface it earlier and more prominently
+Right now `BatteryPermissionTile` is optional and easy to miss. Since it
+directly reduces how often OEMs kill the accessibility service, move it
+into the flow the user sees when first enabling Shorts Blocking (or
+Tamper Protection) — not necessarily into the hard-required onboarding gate
+(that's a bigger decision), but at minimum a clear "recommended" prompt
+right when the user turns on either feature for the first time.
+
+### C.2 Add OEM-specific "autostart"/background permission guidance
+Battery optimization exemption alone doesn't cover every OEM's extra
+restrictions (Xiaomi's "Autostart," Oppo/Vivo's "Startup Manager," etc.).
+Consider adding manufacturer-specific deep-link guidance (there are known
+Intent actions per-OEM for these settings screens, or a package like
+`disable_battery_optimization` on pub.dev already catalogs them) so users
+on the most aggressive OEMs get pointed at the right screen instead of
+generic Android battery settings that don't actually cover it.
+
+---
+
+## TASK D — Harden tamper protection (Device Admin) against OEM revocation
+
+### D.1 Confirm this is actually happening, and how often
+Since the check itself (`isAdminActive()`) is correct, first confirm
+whether Device Admin is genuinely being revoked (test on a Xiaomi/Oppo
+device with Autostart disabled, left idle for a few hours) versus the user
+conflating it with the Shorts Blocking issue because both live on the same
+permissions screen. This changes how much engineering effort D.2 deserves.
+
+### D.2 If confirmed, mitigate rather than "fix" (there's no code bug to fix)
+- Point users toward disabling battery optimization + enabling Autostart
+  for this app (same guidance as Task C.2) — the leading cause of OEMs
+  revoking Device Admin registration.
+- Add a periodic check (app open, or a background heartbeat) that detects
+  Device Admin has been silently revoked and shows a clear one-tap way to
+  re-enable it, rather than the user discovering it's broken only when
+  tamper protection fails silently.
+
+---
+
+## Suggested execution order
+1. Task A (fix the definite false-negative bug — biggest, most reliable win)
+2. Task C (battery optimization guidance — reduces how often the OS kills
+   the service in the first place, benefits both A and D)
+3. Task B (resilience/auto-restart — deeper fix, more effort)
+4. Task D (Device Admin hardening — only worth deep investment once D.1
+   confirms it's a real, frequent issue and not just perception)
 
 ## Acceptance checklist
-- [ ] Confirmed whether `api_keys.dart` existed with a real key (Phase 1.1)
-- [ ] Confirmed via logs whether failures were happening and why (Phase 1.2)
-- [ ] Real Groq key in place, not committed to git
-- [ ] New `dailyScreenTimeGoalSec`-style field added, exposed in UI, and
-      used instead of `allowedShortsTimeSec`
-- [ ] Fallback paths now log errors instead of failing silently
-- [ ] Confirmed sentiment/recommendations actually change across different
-      real usage patterns, not just returning the same static values
-- [ ] New unified mood/persona/chat/sentiment context aggregator built
-- [ ] Separate funny-tone Groq prompt/method added, distinct from the
-      existing serious recommendations
-- [ ] Trigger/frequency and caching strategy decided and implemented
-- [ ] Feature surfaced in UI, tonally separated from the existing serious
-      AI Analysis card
-- [ ] Existing privacy settings confirmed to gate this new feature too
+- [ ] Accessibility permission check reads the real OS permission record,
+      not process liveness
+- [ ] Force-killing the accessibility service process no longer triggers a
+      false "please grant permission" prompt
+- [ ] Battery optimization exemption is surfaced clearly when Shorts
+      Blocking / Tamper Protection are first enabled
+- [ ] (If pursued) OEM-specific autostart guidance added for at least
+      Xiaomi/Oppo/Vivo
+- [ ] (If pursued) Lightweight restart/reconnect nudge exists instead of a
+      full re-permission flow when the service is found killed but still
+      permitted
+- [ ] Confirmed whether Device Admin revocation is real and frequent
+      before investing further engineering time in Task D
+- [ ] Tested on at least one aggressive OEM device (Xiaomi/Oppo/Vivo), not
+      just a stock/Pixel emulator — this class of bug won't reproduce on
+      stock Android

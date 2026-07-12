@@ -6,12 +6,11 @@ import 'package:nlp_digitox/core/enums/app_theme_mode.dart';
 import 'package:nlp_digitox/core/enums/default_home_tab.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
-import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/config/locales.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
-import 'package:nlp_digitox/ui/common/content_section_header.dart';
+import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
 import 'package:nlp_digitox/ui/common/default_dropdown_tile.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -40,9 +39,14 @@ class TabGeneral extends ConsumerWidget {
       physics: const BouncingScrollPhysics(),
       slivers: [
         /// Appearance
-        ContentSectionHeader(
-          title: context.locale.appearance_heading,
-        ).sliver,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ModernSectionHeader(
+              title: context.locale.appearance_heading,
+            ),
+          ),
+        ),
 
         SliverToBoxAdapter(
           child: Padding(
@@ -133,7 +137,12 @@ class TabGeneral extends ConsumerWidget {
 
         /// Default settings
         12.vSliverBox,
-        ContentSectionHeader(title: context.locale.defaults_heading).sliver,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ModernSectionHeader(title: context.locale.defaults_heading),
+          ),
+        ),
 
         SliverToBoxAdapter(
           child: Padding(
@@ -228,8 +237,141 @@ class TabGeneral extends ConsumerWidget {
           ),
         ),
 
+        /// AI Analysis settings
+        12.vSliverBox,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ModernSectionHeader(title: 'AI Analysis'),
+          ),
+        ),
+
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          FluentIcons.target_20_filled,
+                          color: colorScheme.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            StyledText(
+                              'Daily Screen Time Goal',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            StyledText(
+                              'Used by AI to measure your progress',
+                              fontSize: 12,
+                              color: colorScheme.onSurface.withValues(alpha: 0.75),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  20.vBox,
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final dailyGoalSec = ref.watch(
+                        wellBeingProvider.select((v) => v.dailyScreenTimeGoalSec),
+                      );
+                      return Column(
+                        children: [
+                          Row(
+                            children: [
+                              _AIStepper(
+                                colorScheme: colorScheme,
+                                label: 'Hours',
+                                value: dailyGoalSec ~/ 3600,
+                                min: 1,
+                                max: 12,
+                                onDecrement: () {
+                                  final newVal = (dailyGoalSec - 3600).clamp(3600, 12 * 3600);
+                                  ref.read(wellBeingProvider.notifier).setDailyScreenTimeGoal(newVal);
+                                },
+                                onIncrement: () {
+                                  final newVal = (dailyGoalSec + 3600).clamp(3600, 12 * 3600);
+                                  ref.read(wellBeingProvider.notifier).setDailyScreenTimeGoal(newVal);
+                                },
+                              ),
+                              const SizedBox(width: 12),
+                              _AIStepper(
+                                colorScheme: colorScheme,
+                                label: 'Mins',
+                                value: (dailyGoalSec % 3600) ~/ 60,
+                                min: 0,
+                                max: 59,
+                                step: 15,
+                                onDecrement: () {
+                                  final newVal = dailyGoalSec - (15 * 60);
+                                  if (newVal >= 3600) {
+                                    ref.read(wellBeingProvider.notifier).setDailyScreenTimeGoal(newVal);
+                                  }
+                                },
+                                onIncrement: () {
+                                  final newVal = dailyGoalSec + (15 * 60);
+                                  if (newVal <= 12 * 3600) {
+                                    ref.read(wellBeingProvider.notifier).setDailyScreenTimeGoal(newVal);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          8.vBox,
+                          Center(
+                            child: StyledText(
+                              'Goal: ${(dailyGoalSec / 3600).toStringAsFixed(1)} hours',
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
         /// Service
-        ContentSectionHeader(title: context.locale.service_heading).sliver,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ModernSectionHeader(title: context.locale.service_heading),
+          ),
+        ),
 
         SliverToBoxAdapter(
           child: Padding(
@@ -268,6 +410,93 @@ class TabGeneral extends ConsumerWidget {
 
         const SliverTabsBottomPadding(),
       ],
+    );
+  }
+}
+
+class _AIStepper extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final String label;
+  final int value;
+  final int min;
+  final int max;
+  final int step;
+  final VoidCallback? onIncrement;
+  final VoidCallback? onDecrement;
+
+  const _AIStepper({
+    required this.colorScheme,
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    this.step = 1,
+    this.onIncrement,
+    this.onDecrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          StyledText(
+            label,
+            fontSize: 11,
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+          8.vBox,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: value > min ? onDecrement : null,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: value > min
+                        ? colorScheme.primary.withValues(alpha: 0.1)
+                        : colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    FluentIcons.subtract_20_regular,
+                    size: 16,
+                    color: value > min ? colorScheme.primary : colorScheme.outline,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: StyledText(
+                  value.toString(),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              InkWell(
+                onTap: value < max ? onIncrement : null,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: value < max
+                        ? colorScheme.primary.withValues(alpha: 0.1)
+                        : colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    FluentIcons.add_20_regular,
+                    size: 16,
+                    color: value < max ? colorScheme.primary : colorScheme.outline,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
