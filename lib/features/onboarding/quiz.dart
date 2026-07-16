@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/services/persona_service.dart';
+import 'package:nlp_digitox/models/persona_model.dart';
 
 /// Onboarding Quiz Page
 /// Implements persona fingerprinting based on user responses
@@ -266,55 +268,144 @@ class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
     }
   }
 
-  void _completeQuiz() {
+  Future<void> _completeQuiz() async {
     // Determine persona based on responses
-    final persona = _determinePersona();
+    final personaLabel = _determinePersona();
 
-    // Save persona - just store the string identifier
-    // PersonaService will handle the conversion internally
-    debugPrint('Onboarding: Selected persona: $persona');
+    // Map the heuristic label to UserPersona enum used by PersonaService
+    final persona = _mapToUserPersona(personaLabel);
+
+    // Collect raw answers as Map<String, String> for richer AI context
+    final answers = _responses.map(
+      (key, value) => MapEntry(key, value.toString()),
+    );
+
+    // Persist the persona profile (including raw answers) so AI services can read it
+    await PersonaService.instance.savePersona(
+      PersonaProfile(
+        persona: persona,
+        scores: {},
+        determinedAt: DateTime.now(),
+        answers: answers,
+      ),
+    );
+
+    debugPrint('Onboarding: Saved persona — ${persona.displayName} ($personaLabel) with ${answers.length} answers');
+
+    if (!mounted) return;
 
     // Show result and navigate
-    _showPersonaResult(persona);
+    await _showPersonaResult(personaLabel);
+  }
+
+  /// Maps the heuristic quiz persona string to the [UserPersona] enum.
+  UserPersona _mapToUserPersona(String label) {
+    return switch (label) {
+      'professional' => UserPersona.optimizer,
+      'student'      => UserPersona.explorer,
+      'parent'       => UserPersona.caretaker,
+      'senior'       => UserPersona.optimizer,
+      'socialUser'   => UserPersona.avoider,
+      _              => UserPersona.optimizer,
+    };
   }
 
   String _determinePersona() {
+    // Weighted multi-factor scoring — considers all 5 answers.
+    final scores = <String, int>{
+      'professional': 0,
+      'student': 0,
+      'parent': 0,
+      'senior': 0,
+      'socialUser': 0,
+    };
+
     final occupation = _responses['occupation'] as String?;
     final goal = _responses['primary_goal'] as String?;
     final distraction = _responses['biggest_distraction'] as String?;
+    final usageTime = _responses['usage_time'] as String?;
+    final motivation = _responses['motivation'] as String?;
 
-    // Simple heuristic-based persona determination
-    // Returns persona identifier string
-    if (occupation == 'professional') {
-      if (goal == 'improve_focus') {
-        return 'professional';
-      }
+    // 1. Occupation (primary signal — highest weight)
+    switch (occupation) {
+      case 'professional':
+        scores['professional'] = scores['professional']! + 3;
+      case 'student':
+        scores['student'] = scores['student']! + 3;
+      case 'parent':
+        scores['parent'] = scores['parent']! + 3;
+      case 'senior':
+        scores['senior'] = scores['senior']! + 3;
+      case 'other':
+        scores['socialUser'] = scores['socialUser']! + 1;
     }
 
-    if (occupation == 'student') {
-      return 'student';
+    // 2. Primary goal (secondary signal)
+    switch (goal) {
+      case 'improve_focus':
+        scores['professional'] = scores['professional']! + 2;
+      case 'reduce_social':
+        scores['socialUser'] = scores['socialUser']! + 2;
+      case 'reduce_screen':
+        scores['student'] = scores['student']! + 1;
+      case 'better_sleep':
+        scores['senior'] = scores['senior']! + 1;
+      case 'family_wellness':
+        scores['parent'] = scores['parent']! + 2;
     }
 
-    if (occupation == 'parent' || goal == 'family_wellness') {
-      return 'parent';
+    // 3. Biggest distraction
+    switch (distraction) {
+      case 'social_media':
+        scores['socialUser'] = scores['socialUser']! + 2;
+      case 'news':
+        scores['professional'] = scores['professional']! + 1;
+      case 'games':
+        scores['student'] = scores['student']! + 2;
+      case 'videos':
+        scores['socialUser'] = scores['socialUser']! + 1;
+      case 'shopping':
+        scores['parent'] = scores['parent']! + 1;
     }
 
-    if (occupation == 'senior') {
-      return 'senior';
+    // 4. Usage time
+    switch (usageTime) {
+      case 'morning':
+        scores['professional'] = scores['professional']! + 1;
+      case 'afternoon':
+        scores['professional'] = scores['professional']! + 1;
+      case 'evening':
+        scores['socialUser'] = scores['socialUser']! + 1;
+      case 'night':
+        scores['student'] = scores['student']! + 1;
+      case 'all_day':
+        scores['socialUser'] = scores['socialUser']! + 1;
     }
 
-    if (distraction == 'social_media' || distraction == 'videos') {
-      return 'socialUser';
+    // 5. Motivation style
+    switch (motivation) {
+      case 'goals':
+        scores['professional'] = scores['professional']! + 1;
+      case 'rewards':
+        scores['student'] = scores['student']! + 1;
+      case 'progress':
+        scores['professional'] = scores['professional']! + 1;
+      case 'competition':
+        scores['student'] = scores['student']! + 1;
+      case 'growth':
+        scores['senior'] = scores['senior']! + 1;
     }
 
-    // Default
-    return 'general';
+    // Return the highest-scoring persona; ties go to the first occurrence
+    return scores.entries
+        .reduce((a, b) => a.value >= b.value ? a : b)
+        .key;
   }
 
-  void _showPersonaResult(String persona) {
+  Future<void> _showPersonaResult(String persona) async {
     final personaInfo = _getPersonaInfo(persona);
 
-    showDialog(
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(

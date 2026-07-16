@@ -10,6 +10,7 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/auth_service.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
+import 'package:nlp_digitox/core/services/persona_service.dart';
 import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
@@ -79,6 +80,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         perms.haveDisplayOverlayPermission &&
         perms.haveAlarmsPermission &&
         perms.haveNotificationPermission;
+
+    // Q-8: Use PersonaService as the authoritative quiz-completion check.
+    // If the persona is corrupted (flag true but key missing), isQuizCompleted()
+    // returns false and the user is shown the onboarding/quiz again.
+    final quizCompleted = await PersonaService.instance.isQuizCompleted();
+    // Override _isOnboardingDone: only true if the quiz was actually completed
+    // AND the MindfulSettings flag is set.
+    _isOnboardingDone = _isOnboardingDone && quizCompleted;
 
     if (mounted) setState(() {});
     _isAccessProtected ? _authenticate() : _goToNextScreen(true);

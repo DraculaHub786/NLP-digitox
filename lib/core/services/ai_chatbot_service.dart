@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
+import 'package:nlp_digitox/core/services/persona_service.dart';
+import 'package:nlp_digitox/models/persona_model.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
 
 /// Model for chat messages with editing and deletion support
@@ -177,12 +179,33 @@ class AIChatbotService {
     }
   }
 
-  void _initializeAI() {
+  Future<void> _initializeAI() async {
     try {
       if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
         debugPrint('⚠️ AIChatbotService: Invalid API key! Please set up your Groq API key.');
         return;
       }
+
+      // Load persona for system prompt personalisation
+      final personaProfile = await PersonaService.instance.getPersona();
+      final personaSection = personaProfile != null ? '''
+=== USER PROFILE ===
+Persona type: ${personaProfile.persona.displayName}
+Occupation context: ${personaProfile.answers['occupation'] ?? 'not provided'}
+Primary wellness goal: ${personaProfile.answers['primary_goal'] ?? 'not provided'}
+Biggest digital distraction: ${personaProfile.answers['biggest_distraction'] ?? 'not provided'}
+Typical phone usage time: ${personaProfile.answers['usage_time'] ?? 'not provided'}
+Preferred motivation style: ${personaProfile.answers['motivation'] ?? 'not provided'}
+=== END PROFILE ===
+
+Tailor all responses, tone, examples, and advice to this specific user.
+For example:
+- If persona is 'The Optimizer': use work-focus examples, productivity-oriented
+- If persona is 'The Caretaker': emphasise family time and modelling healthy habits for others
+- If persona is 'The Explorer': suggest depth over breadth, curiosity-guided growth
+- If persona is 'The Rebel': frame advice as choices, never commands
+- If persona is 'The Avoider': be gentle, encouraging, never shaming
+''' : '(No user profile yet — give general digital wellness advice)';
       
       _conversationHistory.add({
         'role': 'system',
@@ -200,11 +223,13 @@ You are a compassionate digital wellbeing assistant named "ditixBot". Your role 
 
 Important: When context about the user's emotional state is provided, acknowledge it naturally and adjust your tone accordingly.
 
+$personaSection
+
 Remember: You're a supportive friend helping them build better digital habits, not a therapist or medical professional.
 '''
       });
       
-      debugPrint('✅ AIChatbotService: Initialized successfully with Groq API (30 RPM, 14,400 RPD)');
+      debugPrint('✅ AIChatbotService: Initialized successfully with Groq API (30 RPM, 14,400 RPD) — persona: ${personaProfile?.persona.displayName ?? "none"}');
     } catch (e) {
       debugPrint('❌ AIChatbotService: Error initializing - $e');
     }
