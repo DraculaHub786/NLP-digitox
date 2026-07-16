@@ -7,6 +7,7 @@ import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/profile_service.dart';
+import 'package:nlp_digitox/features/onboarding/quiz.dart';
 import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
@@ -146,6 +147,26 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                         builder: (_) => const AchievementsScreen(),
                       ),
                     ),
+                  ),
+                ],
+              ),
+
+              20.vBox,
+
+              /// Digital Profile Card — retake quiz
+              _buildResponsiveCard(
+                colorScheme: colorScheme,
+                icon: FluentIcons.person_feedback_20_regular,
+                iconColor: colorScheme.primary,
+                title: 'Digital Profile',
+                children: [
+                  ModernListTile(
+                    title: 'Update My Digital Profile',
+                    subtitle: 'Retake the quiz to improve AI personalization',
+                    icon: FluentIcons.person_feedback_20_regular,
+                    iconColor: colorScheme.primary,
+                    showChevron: true,
+                    onTap: () => _openQuiz(),
                   ),
                 ],
               ),
@@ -596,6 +617,21 @@ class _TabAccountState extends ConsumerState<TabAccount> {
           ),
           ...children,
         ],
+      ),
+    );
+  }
+
+  void _openQuiz() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => OnboardingQuizPage(
+          onComplete: () {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile updated! AI will now adapt to your new answers.')),
+            );
+          },
+        ),
       ),
     );
   }

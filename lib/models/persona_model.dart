@@ -124,16 +124,21 @@ extension UserPersonaExtension on UserPersona {
   }
 }
 
-/// Full persona profile with quiz score breakdown
+/// Full persona profile with quiz score breakdown and raw answers.
 class PersonaProfile {
   final UserPersona persona;
   final Map<UserPersona, int> scores;
   final DateTime determinedAt;
 
+  /// Raw quiz answers mapped by question id → selected option value.
+  /// Contains richer context than the persona label alone.
+  final Map<String, String> answers;
+
   const PersonaProfile({
     required this.persona,
     required this.scores,
     required this.determinedAt,
+    this.answers = const {},
   });
 
   factory PersonaProfile.fromScores(Map<UserPersona, int> scores) {

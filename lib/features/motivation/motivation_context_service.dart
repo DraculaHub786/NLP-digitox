@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
+import 'package:nlp_digitox/core/services/persona_service.dart';
+import 'package:nlp_digitox/models/persona_model.dart';
 import 'package:nlp_digitox/features/mood/mood_service.dart';
 
 /// Aggregates mood, persona, chat, and sentiment into one context object
@@ -14,20 +16,18 @@ class MotivationContextService {
   factory MotivationContextService() => _instance;
   MotivationContextService._();
 
-  static const String _personaKey = 'onboarding_persona';
   static const String _cachedMotivationKey = 'cached_funny_motivation';
   static const String _cachedMotivationTimeKey =
       'cached_funny_motivation_timestamp';
 
   /// Build a combined context map from all available sources.
   Future<Map<String, dynamic>> buildContext() async {
-    final prefs = await SharedPreferences.getInstance();
     final context = <String, dynamic>{};
 
-    // Persona (from onboarding quiz)
-    final persona = prefs.getString(_personaKey);
-    if (persona != null && persona.isNotEmpty) {
-      context['persona'] = persona;
+    // Persona — route through PersonaService (canonical source, not raw prefs)
+    final personaProfile = await PersonaService.instance.getPersona();
+    if (personaProfile != null) {
+      context['persona'] = personaProfile.persona.displayName;
     }
 
     // Latest mood entry
