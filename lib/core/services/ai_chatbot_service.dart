@@ -136,7 +136,7 @@ class AIChatbotService {
   Future<void> _initialize() async {
     if (_initialized) return;
     
-    _initializeAI();
+    await _initializeAI();
     await _loadChatHistory();
     await _startNewSessionOnAppOpen();
     
@@ -301,7 +301,7 @@ Remember: You're a supportive friend helping them build better digital habits, n
       // Always clear current chat to start fresh
       _chatHistory.clear();
       _conversationHistory.clear();
-      _initializeAI();
+      await _initializeAI();
       
       // ✅ FIX: Create session ID but DON'T add empty session to list
       // Session will be added to _chatSessions when first message is sent via _saveCurrentSessionToHistory()
@@ -349,6 +349,11 @@ Remember: You're a supportive friend helping them build better digital habits, n
   /// This helps stay within token limits by clearing the session's internal history
   Future<void> _resetChatSession() async {
     try {
+      if (_conversationHistory.isEmpty) {
+        await _initializeAI();
+        _messagesInCurrentSession = 0;
+        return;
+      }
       // Keep system message + last 6 user/assistant exchanges (12 messages)
       final systemMsg = _conversationHistory.first; // System message
       final recentMsgs = _conversationHistory.length > 13
@@ -365,7 +370,7 @@ Remember: You're a supportive friend helping them build better digital habits, n
       debugPrint('❌ Error resetting chat session: $e');
       // Fallback: reinitialize
       _conversationHistory.clear();
-      _initializeAI();
+      await _initializeAI();
       _messagesInCurrentSession = 0;
     }
   }
@@ -609,7 +614,7 @@ Adjust your responses to be empathetic to their current emotional state.
     try {
       _chatHistory.clear();
       _conversationHistory.clear();
-      _initializeAI();
+      await _initializeAI();
       
       // ✅ FIX: Also clean up empty sessions when clearing history
       _chatSessions.removeWhere((s) => s.messages.isEmpty);
@@ -705,7 +710,7 @@ Adjust your responses to be empathetic to their current emotional state.
       if (title != null) {
         _chatHistory.clear();
         _conversationHistory.clear();
-        _initializeAI();
+        await _initializeAI();
       }
       
       // ✅ FIX: Don't add to list - will be added when messages arrive
@@ -733,7 +738,7 @@ Adjust your responses to be empathetic to their current emotional state.
       _chatHistory.addAll(session.messages);
       
       _conversationHistory.clear();
-      _initializeAI();
+      await _initializeAI();
       for (final msg in session.messages) {
         _conversationHistory.add({
           'role': msg.isUser ? 'user' : 'assistant',
@@ -807,7 +812,7 @@ Adjust your responses to be empathetic to their current emotional state.
         _currentSessionId = null;
         _chatHistory.clear();
         _conversationHistory.clear();
-        _initializeAI();
+        await _initializeAI();
       }
       
       await _saveChatHistory();
@@ -873,7 +878,7 @@ Adjust your responses to be empathetic to their current emotional state.
       
       // Rebuild conversation history up to the edited message
       _conversationHistory.clear();
-      _initializeAI();
+      await _initializeAI();
       for (int i = 0; i <= messageIndex; i++) {
         final msg = _chatHistory[i];
         _conversationHistory.add({

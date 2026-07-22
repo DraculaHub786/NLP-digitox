@@ -1,73 +1,55 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // User data access rules
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ---- Private user profile + all subcollections ----
+    // (appRestrictions, appUsage, focusSessions, crashLogs, restrictionGroups,
+    //  notifications, habits, tasks, chats, settings — all live under users/{userId}/...)
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Habits subcollection
-      match /habits/{habitId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-      
-      // Tasks subcollection
-      match /tasks/{taskId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-      
-      // Chat sessions subcollection
-      match /chats/{chatId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-      
-      // Settings and preferences
-      match /settings/{settingId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+
+      match /{subcollection}/{document=**} {
+        allow read, write: if isOwner(userId);
       }
     }
-    
-    // Shared sessions - readable by members
-    match /shared_sessions/{sessionId} {
-      allow read: if request.auth != null && 
-        (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null ||
-         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.visibility == 'public');
-      
-      allow write: if request.auth != null &&
-        (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.owner == request.auth.uid ||
-         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null);
-      
-      allow create: if request.auth != null;
-    }
-    
-    // Groups - readable by members or if public
-    match /groups/{groupId} {
-      allow read: if request.auth != null && 
-        (get(/databases/$(database)/documents/groups/$(groupId)).data.members[request.auth.uid] != null ||
-         get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == 'public');
-      
-      allow write: if request.auth != null &&
-        get(/databases/$(database)/documents/groups/$(groupId)).data.owner == request.auth.uid;
-      
-      allow create: if request.auth != null;
-    }
-    
-    // Leaderboard - all authenticated users can read; each user can write only their own doc
+
+    // ---- Public leaderboard, tightly scoped writes ----
     match /leaderboard/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId)
+                    && request.resource.data.lifetimePoints >= resource.data.lifetimePoints;
+      allow delete: if isOwner(userId);  // Needed for account deletion
     }
-    
-    // Leaderboard config - readable by all authenticated; only service accounts can write
-    match /leaderboard_config/{configDoc} {
-      allow read: if request.auth != null;
-      allow write: if false; // Only n8n cron / admin writes
+
+    // ---- Weekly/monthly reset bookkeeping — client can read + write ----
+    // (leaderboard_service.dart writes weekly_reset via _initializeLeaderboardWeek
+    //  and _updateLastResetDate on the client side.
+    //  The `points` field resets to 0 every Monday 4AM, `lifetimePoints` is never reset.)
+    match /leaderboard_config/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
     }
-    
-    // Public content - readable by all authenticated users
-    match /public/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if false; // Only admin can write
+
+    // ---- Badges — queried by userId filter in firebase_auth_service.dart ----
+    match /badges/{badgeId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn()
+                             && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn()
+                     && resource.data.userId == request.auth.uid;  // Needed for account deletion
+    }
+
+    // ---- One-time signup analytics doc, owner-keyed ----
+    match /signup_events/{userId} {
+      allow read, write: if isOwner(userId);
     }
   }
 }
