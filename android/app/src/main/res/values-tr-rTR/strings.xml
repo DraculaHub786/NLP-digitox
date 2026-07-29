@@ -1,12 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Based on Mindful - GPL-2.0 license -->
+<!-- Based on NLP digitox -->
 
-<resources>    <string name="app_name">NLP digitox</string>    <string name="accessibility_description">Mindful uygulaması, web sitelerini ve uygulamalardaki kısa biçimli içeriği engellemek için erişilebilirlik hizmetlerini kullanır. URL\'leri ve içeriği engelleme listenizle karşılaştırarak kontrol eder ve odaklanmanıza yardımcı olmak için erişimi engeller.\n\n⚠️Note: Gizliliğiniz bizim önceliğimizdir.Mindful 100% güvenlidir ve çevrimdışı çalışır. Herhangi bir kişisel veri toplamıyor veya saklamıyoruz.</string>
-    <string name="admin_description">Mindful herhangi bir kullanıcı verisi toplamaz, depolamaz veya iletmez. Özgür ve Açık Kaynak Yazılımı (FOSS) olarak, kaynak kodunu inceleyebilir ve değiştirebilirsiniz. Yönetici ayrıcalıkları yalnızca temel sistem işlemleri için gereklidir ve uygulamanın gizliliğinizi tehlikeye atmadan doğru şekilde çalışmasını sağlar.</string>
+<resources>    <string name="app_name">NLP digitox</string>    <string name="accessibility_description">NLP digitox uygulaması, web sitelerini ve uygulamalardaki kısa biçimli içeriği engellemek için erişilebilirlik hizmetlerini kullanır. URL'leri ve içeriği engelleme listenizle karşılaştırarak kontrol eder ve odaklanmanıza yardımcı olmak için erişimi engeller.
+
+⚠️Not: Gizliliğiniz bizim önceliğimizdir. NLP digitox 100% güvenlidir ve çevrimdışı çalışır. Herhangi bir kişisel veri toplamıyor veya saklamıyoruz.</string>
+    <string name="admin_description">NLP digitox herhangi bir kullanıcı verisi toplamaz, depolamaz veya iletmez. Özgür ve Açık Kaynak Yazılımı (FOSS) olarak, kaynak kodunu inceleyebilir ve değiştirebilirsiniz. Yönetici ayrıcalıkları yalnızca temel sistem işlemleri için gereklidir ve uygulamanın gizliliğinizi tehlikeye atmadan doğru şekilde çalışmasını sağlar.</string>
     <string name="toast_enable_notification">Lütfen bildirimleri etkinleştirin</string>
     <string name="toast_blocked_content">İçerik engellendi! geri dönülüyor</string>
     <string name="toast_redirecting">Arama Sonuçları Filtreleniyor</string>
-    <string name="service_running_notification_title">Mindful çalışıyor</string>
+    <string name="service_running_notification_title">NLP digitox çalışıyor</string>
     <string name="shortcut_focus_mode_label">Odak modu</string>
     <string name="shortcut_focus_mode_description">Özel profillerle hızlıca bir odak oturumu başlatın.</string>
     <string name="shortcut_upcoming_notifications_label">Gruplanmış bildirimler</string>
@@ -18,10 +20,10 @@
     <string name="widget_screen_time_label">Ekran süresi</string>
     <string name="widget_mobile_data_label">Mobil</string>
     <string name="widget_wifi_data_label">Wifi</string>
-    <string name="internet_blocker_running_notification_info">Mindful artık odaklanmanıza yardımcı olmak için internet erişimini yönetiyor.</string>
-    <string name="app_blocker_running_notification_info">Mindful, odaklanmanıza ve dijital alışkanlıklarınızı yönetmenize yardımcı olmak için artık uygulama kullanımını takip ediyor.</string>
+    <string name="internet_blocker_running_notification_info">NLP digitox artık odaklanmanıza yardımcı olmak için internet erişimini yönetiyor.</string>
+    <string name="app_blocker_running_notification_info">NLP digitox, odaklanmanıza ve dijital alışkanlıklarınızı yönetmenize yardımcı olmak için artık uygulama kullanımını takip ediyor.</string>
     <string name="overlay_permission_denied_notification_title">İzin verilmedi</string>
-    <string name="overlay_permission_denied_notification_info">Lütfen bildirime tıklayarak Mindful\'a yer paylaşımı görüntüleme izni verin. Sonraki ekranda, uygulamalar listesinde Mindful\'u bulun ve izin ver\'e tıklayın.</string>
+    <string name="overlay_permission_denied_notification_info">Lütfen bildirime tıklayarak NLP digitox'a yer paylaşımı görüntüleme izni verin. Sonraki ekranda, uygulamalar listesinde NLP digitox'u bulun ve izin ver'e tıklayın.</string>
     <string name="app_paused_reason_focus_session">Odaklanma zamanı! Bu uygulama, odaklanmanıza yardımcı olmak ve oturumunuzdan en iyi şekilde faydalanmanızı sağlamak için duraklatıldı.</string>
     <string name="app_paused_reason_bedtime">Uyku zamanı! Bu uygulama, rahatlamanızı sağlamak ve huzurlu bir uykuya hazırlanmanız için gece boyunca duraklatıldı.</string>
     <string name="app_paused_reason_launch_count_out">Bugün bu uygulama için maksimum açılış sayısına ulaştınız. Şimdi bir adım geri atıp önceliklerinize odaklanma zamanı.</string>

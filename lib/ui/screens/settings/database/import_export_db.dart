@@ -171,7 +171,7 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
 
       final resultPath = await FilePicker.platform.saveFile(
         fileName:
-            "Mindful_v${mindfulVersionCode}_dbv${dbVersionCode}_$timeStamp.sqlite",
+            "NLP_digitox_v${mindfulVersionCode}_dbv${dbVersionCode}_$timeStamp.sqlite",
         bytes: Uint8List.fromList(dbFileBytes),
       );
 

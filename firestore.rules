@@ -38,13 +38,26 @@ service cloud.firestore {
       allow write: if isSignedIn();
     }
 
-    // ---- Badges — queried by userId filter in firebase_auth_service.dart ----
+    // ---- Badges — only readable by the owner; writable ONLY by Admin SDK (n8n) ----
+    // Field name in app: `userId` (not `uid`).
+    // firebase_auth_service.dart queries: `where('userId', isEqualTo: uid)`
     match /badges/{badgeId} {
-      allow read: if isSignedIn();
-      allow create, update: if isSignedIn()
-                             && request.resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn()
-                     && resource.data.userId == request.auth.uid;  // Needed for account deletion
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Admin SDK (n8n) only
+    }
+
+    // ---- Public badge_verification lookup — anyone with the exact ID can get it ----
+    // Written by Admin SDK (n8n Node 10/12); no listing/enumeration allowed.
+    // App uses: firestore.collection('badge_verification').doc(verificationId).get()
+    match /badge_verification/{verificationId} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if false; // Admin SDK only
+    }
+
+    // ---- automation_state — used by onboarding workflow (Admin SDK only) ----
+    match /automation_state/{docId} {
+      allow read, write: if false; // Admin SDK only
     }
 
     // ---- One-time signup analytics doc, owner-keyed ----

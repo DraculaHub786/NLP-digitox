@@ -1,15 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Based on Mindful - GPL-2.0 license -->
+<!-- Based on NLP digitox -->
 
 <resources>
     <string name="app_name">NLP digitox</string>
-    <string name="accessibility_description">تطبيق Mindful يستخدم خدمات إمكانية الوصول لحظر المواقع والمحتوى القصير في التطبيقات. يقوم بفحص الروابط والمحتوى مقابل قائمة الحظر الخاصة بك ويمنع الوصول للمساعدة في الحفاظ على تركيزك.\n\n⚠️ ملاحظة: خصوصيتك هي أولويتنا. تطبيق Mindful آمن 100% ويعمل دون اتصال بالإنترنت. نحن لا نجمع أو نخزن أي بيانات شخصية.</string>
-    <string name="admin_description">تطبيق Mindful لا يجمع أو يخزن أو ينقل أي بيانات مستخدم. كبرنامج مجاني ومفتوح المصدر (FOSS)، يمكنك مراجعة وتعديل كود المصدر. تطلب صلاحيات المسؤول فقط للعمليات النظامية الأساسية، مما يضمن عمل التطبيق بشكل صحيح دون المساس بخصوصيتك.</string>
+    <string name="accessibility_description">تطبيق NLP digitox يستخدم خدمات إمكانية الوصول لحظر المواقع والمحتوى القصير في التطبيقات. يقوم بفحص الروابط والمحتوى مقابل قائمة الحظر الخاصة بك ويمنع الوصول للمساعدة في الحفاظ على تركيزك.
+
+⚠️ ملاحظة: خصوصيتك هي أولويتنا. تطبيق NLP digitox آمن 100% ويعمل دون اتصال بالإنترنت. نحن لا نجمع أو نخزن أي بيانات شخصية.</string>
+    <string name="admin_description">تطبيق NLP digitox لا يجمع أو يخزن أو ينقل أي بيانات مستخدم. كبرنامج مجاني ومفتوح المصدر (FOSS)، يمكنك مراجعة وتعديل كود المصدر. تطلب صلاحيات المسؤول فقط للعمليات النظامية الأساسية، مما يضمن عمل التطبيق بشكل صحيح دون المساس بخصوصيتك.</string>
     <string name="toast_enable_notification">يرجى تفعيل الإشعارات</string>
     <string name="toast_blocked_content">تم حظر المحتوى! جاري العودة</string>
     <string name="toast_redirecting">تصفية نتائج البحث</string>
     <string name="toast_dnd_utilized_by_feature" comment="Placeholder is the name of feature like Focus mode, Bedtime or more" formatted="true">%s يستخدم وضع عدم الإزعاج حاليا.</string>
-    <string name="service_running_notification_title">تطبيق Mindful يعمل حاليا</string>
+    <string name="service_running_notification_title">NLP digitox يعمل حاليا</string>
     <string name="shortcut_focus_mode_label">وضع التركيز</string>
     <string name="shortcut_focus_mode_description">ابدأ جلسة تركيز بسرعة باستخدام ملفات تعريف مخصصة.</string>
     <string name="shortcut_upcoming_notifications_label">الإشعارات المجمعة</string>
@@ -22,10 +24,10 @@
     <string name="widget_mobile_data_label">الهاتف المحمول</string>
     <string name="widget_wifi_data_label">واي فاي</string>
     <string name="widget_aggregated_usage_label">الاستخدام المجمع</string>
-    <string name="internet_blocker_running_notification_info">يعمل Mindful الان على إدارة الوصول إلى الإنترنت لمساعدتك على البقاء مركزا.</string>
-    <string name="app_blocker_running_notification_info">يعمل Mindful الان على تتبع استخدام التطبيقات لمساعدتك على الحفاظ على تركيزك وإدارة عاداتك الرقمية.</string>
+    <string name="internet_blocker_running_notification_info">يعمل NLP digitox الان على إدارة الوصول إلى الإنترنت لمساعدتك على البقاء مركزا.</string>
+    <string name="app_blocker_running_notification_info">يعمل NLP digitox الان على تتبع استخدام التطبيقات لمساعدتك على الحفاظ على تركيزك وإدارة عاداتك الرقمية.</string>
     <string name="overlay_permission_denied_notification_title">تم رفض الإذن</string>
-    <string name="overlay_permission_denied_notification_info">يرجى منح إذن العرض فوق التطبيقات لتطبيق Mindful بالنقر على الإشعار. في الشاشة التالية، ابحث عن Mindful في قائمة التطبيقات وانقر على السماح.</string>
+    <string name="overlay_permission_denied_notification_info">يرجى منح إذن العرض فوق التطبيقات لتطبيق NLP digitox بالنقر على الإشعار. في الشاشة التالية، ابحث عن NLP digitox في قائمة التطبيقات وانقر على السماح.</string>
     <string name="app_paused_reason_focus_session">حان وقت التركيز! هذا التطبيق موقوف مؤقتا لمساعدتك على البقاء مركزا والاستفادة القصوى من جلستك.</string>
     <string name="app_paused_reason_bedtime">حان وقت النوم! تم إيقاف هذا التطبيق ليلا لمساعدتك على الاسترخاء والاستعداد لنوم هادئ.</string>
     <string name="app_paused_reason_launch_count_out">لقد وصلت إلى الحد الأقصى لعدد مرات فتح هذا التطبيق اليوم. حان الوقت للابتعاد وإعادة التركيز على أولوياتك.</string>

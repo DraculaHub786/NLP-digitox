@@ -80,6 +80,9 @@ class Initializer {
     /// Check if weekly leaderboard reset is needed (Monday 4 AM)
     await LeaderboardService.instance.checkAndPerformWeeklyReset();
 
+    /// Check if monthly leaderboard reset is needed (1st of month at 4 AM)
+    await LeaderboardService.instance.checkAndPerformMonthlyReset();
+
     /// Start periodic monitor for daily streak evaluation (runs every 6 hours)
     LeaderboardService.instance.startDailyStreakEvaluation();
 

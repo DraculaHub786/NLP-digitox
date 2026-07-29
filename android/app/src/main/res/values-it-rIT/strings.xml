@@ -1,14 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Based on Mindful - GPL-2.0 license -->
+<!-- Based on NLP digitox -->
 
 <resources>
     <string name="app_name">NLP digitox</string>
-    <string name="accessibility_description">Mindful utilizza i servizi di accessibilità per bloccare siti web e video brevi all\'interno di app (Reels, Shorts,...). Confronta gli URL con una lista di contenuti bloccati e ne impedisce l\'accesso per aiutarti a concentrarti. \n\n ⚠️ Attenzione: la tua privacy è la nostra priorità. Mindful è sicura al 100% e funziona offline. Non raccogliamo e non memorizziamo i tuoi dati personali. </string>
-    <string name="admin_description">Mindful non raccoglie, memorizza o trasmette alcun dato utente. Come Software Libero e Open Source (FOSS), è possibile rivedere e modificare il codice sorgente. I privilegi da amministratore sono necessari solo per le operazioni di sistema essenziali, garantendo le funzioni dell\'applicazione correttamente senza compromettere la vostra privacy.</string>
+    <string name="accessibility_description">NLP digitox utilizza i servizi di accessibilità per bloccare siti web e video brevi all'interno di app (Reels, Shorts,...). Confronta gli URL con una lista di contenuti bloccati e ne impedisce l'accesso per aiutarti a concentrarti.
+
+⚠️ Attenzione: la tua privacy è la nostra priorità. NLP digitox è sicura al 100% e funziona offline. Non raccogliamo e non memorizziamo i tuoi dati personali.</string>
+    <string name="admin_description">NLP digitox non raccoglie, memorizza o trasmette alcun dato utente. Come Software Libero e Open Source (FOSS), è possibile rivedere e modificare il codice sorgente. I privilegi da amministratore sono necessari solo per le operazioni di sistema essenziali, garantendo le funzioni dell'applicazione correttamente senza compromettere la vostra privacy.</string>
     <string name="toast_enable_notification">Per favore, abilita le notifiche</string>
     <string name="toast_blocked_content">Contenuto bloccato! Torno indietro</string>
     <string name="toast_redirecting">Filtraggio risultati ricerca</string>
-    <string name="service_running_notification_title">Mindful è in esecuzione</string>
+    <string name="service_running_notification_title">NLP digitox è in esecuzione</string>
     <string name="shortcut_focus_mode_label">Modalità concentrazione</string>
     <string name="shortcut_focus_mode_description">Avvia rapidamente una sessione di concentrazione con profili personalizzati.</string>
     <string name="shortcut_upcoming_notifications_label">Notifiche raggruppate</string>
@@ -20,10 +22,10 @@
     <string name="widget_screen_time_label">Tempo sullo schermo</string>
     <string name="widget_mobile_data_label">Rete dati</string>
     <string name="widget_wifi_data_label">Wi-Fi</string>
-    <string name="internet_blocker_running_notification_info">Mindful gestirà l\'accesso a internet per aiutarti a concentrarti.</string>
-    <string name="app_blocker_running_notification_info">Mindful sta monitorando l\'utilizzo delle app per aiutarti a rimanere concentrato e gestire le tue abitudini digitali.</string>
+    <string name="internet_blocker_running_notification_info">NLP digitox gestirà l'accesso a internet per aiutarti a concentrarti.</string>
+    <string name="app_blocker_running_notification_info">NLP digitox sta monitorando l'utilizzo delle app per aiutarti a rimanere concentrato e gestire le tue abitudini digitali.</string>
     <string name="overlay_permission_denied_notification_title">Permesso non concesso</string>
-    <string name="overlay_permission_denied_notification_info">Concedi l\'autorizzazione \"Mostra sopra altre app\" a Mindful cliccando sulla notifica. Nella schermata successiva, trova Mindful nell\'elenco delle app e clicca su \'Consenti\'.</string>
+    <string name="overlay_permission_denied_notification_info">Concedi l'autorizzazione "Mostra sopra altre app" a NLP digitox cliccando sulla notifica. Nella schermata successiva, trova NLP digitox nell'elenco delle app e clicca su 'Consenti'.</string>
     <string name="app_paused_reason_focus_session">È tempo di concentrarsi! Quest\'app è bloccata per aiutarti a rimanere sul pezzo e massimizzare la tua sessione.</string>
     <string name="app_paused_reason_bedtime">È ora della nanna! Quest\'app è bloccata durante la notte per aiutarti a rilassarti e prepararti per un sonno tranquillo.</string>
     <string name="app_paused_reason_launch_count_out">Hai raggiunto il numero massimo di avvii per questa app oggi. È il momento di allontanarsi e riconcentrarsi sulle tue priorità.</string>

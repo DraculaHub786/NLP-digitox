@@ -1,4 +1,4 @@
-// Based on code from Mindful by Pawan Nagar (https://github.com/akaMrNagar/NLP ditix)
+// Based on NLP digitox
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

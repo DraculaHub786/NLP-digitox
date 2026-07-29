@@ -141,7 +141,7 @@ class _ExportClearCrashLogsState extends ConsumerState<ExportClearCrashLogs> {
       final timeStamp = DateFormat('yyyy-MM-dThh-mm-ss').format(DateTime.now());
 
       final resultPath = await FilePicker.platform.saveFile(
-        fileName: "Mindful_Logs_$timeStamp.json",
+        fileName: "NLP_digitox_Logs_$timeStamp.json",
         bytes: Uint8List.fromList(utf8.encode(jsonString)),
       );
 

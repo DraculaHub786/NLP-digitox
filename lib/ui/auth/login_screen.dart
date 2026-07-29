@@ -83,21 +83,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuthService.instance.signInWithGoogle();
+      final user = await FirebaseAuthService.instance.signInWithGoogle();
+
+      // User cancelled — return silently, no error shown
+      if (user == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
 
       // Initialize leaderboard data if not exists (for existing users)
-      final user = FirebaseAuthService.instance.currentUser;
-      if (user != null) {
-        final existingData = await LeaderboardService.instance.getCurrentUserData();
-        if (existingData == null) {
-          await LeaderboardService.instance.updateUserData(
-            username: user.displayName ?? 'User',
-            points: 0,
-            streak: 0,
-            avatarEmoji: '👤',
-            pointsBreakdown: {},
-          );
-        }
+      final existingData = await LeaderboardService.instance.getCurrentUserData();
+      if (existingData == null) {
+        await LeaderboardService.instance.updateUserData(
+          username: user.displayName ?? 'User',
+          points: 0,
+          streak: 0,
+          avatarEmoji: '👤',
+          pointsBreakdown: {},
+        );
       }
 
       if (!mounted) return;
@@ -160,7 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  /// App icon — matches the icon-chip style used across the dashboard
+                  /// App logo
                   Container(
                     width: 72,
                     height: 72,
@@ -168,10 +171,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       color: colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(
-                      FluentIcons.brain_circuit_20_filled,
-                      size: 36.0,
-                      color: colorScheme.primary,
+                    padding: const EdgeInsets.all(10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/logo.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ).animate(effects: DefaultEffects.transitionIn),
 

@@ -183,7 +183,7 @@ object PermissionsHelper {
                 context.startActivity(intent)
                 Toast.makeText(
                     context,
-                    "Please allow Mindful to display overlay",
+                    "Please allow NLP digitox to display overlay",
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {

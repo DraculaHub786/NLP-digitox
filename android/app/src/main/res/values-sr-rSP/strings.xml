@@ -1,13 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Based on Mindful - GPL-2.0 license -->
+<!-- Based on NLP digitox -->
 
 <resources>
-    <string name="accessibility_description">Апликација Mindful користи услуге приступачности за блокирање веб сајтова и кратког садржаја на апликацијама. Проверава УРЛ-ове и садржај у односу на вашу листу блокираних и спречава приступ како би вам помогла да останете фокусирани.\n\n⚠️Напомена: Ваша приватност нам је приоритет. Mindful је 100% сигурна и ради офлајн. Не прикупљамо нити чувамо било какве личне податке.</string>
-    <string name="admin_description">Mindful не прикупља, не чува и не дели податке корисника. Као слободни и отворени софтвер (FOSS), можете прегледати и изменити изворни код. Административне привилегије су потребне искључиво за основне системске операције, како би апликација правилно функционисала, а да не угрози вашу приватност.</string>
+    <string name="accessibility_description">Апликација NLP digitox користи услуге приступачности за блокирање веб сајтова и кратког садржаја на апликацијама. Проверава УРЛ-ове и садржај у односу на вашу листу блокираних и спречава приступ како би вам помогла да останете фокусирани.
+
+⚠️Напомена: Ваша приватност нам је приоритет. NLP digitox је 100% сигурна и ради офлајн. Не прикупљамо нити чувамо било какве личне податке.</string>
+    <string name="admin_description">NLP digitox не прикупља, не чува и не дели податке корисника. Као слободни и отворени софтвер (FOSS), можете прегледати и изменити изворни код. Административне привилегије су потребне искључиво за основне системске операције, како би апликација правилно функционисала, а да не угрози вашу приватност.</string>
     <string name="toast_enable_notification">Молимо те да омогућиш обавештења</string>
     <string name="toast_blocked_content">Садржај је блокиран! Враћам се назад</string>
     <string name="toast_redirecting">Филтрирање резултата претраге</string>
-    <string name="service_running_notification_title">Mindful ради</string>
+    <string name="service_running_notification_title">NLP digitox ради</string>
     <string name="shortcut_focus_mode_label">Режим фокуса</string>
     <string name="shortcut_focus_mode_description">Брзо започни фокус сесију са прилагођеним профилима.</string>
     <string name="shortcut_upcoming_notifications_label">Груписана обавештења</string>
@@ -19,10 +21,10 @@
     <string name="widget_screen_time_label">Време испред екрана</string>
     <string name="widget_mobile_data_label">Мобилни</string>
     <string name="widget_wifi_data_label">Wi-Fi</string>
-    <string name="internet_blocker_running_notification_info">Mindful сада управља приступом интернету како би ти помогао да останеш фокусиран.</string>
-    <string name="app_blocker_running_notification_info">Mindful сада прати коришћење апликација како би ти помогао да останеш фокусиран и управљаш својим дигиталним навикама.</string>
+    <string name="internet_blocker_running_notification_info">NLP digitox сада управља приступом интернету како би ти помогао да останеш фокусиран.</string>
+    <string name="app_blocker_running_notification_info">NLP digitox сада прати коришћење апликација како би ти помогао да останеш фокусиран и управљаш својим дигиталним навикама.</string>
     <string name="overlay_permission_denied_notification_title">Дозвола одбијена</string>
-    <string name="overlay_permission_denied_notification_info">Молимо те да одобриш дозволу за приказивање преклапања за апликацију Mindful кликом на обавештење. На следећем екрану, пронађи апликацију Mindful на листи и кликни на \'дозволи\'.</string>
+    <string name="overlay_permission_denied_notification_info">Молимо те да одобриш дозволу за приказивање преклапања за апликацију NLP digitox кликом на обавештење. На следећем екрану, пронађи апликацију NLP digitox на листи и кликни на 'дозволи'.</string>
     <string name="app_paused_reason_focus_session">Време је за фокус! Апликација је паузирана да ти помогне да останеш на правом путу и искористиш своје време на најбољи начин.</string>
     <string name="app_paused_reason_bedtime">Време је за спавање! Апликација је паузирана за ноћ како би ти помогла да се опустиш и припремиш за миран сан.</string>
     <string name="app_paused_reason_launch_count_out">Достиго/ла си максималан број покретања ове апликације данас. Време је да се одмориш и поново се фокусираш на своје приоритете.</string>

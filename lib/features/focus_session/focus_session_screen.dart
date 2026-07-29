@@ -91,7 +91,7 @@ class _FocusSessionScreenState extends ConsumerState<FocusSessionScreen> {
           FocusGoalType.meditation,
           Icons.spa,
           Colors.purple,
-          'Mindful meditation',
+          'Meditation',
         ),
         _buildGoalCard(
           'Exercise',

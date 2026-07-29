@@ -106,14 +106,16 @@ class FirebaseAuthService {
   }
 
   /// Sign in with Google
-  Future<User> signInWithGoogle() async {
+  /// Returns the signed-in [User] on success, or `null` if the user cancelled.
+  Future<User?> signInWithGoogle() async {
     try {
       // Trigger the Google Sign In flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        // User cancelled the sign-in
-        throw Exception('Sign in cancelled');
+        // User cancelled the sign-in — return null, not an exception
+        debugPrint('Google sign-in cancelled by user');
+        return null;
       }
 
       // Obtain the auth details from the request
@@ -135,11 +137,13 @@ class FirebaseAuthService {
       debugPrint('User signed in with Google: ${userCredential.user!.uid}');
       return userCredential.user!;
     } on FirebaseAuthException catch (e) {
-      debugPrint('Google sign in error: ${e.code} - ${e.message}');
-      throw _handleAuthException(e);
-    } catch (e) {
-      debugPrint('Google sign in error: $e');
-      throw Exception('Failed to sign in with Google. Please try again.');
+      debugPrint('GOOGLE SIGN-IN ERROR: ${e.code} - ${e.message}');
+      debugPrint('Stack trace: ${e.stackTrace}');
+      rethrow;
+    } catch (e, st) {
+      debugPrint('GOOGLE SIGN-IN ERROR: $e');
+      debugPrint('Stack trace: $st');
+      rethrow;
     }
   }
 

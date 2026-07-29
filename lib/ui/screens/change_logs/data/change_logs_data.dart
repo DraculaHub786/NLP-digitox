@@ -87,7 +87,7 @@ class ChangeLogsData {
     ),
     const ChangeLog(
       icon: FluentIcons.app_title_20_filled,
-      label: "Mindful overlay",
+      label: "NLP digitox overlay",
       bulletPoints: [
         "New app paused overlay with more info.",
         "Clearly see why an app is blocked.",

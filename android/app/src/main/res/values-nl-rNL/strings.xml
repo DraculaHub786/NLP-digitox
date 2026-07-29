@@ -1,14 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Based on Mindful - GPL-2.0 license -->
+<!-- Based on NLP digitox -->
 
 <resources>
     <string name="app_name">NLP digitox</string>
-    <string name="accessibility_description">Mindful maakt gebruik van toegankelijkheidsdiensten om websites en short-form content te blokkeren. De app controleert URL\'s en content en blokkeert toegang om u te helpen gefocusd te blijven.\n\n⚠️Opmerking: Uw privacy is onze prioriteit. NLP digitox is 100% velig en werkt offline. Wij verzamelen en onthouden geen persoonlijke data.</string>
-    <string name="admin_description">Mindful verzamelt geen persoonlijke data, slaat geen persoonlijke data op, en verstuurt geen gebruikersdata. Als vrije opensource-software kunt u de broncode van deze applicatie bekijken en aanpassen. Administratieve privileges zijn enkel benodigd voor essentiele acties, om te zorgen dat de app correct functioneert, zonder dat dit ten koste gaat van uw privacy.</string>
+    <string name="accessibility_description">NLP digitox maakt gebruik van toegankelijkheidsdiensten om websites en short-form content te blokkeren. De app controleert URL's en content en blokkeert toegang om u te helpen gefocusd te blijven.
+
+⚠️Opmerking: Uw privacy is onze prioriteit. NLP digitox is 100% veilig en werkt offline. Wij verzamelen en onthouden geen persoonlijke data.</string>
+    <string name="admin_description">NLP digitox verzamelt geen persoonlijke data, slaat geen persoonlijke data op, en verstuurt geen gebruikersdata. Als vrije opensource-software kunt u de broncode van deze applicatie bekijken en aanpassen. Administratieve privileges zijn enkel benodigd voor essentiële acties, om te zorgen dat de app correct functioneert, zonder dat dit ten koste gaat van uw privacy.</string>
     <string name="toast_enable_notification">Schakel notificaties alstublieft in</string>
     <string name="toast_blocked_content">Inhoud geblokkeerd! We gaan terug</string>
     <string name="toast_redirecting">Zoekresultaten filteren</string>
-    <string name="service_running_notification_title">Mindful is actief</string>
+    <string name="service_running_notification_title">NLP digitox is actief</string>
     <string name="shortcut_focus_mode_label">Focusmodus</string>
     <string name="shortcut_focus_mode_description">Start snel een focussessie met een aangepast profiel.</string>
     <string name="shortcut_parental_controls_label">Ouderlijk toezicht</string>
@@ -18,10 +20,10 @@
     <string name="widget_screen_time_label">Schermtijd</string>
     <string name="widget_mobile_data_label">Mobiel</string>
     <string name="widget_wifi_data_label">WiFi</string>
-    <string name="internet_blocker_running_notification_info">Mindful beheerst nu internettoegang om u te helpen uw focus te behouden.</string>
-    <string name="app_blocker_running_notification_info">Mindful houdt nu rekening met app-gebruik om je te helpen gefocust te blijven en je digitale gewoonten te beheren.</string>
+    <string name="internet_blocker_running_notification_info">NLP digitox beheerst nu internettoegang om u te helpen uw focus te behouden.</string>
+    <string name="app_blocker_running_notification_info">NLP digitox houdt nu rekening met app-gebruik om je te helpen gefocust te blijven en je digitale gewoonten te beheren.</string>
     <string name="overlay_permission_denied_notification_title">Toestemming geweigerd</string>
-    <string name="overlay_permission_denied_notification_info">Geef toestemming voor weergave over andere schermen door op de melding te klikken. Op het volgende scherm, vind Mindful in de lijst met apps en klik op toestaan.</string>
+    <string name="overlay_permission_denied_notification_info">Geef toestemming voor weergave over andere schermen door op de melding te klikken. Op het volgende scherm, vind NLP digitox in de lijst met apps en klik op toestaan.</string>
     <string name="app_paused_reason_focus_session">Het is focustijd! Deze app is gepauzeerd om je te helpen op het juiste spoor te blijven en het meeste uit je sessie te halen.</string>
     <string name="app_paused_reason_bedtime">Het is bedtijd! Deze app is gepauzeerd voor de nacht om u voor te bereiden op een vreedzame slaap.</string>
     <string name="app_paused_reason_launch_count_out">U heeft het maximum aantal launches voor deze app bereikt vandaag. Het is tijd om weg te gaan en te focusen op uw prioriteiten.</string>

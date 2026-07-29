@@ -160,12 +160,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   shape: BoxShape.circle,
                   color: colorScheme.primary.withValues(alpha: 0.15),
                 ),
-                padding: const EdgeInsets.all(32),
+                padding: const EdgeInsets.all(24),
                 child: ClipOval(
                   child: Image.asset(
                     'assets/logo.png',
-                    width: 80,
-                    height: 80,
                     fit: BoxFit.cover,
                   ),
                 ),

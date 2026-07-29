@@ -242,19 +242,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuthService.instance.signInWithGoogle();
+      final user = await FirebaseAuthService.instance.signInWithGoogle();
 
-      // Get user info
-      final user = FirebaseAuthService.instance.currentUser;
-      final username = user?.displayName ?? AppConstants.defaultUsername;
+      // User cancelled — return silently
+      if (user == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
+      final username = user.displayName ?? AppConstants.defaultUsername;
 
       // Initialize Firestore user data for Google sign-in users
       try {
         debugPrint('📝 Creating Firestore user data for Google user...');
         await FirestoreService.instance.initializeUserData(
           username: username,
-          name: user?.displayName ?? username,
-          email: user?.email,
+          name: user.displayName ?? username,
+          email: user.email,
           initialSettings: {
             'themeMode': 'system',
             'accentColor': 'Indigo',
@@ -270,19 +274,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
 
       // Initialize leaderboard data for Google sign-in users
-      if (user != null) {
-        await LeaderboardService.instance.updateUserData(
-          username: username,
-          points: 0,
-          streak: 0,
-          avatarEmoji: '👤',
-          pointsBreakdown: {},
-        );
-      }
+      await LeaderboardService.instance.updateUserData(
+        username: username,
+        points: 0,
+        streak: 0,
+        avatarEmoji: '👤',
+        pointsBreakdown: {},
+      );
 
       // B.1: Write signup_events doc for n8n
       await _writeSignupEvent(
-        email: user?.email ?? '',
+        email: user.email ?? '',
         username: username,
       );
 
@@ -352,7 +354,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  /// App icon — matches the icon-chip style used across the dashboard
+                  /// App logo
                   Container(
                     width: 72,
                     height: 72,
@@ -360,10 +362,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       color: colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(
-                      FluentIcons.brain_circuit_20_filled,
-                      size: 36.0,
-                      color: colorScheme.primary,
+                    padding: const EdgeInsets.all(10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/logo.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ).animate(effects: DefaultEffects.transitionIn),
 

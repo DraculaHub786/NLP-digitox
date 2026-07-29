@@ -1,11 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/ui/transitions/default_page_transition_builder.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class AppTheme {
-  // Modern gradient color scheme inspired by the reference UI
-  static const _kSeedColor = Color(0xFF4DD6D9); // Turquoise/Cyan
+  // Modern gradient color scheme inspired by the app icon
+  static const _kSeedColor = Color(0xFF1F2E23); // Forest green (from app icon)
 
   static final _kShimmerEffect = ShimmerEffect(
     highlightColor: Colors.white.withValues(alpha: 0.6),
@@ -18,6 +17,7 @@ class AppTheme {
   );
 
   static final materialColors = <String, MaterialColor>{
+    'Forest Green': _createMaterialColor(const Color(0xFF1F2E23)),
     'Turquoise': _createMaterialColor(const Color(0xFF4DD6D9)),
     'Teal': Colors.teal,
     'Cyan': Colors.cyan,
@@ -44,7 +44,9 @@ class AppTheme {
   static MaterialColor _createMaterialColor(Color color) {
     List strengths = <double>[.05];
     Map<int, Color> swatch = {};
-    final int r = color.red, g = color.green, b = color.blue;
+    final int r = (color.r * 255.0).round().clamp(0, 255);
+    final int g = (color.g * 255.0).round().clamp(0, 255);
+    final int b = (color.b * 255.0).round().clamp(0, 255);
 
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
@@ -58,7 +60,7 @@ class AppTheme {
         1,
       );
     }
-    return MaterialColor(color.value, swatch);
+    return MaterialColor(Color.fromRGBO(r, g, b, 1).toARGB32(), swatch);
   }
 
   static ThemeData darkTheme({Color? seedColor, required bool isAmoled}) {
@@ -67,15 +69,15 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor ?? _kSeedColor,
         brightness: Brightness.dark,
-        surface: isAmoled ? Colors.black : const Color(0xFF0F172A), // Modern dark blue
-      ),
+        surface: isAmoled ? Colors.black : const Color(0xFF14180F),
+      ).copyWith(secondary: const Color(0xFF8E9271)), // sage/olive from icon
     );
 
     return base.copyWith(
       pageTransitionsTheme: _kPageTransitionTheme,
       textTheme: base.textTheme.apply(fontFamily: 'Alice'),
       primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
-      scaffoldBackgroundColor: isAmoled ? Colors.black : const Color(0xFF0F172A),
+      scaffoldBackgroundColor: isAmoled ? Colors.black : const Color(0xFF14180F),
       extensions: [SkeletonizerConfigData.dark(effect: _kShimmerEffect)],
         // Modern card theme with elevation and rounded corners
         cardTheme: CardThemeData(
@@ -83,7 +85,7 @@ class AppTheme {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
-          color: isAmoled ? const Color(0xFF1A1A1A) : const Color(0xFF1E293B),
+          color: isAmoled ? const Color(0xFF1A1A1A) : const Color(0xFF1C2118),
         ),
         // Modern elevated button theme
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -98,7 +100,7 @@ class AppTheme {
         // Modern input decoration
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: isAmoled ? const Color(0xFF1A1A1A) : const Color(0xFF1E293B),
+          fillColor: isAmoled ? const Color(0xFF1A1A1A) : const Color(0xFF1C2118),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -131,15 +133,15 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor ?? _kSeedColor,
         brightness: Brightness.light,
-        surface: const Color(0xFFF8FAFC), // Light blue-grey background
-      ),
+        surface: const Color(0xFFFBF6EC), // warm cream
+      ).copyWith(secondary: const Color(0xFF8E9271)), // sage/olive from icon
     );
 
     return base.copyWith(
       pageTransitionsTheme: _kPageTransitionTheme,
       textTheme: base.textTheme.apply(fontFamily: 'Alice'),
       primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
-      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      scaffoldBackgroundColor: const Color(0xFFFBF6EC),
       extensions: [SkeletonizerConfigData(effect: _kShimmerEffect)],
         // Modern card theme
         cardTheme: const CardThemeData(
@@ -162,7 +164,7 @@ class AppTheme {
         // Modern input decoration
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF1F5F9),
+          fillColor: const Color(0xFFF3EFE3),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -184,7 +186,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: Color(0xFF0F172A),
+        foregroundColor: Color(0xFF14180F),
       ),
     );
   }

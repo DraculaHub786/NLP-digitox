@@ -70,7 +70,7 @@ object NewActivitiesLaunchHelper {
         )
         val alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), appPendingIntent)
-        Toast.makeText(activity, "Mindful is restarting", Toast.LENGTH_LONG).show()
+        Toast.makeText(activity, "NLP digitox is restarting", Toast.LENGTH_LONG).show()
         activity.finishAfterTransition()
     }
 

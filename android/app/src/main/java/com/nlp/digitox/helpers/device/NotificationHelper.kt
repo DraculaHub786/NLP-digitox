@@ -53,7 +53,7 @@ object NotificationHelper {
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description =
-                    "These notifications include crucial updates regarding the essential system operations to ensure Mindful runs smoothly."
+                    "These notifications include crucial updates regarding the essential system operations to ensure NLP digitox runs smoothly."
             }
 
             val focusChannel = NotificationChannel(

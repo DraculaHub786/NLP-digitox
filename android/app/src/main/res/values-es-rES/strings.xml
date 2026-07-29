@@ -1,15 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Based on Mindful - GPL-2.0 license -->
+<!-- Based on NLP digitox -->
 
 <resources>
     <string name="app_name">NLP digitox</string>
-    <string name="accessibility_description">La aplicación Mindful utiliza servicios de accesibilidad para bloquear sitios web y contenido de formato corto en las aplicaciones. Comprueba las URL y el contenido contra tu lista de bloqueo y previene el acceso para ayudarte a mantener la concentración.\n\n⚠️Nota: Tu privacidad es nuestra prioridad. Mindful es 100% segura y funciona sin conexión. No recopilamos ni almacenamos ningún dato personal.</string>
-    <string name="admin_description">Mindful no recopila, almacena ni transmite ningún dato de usuario. Como Software Libre y de Código Abierto (FOSS), puedes revisar y modificar el código fuente. Se requieren privilegios administrativos únicamente para operaciones esenciales del sistema, asegurando que la aplicación funcione correctamente sin comprometer tu privacidad.</string>
+    <string name="accessibility_description">La aplicación NLP digitox utiliza servicios de accesibilidad para bloquear sitios web y contenido de formato corto en las aplicaciones. Comprueba las URL y el contenido contra tu lista de bloqueo y previene el acceso para ayudarte a mantener la concentración.
+
+⚠️Nota: Tu privacidad es nuestra prioridad. NLP digitox es 100% segura y funciona sin conexión. No recopilamos ni almacenamos ningún dato personal.</string>
+    <string name="admin_description">NLP digitox no recopila, almacena ni transmite ningún dato de usuario. Como Software Libre y de Código Abierto (FOSS), puedes revisar y modificar el código fuente. Se requieren privilegios administrativos únicamente para operaciones esenciales del sistema, asegurando que la aplicación funcione correctamente sin comprometer tu privacidad.</string>
     <string name="toast_enable_notification">Por favor, activa las notificaciones</string>
     <string name="toast_blocked_content">¡Contenido bloqueado! Vuelve atrás</string>
     <string name="toast_redirecting">Filtrando resultados de búsqueda</string>
     <string name="toast_dnd_utilized_by_feature" comment="Placeholder is the name of feature like Focus mode, Bedtime or more" formatted="true">%s está usando actualmente el modo DND.</string>
-    <string name="service_running_notification_title">Mindful se está ejecutando</string>
+    <string name="service_running_notification_title">NLP digitox se está ejecutando</string>
     <string name="shortcut_focus_mode_label">Modo de concentración</string>
     <string name="shortcut_focus_mode_description">Iniciar rápidamente una sesión de enfoque con perfiles personalizados.</string>
     <string name="shortcut_upcoming_notifications_label">Notificaciones agrupadas</string>
@@ -21,10 +23,10 @@
     <string name="widget_screen_time_label">Tiempo de pantalla</string>
     <string name="widget_mobile_data_label">Datos</string>
     <string name="widget_wifi_data_label">Wi-Fi</string>
-    <string name="internet_blocker_running_notification_info">Mindful ahora está gestionando el acceso a internet para ayudarte a mantener la concentración.</string>
-    <string name="app_blocker_running_notification_info">Mindful ahora está rastreando el uso de las aplicaciones para ayudarte a mantener la concentración y gestionar tus hábitos digitales.</string>
+    <string name="internet_blocker_running_notification_info">NLP digitox ahora está gestionando el acceso a internet para ayudarte a mantener la concentración.</string>
+    <string name="app_blocker_running_notification_info">NLP digitox ahora está rastreando el uso de las aplicaciones para ayudarte a mantener la concentración y gestionar tus hábitos digitales.</string>
     <string name="overlay_permission_denied_notification_title">Permiso denegado</string>
-    <string name="overlay_permission_denied_notification_info">Por favor, concede el permiso de superposición de pantalla a Mindful haciendo clic en la notificación. En la siguiente pantalla, busca Mindful en la lista de aplicaciones y haz clic en \"permitir\".</string>
+    <string name="overlay_permission_denied_notification_info">Por favor, concede el permiso de superposición de pantalla a NLP digitox haciendo clic en la notificación. En la siguiente pantalla, busca NLP digitox en la lista de aplicaciones y haz clic en "permitir".</string>
     <string name="app_paused_reason_focus_session">¡Es hora de concentrarse! Esta aplicación está pausada para ayudarte a mantenerte en el camino y aprovechar al máximo tu sesión.</string>
     <string name="app_paused_reason_bedtime">¡Es hora de dormir! Esta aplicación está pausada por la noche para ayudarte a relajarte y prepararte para un sueño tranquilo.</string>
     <string name="app_paused_reason_launch_count_out">Has alcanzado el número máximo de aperturas para esta aplicación hoy. Es hora de alejarte y reorientar tus prioridades.</string>

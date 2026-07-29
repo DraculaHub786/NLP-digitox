@@ -43,6 +43,7 @@ class ModernStatsCards extends ConsumerWidget {
             icon: FluentIcons.phone_screen_time_20_regular,
             trend: todayScreenTime.toDiffPercentage(yesterdayScreenTime),
             accentColor: colorScheme.primary,
+            gradientColors: const [Color(0xFF28392C), Color(0xFF3D5341)],
           ),
         ),
         const SizedBox(width: 12),
@@ -54,6 +55,7 @@ class ModernStatsCards extends ConsumerWidget {
             trend: todayFocus.toDiffPercentage(yesterdayFocus),
             invertTrend: true,
             accentColor: colorScheme.secondary,
+            gradientColors: const [Color(0xFF838764), Color(0xFFA3A78D)],
           ),
         ),
       ],
@@ -68,6 +70,7 @@ class _ModernStatCard extends StatelessWidget {
   final int trend;
   final bool invertTrend;
   final Color accentColor;
+  final List<Color> gradientColors;
 
   const _ModernStatCard({
     required this.title,
@@ -76,20 +79,32 @@ class _ModernStatCard extends StatelessWidget {
     required this.trend,
     this.invertTrend = false,
     required this.accentColor,
+    required this.gradientColors,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border(
+          top: BorderSide(color: Colors.white.withOpacity(0.15), width: 1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1F2E23).withOpacity(0.16),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,12 +115,12 @@ class _ModernStatCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   icon,
-                  color: accentColor,
+                  color: Colors.white,
                   size: 22,
                 ),
               ),
@@ -116,7 +131,7 @@ class _ModernStatCard extends StatelessWidget {
           StyledText(
             title,
             fontSize: 13,
-            color: colorScheme.onSurface.withValues(alpha: 0.75),
+            color: Colors.white.withOpacity(0.75),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -128,7 +143,7 @@ class _ModernStatCard extends StatelessWidget {
               value,
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: accentColor,
+              color: Colors.white,
             ),
           ),
         ],
@@ -207,26 +222,29 @@ class ModernGlanceGrid extends ConsumerWidget {
               title: 'Mobile Data',
               value: '${(mobileData / 1024).toStringAsFixed(1)} MB',
               icon: FluentIcons.cellular_data_1_20_filled,
-              color: colorScheme.primary,
+              backgroundColor: const Color(0xFFF0F5F2),
+              iconColor: const Color(0xFF3D5341),
             ),
             _ModernMiniCard(
               title: 'WiFi Data',
               value: '${(wifiData / 1024 / 1024).toStringAsFixed(1)} GB',
               icon: FluentIcons.wifi_1_20_regular,
-              color: colorScheme.secondary,
+              backgroundColor: const Color(0xFFF5F6EF),
+              iconColor: const Color(0xFF838764),
             ),
             _ModernMiniCard(
               title: 'Unlocks',
               value: unlockCount.toString(),
               icon: FluentIcons.lock_open_20_regular,
-              color: colorScheme.tertiary,
+              backgroundColor: const Color(0xFFDCE6E0),
+              iconColor: const Color(0xFF1F2E23),
             ),
             _ModernMiniCard(
               title: 'Notifications',
               value: notificationsCount.toString(),
               icon: FluentIcons.alert_20_regular,
-              color: colorScheme.primaryContainer,
-              iconColor: colorScheme.onPrimaryContainer,
+              backgroundColor: const Color(0xFFE8E9DE),
+              iconColor: const Color(0xFF4F5238),
             ),
           ],
         );
@@ -239,41 +257,43 @@ class _ModernMiniCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
-  final Color color;
-  final Color? iconColor;
+  final Color backgroundColor;
+  final Color iconColor;
 
   const _ModernMiniCard({
     required this.title,
     required this.value,
     required this.icon,
-    required this.color,
-    this.iconColor,
+    required this.backgroundColor,
+    required this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final iconTint = iconColor ?? color;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconTint, size: 18),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(

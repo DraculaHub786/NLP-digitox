@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
@@ -21,40 +23,78 @@ class AchievementsScreen extends StatefulWidget {
 class _AchievementsScreenState extends State<AchievementsScreen> {
   final _leaderboardService = LeaderboardService.instance;
   final _productivityService = ProductivityService.instance;
+  final _firestore = FirebaseFirestore.instance;
 
   int _maxHabitStreak = 0;
   int _maxTaskStreak = 0;
   bool _loadingStreaks = true;
-  final PageController _badgePageController = PageController(viewportFraction: 0.9);
+  PageController? _badgePageController;
   int _currentBadgePage = 0;
   Timer? _badgeAutoSlideTimer;
+  List<Map<String, dynamic>> _badges = [];
+  bool _loadingBadges = true;
 
   @override
   void initState() {
     super.initState();
     _loadProductivityStreaks();
+    _loadBadges();
     _startBadgeCarouselAutoSlide();
   }
 
   @override
   void dispose() {
     _badgeAutoSlideTimer?.cancel();
-    _badgePageController.dispose();
+    _badgePageController?.dispose();
     super.dispose();
   }
 
   void _startBadgeCarouselAutoSlide() {
     _badgeAutoSlideTimer?.cancel();
     _badgeAutoSlideTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
-      if (!mounted || !_badgePageController.hasClients) return;
-      final nextPage = (_currentBadgePage + 1) % 3;
-      await _badgePageController.animateToPage(
-        nextPage,
-        duration: const Duration(milliseconds: 450),
-        curve: Curves.easeInOut,
-      );
-      _currentBadgePage = nextPage;
+      if (!mounted || _badgePageController == null || !_badgePageController!.hasClients) return;
+      final count = _badges.isEmpty ? 1 : _badges.length;
+      final nextPage = (_currentBadgePage + 1) % count;
+      if (_badgePageController!.hasClients) {
+        await _badgePageController!.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 450),
+          curve: Curves.easeInOut,
+        );
+        _currentBadgePage = nextPage;
+      }
     });
+  }
+
+  /// Fetch badges from Firestore where uid == currentUser.uid, ordered by awardedAt desc
+  Future<void> _loadBadges() async {
+    try {
+      final uid = FirebaseAuthService.instance.userId;
+      if (uid == null) {
+        if (mounted) setState(() => _loadingBadges = false);
+        return;
+      }
+
+      final snapshot = await _firestore
+          .collection('badges')
+          .where('userId', isEqualTo: uid)
+          .orderBy('awardedAt', descending: true)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _badges = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return data;
+          }).toList();
+          _loadingBadges = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading badges: $e');
+      if (mounted) setState(() => _loadingBadges = false);
+    }
   }
 
   Future<void> _loadProductivityStreaks() async {
@@ -168,65 +208,116 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     ),
                   ),
 
-                  // Badge carousel
+                  // Badge carousel — live from Firestore
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
                       child: ModernDashboardCard(
-                        title: 'Badge Carousel',
+                        title: 'Badges',
                         icon: const Icon(FluentIcons.ribbon_star_20_filled),
                         accentColor: colorScheme.primary,
                         children: [
-                          SizedBox(
-                            height: 130,
-                            child: PageView.builder(
-                              controller: _badgePageController,
-                              itemCount: 3,
-                              onPageChanged: (index) {
-                                _currentBadgePage = index;
-                              },
-                              itemBuilder: (context, index) {
-                                final labels = <String>[
-                                  '7-Day Streak Badge (Coming soon)',
-                                  '21-Day Streak Badge (Coming soon)',
-                                  '30-Day Streak Badge (Coming soon)',
-                                ];
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: colorScheme.primary.withValues(alpha: 0.25),
+                          if (_loadingBadges)
+                            const SizedBox(
+                              height: 80,
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          else if (_badges.isEmpty)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: StyledText('No badges yet. Complete challenges to earn your first badge!'),
+                            )
+                          else
+                            SizedBox(
+                              height: 130,
+                              child: PageView.builder(
+                                controller: _badgePageController,
+                                itemCount: _badges.length,
+                                onPageChanged: (index) {
+                                  _currentBadgePage = index;
+                                },
+                                itemBuilder: (context, index) {
+                                  final badge = _badges[index];
+                                  final badgeName = badge['badgeName'] as String? ?? 'Badge';
+                                  final badgeUrl = badge['badgeUrl'] as String?;
+                                  final awardedAt = (badge['awardedAt'] as Timestamp?)?.toDate();
+                                  final verificationId = badge['verificationId'] as String?;
+                                  final formattedDate = awardedAt != null
+                                      ? '${awardedAt.day}/${awardedAt.month}/${awardedAt.year}'
+                                      : '';
+
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: colorScheme.primary.withValues(alpha: 0.25),
+                                      ),
                                     ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 24,
-                                        backgroundColor:
-                                            colorScheme.primary.withValues(alpha: 0.22),
-                                        child: Icon(
-                                          FluentIcons.ribbon_star_20_filled,
-                                          color: colorScheme.primary,
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor:
+                                              colorScheme.primary.withValues(alpha: 0.22),
+                                          backgroundImage: badgeUrl != null
+                                              ? NetworkImage(badgeUrl)
+                                              : null,
+                                          child: badgeUrl == null
+                                              ? Icon(
+                                                  FluentIcons.ribbon_star_20_filled,
+                                                  color: colorScheme.primary,
+                                                )
+                                              : null,
                                         ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: StyledText(
-                                          labels[index],
-                                          fontWeight: FontWeight.w600,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              StyledText(
+                                                badgeName,
+                                                fontWeight: FontWeight.w600,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              if (formattedDate.isNotEmpty)
+                                                StyledText(
+                                                  formattedDate,
+                                                  fontSize: 12,
+                                                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                                  maxLines: 1,
+                                                ),
+                                              if (verificationId != null && verificationId.isNotEmpty)
+                                                StyledText(
+                                                  verificationId,
+                                                  fontSize: 11,
+                                                  color: colorScheme.tertiary,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
+                          if (_badges.length > 1)
+                            const SizedBox(height: 8),
+                          if (_badges.length > 1)
+                            Center(
+                              child: StyledText(
+                                '${_currentBadgePage + 1} / ${_badges.length}',
+                                fontSize: 12,
+                                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -327,21 +418,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     ),
                   ),
 
-                  // Badges section
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
-                      child: ModernDashboardCard(
-                        title: 'Badges',
-                        subtitle: 'Coming soon',
-                        icon: const Icon(FluentIcons.badge_20_filled),
-                        accentColor: colorScheme.tertiary,
-                        children: const [
-                          StyledText('No badges yet. This section will be updated in future.'),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // Badges section removed — now shown in the carousel above
 
                   const SliverTabsBottomPadding(),
                 ],

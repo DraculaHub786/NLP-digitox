@@ -7,7 +7,7 @@ import 'package:nlp_digitox/core/enums/app_theme_mode.dart';
 class AppConstants {
   // App Defaults
   static const defaultThemeMode = AppThemeMode.system;
-  static const defaultMaterialColor = "Indigo";
+  static const defaultMaterialColor = "Forest Green";
   static const defaultLocale = "en";
   static const defaultUsername = "Achiever";
   static const defaultCurve = Curves.fastEaseInToSlowEaseOut;
