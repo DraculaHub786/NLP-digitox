@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/enums/usage_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/ui/auth/forgot_password_new_screen.dart';
+import 'package:nlp_digitox/ui/auth/forgot_password_otp_screen.dart';
+import 'package:nlp_digitox/ui/auth/forgot_password_request_screen.dart';
 import 'package:nlp_digitox/ui/auth/login_screen.dart';
 import 'package:nlp_digitox/ui/auth/signup_screen.dart';
 import 'package:nlp_digitox/ui/onboarding/onboarding_screen.dart';
@@ -41,10 +44,21 @@ class AppRoutes {
   static const String notificationsPath = '/notifications';
   static const String achievementsPath = '/achievements';
 
+  // Forgot Password — 3-step OTP flow (n8n webhook-driven)
+  static const String forgotPasswordRequestPath = '/forgotPassword';
+  static const String forgotPasswordOtpPath = '/forgotPassword/otp';
+  static const String forgotPasswordNewPath = '/forgotPassword/new';
+
   static final Map<String, Widget Function(BuildContext)> routes = {
     /// Auth screens
     loginPath: (context) => const LoginScreen(),
     signupPath: (context) => const SignupScreen(),
+
+    /// Forgot Password — 3-step OTP flow
+    forgotPasswordRequestPath: (context) =>
+        const ForgotPasswordRequestScreen(),
+    forgotPasswordOtpPath: (context) => const ForgotPasswordOtpScreen(),
+    forgotPasswordNewPath: (context) => const ForgotPasswordNewScreen(),
 
     /// Root
     rootSplashPath: (context) => const SplashScreen(),

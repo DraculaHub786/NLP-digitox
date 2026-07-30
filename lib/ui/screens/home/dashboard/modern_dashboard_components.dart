@@ -77,8 +77,8 @@ class ModernListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final tileColor = iconColor ?? colorScheme.primary;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -176,8 +176,8 @@ class ModernSettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final tileColor = iconColor ?? colorScheme.primary;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -235,7 +235,7 @@ class ModernSettingsTile extends StatelessWidget {
                 child: Switch.adaptive(
                   value: value,
                   onChanged: onChanged,
-                  activeColor: colorScheme.primary,
+                  activeTrackColor: colorScheme.primary,
                 ),
               ),
             ),

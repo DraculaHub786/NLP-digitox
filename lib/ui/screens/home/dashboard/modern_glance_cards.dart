@@ -84,8 +84,6 @@ class _ModernStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -96,11 +94,11 @@ class _ModernStatCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.15), width: 1),
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1F2E23).withOpacity(0.16),
+            color: const Color(0xFF1F2E23).withValues(alpha: 0.16),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -115,7 +113,7 @@ class _ModernStatCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -131,7 +129,7 @@ class _ModernStatCard extends StatelessWidget {
           StyledText(
             title,
             fontSize: 13,
-            color: Colors.white.withOpacity(0.75),
+            color: Colors.white.withValues(alpha: 0.75),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -194,7 +192,6 @@ class ModernGlanceGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
     final todayUsage = ref.watch(
       weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday]),
     );
@@ -279,7 +276,7 @@ class _ModernMiniCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -344,8 +341,8 @@ class ModernQuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
     return Material(
       color: Colors.transparent,

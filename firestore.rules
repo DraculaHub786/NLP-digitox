@@ -64,5 +64,8 @@ service cloud.firestore {
     match /signup_events/{userId} {
       allow read, write: if isOwner(userId);
     }
+    match /password_resets/{email} {
+    allow read, write: if false; // Admin SDK (n8n) only — never touched by the app directly
+    }
   }
 }

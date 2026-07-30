@@ -28,6 +28,39 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  double _passwordStrength = 0.0;
+  List<String> _passwordIssues = [];
+
+  void _evaluatePasswordStrength(String password) {
+    final issues = <String>[];
+    double score = 0;
+
+    if (password.length >= 8) {
+      score += 0.25;
+    } else {
+      issues.add('At least 8 characters');
+    }
+    if (RegExp(r'[A-Z]').hasMatch(password)) {
+      score += 0.25;
+    } else {
+      issues.add('One uppercase letter');
+    }
+    if (RegExp(r'[0-9]').hasMatch(password)) {
+      score += 0.25;
+    } else {
+      issues.add('One number');
+    }
+    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(password)) {
+      score += 0.25;
+    } else {
+      issues.add('One special character');
+    }
+
+    setState(() {
+      _passwordStrength = score;
+      _passwordIssues = issues;
+    });
+  }
 
   @override
   void dispose() {
@@ -166,6 +199,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   Future<void> _signup() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_passwordIssues.isNotEmpty) {
+      context.showSnackAlert(
+        'Please meet all password requirements',
+        icon: FluentIcons.shield_error_20_filled,
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -440,6 +481,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+                    onChanged: (value) {
+                      _evaluatePasswordStrength(value);
+                    },
                     decoration: _modernFieldDecoration(
                       context,
                       label: 'Password',
@@ -467,6 +511,45 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       return null;
                     },
                   ).animate(effects: DefaultEffects.transitionIn),
+
+                  /// Password strength indicator
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: _passwordStrength,
+                      minHeight: 6,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                      color: _passwordStrength < 0.5
+                          ? const Color(0xFFB5453A)
+                          : _passwordStrength < 1.0
+                              ? const Color(0xFFC9922E)
+                              : const Color(0xFF838764),
+                    ),
+                  ),
+                  if (_passwordIssues.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    ..._passwordIssues.map(
+                      (issue) => Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              FluentIcons.dismiss_circle_12_regular,
+                              size: 12,
+                              color: colorScheme.error,
+                            ),
+                            const SizedBox(width: 6),
+                            StyledText(
+                              issue,
+                              fontSize: 12,
+                              color: colorScheme.error,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 16.0),
 
