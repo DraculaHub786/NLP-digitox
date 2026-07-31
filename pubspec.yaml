@@ -101,6 +101,8 @@ flutter:
     - assets/illustrations/onboarding_2.png
     - assets/illustrations/onboarding_3.png
     - assets/illustrations/onboarding_4.png
+    - assets/illustrations/onboarding_5.png
+    - assets/illustrations/onboarding_6.png
    
     # Vector icons
     - assets/vectors/github.svg
