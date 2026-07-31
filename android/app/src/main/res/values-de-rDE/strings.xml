@@ -1,25 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Based on NLP digitox -->
 
 <resources>
-    <string name="app_name">NLP digitox</string>
-    <string name="accessibility_description">Die NLP digitox-App verwendet Bedienungshilfen, um Websites und Kurzinhalte in Apps zu blockieren. Sie gleicht URLs und Inhalte mit Ihrer Sperrliste ab und verhindert den Zugriff, damit Du konzentriert bleibst.
+<string name="app_name">NLP digitox</string>
+<string name="accessibility_description">Die NLP digitox-App verwendet Bedienungshilfen, um Websites und Kurzinhalte in Apps zu blockieren. Sie gleicht URLs und Inhalte mit Ihrer Sperrliste ab und verhindert den Zugriff, damit Du konzentriert bleibst.
 
-⚠️Hinweis: Deine Privatsphäre hat für uns Priorität. NLP digitox ist 100 % sicher und funktioniert offline. Wir sammeln oder speichern keine personenbezogenen Daten.</string>
-    <string name="toast_enable_notification">Bitte schalte Benachrichtigungen ein</string>
-    <string name="service_running_notification_title">NLP digitox läuft</string>
-    <string name="usage_widget_description">Erhalte eine tägliche Übersicht über deine Bildschirm- und Datennutzung</string>
-    <string name="widget_screen_time_label">Bildschirmzeit</string>
-    <string name="widget_mobile_data_label">Mobil</string>
-    <string name="widget_wifi_data_label">WLAN</string>
-    <string name="internet_blocker_running_notification_info">NLP digitox verwaltet jetzt den Internetzugang, damit Du konzentriert bleiben.</string>
-    <string name="app_blocker_running_notification_info">NLP digitox verfolgt jetzt die App-Nutzung, um dir dabei zu helfen, konzentriert zu bleiben und deine digitalen Gewohnheiten zu verwalten.</string>
-    <string name="overlay_permission_denied_notification_title">Berechtigung verweigert</string>
-    <string name="overlay_permission_denied_notification_info">Bitte erteile NLP digitox die Berechtigung zur Anzeige des Overlays, indem du auf die Benachrichtigung klickst. Suche auf dem nächsten Bildschirm in der Liste der Apps nach NLP digitox und klicke auf „Zulassen".</string>
-    <string name="bedtime_started_notification_info">Es ist Zeit, zur Ruhe zu kommen. Die Schlafenszeitroutine hat begonnen und hilft dir, dich zu entspannen und auf eine erholsame Nachtruhe vorzubereiten.</string>
-    <string name="emergency_pause_notification_title">Notfall-Pause</string>
-    <string name="emergency_pause_ended_notification_info">Die Notpause ist vorbei und der App-Blocker ist wieder aktiv. Ablenkungen werden jetzt wieder blockiert, bleib konzentriert!</string>
-    <string name="focus_session_notification_title">Fokus-Sitzung</string>
-    <string name="focus_session_success_notification_info">Herzlichen Glückwunsch! Du hast die Fokus-Sitzung erfolgreich abgeschlossen. Toll, dass Du dabei geblieben bist! Weiter so!</string>
-    <string name="focus_session_giveup_notification_info">Du hast aufgegeben! Keine Sorge, nächstes Mal kannst du es besser machen. Jede Anstrengung zählt – mach einfach weiter</string>
+Hinweis: Deine Privatsphare hat fur uns Prioritat. NLP digitox ist 100 % sicher und funktioniert offline. Wir sammeln oder speichern keine personenbezogenen Daten.</string>
+<string name="toast_enable_notification">Bitte schalte Benachrichtigungen ein</string>
+<string name="service_running_notification_title">NLP digitox lauft</string>
+<string name="usage_widget_description">Erhalte eine tagliche Ubersicht uber deine Bildschirm- und Datennutzung</string>
+<string name="widget_screen_time_label">Bildschirmzeit</string>
+<string name="widget_mobile_data_label">Mobil</string>
+<string name="widget_wifi_data_label">WLAN</string>
+<string name="internet_blocker_running_notification_info">NLP digitox verwaltet jetzt den Internetzugang, damit Du konzentriert bleiben.</string>
+<string name="app_blocker_running_notification_info">NLP digitox verfolgt jetzt die App-Nutzung, um dir dabei zu helfen, konzentriert zu bleiben und deine digitalen Gewohnheiten zu verwalten.</string>
+<string name="overlay_permission_denied_notification_title">Berechtigung verweigert</string>
+<string name="overlay_permission_denied_notification_info">Bitte erteile NLP digitox die Berechtigung zur Anzeige des Overlays, indem du auf die Benachrichtigung klickst. Suche auf dem nachsten Bildschirm in der Liste der Apps nach NLP digitox und klicke auf Zulassen\".</string>
+<string name="bedtime_started_notification_info">Es ist Zeit, zur Ruhe zu kommen. Die Schlafenszeitroutine hat begonnen und hilft dir, dich zu entspannen und auf eine erholsame Nachtruhe vorzubereiten.</string>
+<string name="emergency_pause_notification_title">Notfall-Pause</string>
+<string name="emergency_pause_ended_notification_info">Die Notpause ist vorbei und der App-Blocker ist wieder aktiv. Ablenkungen werden jetzt wieder blockiert, bleib konzentriert!</string>
+<string name="focus_session_notification_title">Fokus-Sitzung</string>
+<string name="focus_session_success_notification_info">Herzlichen Gluckwunsch! Du hast die Fokus-Sitzung erfolgreich abgeschlossen. Toll, dass Du dabei geblieben bist! Weiter so!</string>
+<string name="focus_session_giveup_notification_info">Du hast aufgegeben! Keine Sorge, nachstes Mal kannst du es besser machen. Jede Anstrengung zahlt - mach einfach weiter</string>
 </resources>

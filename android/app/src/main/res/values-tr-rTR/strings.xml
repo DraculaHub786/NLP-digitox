@@ -1,52 +1,52 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Based on NLP digitox -->
 
-<resources>    <string name="app_name">NLP digitox</string>    <string name="accessibility_description">NLP digitox uygulaması, web sitelerini ve uygulamalardaki kısa biçimli içeriği engellemek için erişilebilirlik hizmetlerini kullanır. URL'leri ve içeriği engelleme listenizle karşılaştırarak kontrol eder ve odaklanmanıza yardımcı olmak için erişimi engeller.
+<resources> <string name="app_name">NLP digitox</string> <string name="accessibility_description">NLP digitox uygulamas, web sitelerini ve uygulamalardaki ksa bicimli icerii engellemek icin erisilebilirlik hizmetlerini kullanr. URL\'leri ve icerii engelleme listenizle karslastrarak kontrol eder ve odaklanmanza yardmc olmak icin erisimi engeller.
 
-⚠️Not: Gizliliğiniz bizim önceliğimizdir. NLP digitox 100% güvenlidir ve çevrimdışı çalışır. Herhangi bir kişisel veri toplamıyor veya saklamıyoruz.</string>
-    <string name="admin_description">NLP digitox herhangi bir kullanıcı verisi toplamaz, depolamaz veya iletmez. Özgür ve Açık Kaynak Yazılımı (FOSS) olarak, kaynak kodunu inceleyebilir ve değiştirebilirsiniz. Yönetici ayrıcalıkları yalnızca temel sistem işlemleri için gereklidir ve uygulamanın gizliliğinizi tehlikeye atmadan doğru şekilde çalışmasını sağlar.</string>
-    <string name="toast_enable_notification">Lütfen bildirimleri etkinleştirin</string>
-    <string name="toast_blocked_content">İçerik engellendi! geri dönülüyor</string>
-    <string name="toast_redirecting">Arama Sonuçları Filtreleniyor</string>
-    <string name="service_running_notification_title">NLP digitox çalışıyor</string>
-    <string name="shortcut_focus_mode_label">Odak modu</string>
-    <string name="shortcut_focus_mode_description">Özel profillerle hızlıca bir odak oturumu başlatın.</string>
-    <string name="shortcut_upcoming_notifications_label">Gruplanmış bildirimler</string>
-    <string name="shortcut_upcoming_notifications_description">Gelecek toplu bildirimleri kontrol edin.</string>
-    <string name="shortcut_parental_controls_label">Ebeveyn Kontrolleri</string>
-    <string name="shortcut_parental_controls_description">Ebeveyn kontrollerini ve güvenlik ayarlarını yönetme</string>
-    <string name="focus_quick_tile_status_active">Aktif</string>
-    <string name="usage_widget_description">Ekran ve veri kullanımınızın günlük görünümünü alın</string>
-    <string name="widget_screen_time_label">Ekran süresi</string>
-    <string name="widget_mobile_data_label">Mobil</string>
-    <string name="widget_wifi_data_label">Wifi</string>
-    <string name="internet_blocker_running_notification_info">NLP digitox artık odaklanmanıza yardımcı olmak için internet erişimini yönetiyor.</string>
-    <string name="app_blocker_running_notification_info">NLP digitox, odaklanmanıza ve dijital alışkanlıklarınızı yönetmenize yardımcı olmak için artık uygulama kullanımını takip ediyor.</string>
-    <string name="overlay_permission_denied_notification_title">İzin verilmedi</string>
-    <string name="overlay_permission_denied_notification_info">Lütfen bildirime tıklayarak NLP digitox'a yer paylaşımı görüntüleme izni verin. Sonraki ekranda, uygulamalar listesinde NLP digitox'u bulun ve izin ver'e tıklayın.</string>
-    <string name="app_paused_reason_focus_session">Odaklanma zamanı! Bu uygulama, odaklanmanıza yardımcı olmak ve oturumunuzdan en iyi şekilde faydalanmanızı sağlamak için duraklatıldı.</string>
-    <string name="app_paused_reason_bedtime">Uyku zamanı! Bu uygulama, rahatlamanızı sağlamak ve huzurlu bir uykuya hazırlanmanız için gece boyunca duraklatıldı.</string>
-    <string name="app_paused_reason_launch_count_out">Bugün bu uygulama için maksimum açılış sayısına ulaştınız. Şimdi bir adım geri atıp önceliklerinize odaklanma zamanı.</string>
-    <string name="app_paused_reason_app_timer_left">Bir süredir bu uygulamayı kullanıyorsunuz. Hadi, hızımızı değiştirelim ve ekrandan bir süreliğine uzaklaşıp verimli bir şeye odaklanalım.</string>
-    <string name="app_paused_reason_app_timer_out">Bu uygulamada günlük limitinize ulaştınız. Bu fırsatı, verimliliğinizi artırmak için değerlendirin.</string>
-    <string name="app_paused_restriction_focus_mode">Odak modu</string>
-    <string name="app_paused_restriction_bedtime_mode">Uyku zamanı modu</string>
-    <string name="app_paused_restriction_launch_count">Çalıştırma Sayısı</string>
-    <string name="app_paused_overlay_button_emergency">Acil durum</string>
-    <string name="app_paused_overlay_label_spent_today">Bugün harcanan</string>
-    <string name="app_paused_overlay_label_left_today">Bugün kalan</string>
-    <string name="app_paused_overlay_ask_need_more_time">Birkaç dakikaya daha ihtiyacın var mı?</string>
-    <string name="app_paused_overlay_button_two_minutes">2 dakika</string>
-    <string name="app_paused_overlay_button_five_minutes">5 dakika</string>
-    <string name="app_paused_overlay_button_ten_minutes">10 dakika</string>
-    <string name="app_paused_overlay_button_twenty_minutes">20 dakika</string>
-    <string name="bedtime_upcoming_notification_info">Uyku zamanı 30 dakika içinde başlıyor. Bu zamanı tamamlamak için kullanın ve yarın için yeni bir başlangıç yapmaya hazırlanın</string>
-    <string name="bedtime_started_notification_info">Rahatlama zamanı. Uyku rutini başladı, bu da rahatlamanıza ve dinlendirici bir uykuya hazırlanmanıza yardımcı olacak.</string>
-    <string name="bedtime_ended_notification_info">Uyanma zamanı! Uyku rutini sona erdi, günü enerjik ve dinlenmiş bir şekilde başlamak için hazır olun.</string>
-    <string name="emergency_pause_notification_title">Acil Duraklatma</string>
-    <string name="emergency_pause_ended_notification_info">Acil duraklatma sona erdi ve uygulama engelleyici tekrar devrede. Dikkat dağıtıcılar yeniden engellendi, odaklanmaya devam edin!</string>
-    <string name="focus_session_notification_title">Odaklanma Oturumları</string>
-    <string name="focus_session_success_notification_info">Tebrikler! Odaklanma oturumunuzu başarıyla tamamladınız. Hedefe odaklanmayı başardığınız için harika bir iş çıkardınız! Mükemmel çalışmanıza devam edin!</string>
-    <string name="focus_session_giveup_notification_info">Vazgeçtin! Endişelenme, bir dahaki sefere daha iyisini yapabilirsin. Her çaba önemli – sadece devam et</string>
-    <string name="notification_schedule_batch_title">Okunmamış bildiriler</string>
+Not: Gizliliiniz bizim onceliimizdir. NLP digitox 100% guvenlidir ve cevrimds calsr. Herhangi bir kisisel veri toplamyor veya saklamyoruz.</string>
+<string name="admin_description">NLP digitox herhangi bir kullanc verisi toplamaz, depolamaz veya iletmez. Ozgur ve Ack Kaynak Yazlm (FOSS) olarak, kaynak kodunu inceleyebilir ve deistirebilirsiniz. Yonetici ayrcalklar yalnzca temel sistem islemleri icin gereklidir ve uygulamann gizliliinizi tehlikeye atmadan doru sekilde calsmasn salar.</string>
+<string name="toast_enable_notification">Lutfen bildirimleri etkinlestirin</string>
+<string name="toast_blocked_content">cerik engellendi! geri donuluyor</string>
+<string name="toast_redirecting">Arama Sonuclar Filtreleniyor</string>
+<string name="service_running_notification_title">NLP digitox calsyor</string>
+<string name="shortcut_focus_mode_label">Odak modu</string>
+<string name="shortcut_focus_mode_description">Ozel profillerle hzlca bir odak oturumu baslatn.</string>
+<string name="shortcut_upcoming_notifications_label">Gruplanms bildirimler</string>
+<string name="shortcut_upcoming_notifications_description">Gelecek toplu bildirimleri kontrol edin.</string>
+<string name="shortcut_parental_controls_label">Ebeveyn Kontrolleri</string>
+<string name="shortcut_parental_controls_description">Ebeveyn kontrollerini ve guvenlik ayarlarn yonetme</string>
+<string name="focus_quick_tile_status_active">Aktif</string>
+<string name="usage_widget_description">Ekran ve veri kullanmnzn gunluk gorunumunu aln</string>
+<string name="widget_screen_time_label">Ekran suresi</string>
+<string name="widget_mobile_data_label">Mobil</string>
+<string name="widget_wifi_data_label">Wifi</string>
+<string name="internet_blocker_running_notification_info">NLP digitox artk odaklanmanza yardmc olmak icin internet erisimini yonetiyor.</string>
+<string name="app_blocker_running_notification_info">NLP digitox, odaklanmanza ve dijital alskanlklarnz yonetmenize yardmc olmak icin artk uygulama kullanmn takip ediyor.</string>
+<string name="overlay_permission_denied_notification_title">zin verilmedi</string>
+<string name="overlay_permission_denied_notification_info">Lutfen bildirime tklayarak NLP digitox\'a yer paylasm goruntuleme izni verin. Sonraki ekranda, uygulamalar listesinde NLP digitox\'u bulun ve izin ver\'e tklayn.</string>
+<string name="app_paused_reason_focus_session">Odaklanma zaman! Bu uygulama, odaklanmanza yardmc olmak ve oturumunuzdan en iyi sekilde faydalanmanz salamak icin duraklatld.</string>
+<string name="app_paused_reason_bedtime">Uyku zaman! Bu uygulama, rahatlamanz salamak ve huzurlu bir uykuya hazrlanmanz icin gece boyunca duraklatld.</string>
+<string name="app_paused_reason_launch_count_out">Bugun bu uygulama icin maksimum acls saysna ulastnz. Simdi bir adm geri atp onceliklerinize odaklanma zaman.</string>
+<string name="app_paused_reason_app_timer_left">Bir suredir bu uygulamay kullanyorsunuz. Hadi, hzmz deistirelim ve ekrandan bir sureliine uzaklasp verimli bir seye odaklanalm.</string>
+<string name="app_paused_reason_app_timer_out">Bu uygulamada gunluk limitinize ulastnz. Bu frsat, verimliliinizi artrmak icin deerlendirin.</string>
+<string name="app_paused_restriction_focus_mode">Odak modu</string>
+<string name="app_paused_restriction_bedtime_mode">Uyku zaman modu</string>
+<string name="app_paused_restriction_launch_count">Calstrma Says</string>
+<string name="app_paused_overlay_button_emergency">Acil durum</string>
+<string name="app_paused_overlay_label_spent_today">Bugun harcanan</string>
+<string name="app_paused_overlay_label_left_today">Bugun kalan</string>
+<string name="app_paused_overlay_ask_need_more_time">Birkac dakikaya daha ihtiyacn var m?</string>
+<string name="app_paused_overlay_button_two_minutes">2 dakika</string>
+<string name="app_paused_overlay_button_five_minutes">5 dakika</string>
+<string name="app_paused_overlay_button_ten_minutes">10 dakika</string>
+<string name="app_paused_overlay_button_twenty_minutes">20 dakika</string>
+<string name="bedtime_upcoming_notification_info">Uyku zaman 30 dakika icinde baslyor. Bu zaman tamamlamak icin kullann ve yarn icin yeni bir baslangc yapmaya hazrlann</string>
+<string name="bedtime_started_notification_info">Rahatlama zaman. Uyku rutini baslad, bu da rahatlamanza ve dinlendirici bir uykuya hazrlanmanza yardmc olacak.</string>
+<string name="bedtime_ended_notification_info">Uyanma zaman! Uyku rutini sona erdi, gunu enerjik ve dinlenmis bir sekilde baslamak icin hazr olun.</string>
+<string name="emergency_pause_notification_title">Acil Duraklatma</string>
+<string name="emergency_pause_ended_notification_info">Acil duraklatma sona erdi ve uygulama engelleyici tekrar devrede. Dikkat datclar yeniden engellendi, odaklanmaya devam edin!</string>
+<string name="focus_session_notification_title">Odaklanma Oturumlar</string>
+<string name="focus_session_success_notification_info">Tebrikler! Odaklanma oturumunuzu basaryla tamamladnz. Hedefe odaklanmay basardnz icin harika bir is ckardnz! Mukemmel calsmanza devam edin!</string>
+<string name="focus_session_giveup_notification_info">Vazgectin! Endiselenme, bir dahaki sefere daha iyisini yapabilirsin. Her caba onemli - sadece devam et</string>
+<string name="notification_schedule_batch_title">Okunmams bildiriler</string>
 </resources>
