@@ -35,7 +35,7 @@ final funnyMotivationProvider = FutureProvider<String?>((ref) async {
   }
 
   // ── Set loading ───────────────────────────────────────────────
-  ref.read(funnyMotivationLoadingProvider.notifier).state = true;
+  Future.microtask(() => ref.read(funnyMotivationLoadingProvider.notifier).state = true);
 
   try {
     // Build context from all sources

@@ -67,3 +67,4 @@ app.*.map.json
 # Ignore all markdown files except README.md
 *.md
 !README.md
+android/.kotlin/sessions/kotlin-compiler-14527887952336900892.salive

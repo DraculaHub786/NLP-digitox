@@ -62,17 +62,35 @@ class _FadeThroughTransition extends StatelessWidget {
       end: Offset.zero,
     ).animate(animation);
 
+    // When there is no secondary animation (e.g. the first route in the
+    // navigator), the outgoing-route fade must be skipped entirely.
+    // Using a fallback of kAlwaysCompleteAnimation (= 1.0) here would wrap
+    // the child in `FadeTransition(opacity: ReverseAnimation(1.0))`, which is
+    // permanently 0.0 — the route paints black forever. This is what caused
+    // the black screen right after the splash when Home replaced Splash and
+    // became the first route.
+    final secondary = secondaryAnimation;
+    if (secondary == null) {
+      return FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: slideOffset,
+          child: child,
+        ),
+      );
+    }
+
     final secondarySlideOffset = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0, -0.02),
-    ).animate(secondaryAnimation ?? kAlwaysCompleteAnimation);
+    ).animate(secondary);
 
     return FadeTransition(
       opacity: animation,
       child: SlideTransition(
         position: slideOffset,
         child: FadeTransition(
-          opacity: ReverseAnimation(secondaryAnimation ?? kAlwaysCompleteAnimation),
+          opacity: ReverseAnimation(secondary),
           child: SlideTransition(
             position: secondarySlideOffset,
             child: child,
