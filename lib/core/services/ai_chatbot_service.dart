@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
+import 'package:nlp_digitox/core/services/chat_context_extractor.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
+import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
 import 'package:nlp_digitox/models/persona_model.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
 
@@ -649,13 +651,46 @@ Adjust your responses to be empathetic to their current emotional state.
     }
   }
 
-  /// Get recent chat messages for context (last N messages)
+  /// Get recent chat messages for context (last N messages).
+  ///
+  /// Fixed (Phase 1.1): messages are sorted by [ChatMessage.timestamp]
+  /// descending before taking `count`. Previously `.take(count)` was applied
+  /// to the chronologically-appended list, returning the OLDEST messages of
+  /// the session instead of the most recent.
   List<String> getRecentMessages({int count = 5}) {
-    return _chatHistory
+    final recent = _chatHistory.toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return recent
         .where((msg) => msg.isUser)
         .take(count)
         .map((msg) => msg.message)
         .toList();
+  }
+
+  /// Get ALL user messages across every chat session within the last
+  /// [days] days (defaults to the 30-day retention window).
+  ///
+  /// Phase 2.1: sentiment analysis should look at the full retention window,
+  /// not just the current in-memory session. Returns raw user message text
+  /// for further processing.
+  List<String> getAllMessagesInWindow({int days = 30}) {
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+    final messages = <String>[];
+
+    for (final session in _chatSessions) {
+      if (session.lastMessageAt.isBefore(cutoff)) continue;
+      for (final message in session.messages) {
+        if (!message.isUser) continue;
+        if (message.timestamp.isBefore(cutoff)) continue;
+        messages.add(message.message);
+      }
+    }
+
+    // Cap at a sane number so a huge 30-day history can't blow the prompt.
+    if (messages.length > 200) {
+      return messages.sublist(messages.length - 200);
+    }
+    return messages;
   }
 
   // ═══════════════════════════════════════════════════════
@@ -951,7 +986,10 @@ Adjust your responses to be empathetic to their current emotional state.
   // AUTO-DELETION
   // ═══════════════════════════════════════════════════════
   
-  /// Auto-delete chats older than 30 days
+  /// Auto-delete chats older than 30 days.
+  ///
+  /// Also prunes ChatContextExtractor's persisted themes older than the same
+  /// cutoff so extracted context dies with its source sessions (Phase 2.5).
   Future<void> _autoDeleteOldChats() async {
     try {
       final cutoffDate = DateTime.now().subtract(Duration(days: _autoDeletionDays));
@@ -970,6 +1008,13 @@ Adjust your responses to be empathetic to their current emotional state.
         await _saveChatHistory();
         debugPrint('✅ Auto-deleted $deletedCount old chat session(s) (older than $_autoDeletionDays days)');
       }
+
+      // Keep extracted themes in lockstep with the same retention window.
+      await ChatContextExtractor.instance.pruneBefore(cutoffDate);
+
+      // Phase 3.2 / 5.3: persisted sentiment snapshots die with the same
+      // 30-day window so trends never outlive their source data.
+      await SentimentPersistenceService.instance.pruneBefore(cutoffDate);
     } catch (e) {
       debugPrint('❌ Error auto-deleting old chats: $e');
     }

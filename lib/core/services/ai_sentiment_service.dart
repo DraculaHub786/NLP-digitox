@@ -38,6 +38,10 @@ class AISentimentService {
 
   /// Analyze user's digital wellbeing sentiment based on usage patterns
   /// Returns sentiment percentages: {Positive, Neutral, Negative, Anxious, Focused}
+  ///
+  /// Phase 3.1: [moodContext] merges MoodService check-ins (self-reported)
+  /// into the assessment alongside usage metrics and extracted chat themes.
+  /// Weighting: usage metrics > mood check-ins > chat themes.
   Future<Map<String, double>> analyzeSentiment({
     required UsageModel todayUsage,
     required int screenTimeGoalSeconds,
@@ -46,6 +50,8 @@ class AISentimentService {
     int? tasksCompleted,
     List<String>? recentChatMessages,
     List<String>? recentIntentSignals,
+    List<String>? recentThemes,
+    String? moodContext,
   }) async {
     if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
       throw Exception('Groq API key is not configured.');
@@ -63,7 +69,13 @@ class AISentimentService {
       final recentIntentContext = (recentIntentSignals != null && recentIntentSignals.isNotEmpty)
           ? recentIntentSignals.take(8).map((s) => '- $s').join('\n')
           : 'No recent app-intent context.';
-      
+      final recentThemesContext = (recentThemes != null && recentThemes.isNotEmpty)
+          ? recentThemes.take(8).map((m) => '- $m').join('\n')
+          : 'No extracted themes yet.';
+      final moodBlock = (moodContext != null && moodContext.trim().isNotEmpty)
+          ? '$moodContext\n'
+          : 'No self-reported mood check-ins.\n';
+
       final prompt = '''
 Analyze the digital wellbeing sentiment of a user based on their smartphone usage patterns today. Provide a psychological assessment.
 
@@ -81,7 +93,13 @@ $recentChatContext
 Recent app usage intent context:
 $recentIntentContext
 
+Recurring themes from the last 30 days of chat (weight these in the assessment):
+$recentThemesContext
+
+Self-reported mood check-ins (weight these — the user's own words are the strongest signal of how they feel):
+$moodBlock
 IMPORTANT: Be deterministic - same usage data should produce consistent results.
+IMPORTANT: If the user has self-reported a mood (e.g. Anxious, Stressed, Happy), the check-in should clearly bias the percentages — manual check-ins override keyword guesses from chat history. Otherwise rely on usage + themes.
 
 SCORING GUIDELINES (apply consistently):
 1. Screen time under goal: increase Positive and Focused
@@ -89,6 +107,8 @@ SCORING GUIDELINES (apply consistently):
 3. Streak of 3+ days: increase Positive and Focused
 4. Habits completed: increase Positive and Focused
 5. Screen time 100-130% of goal: increase Neutral
+6. A check-in with average sentiment score ~-0.5 or lower (sad/anxious/stressed): raise Anxious or Negative by 10-15 points
+7. A check-in with average sentiment score +0.5 or higher (happy/energized): raise Positive or Focused by 10-15 points
 
 Respond with ONLY these 5 values (must total 100):
 Positive: XX
@@ -99,7 +119,7 @@ Focused: XX
 ''';
 
       debugPrint('🤖 AISentimentService: Calling Groq API for sentiment analysis...');
-      
+
       final response = await http
           .post(
             Uri.parse(_apiUrl),
@@ -119,31 +139,31 @@ Focused: XX
             }),
           )
           .timeout(_requestTimeout);
-      
+
       if (response.statusCode != 200) {
         debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
         debugPrint('Response: ${response.body}');
         throw Exception('API error: ${response.statusCode}');
       }
-      
+
       final jsonResponse = jsonDecode(response.body);
       final text = jsonResponse['choices'][0]['message']['content'] as String;
-      
+
       debugPrint('📥 AISentimentService: Received response from Groq API');
       debugPrint('Response text: $text');
-      
+
       final sentiments = _parseSentiment(text);
-      
+
       _lastSentiment = sentiments;
       _lastSentimentContext = 'Screen time: $screenTimeHours hrs (goal: $goalHours hrs), Streak: ${streakDays ?? 0} days, Habits: ${habitsCompleted ?? 0}, Tasks: ${tasksCompleted ?? 0}';
-      
+
       debugPrint('✅ AISentimentService: Sentiment analysis completed: $sentiments');
       return sentiments;
-      
+
     } catch (e, stackTrace) {
       debugPrint('❌ AISentimentService: Error analyzing sentiment - $e');
       debugPrint('Stack trace: $stackTrace');
-      
+
       final errorMsg = e.toString().toLowerCase();
       if (errorMsg.contains('quota') || errorMsg.contains('limit') || errorMsg.contains('429')) {
         debugPrint('⚠️ API QUOTA/RATE LIMIT ERROR: You may have exceeded the free tier limits.');
@@ -160,11 +180,19 @@ Focused: XX
   }
 
   /// Get personalized recommendations based on usage patterns
+  ///
+  /// Phase 4.1: [avoidTips] = recently-shown tips to not repeat.
+  /// Phase 4.3: [avoidTopics] = tips the user marked "not helpful".
+  /// Phase 4.2: [themeSuggestion] = specific recurring theme to reference.
   Future<List<String>> getRecommendations({
     required UsageModel todayUsage,
     required int screenTimeGoalSeconds,
     required Map<String, double> currentSentiment,
     List<String>? recentChatMessages, // Include chat context for better recommendations
+    List<String>? recentThemes, // Recurring themes from Phase 2 extraction
+    List<String>? avoidTips, // Phase 4.1
+    List<String>? avoidTopics, // Phase 4.3
+    String? themeSuggestion, // Phase 4.2
   }) async {
     if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
       throw Exception('Groq API key is not configured.');
@@ -176,7 +204,19 @@ Focused: XX
       final recentChatContext = (recentChatMessages != null && recentChatMessages.isNotEmpty)
           ? recentChatMessages.take(6).map((m) => '- $m').join('\n')
           : 'No recent chat context.';
-      
+      final recentThemesContext = (recentThemes != null && recentThemes.isNotEmpty)
+          ? recentThemes.take(8).map((m) => '- $m').join('\n')
+          : 'No extracted themes yet.';
+      final avoidTipsContext = (avoidTips != null && avoidTips.isNotEmpty)
+          ? avoidTips.take(7).map((m) => '- $m').join('\n')
+          : 'None.';
+      final avoidTopicsContext = (avoidTopics != null && avoidTopics.isNotEmpty)
+          ? avoidTopics.take(5).map((m) => '- $m').join('\n')
+          : 'None.';
+      final themeSuggestionContext = (themeSuggestion != null && themeSuggestion.trim().isNotEmpty)
+          ? 'A recurring theme the user keeps mentioning is "$themeSuggestion". Make at least ONE recommendation specifically about this — directly reference it by name.\n'
+          : '';
+
       final prompt = '''
 As a digital wellbeing AI assistant, provide 3-4 personalized, actionable recommendations for this user based on their usage patterns and emotional state.
 
@@ -186,7 +226,16 @@ Current State:
 - Recent chats:
 $recentChatContext
 
+Recurring themes from the last 30 days of chat (tie recommendations to these themes where relevant):
+$recentThemesContext
 
+Do NOT repeat any of these recently-shown tips (they were already given to this user):
+$avoidTipsContext
+
+Avoid these topics entirely — the user marked tips about them as NOT helpful:
+$avoidTopicsContext
+
+$themeSuggestionContext
 Provide 3-4 brief, actionable recommendations (each max 15 words). Format as a simple numbered list:
 1. [Recommendation]
 2. [Recommendation]
@@ -197,11 +246,13 @@ Focus on:
 - Specific actions they can take NOW
 - Addressing their emotional state
 - Helping them meet their goals
+- Referencing the recurring themes (e.g. if work deadlines keep appearing, suggest a concrete work-break tactic)
 - Practical, achievable steps
+- Each recommendation must be DIFFERENT from everything on the do-not-repeat list
 ''';
 
       debugPrint('🤖 AISentimentService: Calling Groq API for recommendations...');
-      
+
       final response = await http
           .post(
             Uri.parse(_apiUrl),
@@ -220,22 +271,22 @@ Focus on:
             }),
           )
           .timeout(_requestTimeout);
-      
+
       if (response.statusCode != 200) {
         debugPrint('❌ AISentimentService: API returned error ${response.statusCode}');
         throw Exception('API error: ${response.statusCode}');
       }
-      
+
       final jsonResponse = jsonDecode(response.body);
       final text = jsonResponse['choices'][0]['message']['content'] as String;
-      
+
       debugPrint('📥 AISentimentService: Received recommendations from Groq API');
-      
+
       final recommendations = _parseRecommendations(text);
-      
+
       debugPrint('✅ AISentimentService: Generated ${recommendations.length} recommendations');
       return recommendations;
-      
+
     } catch (e, stackTrace) {
       debugPrint('❌ AISentimentService: Error generating recommendations - $e');
       debugPrint('Stack trace: $stackTrace');
@@ -327,7 +378,7 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
 
       // Clean up quotes the model might wrap around
       final cleaned = text.replaceAll(RegExp("^[\"']|[\"']\$"), '').trim();
-      
+
       debugPrint('✅ AISentimentService: Got funny motivation: $cleaned');
       return cleaned;
 
@@ -342,7 +393,7 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
   Map<String, double> _parseSentiment(String text) {
     final Map<String, double> sentiments = {};
     final lines = text.split('\n');
-    
+
     for (final line in lines) {
       if (line.contains(':')) {
         final parts = line.split(':');
@@ -350,26 +401,26 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
           final sentiment = parts[0].trim();
           final valueStr = parts[1].trim().replaceAll(RegExp(r'[^0-9.]'), '');
           final value = double.tryParse(valueStr);
-          
-          if (value != null && (sentiment == 'Positive' || sentiment == 'Neutral' || 
+
+          if (value != null && (sentiment == 'Positive' || sentiment == 'Neutral' ||
               sentiment == 'Negative' || sentiment == 'Anxious' || sentiment == 'Focused')) {
             sentiments[sentiment] = value;
           }
         }
       }
     }
-    
+
     // Normalize to 100% if needed
     final total = sentiments.values.fold(0.0, (sum, val) => sum + val);
     if (total > 0 && (total < 95 || total > 105)) {
       sentiments.updateAll((key, value) => (value / total) * 100);
     }
-    
+
     // Treat parse failure as an error to avoid fake fallback sentiment.
     if (sentiments.length < 3) {
       throw FormatException('Failed to parse sentiment response: $text');
     }
-    
+
     return sentiments;
   }
 
@@ -377,7 +428,7 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
   List<String> _parseRecommendations(String text) {
     final recommendations = <String>[];
     final lines = text.split('\n');
-    
+
     for (final line in lines) {
       final trimmed = line.trim();
       // Match numbered lists: "1.", "1)", "1 -", etc.
@@ -389,7 +440,7 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
         }
       }
     }
-    
+
     // Fallback to simple splitting if parsing failed
     if (recommendations.isEmpty) {
       return text.split('\n')
@@ -397,7 +448,7 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
           .take(4)
           .toList();
     }
-    
+
     return recommendations.take(4).toList();
   }
 }

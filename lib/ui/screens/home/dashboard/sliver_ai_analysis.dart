@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:sliver_tools/sliver_tools.dart' as sliver show MultiSliver;
 import 'package:nlp_digitox/providers/ai_providers.dart';
+import 'package:nlp_digitox/models/ai_analysis_models.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
+import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:nlp_digitox/core/utils/date_time_utils.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
@@ -63,6 +65,15 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           ),
         ),
         
+        // Fallback notice: shown when the AI call failed and we're displaying
+        // static fallback data instead of real analysis (Phase 1.3).
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+            child: _buildFallbackBanner(colorScheme, sentimentAsync, recommendationsAsync),
+          ),
+        ),
+
         // Sentiment Analysis and Recommendations Row
         SliverToBoxAdapter(
           child: Padding(
@@ -121,11 +132,13 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 4),
+                            _buildTrendLine(colorScheme),
+                            const SizedBox(height: 4),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: sentimentData.entries.map((entry) {
+                                children: sentimentData.sentiments.entries.map((entry) {
                                   Color sentimentColor;
                                   IconData sentimentIcon;
                                   switch (entry.key) {
@@ -237,8 +250,9 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               child: ListView.builder(
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.zero,
-                                itemCount: recommendations.length,
+                                itemCount: recommendations.recommendations.length,
                                 itemBuilder: (context, index) {
+                                  final tip = recommendations.recommendations[index];
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
                                     child: Row(
@@ -256,11 +270,22 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: StyledText(
-                                            recommendations[index],
+                                            tip,
                                             fontSize: 11,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
+                                        ),
+                                        // Phase 4.3: thumbs feedback on each tip.
+                                        _FeedbackButton(
+                                          icon: FluentIcons.thumb_like_20_regular,
+                                          color: colorScheme.primary,
+                                          onTap: () => _recordTipFeedback(tip, true),
+                                        ),
+                                        _FeedbackButton(
+                                          icon: FluentIcons.thumb_dislike_20_regular,
+                                          color: colorScheme.error,
+                                          onTap: () => _recordTipFeedback(tip, false),
                                         ),
                                       ],
                                     ),
@@ -507,6 +532,56 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
     );
   }
 
+  Widget _buildFallbackBanner(
+    ColorScheme colorScheme,
+    AsyncValue<SentimentResult> sentimentAsync,
+    AsyncValue<RecommendationsResult> recommendationsAsync,
+  ) {
+    final sentimentResult = sentimentAsync.valueOrNull;
+    final recommendationsResult = recommendationsAsync.valueOrNull;
+
+    final isFallback =
+        (sentimentResult?.isFallback ?? false) ||
+        (recommendationsResult?.isFallback ?? false);
+
+    if (!isFallback) return const SizedBox.shrink();
+
+    final failure = sentimentResult?.failure ?? recommendationsResult?.failure;
+    final message = failure?.message ??
+        'Live AI analysis is unavailable — showing placeholder data. Check your connection and API key.';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.error.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            FluentIcons.warning_20_regular,
+            size: 16,
+            color: colorScheme.error,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: StyledText(
+              message,
+              fontSize: 11,
+              color: colorScheme.onErrorContainer,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFallbackState(ColorScheme colorScheme) {
     const fallbackSentiment = {
       'Positive': 30.0,
@@ -637,6 +712,61 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           ),
         ),
       ],
+    );
+  }
+
+  /// Phase 3.2: one-line trend from persisted daily snapshots
+  /// ("Anxious is up 8 pts vs last week" or nothing when no data).
+  Widget _buildTrendLine(ColorScheme colorScheme) {
+    final trendAsync = ref.watch(aiSentimentTrendProvider);
+    final trend = trendAsync.valueOrNull;
+
+    if (trend == null || !trend.isAvailable) {
+      return const SizedBox.shrink();
+    }
+
+    final biggest = trend.deltas.entries
+        .reduce((a, b) => b.value.abs() > a.value.abs() ? b : a);
+    final isUp = biggest.value >= 0;
+    final isNegativeLabel = biggest.key == 'Negative' || biggest.key == 'Anxious';
+
+    // Rise of a negative label is bad; rise of a positive label is good.
+    final isGood = isNegativeLabel ? !isUp : isUp;
+    final color = isGood ? Colors.green : colorScheme.error;
+
+    return Row(
+      children: [
+        Icon(
+          isUp
+              ? FluentIcons.arrow_trending_20_regular
+              : FluentIcons.arrow_trending_down_20_regular,
+          size: 12,
+          color: color,
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: StyledText(
+            trend.headline ?? '',
+            fontSize: 10,
+            color: color.withValues(alpha: 0.9),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Phase 4.3: persist feedback on a tip. Thumbs-down is stored so future
+  /// prompts avoid similar tips.
+  Future<void> _recordTipFeedback(String tip, bool helpful) async {
+    await SentimentPersistenceService.instance.recordTipFeedback(tip, helpful);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(helpful ? 'Thanks — glad it helped!' : 'Got it — we\'ll suggest different tips.'),
+        duration: const Duration(seconds: 1),
+      ),
     );
   }
 
@@ -1042,7 +1172,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
         final todayUsage = ref.read(weeklyDeviceUsageProvider(dateToday.weekRange))[dateToday] ?? const UsageModel();
         final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
         await AIChatbotService.instance.updateWithSentiment(
-          sentiment: sentiment,
+          sentiment: sentiment.sentiments,
           screenTimeSeconds: todayUsage.screenTime,
           goalSeconds: wellbeingSettings.dailyScreenTimeGoalSec,
         );
@@ -1083,5 +1213,36 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
       }
     }
   }
+}
 
+/// Phase 4.3: small thumb button under each tip for feedback.
+class _FeedbackButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _FeedbackButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 2),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Padding(
+          padding: const EdgeInsets.all(3),
+          child: Icon(
+            icon,
+            size: 12,
+            color: color.withValues(alpha: 0.7),
+          ),
+        ),
+      ),
+    );
+  }
 }
