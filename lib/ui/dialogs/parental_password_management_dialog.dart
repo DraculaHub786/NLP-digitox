@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:nlp_digitox/core/services/parental_password_service.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 
 /// Shows a dialog to manage the parental control password (change or reset)
 Future<void> showParentalPasswordManagementDialog({
@@ -290,15 +291,26 @@ class _ParentalPasswordManagementDialogState
           onPressed: _isProcessing ? null : () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
-        FilledButton(
-          onPressed: _isProcessing ? null : _changePassword,
+        ClayContainer(
+          baseColor: Theme.of(context).colorScheme.primary,
+          borderRadius: 12,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          onTap: _isProcessing ? null : _changePassword,
           child: _isProcessing
               ? const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text("Change"),
+              : Text(
+                  'Change',
+                  style: TextStyle(
+                    color: ClayStyle.foregroundColor(
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ],
         ),

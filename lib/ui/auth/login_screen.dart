@@ -334,27 +334,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 20.0),
 
                   /// Google sign-in button
-                  OutlinedButton(
-                    onPressed: _isLoading ? null : _loginWithGoogle,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                  ClayContainer(
+                    baseColor: colorScheme.primaryContainer,
+                    borderRadius: 16,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    onTap: _isLoading ? null : _loginWithGoogle,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           FluentIcons.person_20_regular,
                           size: 20.0,
-                          color: colorScheme.primary,
+                          color: ClayStyle.foregroundColor(
+                            colorScheme.primaryContainer,
+                          ),
                         ),
                         const SizedBox(width: 10),
-                        Text(
+                        StyledText(
                           'Continue with Google',
-                          style: TextStyle(color: colorScheme.primary),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: ClayStyle.foregroundColor(
+                            colorScheme.primaryContainer,
+                          ),
                         ),
                       ],
                     ),

@@ -17,6 +17,7 @@ import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/breathing_widget.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
@@ -151,13 +152,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            /// Breathing logo — icon-chip style, consistent with the rest of the app
+            /// Breathing logo — clay icon-chip style, consistent with the rest of the app
             BreathingWidget(
               dimension: min(220, MediaQuery.of(context).size.width * 0.55),
               child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: colorScheme.primary.withValues(alpha: 0.15),
+                decoration: ClayStyle.decoration(
+                  baseColor: colorScheme.primaryContainer,
+                  context: context,
+                  borderRadius: 220,
                 ),
                 padding: const EdgeInsets.all(24),
                 child: ClipOval(

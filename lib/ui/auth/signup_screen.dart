@@ -146,9 +146,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Skip for now'),
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Save'),
+          ClayContainer(
+            baseColor: Theme.of(ctx).colorScheme.primary,
+            borderRadius: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            onTap: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: ClayStyle.foregroundColor(
+                  Theme.of(ctx).colorScheme.primary,
+                ),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -638,27 +649,29 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   const SizedBox(height: 20.0),
 
                   /// Google sign-in button
-                  OutlinedButton(
-                    onPressed: _isLoading ? null : _signupWithGoogle,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                  ClayContainer(
+                    baseColor: colorScheme.primaryContainer,
+                    borderRadius: 16,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    onTap: _isLoading ? null : _signupWithGoogle,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           FluentIcons.person_20_regular,
                           size: 20.0,
-                          color: colorScheme.primary,
+                          color: ClayStyle.foregroundColor(
+                            colorScheme.primaryContainer,
+                          ),
                         ),
                         const SizedBox(width: 10),
-                        Text(
+                        StyledText(
                           'Continue with Google',
-                          style: TextStyle(color: colorScheme.primary),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: ClayStyle.foregroundColor(
+                            colorScheme.primaryContainer,
+                          ),
                         ),
                       ],
                     ),

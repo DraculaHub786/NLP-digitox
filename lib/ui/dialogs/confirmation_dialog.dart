@@ -1,9 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
 import 'package:nlp_digitox/ui/transitions/hero_page_route.dart';
-import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 /// Animates the hero widget to a alert dialog for the confirmation with the provided configurations
 ///
@@ -88,11 +89,23 @@ class _ConfirmationDialog extends StatelessWidget {
                   ),
                 ),
                 FittedBox(
-                  child: FilledButton.tonal(
-                    onPressed: () => Navigator.maybePop(context, true),
+                  child: ClayContainer(
+                    baseColor: Theme.of(context).colorScheme.primary,
+                    borderRadius: 12,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    onTap: () => Navigator.maybePop(context, true),
                     child: Text(
                       positiveLabel,
                       overflow: TextOverflow.clip,
+                      style: TextStyle(
+                        color: ClayStyle.foregroundColor(
+                          Theme.of(context).colorScheme.primary,
+                        ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
