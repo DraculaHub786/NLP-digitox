@@ -9,6 +9,7 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
@@ -588,24 +589,32 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   const SizedBox(height: 28.0),
 
                   /// Sign up button
-                  FilledButton(
-                    onPressed: _isLoading ? null : _signup,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                  ClayContainer(
+                    baseColor: colorScheme.primary,
+                    borderRadius: 16,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    onTap: _isLoading ? null : _signup,
+                    child: Center(
+                      child: _isLoading
+                          ? SizedBox(
+                              height: 20.0,
+                              width: 20.0,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: ClayStyle.foregroundColor(
+                                  colorScheme.primary,
+                                ),
+                              ),
+                            )
+                          : StyledText(
+                              'Sign Up',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: ClayStyle.foregroundColor(
+                                colorScheme.primary,
+                              ),
                             ),
-                          )
-                        : const Text('Sign Up'),
+                    ),
                   ).animate(effects: DefaultEffects.transitionIn),
 
                   const SizedBox(height: 20.0),

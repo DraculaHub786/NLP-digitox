@@ -1,6 +1,7 @@
 // Copyright (c) 2024 NLP digitox
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/models/habit_model.dart';
 import 'package:nlp_digitox/models/task_model.dart';
@@ -29,7 +30,7 @@ class ProductivityService {
       final List<dynamic> decoded = jsonDecode(habitsJson);
       return decoded.map((json) => HabitModel.fromJson(json)).toList();
     } catch (e) {
-      print('Error loading habits: $e');
+      debugPrint('Error loading habits: $e');
       return [];
     }
   }
@@ -40,7 +41,7 @@ class ProductivityService {
       final habitsJson = jsonEncode(habits.map((h) => h.toJson()).toList());
       return await prefs.setString(_habitsKey, habitsJson);
     } catch (e) {
-      print('Error saving habits: $e');
+      debugPrint('Error saving habits: $e');
       return false;
     }
   }
@@ -77,7 +78,7 @@ class ProductivityService {
       final List<dynamic> decoded = jsonDecode(tasksJson);
       return decoded.map((json) => TaskModel.fromJson(json)).toList();
     } catch (e) {
-      print('Error loading tasks: $e');
+      debugPrint('Error loading tasks: $e');
       return [];
     }
   }
@@ -88,7 +89,7 @@ class ProductivityService {
       final tasksJson = jsonEncode(tasks.map((t) => t.toJson()).toList());
       return await prefs.setString(_tasksKey, tasksJson);
     } catch (e) {
-      print('Error saving tasks: $e');
+      debugPrint('Error saving tasks: $e');
       return false;
     }
   }
@@ -125,7 +126,7 @@ class ProductivityService {
       final List<dynamic> decoded = jsonDecode(notesJson);
       return decoded.map((json) => NoteModel.fromJson(json)).toList();
     } catch (e) {
-      print('Error loading notes: $e');
+      debugPrint('Error loading notes: $e');
       return [];
     }
   }
@@ -136,7 +137,7 @@ class ProductivityService {
       final notesJson = jsonEncode(notes.map((n) => n.toJson()).toList());
       return await prefs.setString(_notesKey, notesJson);
     } catch (e) {
-      print('Error saving notes: $e');
+      debugPrint('Error saving notes: $e');
       return false;
     }
   }

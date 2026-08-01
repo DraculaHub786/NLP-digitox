@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
@@ -304,7 +305,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                         ),
                                       ],
                                     ),
-                                  );
+                                  )
+                                      .animate()
+                                      .fadeIn(
+                                        duration: 400.ms,
+                                        delay: (index.clamp(0, 10) * 60).ms,
+                                      )
+                                      .slideY(
+                                        begin: 0.15,
+                                        end: 0,
+                                        duration: 400.ms,
+                                        curve: Curves.easeOutCubic,
+                                      );
                                 },
                               ),
                             ),

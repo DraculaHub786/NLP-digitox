@@ -5,7 +5,7 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/screens/settings/about/tab_about.dart';
 import 'package:nlp_digitox/ui/screens/settings/account/tab_account.dart';
-import 'package:nlp_digitox/ui/screens/settings/database/tab_database.dart';
+import 'package:nlp_digitox/ui/screens/settings/analysis/tab_analysis.dart';
 import 'package:nlp_digitox/ui/screens/settings/general/tab_general.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -34,10 +34,10 @@ class SettingsScreen extends StatelessWidget {
           sliverBody: const TabAccount(),
         ),
         NavbarItem(
-          titleText: context.locale.database_tab_title,
-          icon: FluentIcons.database_20_regular,
-          filledIcon: FluentIcons.database_20_filled,
-          sliverBody: const TabDatabase(),
+          titleText: context.locale.analysis_tab_title,
+          icon: FluentIcons.chart_multiple_20_regular,
+          filledIcon: FluentIcons.chart_multiple_20_filled,
+          sliverBody: const TabAnalysis(),
         ),
         NavbarItem(
           titleText: context.locale.about_tab_title,

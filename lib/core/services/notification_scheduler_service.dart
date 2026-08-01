@@ -47,7 +47,7 @@ class NotificationSchedulerService {
       tz.setLocalLocation(location);
       debugPrint('Timezone initialized: ${tz.local.name}');
       
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings('@drawable/ic_notification');
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -165,7 +165,7 @@ class NotificationSchedulerService {
             'Daily scheduled reminder notifications',
         importance: Importance.high,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
         actions: <AndroidNotificationAction>[
           AndroidNotificationAction(
             'COMPLETE',

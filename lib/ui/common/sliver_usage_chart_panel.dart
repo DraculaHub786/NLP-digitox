@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,6 +7,7 @@ import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/utils/date_time_utils.dart';
 import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:nlp_digitox/ui/common/default_bar_chart.dart';
+import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class SliverUsageChartPanel extends StatelessWidget {
@@ -45,12 +45,14 @@ class SliverUsageChartPanel extends StatelessWidget {
     return SliverList.list(
       children: [
         /// Usage bar chart
-        DefaultBarChart(
-          height: chartHeight,
-          usageType: usageType,
-          selectedDay: selectedDay,
-          onDayBarTap: onDayOfWeekChanged,
-          data: barChartData,
+        FadeSlideEntrance(
+          child: DefaultBarChart(
+            height: chartHeight,
+            usageType: usageType,
+            selectedDay: selectedDay,
+            onDayBarTap: onDayOfWeekChanged,
+            data: barChartData,
+          ),
         ),
 
         8.vBox,

@@ -10,6 +10,7 @@ import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/sliver_active_session_alert.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
@@ -32,16 +33,17 @@ class TabFocus extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.15),
+            child: FadeSlideEntrance(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.15),
+                  ),
                 ),
-              ),
-              child: Row(
+                child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -69,6 +71,7 @@ class TabFocus extends StatelessWidget {
               ),
             ),
           ),
+        ),
         ),
 
         8.vSliverBox,

@@ -15,15 +15,26 @@ class TimerProgressClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size.square(dimension),
-      painter: _TimerClockPainter(
-        progress: progress,
-        bgColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-        fillColor: Theme.of(context).colorScheme.primary,
-        notchColor: Theme.of(context).colorScheme.primary,
-        needleColor: Theme.of(context).colorScheme.error,
-      ),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    /// Tween the progress toward its target each tick so the arc visibly
+    /// glides forward instead of jumping instant-by-instant.
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: progress),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutCubic,
+      builder: (context, animatedProgress, _) {
+        return CustomPaint(
+          size: Size.square(dimension),
+          painter: _TimerClockPainter(
+            progress: animatedProgress,
+            bgColor: colorScheme.primary.withValues(alpha: 0.05),
+            fillColor: colorScheme.primary,
+            notchColor: colorScheme.primary,
+            needleColor: colorScheme.error,
+          ),
+        );
+      },
     );
   }
 }

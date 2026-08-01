@@ -64,7 +64,7 @@ class TaskModel {
       'priority': priority.index,
       'dueDate': dueDate?.millisecondsSinceEpoch,
       'completed': completed ? 1 : 0,
-      'colorValue': color.value,
+      'colorValue': color.toARGB32(),
       'createdAt': createdAt.millisecondsSinceEpoch,
       'completedAt': completedAt?.millisecondsSinceEpoch,
       'lastResetDate': lastResetDate?.millisecondsSinceEpoch,

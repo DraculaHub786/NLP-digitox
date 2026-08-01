@@ -1,5 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
@@ -375,7 +376,24 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildUserTile(context, user, rank, isCurrentUser, colorScheme),
+                          child: _buildUserTile(
+                            context,
+                            user,
+                            rank,
+                            isCurrentUser,
+                            colorScheme,
+                          )
+                              .animate()
+                              .fadeIn(
+                                duration: 400.ms,
+                                delay: (index.clamp(0, 20) * 40).ms,
+                              )
+                              .slideY(
+                                begin: 0.15,
+                                end: 0,
+                                duration: 400.ms,
+                                curve: Curves.easeOutCubic,
+                              ),
                         );
                       },
                       childCount: users.length,

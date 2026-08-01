@@ -10,6 +10,7 @@ import 'package:nlp_digitox/providers/notifications/today_notifications_count_pr
 import 'package:nlp_digitox/providers/usage/device_unlock_count_provider.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/providers/focus/monthly_focus_provider.dart';
+import 'package:nlp_digitox/ui/common/pressable_scale.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class ModernStatsCards extends ConsumerWidget {
@@ -44,7 +45,15 @@ class ModernStatsCards extends ConsumerWidget {
             trend: todayScreenTime.toDiffPercentage(yesterdayScreenTime),
             accentColor: colorScheme.primary,
             gradientColors: const [Color(0xFF28392C), Color(0xFF3D5341)],
-          ),
+          )
+              .animate()
+              .fadeIn(duration: 400.ms)
+              .slideY(
+                begin: 0.15,
+                end: 0,
+                duration: 400.ms,
+                curve: Curves.easeOutCubic,
+              ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -56,10 +65,18 @@ class ModernStatsCards extends ConsumerWidget {
             invertTrend: true,
             accentColor: colorScheme.secondary,
             gradientColors: const [Color(0xFF838764), Color(0xFFA3A78D)],
-          ),
+          )
+              .animate()
+              .fadeIn(duration: 400.ms, delay: 80.ms)
+              .slideY(
+                begin: 0.15,
+                end: 0,
+                duration: 400.ms,
+                curve: Curves.easeOutCubic,
+              ),
         ),
       ],
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0);
+    );
   }
 }
 
@@ -221,32 +238,64 @@ class ModernGlanceGrid extends ConsumerWidget {
               icon: FluentIcons.cellular_data_1_20_filled,
               backgroundColor: const Color(0xFFF0F5F2),
               iconColor: const Color(0xFF3D5341),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms)
+                .slideY(
+                  begin: 0.15,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic,
+                ),
             _ModernMiniCard(
               title: 'WiFi Data',
               value: '${(wifiData / 1024 / 1024).toStringAsFixed(1)} GB',
               icon: FluentIcons.wifi_1_20_regular,
               backgroundColor: const Color(0xFFF5F6EF),
               iconColor: const Color(0xFF838764),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 80.ms)
+                .slideY(
+                  begin: 0.15,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic,
+                ),
             _ModernMiniCard(
               title: 'Unlocks',
               value: unlockCount.toString(),
               icon: FluentIcons.lock_open_20_regular,
               backgroundColor: const Color(0xFFDCE6E0),
               iconColor: const Color(0xFF1F2E23),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 160.ms)
+                .slideY(
+                  begin: 0.15,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic,
+                ),
             _ModernMiniCard(
               title: 'Notifications',
               value: notificationsCount.toString(),
               icon: FluentIcons.alert_20_regular,
               backgroundColor: const Color(0xFFE8E9DE),
               iconColor: const Color(0xFF4F5238),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 240.ms)
+                .slideY(
+                  begin: 0.15,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic,
+                ),
           ],
         );
       },
-    ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.1, end: 0);
+    );
   }
 }
 
@@ -344,30 +393,32 @@ class ModernQuickActionButton extends StatelessWidget {
     final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 18),
-              const SizedBox(width: 8),
-              StyledText(
-                title,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ],
+    return PressableScale(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: color, size: 18),
+                const SizedBox(width: 8),
+                StyledText(
+                  title,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ],
+            ),
           ),
         ),
       ),

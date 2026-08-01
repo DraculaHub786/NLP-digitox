@@ -1473,6 +1473,44 @@ class AppLocalizationsEs extends AppLocalizations {
       'Exportar la base de datos a un archivo.';
 
   @override
+  String get analysis_tab_title => 'Analysis';
+
+  @override
+  String get analysis_7_days => '7 days';
+
+  @override
+  String get analysis_30_days => '30 days';
+
+  @override
+  String get analysis_90_days => '90 days';
+
+  @override
+  String get analysis_screen_time_trend => 'Screen time trend';
+
+  @override
+  String get analysis_no_data_info =>
+      'No screen time data recorded for this period yet.';
+
+  @override
+  String get analysis_daily_average => 'Daily average';
+
+  @override
+  String get analysis_total => 'Total';
+
+  @override
+  String get analysis_no_change => 'Same as last week';
+
+  @override
+  String analysis_trend_less(String percent) {
+    return '$percent% less than last week';
+  }
+
+  @override
+  String analysis_trend_more(String percent) {
+    return '$percent% more than last week';
+  }
+
+  @override
   String get crash_logs_heading => 'Registro de errores';
 
   @override

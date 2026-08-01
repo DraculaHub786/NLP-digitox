@@ -9,6 +9,14 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    # Standalone diagnostic CLI scripts (run via `dart run`) that intentionally
+    # use print() for console output — not part of the app codebase.
+    - test_groq_chat.dart
+    - test_http_direct.dart
+    - test_weekly_reset.dart
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

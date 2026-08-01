@@ -59,7 +59,7 @@ class HabitModel {
       'id': id,
       'name': name,
       'iconCodePoint': icon.codePoint,
-      'colorValue': color.value,
+      'colorValue': color.toARGB32(),
       'streak': streak,
       'completedToday': completedToday ? 1 : 0,
       'createdAt': createdAt.millisecondsSinceEpoch,

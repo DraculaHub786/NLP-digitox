@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/ui/common/clay_toggle.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
+import 'package:nlp_digitox/ui/common/pressable_scale.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class ModernSectionHeader extends StatelessWidget {
@@ -80,72 +83,67 @@ class ModernListTile extends StatelessWidget {
     final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: borderColor),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: tileColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
+    return PressableScale(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                children: [
+                  ClayIconPuck(
+                    icon: icon,
+                    baseColor: tileColor,
+                    size: 40,
                   ),
-                  child: Icon(
-                    icon,
-                    color: tileColor,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      StyledText(
-                        title,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
+                  const SizedBox(width: 16),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         StyledText(
-                          subtitle!,
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.75),
-                          maxLines: 2,
+                          title,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          StyledText(
+                            subtitle!,
+                            fontSize: 12,
+                            color: colorScheme.onSurface.withValues(alpha: 0.75),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                trailing ??
-                    (showChevron
-                        ? FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Icon(
-                              Icons.chevron_right_rounded,
-                              color: colorScheme.onSurface.withValues(alpha: 0.45),
-                              size: 22,
-                            ),
-                          )
-                        : const SizedBox.shrink()),
-              ],
+                  trailing ??
+                      (showChevron
+                          ? FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Icon(
+                                Icons.chevron_right_rounded,
+                                color: colorScheme.onSurface.withValues(alpha: 0.45),
+                                size: 22,
+                              ),
+                            )
+                          : const SizedBox.shrink()),
+                ],
+              ),
             ),
           ),
         ),
@@ -178,6 +176,7 @@ class ModernSettingsTile extends StatelessWidget {
     final tileColor = iconColor ?? colorScheme.primary;
     final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+    final isDisabled = onChanged == null;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -190,17 +189,10 @@ class ModernSettingsTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: tileColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                icon,
-                color: tileColor,
-                size: 20,
-              ),
+            ClayIconPuck(
+              icon: icon,
+              baseColor: tileColor,
+              size: 40,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -230,12 +222,15 @@ class ModernSettingsTile extends StatelessWidget {
             ),
             Flexible(
               flex: 0,
-              child: Transform.scale(
-                scale: 0.85,
-                child: Switch.adaptive(
-                  value: value,
-                  onChanged: onChanged,
-                  activeTrackColor: colorScheme.primary,
+              child: Opacity(
+                opacity: isDisabled ? 0.4 : 1,
+                child: IgnorePointer(
+                  ignoring: isDisabled,
+                  child: ClayToggle(
+                    value: value,
+                    activeColor: colorScheme.primary,
+                    onChanged: (_) => onChanged!(!value),
+                  ),
                 ),
               ),
             ),

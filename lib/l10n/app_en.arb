@@ -590,6 +590,34 @@
     "import_db_tile_subtitle": "Import database from a file.",
     "export_db_tile_title": "Export database",
     "export_db_tile_subtitle": "Export database to a file.",
+    "@----------------------------- SETTINGS SCREEN - ANALYSIS TAB -----------------------------": {},
+    "analysis_tab_title": "Analysis",
+    "analysis_7_days": "7 days",
+    "analysis_30_days": "30 days",
+    "analysis_90_days": "90 days",
+    "analysis_screen_time_trend": "Screen time trend",
+    "analysis_no_data_info": "No screen time data recorded for this period yet.",
+    "analysis_daily_average": "Daily average",
+    "analysis_total": "Total",
+    "analysis_no_change": "Same as last week",
+    "analysis_trend_less": "{percent}% less than last week",
+    "@analysis_trend_less": {
+        "placeholders": {
+            "percent": {
+                "type": "String",
+                "example": "12"
+            }
+        }
+    },
+    "analysis_trend_more": "{percent}% more than last week",
+    "@analysis_trend_more": {
+        "placeholders": {
+            "percent": {
+                "type": "String",
+                "example": "12"
+            }
+        }
+    },
     "crash_logs_heading": "Crash logs",
     "crash_logs_info": "If you encounter any issue, you can report it on GitHub along with the log file. The file will include details such as your device's manufacturer, model, Android version, SDK version, and crash logs. This information will help us identify and resolve the problem more effectively.",
     "crash_logs_export_tile_title": "Export crash logs",

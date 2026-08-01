@@ -77,10 +77,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                       child: Container(
                         height: 220,
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: colorScheme.outline.withOpacity(0.2),
+                            color: colorScheme.outline.withValues(alpha: 0.2),
                           ),
                         ),
                         padding: const EdgeInsets.all(12),
@@ -116,7 +116,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                   child: Icon(
                                     FluentIcons.arrow_clockwise_20_regular,
                                     size: 14,
-                                    color: colorScheme.primary.withOpacity(0.7),
+                                    color: colorScheme.primary.withValues(alpha: 0.7),
                                   ),
                                 ),
                               ],
@@ -203,10 +203,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                       child: Container(
                         height: 220,
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: colorScheme.outline.withOpacity(0.2),
+                            color: colorScheme.outline.withValues(alpha: 0.2),
                           ),
                         ),
                         padding: const EdgeInsets.all(12),
@@ -300,10 +300,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Row(
@@ -329,7 +329,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                     ? 'Get personalized wellbeing support'
                                     : 'Tap to start conversation',
                                 fontSize: 11,
-                                color: colorScheme.onSurface.withOpacity(0.6),
+                                color: colorScheme.onSurface.withValues(alpha: 0.6),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -343,7 +343,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                             icon: Icon(
                               FluentIcons.settings_20_regular,
                               size: 18,
-                              color: colorScheme.onSurface.withOpacity(0.6),
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                             onPressed: () {
                               Navigator.push(
@@ -361,7 +361,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               ? FluentIcons.chevron_up_20_regular
                               : FluentIcons.chevron_down_20_regular,
                           size: 20,
-                          color: colorScheme.onSurface.withOpacity(0.6),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ],
                     ),
@@ -374,10 +374,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                   Container(
                     height: 400,
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Column(
@@ -411,7 +411,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                             color: colorScheme.surface,
                             border: Border(
                               top: BorderSide(
-                                color: colorScheme.outline.withOpacity(0.2),
+                                color: colorScheme.outline.withValues(alpha: 0.2),
                               ),
                             ),
                           ),
@@ -448,7 +448,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                       ? FluentIcons.spinner_ios_20_regular
                                       : FluentIcons.send_20_filled,
                                   color: isLoading 
-                                      ? colorScheme.onSurface.withOpacity(0.3)
+                                      ? colorScheme.onSurface.withValues(alpha: 0.3)
                                       : colorScheme.primary,
                                 ),
                               ),
@@ -476,7 +476,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
@@ -492,7 +492,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
@@ -527,10 +527,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.2),
+                color: colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             padding: const EdgeInsets.all(12),
@@ -581,10 +581,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.2),
+                color: colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             padding: const EdgeInsets.all(12),
@@ -648,7 +648,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           Icon(
             FluentIcons.bot_20_regular,
             size: 48,
-            color: colorScheme.primary.withOpacity(0.5),
+            color: colorScheme.primary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           StyledText(
@@ -660,7 +660,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           StyledText(
             'Ask me about your digital wellbeing!',
             fontSize: 12,
-            color: colorScheme.onSurface.withOpacity(0.6),
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ],
       ),
@@ -680,7 +680,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -727,8 +727,8 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               '(edited)',
                               fontSize: 10,
                               color: isUser 
-                                  ? colorScheme.onPrimary.withOpacity(0.7)
-                                  : colorScheme.onSurface.withOpacity(0.6),
+                                  ? colorScheme.onPrimary.withValues(alpha: 0.7)
+                                  : colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                       ],
@@ -780,7 +780,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                           child: Icon(
                             FluentIcons.delete_20_regular,
                             size: 14,
-                            color: Colors.red.withOpacity(0.7),
+                            color: Colors.red.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
@@ -795,7 +795,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -967,7 +967,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           color: colorScheme.surface,
           border: Border(
             top: BorderSide(
-              color: colorScheme.outline.withOpacity(0.2),
+              color: colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
         ),
@@ -977,7 +977,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             StyledText(
               'Suggested topics:',
               fontSize: 11,
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -995,7 +995,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                       color: colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: StyledText(

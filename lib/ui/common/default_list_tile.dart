@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/utils/widget_utils.dart';
+import 'package:nlp_digitox/ui/common/clay_toggle.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
@@ -48,6 +50,8 @@ class DefaultListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return RoundedContainer(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: margin ?? const EdgeInsets.only(top: 4),
@@ -61,12 +65,18 @@ class DefaultListTile extends StatelessWidget {
         children: [
           /// Leading widget
           leadingIcon != null
-              ? Icon(
-                  leadingIcon,
-                  color: enabled
-                      ? accent
+              ? ClayIconPuck(
+                  icon: leadingIcon!,
+                  size: 40,
+                  baseColor: enabled
+                      ? (accent ?? colorScheme.primary)
+                      : colorScheme.onSurface.withValues(alpha: 0.15),
+                  /// Null lets the puck pick a contrast-safe foreground per
+                  /// theme (light base -> dark icon, dark base -> white icon)
+                  iconColor: enabled
+                      ? null
                       : isPrimary
-                          ? Theme.of(context).colorScheme.secondaryContainer
+                          ? colorScheme.secondaryContainer
                           : Theme.of(context).hintColor,
                 )
               : leading ?? 0.hBox,
@@ -114,11 +124,13 @@ class DefaultListTile extends StatelessWidget {
           /// Trailing widget
           switchValue != null
               ? IgnorePointer(
-                  child: Switch(
-                    value: switchValue ?? false,
-                    splashRadius: 0,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    onChanged: enabled ? (_) {} : null,
+                  child: Transform.scale(
+                    scale: 0.8,
+                    child: ClayToggle(
+                      value: switchValue ?? false,
+                      activeColor: colorScheme.primary,
+                      onChanged: (_) {},
+                    ),
                   ),
                 )
               : isSelected != null

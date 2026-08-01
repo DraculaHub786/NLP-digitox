@@ -1,6 +1,7 @@
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/ui/common/pressable_scale.dart';
 
 /// Modern dashboard card with glassmorphic design and gradient accents
 class ModernDashboardCard extends StatelessWidget {
@@ -136,10 +137,12 @@ class ModernDashboardCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: cardContent,
+      return PressableScale(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: cardContent,
+        ),
       );
     }
 

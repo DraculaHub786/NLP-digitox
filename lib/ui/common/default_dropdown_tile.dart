@@ -168,17 +168,20 @@ class _DropdownMenuDialogState<T> extends State<_DropdownMenuDialog<T>> {
                   child: SingleChildScrollView(
                     physics: BouncingScrollPhysics(),
                     padding: EdgeInsets.zero,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        /// Info
-                        if (widget.info != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 18),
-                            child: StyledText(
-                              widget.info!,
+                    child: RadioGroup<bool>(
+                      groupValue: true,
+                      onChanged: (_) {},
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          /// Info
+                          if (widget.info != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 18),
+                              child: StyledText(
+                                widget.info!,
+                              ),
                             ),
-                          ),
 
                         /// Options
                         ...List.generate(
@@ -200,13 +203,11 @@ class _DropdownMenuDialogState<T> extends State<_DropdownMenuDialog<T>> {
                               ),
                               margin: index == 0 ? EdgeInsets.zero : null,
                               leading: IgnorePointer(
-                                child: Radio(
+                                child: Radio<bool>(
                                   value: isSelected,
-                                  groupValue: true,
                                   splashRadius: 0,
                                   materialTapTargetSize:
                                       MaterialTapTargetSize.shrinkWrap,
-                                  onChanged: (v) {},
                                 ),
                               ),
                               title: StyledText(item.label, fontSize: 14),
@@ -220,6 +221,7 @@ class _DropdownMenuDialogState<T> extends State<_DropdownMenuDialog<T>> {
                           },
                         )
                       ],
+                    ),
                     ),
                   ),
                 ),

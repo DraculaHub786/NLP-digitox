@@ -2562,6 +2562,72 @@ abstract class AppLocalizations {
   /// **'Export database to a file.'**
   String get export_db_tile_subtitle;
 
+  /// No description provided for @analysis_tab_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get analysis_tab_title;
+
+  /// No description provided for @analysis_7_days.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get analysis_7_days;
+
+  /// No description provided for @analysis_30_days.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get analysis_30_days;
+
+  /// No description provided for @analysis_90_days.
+  ///
+  /// In en, this message translates to:
+  /// **'90 days'**
+  String get analysis_90_days;
+
+  /// No description provided for @analysis_screen_time_trend.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen time trend'**
+  String get analysis_screen_time_trend;
+
+  /// No description provided for @analysis_no_data_info.
+  ///
+  /// In en, this message translates to:
+  /// **'No screen time data recorded for this period yet.'**
+  String get analysis_no_data_info;
+
+  /// No description provided for @analysis_daily_average.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily average'**
+  String get analysis_daily_average;
+
+  /// No description provided for @analysis_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get analysis_total;
+
+  /// No description provided for @analysis_no_change.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as last week'**
+  String get analysis_no_change;
+
+  /// No description provided for @analysis_trend_less.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% less than last week'**
+  String analysis_trend_less(String percent);
+
+  /// No description provided for @analysis_trend_more.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% more than last week'**
+  String analysis_trend_more(String percent);
+
   /// No description provided for @crash_logs_heading.
   ///
   /// In en, this message translates to:

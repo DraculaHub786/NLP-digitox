@@ -12,6 +12,7 @@ import 'package:nlp_digitox/providers/apps/apps_info_provider.dart';
 import 'package:nlp_digitox/providers/apps/filtered_packages_provider.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
+import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/sliver_implicitly_animated_list.dart';
 import 'package:nlp_digitox/ui/common/sliver_usage_chart_panel.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
@@ -37,7 +38,8 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final weeklyUsages = ref.watch(weeklyDeviceUsageProvider(_filter.selectedWeek));
+    final weeklyUsages =
+        ref.watch(weeklyDeviceUsageProvider(_filter.selectedWeek));
     final filteredApps = ref.watch(filteredPackagesProvider(_filter));
 
     return DefaultRefreshIndicator(
@@ -57,30 +59,37 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Skeletonizer.zone(
                 enabled: _isLoading,
-                child: _buildModernUsageCards(context, _filter, weeklyUsages, colorScheme, isDark),
+                child: FadeSlideEntrance(
+                  child: _buildModernUsageCards(
+                      context, _filter, weeklyUsages, colorScheme, isDark),
+                ),
               ),
             ),
           ),
 
-            /// Usage chart section
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverUsageChartPanel(
-                selectedDay: _filter.selectedDay,
-                selectedWeek: _filter.selectedWeek,
-                usageType: _filter.usageType,
-                barChartData: _isLoading ? generateEmptyWeekUsage(_filter.selectedDay) : weeklyUsages,
-                onDayOfWeekChanged: (day) => setState(() => _filter = _filter.copyWith(selectedDay: day)),
-                onWeekChanged: (day) => setState(() => _filter = _filter.copyWith(selectedWeek: day.weekRange)),
-              ),
+          /// Usage chart section
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            sliver: SliverUsageChartPanel(
+              selectedDay: _filter.selectedDay,
+              selectedWeek: _filter.selectedWeek,
+              usageType: _filter.usageType,
+              barChartData: _isLoading
+                  ? generateEmptyWeekUsage(_filter.selectedDay)
+                  : weeklyUsages,
+              onDayOfWeekChanged: (day) =>
+                  setState(() => _filter = _filter.copyWith(selectedDay: day)),
+              onWeekChanged: (day) => setState(() =>
+                  _filter = _filter.copyWith(selectedWeek: day.weekRange)),
             ),
+          ),
 
-            24.vSliverBox,
+          24.vSliverBox,
 
-            /// Most used apps section
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+          /// Most used apps section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -110,11 +119,11 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
                   keyBuilder: (item) => item,
                   itemBuilder: (context, i, package, itemPosition) =>
                       ApplicationTile(
-                        packageName: package,
-                        usageType: _filter.usageType,
-                        selectedDay: _filter.selectedDay,
-                        position: itemPosition,
-                      ),
+                    packageName: package,
+                    usageType: _filter.usageType,
+                    selectedDay: _filter.selectedDay,
+                    position: itemPosition,
+                  ),
                 ),
 
           20.vSliverBox,
@@ -130,7 +139,8 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
                   icon: FluentIcons.select_all_off_20_regular,
                   iconColor: colorScheme.primary,
                   showChevron: true,
-                  onTap: () => setState(() => _filter = _filter.copyWith(includeAll: true)),
+                  onTap: () => setState(
+                      () => _filter = _filter.copyWith(includeAll: true)),
                 ),
               ),
             ),
@@ -141,7 +151,12 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     );
   }
 
-  Widget _buildModernUsageCards(BuildContext context, UsageFilterModel filter, Map<DateTime, UsageModel> weeklyUsages, ColorScheme colorScheme, bool isDark) {
+  Widget _buildModernUsageCards(
+      BuildContext context,
+      UsageFilterModel filter,
+      Map<DateTime, UsageModel> weeklyUsages,
+      ColorScheme colorScheme,
+      bool isDark) {
     final usage = weeklyUsages[filter.selectedDay] ?? const UsageModel();
     final screenTimeHours = Duration(seconds: usage.screenTime).inMinutes / 60;
     final screenTimeLabel = '${screenTimeHours.toStringAsFixed(1)}h';
@@ -204,7 +219,8 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     bool isCompact = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final cardColor =
+        colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
     return Container(
       padding: EdgeInsets.all(isCompact ? 10 : 16),

@@ -47,7 +47,7 @@ class NoteModel {
       'id': id,
       'title': title,
       'content': content,
-      'colorValue': color.value,
+      'colorValue': color.toARGB32(),
       'iconCodePoint': icon.codePoint,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,

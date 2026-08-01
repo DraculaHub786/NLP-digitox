@@ -5,6 +5,7 @@ import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -242,21 +243,27 @@ class _ScaffoldShellState extends State<ScaffoldShell>
           duration: AppConstants.defaultAnimDuration,
           curve: AppConstants.defaultCurve,
         ),
-        destinations: widget.items.map((e) {
+        destinations: widget.items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final e = entry.value;
           final title = e.titleText!;
+          final isSelected = index == _selectedTabIndex;
 
           return NavigationDestination(
             label: title,
             icon: Icon(e.icon),
-            selectedIcon: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Icon(e.filledIcon).animate().scale(
-                    begin: const Offset(0.5, 0.5),
-                    end: const Offset(1.05, 1.05),
-                    curve: Curves.elasticOut,
-                    duration: 1.seconds,
-                  ),
-            ),
+            selectedIcon: isSelected
+                ? ClayIconPuck(
+                    icon: e.filledIcon,
+                    size: 40,
+                    baseColor: Theme.of(context).colorScheme.primary,
+                  )
+                : Icon(e.filledIcon).animate().scale(
+                      begin: const Offset(0.5, 0.5),
+                      end: const Offset(1.05, 1.05),
+                      curve: Curves.elasticOut,
+                      duration: 1.seconds,
+                    ),
           );
         }).toList(),
       ),

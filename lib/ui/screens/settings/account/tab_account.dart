@@ -8,6 +8,7 @@ import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/profile_service.dart';
 import 'package:nlp_digitox/features/onboarding/quiz.dart';
+import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
@@ -270,10 +271,12 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 Container(
                   width: 64,
                   height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colorScheme.primaryContainer,
+                  decoration: ClayStyle.decoration(
+                    baseColor: colorScheme.primaryContainer,
+                    context: context,
+                    borderRadius: 32,
                   ),
+                  padding: const EdgeInsets.all(2),
                   child: ClipOval(
                     child: _profileUrl != null && _profileUrl!.isNotEmpty
                         ? Image.network(
@@ -1143,6 +1146,19 @@ class _ProfilePicWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final frameDecoration = BoxDecoration(
+      shape: BoxShape.circle,
+      color: colorScheme.primaryContainer,
+      border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
+      boxShadow: [
+        BoxShadow(
+          color: colorScheme.shadow.withValues(alpha: 0.08),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+
     if (isLoading) {
       return Container(
         width: size,
@@ -1164,27 +1180,47 @@ class _ProfilePicWidget extends StatelessWidget {
     }
 
     if (profileUrl != null && profileUrl!.isNotEmpty) {
-      return ClipOval(
-        child: Image.network(
-          profileUrl!,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(colorScheme),
+      return Container(
+        width: size,
+        height: size,
+        decoration: ClayStyle.decoration(
+          baseColor: colorScheme.primaryContainer,
+          context: context,
+          borderRadius: size / 2,
+        ),
+        padding: const EdgeInsets.all(2),
+        child: ClipOval(
+          child: Image.network(
+            profileUrl!,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildDefaultAvatar(context, colorScheme),
+          ),
         ),
       );
     }
 
-    return _buildDefaultAvatar(colorScheme);
-  }
-
-  Widget _buildDefaultAvatar(ColorScheme colorScheme) {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: colorScheme.primaryContainer,
+      decoration: frameDecoration,
+      child: Icon(
+        FluentIcons.person_24_filled,
+        size: size * 0.5,
+        color: colorScheme.primary,
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar(BuildContext context, ColorScheme colorScheme) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: ClayStyle.decoration(
+        baseColor: colorScheme.primaryContainer,
+        context: context,
+        borderRadius: size / 2,
       ),
       child: Icon(
         FluentIcons.person_24_filled,

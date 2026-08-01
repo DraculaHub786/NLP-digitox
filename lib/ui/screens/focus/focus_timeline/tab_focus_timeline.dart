@@ -13,6 +13,7 @@ import 'package:nlp_digitox/providers/focus/dated_focus_provider.dart';
 import 'package:nlp_digitox/providers/focus/monthly_focus_provider.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/empty_list_indicator.dart';
+import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/sliver_shimmer_list.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -55,7 +56,8 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Container(
+              child: FadeSlideEntrance(
+                child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -91,6 +93,7 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
                   ],
                 ),
               ),
+              ),
             ),
           ),
 
@@ -100,7 +103,9 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
+              child: FadeSlideEntrance(
+                index: 1,
+                child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -171,6 +176,7 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
                       ),
                     ),
                   ],
+                ),
                 ),
               ),
             ),

@@ -125,7 +125,7 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
             width: 80,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? mood.color.withOpacity(0.2) : Colors.grey.shade100,
+              color: isSelected ? mood.color.withValues(alpha: 0.2) : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected ? mood.color : Colors.transparent,

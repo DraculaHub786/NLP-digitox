@@ -53,10 +53,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     
     if (!isLoggedIn) {
       // Not logged in - redirect to login screen
-      if (mounted) {
-        await Future.delayed(250.ms);
-        Navigator.of(context).pushReplacementNamed(AppRoutes.loginPath);
-      }
+      await Future.delayed(250.ms);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed(AppRoutes.loginPath);
       return;
     }
 

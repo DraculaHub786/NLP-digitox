@@ -23,7 +23,7 @@ class ProductivityNotificationService {
     if (_initialized) return;
 
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings('@drawable/ic_notification');
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -85,7 +85,7 @@ class ProductivityNotificationService {
             'Notifications to remind you about incomplete habits and tasks',
         importance: Importance.high,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
       );
 
       const iosDetails = DarwinNotificationDetails(
@@ -132,7 +132,7 @@ class ProductivityNotificationService {
         channelDescription: 'Notifications for productivity achievements',
         importance: Importance.high,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
       );
 
       const iosDetails = DarwinNotificationDetails(
@@ -179,7 +179,7 @@ class ProductivityNotificationService {
         channelDescription: 'Notifications for productivity achievements',
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
       );
 
       const iosDetails = DarwinNotificationDetails(

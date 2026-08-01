@@ -41,6 +41,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
   }
 
   Future<void> _deleteSession(ChatSession session) async {
+    final messenger = ScaffoldMessenger.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -63,15 +64,14 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
     if (confirm == true) {
       await AIChatbotService.instance.deleteSession(session.id);
       _loadSessions();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chat session deleted')),
-        );
-      }
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Chat session deleted')),
+      );
     }
   }
 
   Future<void> _renameSession(ChatSession session) async {
+    final messenger = ScaffoldMessenger.of(context);
     final controller = TextEditingController(text: session.title);
     final newTitle = await showDialog<String>(
       context: context,
@@ -101,29 +101,30 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
     if (newTitle != null && newTitle.isNotEmpty) {
       await AIChatbotService.instance.renameSession(session.id, newTitle);
       _loadSessions();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chat session renamed')),
-        );
-      }
-    }
-  }
-
-  Future<void> _switchToSession(ChatSession session) async {
-    await AIChatbotService.instance.switchToSession(session.id);
-    if (mounted) {
-      // Update the chat messages provider to reflect the switched session
-      ref.read(aiChatMessagesProvider.notifier).state = 
-          List.from(AIChatbotService.instance.chatHistory);
-      
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Switched to "${session.title}"')),
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Chat session renamed')),
       );
     }
   }
 
+  Future<void> _switchToSession(ChatSession session) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    await AIChatbotService.instance.switchToSession(session.id);
+    if (!context.mounted) return;
+
+    // Update the chat messages provider to reflect the switched session
+    ref.read(aiChatMessagesProvider.notifier).state =
+        List.from(AIChatbotService.instance.chatHistory);
+
+    navigator.pop();
+    messenger.showSnackBar(
+      SnackBar(content: Text('Switched to "${session.title}"')),
+    );
+  }
+
   Future<void> _createNewSession() async {
+    final messenger = ScaffoldMessenger.of(context);
     final controller = TextEditingController();
     final title = await showDialog<String>(
       context: context,
@@ -156,11 +157,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
         title: title.isEmpty ? null : title,
       );
       _loadSessions();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Created "${session.title}"')),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Created "${session.title}"')),
+      );
     }
   }
 
@@ -182,13 +181,12 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
           IconButton(
             icon: const Icon(FluentIcons.broom_20_regular),
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               await AIChatbotService.instance.cleanupOldChats();
               _loadSessions();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Old chats cleaned up')),
-                );
-              }
+              messenger.showSnackBar(
+                const SnackBar(content: Text('Old chats cleaned up')),
+              );
             },
             tooltip: 'Clean up old chats',
           ),
@@ -249,7 +247,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                               StyledText(
                                 'Current Session',
                                 fontSize: 11,
-                                color: colorScheme.onPrimaryContainer.withOpacity(0.7),
+                                color: colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
                               ),
                               StyledText(
                                 currentSession.title,
@@ -401,32 +399,32 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                                             FluentIcons.chat_bubbles_question_20_regular,
                                             size: 14,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme.onPrimaryContainer.withValues(alpha: 0.7)
+                                                : colorScheme.onSurface.withValues(alpha: 0.6),
                                           ),
                                           const SizedBox(width: 6),
                                           StyledText(
                                             '${session.messages.length} messages',
                                             fontSize: 12,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme.onPrimaryContainer.withValues(alpha: 0.7)
+                                                : colorScheme.onSurface.withValues(alpha: 0.6),
                                           ),
                                           const SizedBox(width: 16),
                                           Icon(
                                             FluentIcons.clock_20_regular,
                                             size: 14,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme.onPrimaryContainer.withValues(alpha: 0.7)
+                                                : colorScheme.onSurface.withValues(alpha: 0.6),
                                           ),
                                           const SizedBox(width: 6),
                                           StyledText(
                                             _formatDate(session.lastMessageAt),
                                             fontSize: 12,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme.onPrimaryContainer.withValues(alpha: 0.7)
+                                                : colorScheme.onSurface.withValues(alpha: 0.6),
                                           ),
                                         ],
                                       ),
