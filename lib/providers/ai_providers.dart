@@ -83,8 +83,26 @@ final aiSentimentProvider = FutureProvider<SentimentResult>((ref) async {
     return SentimentResult(sentiments: sentiment);
   } catch (e) {
     final failure = classifyAiFailure(e);
-    debugPrint('⚠️ aiSentimentProvider fallback triggered — failure: $failure');
-    return SentimentResult.fallback(failure);
+
+    // PART L.6: fall back to the locally-computed base sentiment instead of
+    // the generic hardcoded default — even the "fallback" is now a real
+    // computed value (deterministic scoring of today's actual usage), so the
+    // UI still shows sensible, usage-derived numbers when the LLM is down.
+    // Still flagged isFallback so it is never persisted as a real snapshot
+    // (saveToday ignores fallbacks) and never poisons trend history.
+    final fallbackSentiment = AISentimentService.instance.computeBaseSentiment(
+      screenTimeHours: todayUsage.screenTime / 3600,
+      goalHours: screenTimeGoal / 3600,
+      streakDays: streak,
+      habitsCompleted: habitsCompleted,
+      tasksCompleted: tasksCompleted,
+    );
+    debugPrint('⚠️ aiSentimentProvider fallback triggered — failure: $failure. Using computed base sentiment: $fallbackSentiment');
+    return SentimentResult(
+      sentiments: fallbackSentiment,
+      isFallback: true,
+      failure: failure,
+    );
   }
 });
 
