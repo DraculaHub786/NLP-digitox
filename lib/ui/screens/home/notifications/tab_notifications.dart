@@ -12,7 +12,6 @@ import 'package:nlp_digitox/providers/notifications/notification_settings_provid
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/default_dropdown_tile.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
-import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/modal_bottom_sheet.dart';
@@ -72,8 +71,7 @@ return DefaultRefreshIndicator(
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverToBoxAdapter(
-              child: FadeSlideEntrance(
-                child: LayoutBuilder(
+              child: LayoutBuilder(
                 builder: (context, constraints) {
                   final textScale = MediaQuery.textScalerOf(context).scale(1);
                   final cardHeight = textScale > 1.1 ? 180.0 : 140.0;
@@ -110,7 +108,6 @@ return DefaultRefreshIndicator(
                     ),
                   );
                 },
-                ),
               ),
             ),
           ),

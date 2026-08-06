@@ -5,7 +5,6 @@ import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
-import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -89,8 +88,7 @@ class WebsitesBlockingScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
-                child: FadeSlideEntrance(
-                  child: Container(
+                child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -125,7 +123,6 @@ class WebsitesBlockingScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                ),
                 ),
               ),
             ),

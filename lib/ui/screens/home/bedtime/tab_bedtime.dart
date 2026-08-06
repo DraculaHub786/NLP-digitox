@@ -5,8 +5,6 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/providers/restrictions/bedtime_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
-import 'package:nlp_digitox/ui/common/clay_toggle.dart';
-import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/screens/home/bedtime/bedtime_schedule_card.dart';
@@ -91,10 +89,7 @@ class TabBedtime extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FadeSlideEntrance(
-              child: _buildScheduleToggleCard(
-                  context, ref, isScheduleOn, colorScheme),
-            ),
+            child: _buildScheduleToggleCard(context, ref, isScheduleOn, colorScheme),
           ),
         ),
 
@@ -104,46 +99,41 @@ class TabBedtime extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FadeSlideEntrance(
-              index: 1,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.2)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            FluentIcons.calendar_clock_20_regular,
-                            color: colorScheme.primary,
-                            size: 20,
-                          ),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(width: 12),
-                        StyledText(
-                          context.locale.schedule_tile_title,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        child: Icon(
+                          FluentIcons.calendar_clock_20_regular,
+                          color: colorScheme.primary,
+                          size: 20,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    const BedtimeScheduleCard(),
-                  ],
-                ),
+                      ),
+                      const SizedBox(width: 12),
+                      StyledText(
+                        context.locale.schedule_tile_title,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const BedtimeScheduleCard(),
+                ],
               ),
             ),
           ),
@@ -162,22 +152,15 @@ class TabBedtime extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleToggleCard(BuildContext context, WidgetRef ref,
-      bool isScheduleOn, ColorScheme colorScheme) {
-    final cardColor =
-        colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+  Widget _buildScheduleToggleCard(BuildContext context, WidgetRef ref, bool isScheduleOn, ColorScheme colorScheme) {
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isScheduleOn
-            ? colorScheme.primary.withValues(alpha: 0.15)
-            : cardColor,
+        color: isScheduleOn ? colorScheme.primary.withValues(alpha: 0.15) : cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: isScheduleOn
-                ? colorScheme.primary.withValues(alpha: 0.3)
-                : borderColor),
+        border: Border.all(color: isScheduleOn ? colorScheme.primary.withValues(alpha: 0.3) : borderColor),
       ),
       child: Row(
         children: [
@@ -224,10 +207,12 @@ class TabBedtime extends ConsumerWidget {
           ),
           Flexible(
             flex: 0,
-            child: ClayToggle(
-              value: isScheduleOn,
-              activeColor: colorScheme.primary,
-              onChanged: (_) => _setScheduleStatus(ref, context, !isScheduleOn),
+            child: Transform.scale(
+              scale: 1.2,
+              child: Switch.adaptive(
+                value: isScheduleOn,
+                onChanged: (_) => _setScheduleStatus(ref, context, !isScheduleOn),
+              ),
             ),
           ),
         ],

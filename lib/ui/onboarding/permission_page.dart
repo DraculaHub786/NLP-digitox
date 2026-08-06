@@ -147,8 +147,8 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isGranted
-              ? Colors.green.withValues(alpha: 0.1)
-              : Colors.grey.withValues(alpha: 0.1),
+              ? Colors.green.withOpacity(0.1)
+              : Colors.grey.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isGranted ? Colors.green : Colors.grey,

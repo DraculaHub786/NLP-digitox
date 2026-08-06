@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
+import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
-import 'package:nlp_digitox/ui/common/clay_widgets.dart';
-import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
+import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/sliver_active_session_alert.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -31,17 +32,16 @@ class TabFocus extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: FadeSlideEntrance(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.15),
-                  ),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.15),
                 ),
-                child: Row(
+              ),
+              child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -70,7 +70,6 @@ class TabFocus extends StatelessWidget {
             ),
           ),
         ),
-        ),
 
         8.vSliverBox,
 
@@ -92,19 +91,15 @@ class TabFocus extends StatelessWidget {
                 stretchThumb: true,
                 thumbWidth: thumbWidth,
                 thumbDragStartBehavior: DragStartBehavior.down,
-                trackBuilder: (context, currentState) => Container(
-                  decoration: ClayStyle.decoration(
-                    baseColor: Theme.of(context).colorScheme.primary,
-                    context: context,
-                    borderRadius: 16,
-                  ),
-                  child: Padding(
+                trackBuilder: (context, currentState) => DefaultListTile(
+                  margin: EdgeInsets.zero,
+                  color: Theme.of(context).colorScheme.primary,
+                  position: ItemPosition.bottom,
+                  title: Padding(
                     padding: EdgeInsetsGeometry.only(left: thumbWidth),
                     child: StyledText(
                       context.locale.focus_session_start_button,
-                      color: ClayStyle.foregroundColor(
-                        Theme.of(context).colorScheme.primary,
-                      ),
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -112,22 +107,14 @@ class TabFocus extends StatelessWidget {
                     ),
                   ),
                 ),
-                thumbBuilder: (context, currentState) => Container(
-                  decoration: ClayStyle.decoration(
-                    baseColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    context: context,
-                    borderRadius: 12,
-                  ).copyWith(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                    ),
-                  ),
+                thumbBuilder: (context, currentState) => RoundedContainer(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  margin: EdgeInsets.all(0),
+                  borderRadius:
+                      BorderRadius.only(bottomLeft: Radius.circular(24)),
                   child: Icon(
                     FluentIcons.chevron_right_20_filled,
-                    color: ClayStyle.foregroundColor(
-                      Theme.of(context).colorScheme.primaryContainer,
-                    ),
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
                 action: () => _startFocusSession(context, ref),

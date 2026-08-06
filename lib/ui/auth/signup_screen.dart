@@ -9,7 +9,6 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/firestore_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
-import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
@@ -29,39 +28,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  double _passwordStrength = 0.0;
-  List<String> _passwordIssues = [];
-
-  void _evaluatePasswordStrength(String password) {
-    final issues = <String>[];
-    double score = 0;
-
-    if (password.length >= 8) {
-      score += 0.25;
-    } else {
-      issues.add('At least 8 characters');
-    }
-    if (RegExp(r'[A-Z]').hasMatch(password)) {
-      score += 0.25;
-    } else {
-      issues.add('One uppercase letter');
-    }
-    if (RegExp(r'[0-9]').hasMatch(password)) {
-      score += 0.25;
-    } else {
-      issues.add('One number');
-    }
-    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(password)) {
-      score += 0.25;
-    } else {
-      issues.add('One special character');
-    }
-
-    setState(() {
-      _passwordStrength = score;
-      _passwordIssues = issues;
-    });
-  }
 
   @override
   void dispose() {
@@ -146,20 +112,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Skip for now'),
           ),
-          ClayContainer(
-            baseColor: Theme.of(ctx).colorScheme.primary,
-            borderRadius: 12,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            onTap: () => Navigator.pop(ctx, true),
-            child: Text(
-              'Save',
-              style: TextStyle(
-                color: ClayStyle.foregroundColor(
-                  Theme.of(ctx).colorScheme.primary,
-                ),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -211,14 +166,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   Future<void> _signup() async {
     if (!_formKey.currentState!.validate()) return;
-
-    if (_passwordIssues.isNotEmpty) {
-      context.showSnackAlert(
-        'Please meet all password requirements',
-        icon: FluentIcons.shield_error_20_filled,
-      );
-      return;
-    }
 
     setState(() => _isLoading = true);
 
@@ -295,23 +242,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await FirebaseAuthService.instance.signInWithGoogle();
+      await FirebaseAuthService.instance.signInWithGoogle();
 
-      // User cancelled — return silently
-      if (user == null) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-
-      final username = user.displayName ?? AppConstants.defaultUsername;
+      // Get user info
+      final user = FirebaseAuthService.instance.currentUser;
+      final username = user?.displayName ?? AppConstants.defaultUsername;
 
       // Initialize Firestore user data for Google sign-in users
       try {
         debugPrint('📝 Creating Firestore user data for Google user...');
         await FirestoreService.instance.initializeUserData(
           username: username,
-          name: user.displayName ?? username,
-          email: user.email,
+          name: user?.displayName ?? username,
+          email: user?.email,
           initialSettings: {
             'themeMode': 'system',
             'accentColor': 'Indigo',
@@ -327,17 +270,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
 
       // Initialize leaderboard data for Google sign-in users
-      await LeaderboardService.instance.updateUserData(
-        username: username,
-        points: 0,
-        streak: 0,
-        avatarEmoji: '👤',
-        pointsBreakdown: {},
-      );
+      if (user != null) {
+        await LeaderboardService.instance.updateUserData(
+          username: username,
+          points: 0,
+          streak: 0,
+          avatarEmoji: '👤',
+          pointsBreakdown: {},
+        );
+      }
 
       // B.1: Write signup_events doc for n8n
       await _writeSignupEvent(
-        email: user.email ?? '',
+        email: user?.email ?? '',
         username: username,
       );
 
@@ -407,7 +352,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  /// App logo
+                  /// App icon — matches the icon-chip style used across the dashboard
                   Container(
                     width: 72,
                     height: 72,
@@ -415,13 +360,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       color: colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.all(10),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        'assets/logo.png',
-                        fit: BoxFit.cover,
-                      ),
+                    child: Icon(
+                      FluentIcons.brain_circuit_20_filled,
+                      size: 36.0,
+                      color: colorScheme.primary,
                     ),
                   ).animate(effects: DefaultEffects.transitionIn),
 
@@ -493,9 +435,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    onChanged: (value) {
-                      _evaluatePasswordStrength(value);
-                    },
                     decoration: _modernFieldDecoration(
                       context,
                       label: 'Password',
@@ -523,45 +462,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       return null;
                     },
                   ).animate(effects: DefaultEffects.transitionIn),
-
-                  /// Password strength indicator
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: _passwordStrength,
-                      minHeight: 6,
-                      backgroundColor: colorScheme.surfaceContainerHighest,
-                      color: _passwordStrength < 0.5
-                          ? const Color(0xFFB5453A)
-                          : _passwordStrength < 1.0
-                              ? const Color(0xFFC9922E)
-                              : const Color(0xFF838764),
-                    ),
-                  ),
-                  if (_passwordIssues.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    ..._passwordIssues.map(
-                      (issue) => Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Row(
-                          children: [
-                            Icon(
-                              FluentIcons.dismiss_circle_12_regular,
-                              size: 12,
-                              color: colorScheme.error,
-                            ),
-                            const SizedBox(width: 6),
-                            StyledText(
-                              issue,
-                              fontSize: 12,
-                              color: colorScheme.error,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
 
                   const SizedBox(height: 16.0),
 
@@ -600,32 +500,24 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   const SizedBox(height: 28.0),
 
                   /// Sign up button
-                  ClayContainer(
-                    baseColor: colorScheme.primary,
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    onTap: _isLoading ? null : _signup,
-                    child: Center(
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20.0,
-                              width: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: ClayStyle.foregroundColor(
-                                  colorScheme.primary,
-                                ),
-                              ),
-                            )
-                          : StyledText(
-                              'Sign Up',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: ClayStyle.foregroundColor(
-                                colorScheme.primary,
-                              ),
-                            ),
+                  FilledButton(
+                    onPressed: _isLoading ? null : _signup,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Sign Up'),
                   ).animate(effects: DefaultEffects.transitionIn),
 
                   const SizedBox(height: 20.0),
@@ -649,29 +541,27 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   const SizedBox(height: 20.0),
 
                   /// Google sign-in button
-                  ClayContainer(
-                    baseColor: colorScheme.primaryContainer,
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    onTap: _isLoading ? null : _signupWithGoogle,
+                  OutlinedButton(
+                    onPressed: _isLoading ? null : _signupWithGoogle,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           FluentIcons.person_20_regular,
                           size: 20.0,
-                          color: ClayStyle.foregroundColor(
-                            colorScheme.primaryContainer,
-                          ),
+                          color: colorScheme.primary,
                         ),
                         const SizedBox(width: 10),
-                        StyledText(
+                        Text(
                           'Continue with Google',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: ClayStyle.foregroundColor(
-                            colorScheme.primaryContainer,
-                          ),
+                          style: TextStyle(color: colorScheme.primary),
                         ),
                       ],
                     ),

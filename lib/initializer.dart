@@ -77,17 +77,8 @@ class Initializer {
     /// Stamp lastActiveAt so streak inactivity detection has a real user-activity signal
     await LeaderboardService.instance.markActive();
 
-    /// Check if weekly leaderboard reset is needed (Monday 4 AM)
-    await LeaderboardService.instance.checkAndPerformWeeklyReset();
-
-    /// Check if monthly leaderboard reset is needed (1st of month at 4 AM)
-    await LeaderboardService.instance.checkAndPerformMonthlyReset();
-
     /// Start periodic monitor for daily streak evaluation (runs every 6 hours)
     LeaderboardService.instance.startDailyStreakEvaluation();
-
-    /// Start periodic monitor for weekly leaderboard points reset (every 15 min, triggers Monday 4 AM)
-    LeaderboardService.instance.startWeeklyResetMonitor();
 
     debugPrint(
       "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",

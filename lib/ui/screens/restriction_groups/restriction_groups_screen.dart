@@ -7,7 +7,6 @@ import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/core/utils/widget_utils.dart';
 import 'package:nlp_digitox/providers/restrictions/restriction_groups_provider.dart';
 import 'package:nlp_digitox/ui/common/default_fab_button.dart';
-import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -75,8 +74,7 @@ class RestrictionGroupsScreen extends ConsumerWidget {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
-                  child: FadeSlideEntrance(
-                    child: Container(
+                  child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -110,7 +108,6 @@ class RestrictionGroupsScreen extends ConsumerWidget {
                           ),
                         ),
                       ],
-                    ),
                     ),
                   ),
                 ),

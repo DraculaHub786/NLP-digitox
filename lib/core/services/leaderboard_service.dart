@@ -545,99 +545,6 @@ class LeaderboardService {
   }
 
   // =========================================================================
-  // MONTHLY RESET — 1st of every month at 4AM
-  // =========================================================================
-  //
-  // Resets `monthlyPoints` to 0 on the 1st of each month while preserving
-  // `points` (weekly), `lifetimePoints`, and `streak`.
-  // =========================================================================
-
-  /// Check if monthly leaderboard reset is needed and perform reset.
-  Future<void> checkAndPerformMonthlyReset() async {
-    try {
-      final now = DateTime.now();
-      final resetHour = 4;
-
-      // Only run on the 1st of the month past 4 AM
-      if (now.day != 1 || now.hour < resetHour) return;
-
-      final configDoc = await _firestore
-          .collection(_leaderboardConfigCollection)
-          .doc('monthly_reset')
-          .get();
-
-      DateTime? lastMonthlyResetDate;
-      if (configDoc.exists) {
-        final data = configDoc.data();
-        final lastReset = data?['lastResetDate'] as Timestamp?;
-        if (lastReset != null) {
-          lastMonthlyResetDate = lastReset.toDate();
-        }
-      }
-
-      // If already reset this month, skip
-      if (lastMonthlyResetDate != null &&
-          lastMonthlyResetDate.year == now.year &&
-          lastMonthlyResetDate.month == now.month) {
-        return;
-      }
-
-      debugPrint('🔄 Monthly leaderboard reset triggered! (1st of month at 4 AM)');
-      await _resetAllUsersMonthlyPoints();
-      await _firestore
-          .collection(_leaderboardConfigCollection)
-          .doc('monthly_reset')
-          .set({
-        'lastResetDate': Timestamp.fromDate(now),
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
-      debugPrint('✅ Monthly leaderboard reset completed successfully');
-      _cachedLeaderboard = null;
-      _lastFetchTime = null;
-    } catch (e) {
-      debugPrint('Error checking/performing monthly leaderboard reset: $e');
-    }
-  }
-
-  /// Reset all users' monthlyPoints to 0 while preserving everything else.
-  Future<void> _resetAllUsersMonthlyPoints() async {
-    try {
-      final querySnapshot = await _firestore
-          .collection('leaderboard')
-          .get();
-
-      final totalUsers = querySnapshot.docs.length;
-      debugPrint('Resetting monthlyPoints for $totalUsers users...');
-
-      const int batchLimit = 500;
-      int processed = 0;
-
-      while (processed < totalUsers) {
-        final batch = _firestore.batch();
-        final chunkEnd = (processed + batchLimit < totalUsers)
-            ? processed + batchLimit
-            : totalUsers;
-
-        for (int i = processed; i < chunkEnd; i++) {
-          final doc = querySnapshot.docs[i];
-          batch.update(doc.reference, {
-            'monthlyPoints': 0,
-            'lastUpdated': FieldValue.serverTimestamp(),
-          });
-        }
-
-        await batch.commit();
-        processed = chunkEnd;
-        debugPrint('  Batch committed: $processed / $totalUsers users');
-      }
-
-      debugPrint('✅ Reset monthlyPoints for $totalUsers users');
-    } catch (e) {
-      debugPrint('Error resetting monthlyPoints: $e');
-    }
-  }
-
-  // =========================================================================
   // WEEKLY RESET — Every Monday at 4AM
   // =========================================================================
 
@@ -713,17 +620,13 @@ class LeaderboardService {
   }
 
   /// Start periodic monitor for Monday 4 AM weekly resets
-  /// Also checks monthly reset (1st of month at 4 AM) on the same interval.
   void startWeeklyResetMonitor() {
     _weeklyResetTimer?.cancel();
     _weeklyResetTimer = Timer.periodic(
       const Duration(minutes: 15),
-      (_) {
-        checkAndPerformWeeklyReset();
-        checkAndPerformMonthlyReset();
-      },
+      (_) => checkAndPerformWeeklyReset(),
     );
-    debugPrint('Weekly leaderboard reset monitor started (15 min interval), includes monthly check');
+    debugPrint('Weekly leaderboard reset monitor started (15 min interval)');
   }
 
   /// Stop periodic monitor

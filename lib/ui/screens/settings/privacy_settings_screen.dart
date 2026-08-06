@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/providers/privacy_provider.dart';
-import 'package:nlp_digitox/ui/common/clay_toggle.dart';
 
 /// Full-featured Privacy & Compliance settings screen.
 /// Glassmorphic design with opt-in toggles, data export, and deletion.
@@ -243,7 +242,7 @@ class _PrivacySettingsScreenState
     try {
       final json =
           await ref.read(privacyProvider.notifier).exportData();
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       // Show the export in a bottom sheet the user can copy
       await showModalBottomSheet<void>(
@@ -254,7 +253,7 @@ class _PrivacySettingsScreenState
         builder: (ctx) => _ExportBottomSheet(jsonContent: json),
       );
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text('Export failed: $e')),
         );
@@ -271,13 +270,13 @@ class _PrivacySettingsScreenState
       builder: (ctx) => _DeleteConfirmDialog(),
     );
 
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true || !mounted) return;
 
     setState(() => _isDeleting = true);
     try {
       final result =
           await ref.read(privacyProvider.notifier).deleteAllData();
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       if (result.success) {
         messenger.showSnackBar(
@@ -300,7 +299,7 @@ class _PrivacySettingsScreenState
         );
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text('Deletion failed: $e')),
         );
@@ -461,13 +460,9 @@ class _PrivacyToggleCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Opacity(
-                  opacity: effectiveEnabled ? 1 : 0.4,
-                  child: ClayToggle(
-                    value: value && effectiveEnabled,
-                    activeColor: theme.colorScheme.primary,
-                    onChanged: effectiveEnabled ? onChanged : (_) {},
-                  ),
+                Switch(
+                  value: value && effectiveEnabled,
+                  onChanged: effectiveEnabled ? onChanged : null,
                 ),
               ],
             ),

@@ -17,7 +17,6 @@ import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/breathing_widget.dart';
-import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
@@ -54,9 +53,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     
     if (!isLoggedIn) {
       // Not logged in - redirect to login screen
-      await Future.delayed(250.ms);
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(AppRoutes.loginPath);
+      if (mounted) {
+        await Future.delayed(250.ms);
+        Navigator.of(context).pushReplacementNamed(AppRoutes.loginPath);
+      }
       return;
     }
 
@@ -152,19 +152,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            /// Breathing logo — clay icon-chip style, consistent with the rest of the app
+            /// Breathing logo — icon-chip style, consistent with the rest of the app
             BreathingWidget(
               dimension: min(220, MediaQuery.of(context).size.width * 0.55),
               child: Container(
-                decoration: ClayStyle.decoration(
-                  baseColor: colorScheme.primaryContainer,
-                  context: context,
-                  borderRadius: 220,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colorScheme.primary.withValues(alpha: 0.15),
                 ),
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(32),
                 child: ClipOval(
                   child: Image.asset(
                     'assets/logo.png',
+                    width: 80,
+                    height: 80,
                     fit: BoxFit.cover,
                   ),
                 ),

@@ -6,7 +6,6 @@ import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
-import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
@@ -84,24 +83,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await FirebaseAuthService.instance.signInWithGoogle();
-
-      // User cancelled — return silently, no error shown
-      if (user == null) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
+      await FirebaseAuthService.instance.signInWithGoogle();
 
       // Initialize leaderboard data if not exists (for existing users)
-      final existingData = await LeaderboardService.instance.getCurrentUserData();
-      if (existingData == null) {
-        await LeaderboardService.instance.updateUserData(
-          username: user.displayName ?? 'User',
-          points: 0,
-          streak: 0,
-          avatarEmoji: '👤',
-          pointsBreakdown: {},
-        );
+      final user = FirebaseAuthService.instance.currentUser;
+      if (user != null) {
+        final existingData = await LeaderboardService.instance.getCurrentUserData();
+        if (existingData == null) {
+          await LeaderboardService.instance.updateUserData(
+            username: user.displayName ?? 'User',
+            points: 0,
+            streak: 0,
+            avatarEmoji: '👤',
+            pointsBreakdown: {},
+          );
+        }
       }
 
       if (!mounted) return;
@@ -164,7 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  /// App logo
+                  /// App icon — matches the icon-chip style used across the dashboard
                   Container(
                     width: 72,
                     height: 72,
@@ -172,13 +168,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       color: colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.all(10),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        'assets/logo.png',
-                        fit: BoxFit.cover,
-                      ),
+                    child: Icon(
+                      FluentIcons.brain_circuit_20_filled,
+                      size: 36.0,
+                      color: colorScheme.primary,
                     ),
                   ).animate(effects: DefaultEffects.transitionIn),
 
@@ -259,58 +252,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     },
                   ).animate(effects: DefaultEffects.transitionIn),
 
-                  /// Forgot password link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: _isLoading
-                          ? null
-                          : () {
-                              Navigator.of(context).pushNamed(
-                                AppRoutes.forgotPasswordRequestPath,
-                              );
-                            },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: StyledText(
-                          'Forgot password?',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-
                   const SizedBox(height: 28.0),
 
                   /// Login button
-                  ClayContainer(
-                    baseColor: colorScheme.primary,
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    onTap: _isLoading ? null : _login,
-                    child: Center(
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20.0,
-                              width: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: ClayStyle.foregroundColor(
-                                  colorScheme.primary,
-                                ),
-                              ),
-                            )
-                          : StyledText(
-                              'Login',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: ClayStyle.foregroundColor(
-                                colorScheme.primary,
-                              ),
-                            ),
+                  FilledButton(
+                    onPressed: _isLoading ? null : _login,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Login'),
                   ).animate(effects: DefaultEffects.transitionIn),
 
                   const SizedBox(height: 20.0),
@@ -334,29 +296,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 20.0),
 
                   /// Google sign-in button
-                  ClayContainer(
-                    baseColor: colorScheme.primaryContainer,
-                    borderRadius: 16,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    onTap: _isLoading ? null : _loginWithGoogle,
+                  OutlinedButton(
+                    onPressed: _isLoading ? null : _loginWithGoogle,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           FluentIcons.person_20_regular,
                           size: 20.0,
-                          color: ClayStyle.foregroundColor(
-                            colorScheme.primaryContainer,
-                          ),
+                          color: colorScheme.primary,
                         ),
                         const SizedBox(width: 10),
-                        StyledText(
+                        Text(
                           'Continue with Google',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: ClayStyle.foregroundColor(
-                            colorScheme.primaryContainer,
-                          ),
+                          style: TextStyle(color: colorScheme.primary),
                         ),
                       ],
                     ),

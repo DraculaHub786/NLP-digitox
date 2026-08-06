@@ -1,7 +1,5 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
 
 class PlatformRestrictionService {
   static const MethodChannel _channel = MethodChannel('com.nlp.digitox/restrictions');
@@ -31,7 +29,7 @@ class PlatformRestrictionService {
       });
       return result as bool? ?? false;
     } on PlatformException catch (e) {
-      debugPrint('Failed to show Android overlay: ${e.message}');
+      print('Failed to show Android overlay: ${e.message}');
       return false;
     }
   }
@@ -51,7 +49,7 @@ class PlatformRestrictionService {
       });
       return result as bool? ?? false;
     } on PlatformException catch (e) {
-      debugPrint('Failed to show iOS soft lock: ${e.message}');
+      print('Failed to show iOS soft lock: ${e.message}');
       return false;
     }
   }
@@ -63,7 +61,7 @@ class PlatformRestrictionService {
       final result = await _channel.invokeMethod('isAccessibilityEnabled');
       return result as bool? ?? false;
     } on PlatformException catch (e) {
-      debugPrint('Failed to check accessibility: ${e.message}');
+      print('Failed to check accessibility: ${e.message}');
       return false;
     }
   }
@@ -74,7 +72,7 @@ class PlatformRestrictionService {
     try {
       await _channel.invokeMethod('openAccessibilitySettings');
     } on PlatformException catch (e) {
-      debugPrint('Failed to open settings: ${e.message}');
+      print('Failed to open settings: ${e.message}');
     }
   }
 
@@ -84,7 +82,7 @@ class PlatformRestrictionService {
     try {
       await _channel.invokeMethod('requestScreenTimePermission');
     } on PlatformException catch (e) {
-      debugPrint('Failed to request Screen Time: ${e.message}');
+      print('Failed to request Screen Time: ${e.message}');
     }
   }
 }

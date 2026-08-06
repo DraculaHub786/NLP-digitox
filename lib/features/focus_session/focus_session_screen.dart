@@ -91,7 +91,7 @@ class _FocusSessionScreenState extends ConsumerState<FocusSessionScreen> {
           FocusGoalType.meditation,
           Icons.spa,
           Colors.purple,
-          'Meditation',
+          'Mindful meditation',
         ),
         _buildGoalCard(
           'Exercise',
@@ -116,7 +116,7 @@ class _FocusSessionScreenState extends ConsumerState<FocusSessionScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: color.withValues(alpha: 0.2),
+          backgroundColor: color.withOpacity(0.2),
           child: Icon(icon, color: color),
         ),
         title: Text(title),
@@ -316,7 +316,7 @@ class _DurationPickerSheetState extends State<_DurationPickerSheet> {
                 onSelected: (selected) {
                   setState(() => _selectedMinutes = minutes);
                 },
-                selectedColor: widget.color.withValues(alpha: 0.3),
+                selectedColor: widget.color.withOpacity(0.3),
                 labelStyle: TextStyle(
                   color: isSelected ? widget.color : null,
                   fontWeight: isSelected ? FontWeight.bold : null,

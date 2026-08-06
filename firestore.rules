@@ -1,71 +1,73 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    function isOwner(uid) {
-      return isSignedIn() && request.auth.uid == uid;
-    }
-
-    // ---- Private user profile + all subcollections ----
-    // (appRestrictions, appUsage, focusSessions, crashLogs, restrictionGroups,
-    //  notifications, habits, tasks, chats, settings — all live under users/{userId}/...)
+    
+    // User data access rules
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
-
-      match /{subcollection}/{document=**} {
-        allow read, write: if isOwner(userId);
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Habits subcollection
+      match /habits/{habitId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Tasks subcollection
+      match /tasks/{taskId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Chat sessions subcollection
+      match /chats/{chatId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Settings and preferences
+      match /settings/{settingId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
-
-    // ---- Public leaderboard, tightly scoped writes ----
+    
+    // Shared sessions - readable by members
+    match /shared_sessions/{sessionId} {
+      allow read: if request.auth != null && 
+        (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null ||
+         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.visibility == 'public');
+      
+      allow write: if request.auth != null &&
+        (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.owner == request.auth.uid ||
+         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null);
+      
+      allow create: if request.auth != null;
+    }
+    
+    // Groups - readable by members or if public
+    match /groups/{groupId} {
+      allow read: if request.auth != null && 
+        (get(/databases/$(database)/documents/groups/$(groupId)).data.members[request.auth.uid] != null ||
+         get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == 'public');
+      
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/groups/$(groupId)).data.owner == request.auth.uid;
+      
+      allow create: if request.auth != null;
+    }
+    
+    // Leaderboard - all authenticated users can read; each user can write only their own doc
     match /leaderboard/{userId} {
-      allow read: if isSignedIn();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId)
-                    && request.resource.data.lifetimePoints >= resource.data.lifetimePoints;
-      allow delete: if isOwner(userId);  // Needed for account deletion
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
-
-    // ---- Weekly/monthly reset bookkeeping — client can read + write ----
-    // (leaderboard_service.dart writes weekly_reset via _initializeLeaderboardWeek
-    //  and _updateLastResetDate on the client side.
-    //  The `points` field resets to 0 every Monday 4AM, `lifetimePoints` is never reset.)
-    match /leaderboard_config/{doc} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+    
+    // Leaderboard config - readable by all authenticated; only service accounts can write
+    match /leaderboard_config/{configDoc} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only n8n cron / admin writes
     }
-
-    // ---- Badges — only readable by the owner; writable ONLY by Admin SDK (n8n) ----
-    // Field name in app: `userId` (not `uid`).
-    // firebase_auth_service.dart queries: `where('userId', isEqualTo: uid)`
-    match /badges/{badgeId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow write: if false; // Admin SDK (n8n) only
-    }
-
-    // ---- Public badge_verification lookup — anyone with the exact ID can get it ----
-    // Written by Admin SDK (n8n Node 10/12); no listing/enumeration allowed.
-    // App uses: firestore.collection('badge_verification').doc(verificationId).get()
-    match /badge_verification/{verificationId} {
-      allow get: if true;
-      allow list: if false;
-      allow write: if false; // Admin SDK only
-    }
-
-    // ---- automation_state — used by onboarding workflow (Admin SDK only) ----
-    match /automation_state/{docId} {
-      allow read, write: if false; // Admin SDK only
-    }
-
-    // ---- One-time signup analytics doc, owner-keyed ----
-    match /signup_events/{userId} {
-      allow read, write: if isOwner(userId);
-    }
-    match /password_resets/{email} {
-    allow read, write: if false; // Admin SDK (n8n) only — never touched by the app directly
+    
+    // Public content - readable by all authenticated users
+    match /public/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only admin can write
     }
   }
 }

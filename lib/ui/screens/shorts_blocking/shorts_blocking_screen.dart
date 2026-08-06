@@ -8,7 +8,6 @@ import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/providers/usage/shorts_screen_time_provider.dart';
-import 'package:nlp_digitox/ui/common/fade_slide_entrance.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -85,42 +84,40 @@ class ShortsBlockingScreen extends ConsumerWidget {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
-                  child: FadeSlideEntrance(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: colorScheme.primary.withValues(alpha: 0.15),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            FluentIcons.info_20_filled,
+                            color: colorScheme.primary,
+                            size: 20,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              FluentIcons.info_20_filled,
-                              color: colorScheme.primary,
-                              size: 20,
-                            ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: StyledText(
+                            context.locale.shorts_blocking_tab_info,
+                            fontSize: 13,
+                            color: colorScheme.onSurface.withValues(alpha: 0.75),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: StyledText(
-                              context.locale.shorts_blocking_tab_info,
-                              fontSize: 13,
-                              color: colorScheme.onSurface.withValues(alpha: 0.75),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

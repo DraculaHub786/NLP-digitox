@@ -5,7 +5,6 @@ import 'package:nlp_digitox/core/enums/platform_features.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
-import 'package:nlp_digitox/ui/common/clay_toggle.dart';
 import 'package:nlp_digitox/ui/common/default_expandable_list_tile.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -185,11 +184,9 @@ class SliverShortsQuickActions extends ConsumerWidget {
                     ),
                   ),
                   Transform.scale(
-                    scale: 0.8,
-                    child: ClayToggle(
-                      value:
-                          blockedFeatures.contains(PlatformFeatures.youtubeShorts),
-                      activeColor: colorScheme.primary,
+                    scale: 0.85,
+                    child: Switch.adaptive(
+                      value: blockedFeatures.contains(PlatformFeatures.youtubeShorts),
                       onChanged: haveNecessaryPerms
                           ? (_) => _toggleFeature(
                                 context,
@@ -197,7 +194,8 @@ class SliverShortsQuickActions extends ConsumerWidget {
                                 blockedFeatures,
                                 PlatformFeatures.youtubeShorts,
                               )
-                          : (_) {},
+                          : null,
+                      activeColor: colorScheme.primary,
                     ),
                   ),
                 ],
@@ -244,11 +242,9 @@ class SliverShortsQuickActions extends ConsumerWidget {
                     ),
                   ),
                   Transform.scale(
-                    scale: 0.8,
-                    child: ClayToggle(
-                      value:
-                          blockedFeatures.contains(PlatformFeatures.facebookReels),
-                      activeColor: colorScheme.primary,
+                    scale: 0.85,
+                    child: Switch.adaptive(
+                      value: blockedFeatures.contains(PlatformFeatures.facebookReels),
                       onChanged: haveNecessaryPerms
                           ? (_) => _toggleFeature(
                                 context,
@@ -256,7 +252,8 @@ class SliverShortsQuickActions extends ConsumerWidget {
                                 blockedFeatures,
                                 PlatformFeatures.facebookReels,
                               )
-                          : (_) {},
+                          : null,
+                      activeColor: colorScheme.primary,
                     ),
                   ),
                 ],
@@ -303,11 +300,9 @@ class SliverShortsQuickActions extends ConsumerWidget {
                     ),
                   ),
                   Transform.scale(
-                    scale: 0.8,
-                    child: ClayToggle(
-                      value:
-                          blockedFeatures.contains(PlatformFeatures.redditShorts),
-                      activeColor: colorScheme.primary,
+                    scale: 0.85,
+                    child: Switch.adaptive(
+                      value: blockedFeatures.contains(PlatformFeatures.redditShorts),
                       onChanged: haveNecessaryPerms
                           ? (_) => _toggleFeature(
                                 context,
@@ -315,7 +310,8 @@ class SliverShortsQuickActions extends ConsumerWidget {
                                 blockedFeatures,
                                 PlatformFeatures.redditShorts,
                               )
-                          : (_) {},
+                          : null,
+                      activeColor: colorScheme.primary,
                     ),
                   ),
                 ],

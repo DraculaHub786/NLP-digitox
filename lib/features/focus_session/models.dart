@@ -52,7 +52,7 @@ class FocusGoal {
       'targetMinutes': targetDuration.inMinutes,
       'createdAt': createdAt.toIso8601String(),
       'description': description,
-      'color': color.toARGB32(),
+      'color': color.value,
     };
   }
 }

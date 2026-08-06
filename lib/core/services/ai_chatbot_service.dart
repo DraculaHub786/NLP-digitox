@@ -5,9 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
-import 'package:nlp_digitox/core/services/chat_context_extractor.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
-import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
 import 'package:nlp_digitox/models/persona_model.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
 
@@ -138,7 +136,7 @@ class AIChatbotService {
   Future<void> _initialize() async {
     if (_initialized) return;
     
-    await _initializeAI();
+    _initializeAI();
     await _loadChatHistory();
     await _startNewSessionOnAppOpen();
     
@@ -303,7 +301,7 @@ Remember: You're a supportive friend helping them build better digital habits, n
       // Always clear current chat to start fresh
       _chatHistory.clear();
       _conversationHistory.clear();
-      await _initializeAI();
+      _initializeAI();
       
       // ✅ FIX: Create session ID but DON'T add empty session to list
       // Session will be added to _chatSessions when first message is sent via _saveCurrentSessionToHistory()
@@ -351,11 +349,6 @@ Remember: You're a supportive friend helping them build better digital habits, n
   /// This helps stay within token limits by clearing the session's internal history
   Future<void> _resetChatSession() async {
     try {
-      if (_conversationHistory.isEmpty) {
-        await _initializeAI();
-        _messagesInCurrentSession = 0;
-        return;
-      }
       // Keep system message + last 6 user/assistant exchanges (12 messages)
       final systemMsg = _conversationHistory.first; // System message
       final recentMsgs = _conversationHistory.length > 13
@@ -372,7 +365,7 @@ Remember: You're a supportive friend helping them build better digital habits, n
       debugPrint('❌ Error resetting chat session: $e');
       // Fallback: reinitialize
       _conversationHistory.clear();
-      await _initializeAI();
+      _initializeAI();
       _messagesInCurrentSession = 0;
     }
   }
@@ -616,7 +609,7 @@ Adjust your responses to be empathetic to their current emotional state.
     try {
       _chatHistory.clear();
       _conversationHistory.clear();
-      await _initializeAI();
+      _initializeAI();
       
       // ✅ FIX: Also clean up empty sessions when clearing history
       _chatSessions.removeWhere((s) => s.messages.isEmpty);
@@ -651,46 +644,13 @@ Adjust your responses to be empathetic to their current emotional state.
     }
   }
 
-  /// Get recent chat messages for context (last N messages).
-  ///
-  /// Fixed (Phase 1.1): messages are sorted by [ChatMessage.timestamp]
-  /// descending before taking `count`. Previously `.take(count)` was applied
-  /// to the chronologically-appended list, returning the OLDEST messages of
-  /// the session instead of the most recent.
+  /// Get recent chat messages for context (last N messages)
   List<String> getRecentMessages({int count = 5}) {
-    final recent = _chatHistory.toList()
-      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    return recent
+    return _chatHistory
         .where((msg) => msg.isUser)
         .take(count)
         .map((msg) => msg.message)
         .toList();
-  }
-
-  /// Get ALL user messages across every chat session within the last
-  /// [days] days (defaults to the 30-day retention window).
-  ///
-  /// Phase 2.1: sentiment analysis should look at the full retention window,
-  /// not just the current in-memory session. Returns raw user message text
-  /// for further processing.
-  List<String> getAllMessagesInWindow({int days = 30}) {
-    final cutoff = DateTime.now().subtract(Duration(days: days));
-    final messages = <String>[];
-
-    for (final session in _chatSessions) {
-      if (session.lastMessageAt.isBefore(cutoff)) continue;
-      for (final message in session.messages) {
-        if (!message.isUser) continue;
-        if (message.timestamp.isBefore(cutoff)) continue;
-        messages.add(message.message);
-      }
-    }
-
-    // Cap at a sane number so a huge 30-day history can't blow the prompt.
-    if (messages.length > 200) {
-      return messages.sublist(messages.length - 200);
-    }
-    return messages;
   }
 
   // ═══════════════════════════════════════════════════════
@@ -745,7 +705,7 @@ Adjust your responses to be empathetic to their current emotional state.
       if (title != null) {
         _chatHistory.clear();
         _conversationHistory.clear();
-        await _initializeAI();
+        _initializeAI();
       }
       
       // ✅ FIX: Don't add to list - will be added when messages arrive
@@ -773,7 +733,7 @@ Adjust your responses to be empathetic to their current emotional state.
       _chatHistory.addAll(session.messages);
       
       _conversationHistory.clear();
-      await _initializeAI();
+      _initializeAI();
       for (final msg in session.messages) {
         _conversationHistory.add({
           'role': msg.isUser ? 'user' : 'assistant',
@@ -847,7 +807,7 @@ Adjust your responses to be empathetic to their current emotional state.
         _currentSessionId = null;
         _chatHistory.clear();
         _conversationHistory.clear();
-        await _initializeAI();
+        _initializeAI();
       }
       
       await _saveChatHistory();
@@ -913,7 +873,7 @@ Adjust your responses to be empathetic to their current emotional state.
       
       // Rebuild conversation history up to the edited message
       _conversationHistory.clear();
-      await _initializeAI();
+      _initializeAI();
       for (int i = 0; i <= messageIndex; i++) {
         final msg = _chatHistory[i];
         _conversationHistory.add({
@@ -986,10 +946,7 @@ Adjust your responses to be empathetic to their current emotional state.
   // AUTO-DELETION
   // ═══════════════════════════════════════════════════════
   
-  /// Auto-delete chats older than 30 days.
-  ///
-  /// Also prunes ChatContextExtractor's persisted themes older than the same
-  /// cutoff so extracted context dies with its source sessions (Phase 2.5).
+  /// Auto-delete chats older than 30 days
   Future<void> _autoDeleteOldChats() async {
     try {
       final cutoffDate = DateTime.now().subtract(Duration(days: _autoDeletionDays));
@@ -1008,13 +965,6 @@ Adjust your responses to be empathetic to their current emotional state.
         await _saveChatHistory();
         debugPrint('✅ Auto-deleted $deletedCount old chat session(s) (older than $_autoDeletionDays days)');
       }
-
-      // Keep extracted themes in lockstep with the same retention window.
-      await ChatContextExtractor.instance.pruneBefore(cutoffDate);
-
-      // Phase 3.2 / 5.3: persisted sentiment snapshots die with the same
-      // 30-day window so trends never outlive their source data.
-      await SentimentPersistenceService.instance.pruneBefore(cutoffDate);
     } catch (e) {
       debugPrint('❌ Error auto-deleting old chats: $e');
     }
