@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/auth_service.dart';
@@ -150,7 +151,7 @@ class ParentalControlsScreen extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                           ),
                           child: StyledText(
                             parentalControls.uninstallWindowTime.format(context),

@@ -2,6 +2,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/enums/recap_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
@@ -221,8 +222,8 @@ return DefaultRefreshIndicator(
     VoidCallback? onTap,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
-    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.18);
 
     return GestureDetector(
       onTap: onTap,
@@ -230,8 +231,9 @@ return DefaultRefreshIndicator(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
           border: Border.all(color: borderColor),
+          boxShadow: ElevationTokens.of(context).level(1),
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -247,7 +249,7 @@ return DefaultRefreshIndicator(
                       padding: EdgeInsets.all(isCompact ? 8 : 10),
                       decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                       ),
                       child: Icon(
                         icon,

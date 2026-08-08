@@ -64,6 +64,18 @@ app.*.map.json
 # Large generated files
 /lib/l10n/generated/
 
+# Firebase Cloud Functions
+/functions/node_modules/
+/functions/lib/
+/functions/firebase-debug.log
+/functions/firebase-debug.*.log
+/functions/.runtimeconfig.json
+/functions/.env
+/functions/.env.*
+/functions/.firebase/
+/functions/.eslintcache
+/functions/package-lock.json
+
 # Project status/temporary markdown files (keep README.md and docs/*.md tracked)
 /AGENT_PROMPT.md
 /ALL_6_TASKS_COMPLETED.md
@@ -82,4 +94,7 @@ app.*.map.json
 /QUICK_START_NEW_FEATURES.md
 /TASK8_REAL_SENTIMENT_ANALYZER.md
 /TASKS_12_13_14_COMPLETE.md
-/TODO.md
+
+# Assest refference
+Demo-light.png
+Demo-dark.png

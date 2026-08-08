@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/habit_model.dart';
 import 'package:nlp_digitox/providers/productivity/habits_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
@@ -30,9 +31,9 @@ class HabitsScreen extends ConsumerWidget {
               final habits = ref.read(habitsProvider).value ?? [];
               if (habits.length >= 4) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Maximum 4 habits allowed'),
-                    backgroundColor: Colors.red,
+                  SnackBar(
+                    content: const Text('Maximum 4 habits allowed'),
+                    backgroundColor: theme.colorScheme.error,
                   ),
                 );
                 return;
@@ -73,7 +74,7 @@ class HabitsScreen extends ConsumerWidget {
                               label: 'Best Streak',
                               value: '$bestStreak',
                               icon: FluentIcons.trophy_20_filled,
-                              color: Colors.amber,
+                              color: DesignPalette.goldWarm,
                             ),
                           ),
                         ],
@@ -171,9 +172,10 @@ class HabitsScreen extends ConsumerWidget {
   }
 
   void _showAddHabitDialog(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final nameController = TextEditingController();
     IconData selectedIcon = FluentIcons.drink_coffee_20_filled;
-    Color selectedColor = Colors.purple;
+    Color selectedColor = DesignPalette.fernDeep;
 
     final icons = [
       FluentIcons.drink_coffee_20_filled,
@@ -187,20 +189,24 @@ class HabitsScreen extends ConsumerWidget {
     ];
 
     final colors = [
-      Colors.purple,
-      Colors.blue,
-      Colors.teal,
-      Colors.orange,
-      Colors.red,
-      Colors.green,
-      Colors.pink,
-      Colors.amber,
+      DesignPalette.fern,
+      DesignPalette.fernDeep,
+      DesignPalette.sage,
+      DesignPalette.terra,
+      DesignPalette.terraSoft,
+      DesignPalette.gold,
+      DesignPalette.goldWarm,
+      DesignPalette.berry,
     ];
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
+          backgroundColor: GlassTokens.of(context).fillTop,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          ),
           title: const Text('New Habit'),
           content: SingleChildScrollView(
             child: Column(
@@ -209,9 +215,29 @@ class HabitsScreen extends ConsumerWidget {
               children: [
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Habit Name',
-                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor:
+                        colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: colorScheme.primary, width: 1.5),
+                    ),
                   ),
                   autofocus: true,
                 ),
@@ -229,8 +255,9 @@ class HabitsScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? selectedColor.withValues(alpha: 0.3)
-                              : Colors.grey.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                              : colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
                                 ? selectedColor
@@ -259,7 +286,9 @@ class HabitsScreen extends ConsumerWidget {
                           color: color,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? Colors.white : Colors.transparent,
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Colors.transparent,
                             width: 3,
                           ),
                         ),
@@ -298,7 +327,7 @@ class HabitsScreen extends ConsumerWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(e.toString()),
-                        backgroundColor: Colors.red,
+                        backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
                   }
@@ -316,6 +345,10 @@ class HabitsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: GlassTokens.of(context).fillTop,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        ),
         title: const Text('Delete Habit'),
         content: Text('Are you sure you want to delete "${habit.name}"?'),
         actions: [
@@ -329,7 +362,7 @@ class HabitsScreen extends ConsumerWidget {
               Navigator.pop(context);
             },
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('Delete'),
           ),

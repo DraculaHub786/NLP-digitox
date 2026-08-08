@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
+import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/pill_button.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'models.dart';
 import 'mood_service.dart';
 
@@ -40,79 +44,140 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: const Text('Mood Check-In'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'How are you feeling?',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          _buildMoodSelector(),
-          const SizedBox(height: 32),
-          const Text(
-            'Energy Level',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          _buildSlider(
-            value: _energyLevel,
-            onChanged: (value) => setState(() => _energyLevel = value),
-            min: 1,
-            max: 10,
-            label: _energyLevel.toString(),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Stress Level',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          _buildSlider(
-            value: _stressLevel,
-            onChanged: (value) => setState(() => _stressLevel = value),
-            min: 1,
-            max: 10,
-            label: _stressLevel.toString(),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'What triggered this mood?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 12),
-          _buildTriggerChips(),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _noteController,
-            decoration: const InputDecoration(
-              labelText: 'Additional notes (optional)',
-              border: OutlineInputBorder(),
-              hintText: 'Any thoughts you want to record...',
-            ),
-            maxLines: 4,
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _selectedMood == null ? null : _saveMoodCheckIn,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+      body: TreatedBackgroundImage(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              elevationLevel: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'How are you feeling?',
+                    style: DesignType.titleStyle(context, size: 22),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildMoodSelector(),
+                ],
               ),
-              child: const Text('Save Check-In', style: TextStyle(fontSize: 16)),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              elevationLevel: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Energy Level',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildSlider(
+                    value: _energyLevel,
+                    onChanged: (value) => setState(() => _energyLevel = value),
+                    min: 1,
+                    max: 10,
+                    label: _energyLevel.toString(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Stress Level',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildSlider(
+                    value: _stressLevel,
+                    onChanged: (value) => setState(() => _stressLevel = value),
+                    min: 1,
+                    max: 10,
+                    label: _stressLevel.toString(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            GlassCard(
+              padding: const EdgeInsets.all(20),
+              elevationLevel: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'What triggered this mood?',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTriggerChips(),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _noteController,
+                    decoration: InputDecoration(
+                      labelText: 'Additional notes (optional)',
+                      hintText: 'Any thoughts you want to record...',
+                      filled: true,
+                      fillColor:
+                          colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        borderSide: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        borderSide: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        borderSide:
+                            BorderSide(color: colorScheme.primary, width: 1.5),
+                      ),
+                    ),
+                    maxLines: 4,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: PillButton(
+                      label: 'Save Check-In',
+                      onPressed: _selectedMood == null ? null : _saveMoodCheckIn,
+                      fullWidth: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildMoodSelector() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -125,11 +190,15 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
             width: 80,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? mood.color.withOpacity(0.2) : Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
+              color: isSelected
+                  ? mood.color.withValues(alpha: 0.2)
+                  : colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(
-                color: isSelected ? mood.color : Colors.transparent,
-                width: 2,
+                color: isSelected
+                    ? mood.color
+                    : colorScheme.outline.withValues(alpha: 0.18),
+                width: isSelected ? 2 : 1,
               ),
             ),
             child: Column(
@@ -141,8 +210,11 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? mood.color : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected
+                        ? mood.color
+                        : colorScheme.onSurface.withValues(alpha: 0.75),
                   ),
                 ),
               ],
@@ -160,9 +232,13 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
     required int max,
     required String label,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Text('Low', style: TextStyle(color: Colors.grey.shade600)),
+        Text(
+          'Low',
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
         Expanded(
           child: Slider(
             value: value.toDouble(),
@@ -173,7 +249,10 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
             onChanged: (newValue) => onChanged(newValue.toInt()),
           ),
         ),
-        Text('High', style: TextStyle(color: Colors.grey.shade600)),
+        Text(
+          'High',
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
         const SizedBox(width: 8),
         Container(
           width: 32,
@@ -188,6 +267,7 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
   }
 
   Widget _buildTriggerChips() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -196,6 +276,8 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
         return FilterChip(
           label: Text(trigger),
           selected: isSelected,
+          selectedColor: colorScheme.primary.withValues(alpha: 0.2),
+          checkmarkColor: colorScheme.primary,
           onSelected: (selected) {
             setState(() {
               if (selected) {
@@ -216,7 +298,9 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
     final moodService = ref.read(moodServiceProvider);
     await moodService.recordMoodCheckIn(
       mood: _selectedMood!,
-      note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+      note: _noteController.text.trim().isEmpty
+          ? null
+          : _noteController.text.trim(),
       triggers: _selectedTriggers,
       energyLevel: _energyLevel,
       stressLevel: _stressLevel,
@@ -238,9 +322,14 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
   }
 
   void _showInterventionDialog(List<String> interventions) {
+    final glass = GlassTokens.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: glass.fillTop,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        ),
         title: const Text('Helpful Suggestions'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

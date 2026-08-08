@@ -4,9 +4,12 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
 class ForgotPasswordNewScreen extends StatefulWidget {
@@ -156,7 +159,7 @@ class _ForgotPasswordNewScreenState extends State<ForgotPasswordNewScreen> {
 
     OutlineInputBorder border(Color color, double width) =>
         OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -187,212 +190,219 @@ class _ForgotPasswordNewScreenState extends State<ForgotPasswordNewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('New Password'),
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  /// Icon
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(18),
-                    child: Icon(
-                      FluentIcons.key_reset_20_regular,
-                      size: 36,
-                      color: colorScheme.primary,
-                    ),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 20.0),
-
-                  /// Title
-                  StyledText(
-                    'Set New Password',
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                    color: colorScheme.onSurface,
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 8.0),
-
-                  StyledText(
-                    'Choose a strong new password for $_email',
-                    fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    textAlign: TextAlign.center,
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 32.0),
-
-                  /// New password field
-                  TextFormField(
-                    controller: _newPasswordController,
-                    obscureText: _obscureNew,
-                    onChanged: _evaluatePasswordStrength,
-                    decoration: _modernFieldDecoration(
-                      context,
-                      label: 'New Password',
-                      hint: 'Enter new password',
-                      prefixIcon: FluentIcons.lock_closed_20_regular,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureNew
-                              ? FluentIcons.eye_20_regular
-                              : FluentIcons.eye_off_20_regular,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                        onPressed: () {
-                          setState(() => _obscureNew = !_obscureNew);
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a new password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  /// Password strength indicator (same as signup)
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: _passwordStrength,
-                      minHeight: 6,
-                      backgroundColor: colorScheme.surfaceContainerHighest,
-                      color: _passwordStrength < 0.5
-                          ? const Color(0xFFB5453A)
-                          : _passwordStrength < 1.0
-                              ? const Color(0xFFC9922E)
-                              : const Color(0xFF838764),
-                    ),
-                  ),
-                  if (_passwordIssues.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    ..._passwordIssues.map(
-                      (issue) => Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Row(
-                          children: [
-                            Icon(
-                              FluentIcons.dismiss_circle_12_regular,
-                              size: 12,
-                              color: colorScheme.error,
-                            ),
-                            const SizedBox(width: 6),
-                            StyledText(
-                              issue,
-                              fontSize: 12,
-                              color: colorScheme.error,
-                            ),
-                          ],
+      body: TreatedBackgroundImage(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    /// Icon — glass-chip style
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.15),
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        border: Border.all(
+                          color: GlassTokens.of(context).borderTop,
                         ),
                       ),
-                    ),
-                  ],
+                      padding: const EdgeInsets.all(18),
+                      child: Icon(
+                        FluentIcons.key_reset_20_regular,
+                        size: 36,
+                        color: colorScheme.primary,
+                      ),
+                    ).animate(effects: DefaultEffects.transitionIn),
 
-                  const SizedBox(height: 16.0),
+                    const SizedBox(height: 20.0),
 
-                  /// Confirm new password field
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: _obscureConfirm,
-                    decoration: _modernFieldDecoration(
-                      context,
-                      label: 'Confirm New Password',
-                      hint: 'Re-enter new password',
-                      prefixIcon: FluentIcons.lock_closed_20_regular,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirm
-                              ? FluentIcons.eye_20_regular
-                              : FluentIcons.eye_off_20_regular,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    /// Title
+                    StyledText(
+                      'Set New Password',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                      color: colorScheme.onSurface,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 8.0),
+
+                    StyledText(
+                      'Choose a strong new password for $_email',
+                      fontSize: 14,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      textAlign: TextAlign.center,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 32.0),
+
+                    /// New password field
+                    TextFormField(
+                      controller: _newPasswordController,
+                      obscureText: _obscureNew,
+                      onChanged: _evaluatePasswordStrength,
+                      decoration: _modernFieldDecoration(
+                        context,
+                        label: 'New Password',
+                        hint: 'Enter new password',
+                        prefixIcon: FluentIcons.lock_closed_20_regular,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureNew
+                                ? FluentIcons.eye_20_regular
+                                : FluentIcons.eye_off_20_regular,
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                          onPressed: () {
+                            setState(() => _obscureNew = !_obscureNew);
+                          },
                         ),
-                        onPressed: () {
-                          setState(() => _obscureConfirm = !_obscureConfirm);
-                        },
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a new password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    /// Password strength indicator (same as signup)
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _passwordStrength,
+                        minHeight: 6,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        color: _passwordStrength < 0.5
+                            ? const Color(0xFFB5453A)
+                            : _passwordStrength < 1.0
+                                ? const Color(0xFFC9922E)
+                                : const Color(0xFF838764),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your new password';
-                      }
-                      if (value != _newPasswordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 28.0),
-
-                  /// Reset Password button
-                  FilledButton(
-                    onPressed: _isLoading ? null : _resetPassword,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Reset Password'),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 24.0),
-
-                  /// Back to login
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      StyledText(
-                        'Remember your password? ',
-                        fontSize: 14,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            AppRoutes.loginPath,
-                            (route) => false,
-                          );
-                        },
-                        child: StyledText(
-                          'Login',
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
+                    if (_passwordIssues.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      ..._passwordIssues.map(
+                        (issue) => Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Row(
+                            children: [
+                              Icon(
+                                FluentIcons.dismiss_circle_12_regular,
+                                size: 12,
+                                color: colorScheme.error,
+                              ),
+                              const SizedBox(width: 6),
+                              StyledText(
+                                issue,
+                                fontSize: 12,
+                                color: colorScheme.error,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
-                  ).animate(effects: DefaultEffects.transitionIn),
-                ],
+
+                    const SizedBox(height: 16.0),
+
+                    /// Confirm new password field
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: _obscureConfirm,
+                      decoration: _modernFieldDecoration(
+                        context,
+                        label: 'Confirm New Password',
+                        hint: 'Re-enter new password',
+                        prefixIcon: FluentIcons.lock_closed_20_regular,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirm
+                                ? FluentIcons.eye_20_regular
+                                : FluentIcons.eye_off_20_regular,
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                          onPressed: () {
+                            setState(() =>
+                                _obscureConfirm = !_obscureConfirm);
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your new password';
+                        }
+                        if (value != _newPasswordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 28.0),
+
+                    /// Reset Password button
+                    PillButton(
+                      label: _isLoading ? null : 'Reset Password',
+                      child: _isLoading
+                          ? SizedBox(
+                              height: 20.0,
+                              width: 20.0,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.onPrimary,
+                              ),
+                            )
+                          : null,
+                      onPressed: _isLoading ? null : _resetPassword,
+                      fullWidth: true,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 24.0),
+
+                    /// Back to login
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        StyledText(
+                          'Remember your password? ',
+                          fontSize: 14,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRoutes.loginPath,
+                              (route) => false,
+                            );
+                          },
+                          child: StyledText(
+                            'Login',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ).animate(effects: DefaultEffects.transitionIn),
+                  ],
+                ),
               ),
             ),
           ),

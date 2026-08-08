@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
 import 'package:nlp_digitox/providers/ai_providers.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -53,7 +54,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text('Delete'),
           ),
         ],
@@ -113,9 +116,9 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
     await AIChatbotService.instance.switchToSession(session.id);
     if (mounted) {
       // Update the chat messages provider to reflect the switched session
-      ref.read(aiChatMessagesProvider.notifier).state = 
+      ref.read(aiChatMessagesProvider.notifier).state =
           List.from(AIChatbotService.instance.chatHistory);
-      
+
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Switched to "${session.title}"')),
@@ -205,7 +208,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                     ),
                     child: Row(
                       children: [
@@ -224,7 +227,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                       ],
                     ),
                   ),
-                
+
                 // Current session indicator
                 if (currentSession != null)
                   Container(
@@ -232,7 +235,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                     ),
                     child: Row(
                       children: [
@@ -249,7 +252,8 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                               StyledText(
                                 'Current Session',
                                 fontSize: 11,
-                                color: colorScheme.onPrimaryContainer.withOpacity(0.7),
+                                color: colorScheme.onPrimaryContainer
+                                    .withValues(alpha: 0.7),
                               ),
                               StyledText(
                                 currentSession.title,
@@ -263,7 +267,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                       ],
                     ),
                   ),
-                
+
                 // Sessions list
                 Expanded(
                   child: _sessions.isEmpty
@@ -300,30 +304,42 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                             final isOld = DateTime.now()
                                 .difference(session.lastMessageAt)
                                 .inDays >= 30;
-                            
+
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
                               elevation: isCurrent ? 4 : 1,
-                              color: isCurrent 
-                                  ? colorScheme.primaryContainer 
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  GlassTokens.radiusCard,
+                                ),
+                              ),
+                              color: isCurrent
+                                  ? colorScheme.primaryContainer
                                   : colorScheme.surfaceContainerHighest,
                               child: InkWell(
-                                onTap: isCurrent ? null : () => _switchToSession(session),
-                                borderRadius: BorderRadius.circular(12),
+                                onTap: isCurrent
+                                    ? null
+                                    : () => _switchToSession(session),
+                                borderRadius: BorderRadius.circular(
+                                  GlassTokens.radiusCard,
+                                ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           Icon(
                                             isCurrent
-                                                ? FluentIcons.chat_sparkle_20_filled
+                                                ? FluentIcons
+                                                    .chat_sparkle_20_filled
                                                 : FluentIcons.chat_20_regular,
                                             size: 20,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer
+                                                ? colorScheme
+                                                    .onPrimaryContainer
                                                 : colorScheme.onSurface,
                                           ),
                                           const SizedBox(width: 12),
@@ -335,24 +351,31 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                                                   ? FontWeight.bold
                                                   : FontWeight.normal,
                                               color: isCurrent
-                                                  ? colorScheme.onPrimaryContainer
+                                                  ? colorScheme
+                                                      .onPrimaryContainer
                                                   : colorScheme.onSurface,
                                             ),
                                           ),
                                           if (isOld)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 8,
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: colorScheme.errorContainer,
-                                                borderRadius: BorderRadius.circular(8),
+                                                color: colorScheme
+                                                    .errorContainer,
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                  GlassTokens.radiusPill,
+                                                ),
                                               ),
                                               child: StyledText(
                                                 'OLD',
                                                 fontSize: 10,
-                                                color: colorScheme.onErrorContainer,
+                                                color: colorScheme
+                                                    .onErrorContainer,
                                               ),
                                             ),
                                           PopupMenuButton(
@@ -361,24 +384,31 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                                                 value: 'rename',
                                                 child: Row(
                                                   children: [
-                                                    Icon(FluentIcons.edit_20_regular),
+                                                    Icon(
+                                                      FluentIcons
+                                                          .edit_20_regular,
+                                                    ),
                                                     SizedBox(width: 12),
                                                     Text('Rename'),
                                                   ],
                                                 ),
                                               ),
-                                              const PopupMenuItem(
+                                              PopupMenuItem(
                                                 value: 'delete',
                                                 child: Row(
                                                   children: [
                                                     Icon(
-                                                      FluentIcons.delete_20_regular,
-                                                      color: Colors.red,
+                                                      FluentIcons
+                                                          .delete_20_regular,
+                                                      color: colorScheme.error,
                                                     ),
-                                                    SizedBox(width: 12),
+                                                    const SizedBox(width: 12),
                                                     Text(
                                                       'Delete',
-                                                      style: TextStyle(color: Colors.red),
+                                                      style: TextStyle(
+                                                        color:
+                                                            colorScheme.error,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -398,35 +428,48 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                                       Row(
                                         children: [
                                           Icon(
-                                            FluentIcons.chat_bubbles_question_20_regular,
+                                            FluentIcons
+                                                .chat_bubbles_question_20_regular,
                                             size: 14,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme
+                                                    .onPrimaryContainer
+                                                    .withValues(alpha: 0.7)
+                                                : colorScheme.onSurface
+                                                    .withValues(alpha: 0.6),
                                           ),
                                           const SizedBox(width: 6),
                                           StyledText(
                                             '${session.messages.length} messages',
                                             fontSize: 12,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme
+                                                    .onPrimaryContainer
+                                                    .withValues(alpha: 0.7)
+                                                : colorScheme.onSurface
+                                                    .withValues(alpha: 0.6),
                                           ),
                                           const SizedBox(width: 16),
                                           Icon(
                                             FluentIcons.clock_20_regular,
                                             size: 14,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme
+                                                    .onPrimaryContainer
+                                                    .withValues(alpha: 0.7)
+                                                : colorScheme.onSurface
+                                                    .withValues(alpha: 0.6),
                                           ),
                                           const SizedBox(width: 6),
                                           StyledText(
                                             _formatDate(session.lastMessageAt),
                                             fontSize: 12,
                                             color: isCurrent
-                                                ? colorScheme.onPrimaryContainer.withOpacity(0.7)
-                                                : colorScheme.onSurface.withOpacity(0.6),
+                                                ? colorScheme
+                                                    .onPrimaryContainer
+                                                    .withValues(alpha: 0.7)
+                                                : colorScheme.onSurface
+                                                    .withValues(alpha: 0.6),
                                           ),
                                         ],
                                       ),

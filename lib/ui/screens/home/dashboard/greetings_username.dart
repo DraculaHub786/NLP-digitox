@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
@@ -96,7 +97,7 @@ class GreetingsUsername extends ConsumerWidget {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: Icon(
                           FluentIcons.edit_16_regular,

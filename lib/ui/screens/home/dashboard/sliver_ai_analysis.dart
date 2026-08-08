@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:sliver_tools/sliver_tools.dart' as sliver show MultiSliver;
 import 'package:nlp_digitox/providers/ai_providers.dart';
@@ -53,7 +54,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
     final recommendationsAsync = ref.watch(aiRecommendationsProvider);
     final chatMessages = ref.watch(aiChatMessagesProvider);
     final isLoading = ref.watch(aiChatLoadingProvider);
-    
+
     return sliver.MultiSliver(
       children: [
         const SliverToBoxAdapter(
@@ -62,7 +63,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             child: ModernSectionHeader(title: "AI Analysis"),
           ),
         ),
-        
+
         // Sentiment Analysis and Recommendations Row
         SliverToBoxAdapter(
           child: Padding(
@@ -77,10 +78,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                       child: Container(
                         height: 220,
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(16),
+                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                           border: Border.all(
-                            color: colorScheme.outline.withOpacity(0.2),
+                            color: colorScheme.outline.withValues(alpha: 0.2),
                           ),
                         ),
                         padding: const EdgeInsets.all(12),
@@ -110,13 +111,13 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                     // Force refresh providers
                                     ref.invalidate(aiSentimentProvider);
                                     ref.invalidate(aiRecommendationsProvider);
-                                    
+
                                     debugPrint('🔄 Manually refreshed sentiment analysis');
                                   },
                                   child: Icon(
                                     FluentIcons.arrow_clockwise_20_regular,
                                     size: 14,
-                                    color: colorScheme.primary.withOpacity(0.7),
+                                    color: colorScheme.primary.withValues(alpha: 0.7),
                                   ),
                                 ),
                               ],
@@ -130,30 +131,30 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                   IconData sentimentIcon;
                                   switch (entry.key) {
                                     case 'Positive':
-                                      sentimentColor = Colors.green;
+                                      sentimentColor = GlassTokens.of(context).statusGood;
                                       sentimentIcon = FluentIcons.emoji_smile_slight_20_filled;
                                       break;
                                     case 'Neutral':
-                                      sentimentColor = Colors.orange;
+                                      sentimentColor = GlassTokens.of(context).statusWarn;
                                       sentimentIcon = FluentIcons.emoji_meh_20_filled;
                                       break;
                                     case 'Negative':
-                                      sentimentColor = Colors.red;
+                                      sentimentColor = GlassTokens.of(context).statusBad;
                                       sentimentIcon = FluentIcons.emoji_sad_20_filled;
                                       break;
                                     case 'Anxious':
-                                      sentimentColor = Colors.deepOrange;
+                                      sentimentColor = DesignPalette.terra;
                                       sentimentIcon = FluentIcons.brain_20_filled;
                                       break;
                                     case 'Focused':
-                                      sentimentColor = Colors.blue;
+                                      sentimentColor = DesignPalette.fernDeep;
                                       sentimentIcon = FluentIcons.target_20_filled;
                                       break;
                                     default:
-                                      sentimentColor = Colors.grey;
+                                      sentimentColor = colorScheme.onSurfaceVariant;
                                       sentimentIcon = FluentIcons.circle_20_filled;
                                   }
-                                  
+
                                   return Row(
                                     children: [
                                       Flexible(
@@ -197,16 +198,16 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Right half - Recommendations
                     Expanded(
                       child: Container(
                         height: 220,
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(16),
+                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                           border: Border.all(
-                            color: colorScheme.outline.withOpacity(0.2),
+                            color: colorScheme.outline.withValues(alpha: 0.2),
                           ),
                         ),
                         padding: const EdgeInsets.all(12),
@@ -282,7 +283,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             ),
           ),
         ),
-        
+
         // AI Chat Section
         SliverToBoxAdapter(
           child: Padding(
@@ -300,10 +301,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(16),
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                       border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Row(
@@ -325,11 +326,11 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               ),
                               const SizedBox(height: 2),
                               StyledText(
-                                _isChatExpanded 
+                                _isChatExpanded
                                     ? 'Get personalized wellbeing support'
                                     : 'Tap to start conversation',
                                 fontSize: 11,
-                                color: colorScheme.onSurface.withOpacity(0.6),
+                                color: colorScheme.onSurface.withValues(alpha: 0.6),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -343,7 +344,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                             icon: Icon(
                               FluentIcons.settings_20_regular,
                               size: 18,
-                              color: colorScheme.onSurface.withOpacity(0.6),
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                             onPressed: () {
                               Navigator.push(
@@ -357,27 +358,27 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                           ),
                         ),
                         Icon(
-                          _isChatExpanded 
+                          _isChatExpanded
                               ? FluentIcons.chevron_up_20_regular
                               : FluentIcons.chevron_down_20_regular,
                           size: 20,
-                          color: colorScheme.onSurface.withOpacity(0.6),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ],
                     ),
                   ),
                 ),
-                
+
                 // Expanded chat interface
                 if (_isChatExpanded) ...[
                   const SizedBox(height: 12),
                   Container(
                     height: 400,
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(16),
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                       border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Column(
@@ -399,11 +400,11 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                   },
                                 ),
                         ),
-                        
+
                         // Suggested prompts (show if no messages)
                         if (chatMessages.isEmpty)
                           _buildSuggestedPrompts(colorScheme),
-                        
+
                         // Chat input
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -411,7 +412,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                             color: colorScheme.surface,
                             border: Border(
                               top: BorderSide(
-                                color: colorScheme.outline.withOpacity(0.2),
+                                color: colorScheme.outline.withValues(alpha: 0.2),
                               ),
                             ),
                           ),
@@ -424,7 +425,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                                   decoration: InputDecoration(
                                     hintText: isLoading ? 'AI is typing...' : 'Type your message...',
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(24),
+                                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                                       borderSide: BorderSide.none,
                                     ),
                                     filled: true,
@@ -444,11 +445,11 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                               IconButton(
                                 onPressed: isLoading ? null : _sendMessage,
                                 icon: Icon(
-                                  isLoading 
+                                  isLoading
                                       ? FluentIcons.spinner_ios_20_regular
                                       : FluentIcons.send_20_filled,
-                                  color: isLoading 
-                                      ? colorScheme.onSurface.withOpacity(0.3)
+                                  color: isLoading
+                                      ? colorScheme.onSurface.withValues(alpha: 0.3)
                                       : colorScheme.primary,
                                 ),
                               ),
@@ -468,7 +469,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
   }
 
   // Helper methods for UI components
-  
+
   Widget _buildLoadingState(ColorScheme colorScheme) {
     return Row(
       children: [
@@ -476,8 +477,8 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(16),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
             ),
             child: Center(
               child: CircularProgressIndicator(
@@ -492,8 +493,8 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(16),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
             ),
             child: Center(
               child: CircularProgressIndicator(
@@ -527,10 +528,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(16),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.2),
+                color: colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             padding: const EdgeInsets.all(12),
@@ -581,10 +582,10 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(16),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.2),
+                color: colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             padding: const EdgeInsets.all(12),
@@ -648,7 +649,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           Icon(
             FluentIcons.bot_20_regular,
             size: 48,
-            color: colorScheme.primary.withOpacity(0.5),
+            color: colorScheme.primary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           StyledText(
@@ -660,7 +661,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           StyledText(
             'Ask me about your digital wellbeing!',
             fontSize: 12,
-            color: colorScheme.onSurface.withOpacity(0.6),
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ],
       ),
@@ -669,7 +670,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
 
   Widget _buildChatBubble(ChatMessage message, ColorScheme colorScheme) {
     final isUser = message.isUser;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -680,7 +681,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -700,14 +701,14 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isUser 
+                      color: isUser
                           ? colorScheme.primary
                           : colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
-                        bottomLeft: Radius.circular(isUser ? 16 : 4),
-                        bottomRight: Radius.circular(isUser ? 4 : 16),
+                        topLeft: const Radius.circular(GlassTokens.radiusCard),
+                        topRight: const Radius.circular(GlassTokens.radiusCard),
+                        bottomLeft: Radius.circular(isUser ? GlassTokens.radiusCard : 4),
+                        bottomRight: Radius.circular(isUser ? 4 : GlassTokens.radiusCard),
                       ),
                     ),
                     child: Column(
@@ -716,7 +717,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                         StyledText(
                           message.message,
                           fontSize: 13,
-                          color: isUser 
+                          color: isUser
                               ? colorScheme.onPrimary
                               : colorScheme.onSurface,
                         ),
@@ -726,9 +727,9 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                             child: StyledText(
                               '(edited)',
                               fontSize: 10,
-                              color: isUser 
-                                  ? colorScheme.onPrimary.withOpacity(0.7)
-                                  : colorScheme.onSurface.withOpacity(0.6),
+                              color: isUser
+                                  ? colorScheme.onPrimary.withValues(alpha: 0.7)
+                                  : colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                       ],
@@ -780,7 +781,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                           child: Icon(
                             FluentIcons.delete_20_regular,
                             size: 14,
-                            color: Colors.red.withOpacity(0.7),
+                            color: colorScheme.error.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
@@ -795,7 +796,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -809,7 +810,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
       ),
     );
   }
-  
+
   // Message action handlers
   void _copyMessage(ChatMessage message) {
     final text = AIChatbotService.instance.copyMessage(message.id);
@@ -820,7 +821,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
       );
     }
   }
-  
+
   Future<void> _editMessage(ChatMessage message) async {
     final controller = TextEditingController(text: message.message);
     final newText = await showDialog<String>(
@@ -848,28 +849,28 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
         ],
       ),
     );
-    
+
     if (newText != null && newText.isNotEmpty && newText != message.message) {
       // Show loading state
       ref.read(aiChatLoadingProvider.notifier).state = true;
-      
+
       try {
         // Edit message and get new AI response
         final aiResponse = await AIChatbotService.instance.editMessage(message.id, newText);
-        
+
         // Refresh chat messages
-        ref.read(aiChatMessagesProvider.notifier).state = 
+        ref.read(aiChatMessagesProvider.notifier).state =
             List.from(AIChatbotService.instance.chatHistory);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(aiResponse != null 
-                ? 'Message edited and AI response regenerated' 
+              content: Text(aiResponse != null
+                ? 'Message edited and AI response regenerated'
                 : 'Message edited'),
             ),
           );
-          
+
           // Scroll to bottom to show new AI response
           Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
         }
@@ -884,7 +885,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
       }
     }
   }
-  
+
   Future<void> _deleteMessage(ChatMessage message) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -898,17 +899,19 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text('Delete'),
           ),
         ],
       ),
     );
-    
+
     if (confirm == true) {
       await AIChatbotService.instance.deleteMessage(message.id);
       // Refresh chat messages
-      ref.read(aiChatMessagesProvider.notifier).state = 
+      ref.read(aiChatMessagesProvider.notifier).state =
           List.from(AIChatbotService.instance.chatHistory);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -917,7 +920,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
       }
     }
   }
-  
+
   void _showMessageOptions(ChatMessage message, ColorScheme colorScheme) {
     showModalBottomSheet(
       context: context,
@@ -944,8 +947,14 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                 },
               ),
             ListTile(
-              leading: const Icon(FluentIcons.delete_20_regular, color: Colors.red),
-              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              leading: Icon(
+                FluentIcons.delete_20_regular,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                'Delete',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _deleteMessage(message);
@@ -959,7 +968,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
 
   Widget _buildSuggestedPrompts(ColorScheme colorScheme) {
     final suggestedPromptsAsync = ref.watch(aiSuggestedPromptsProvider);
-    
+
     return suggestedPromptsAsync.when(
       data: (prompts) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -967,7 +976,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
           color: colorScheme.surface,
           border: Border(
             top: BorderSide(
-              color: colorScheme.outline.withOpacity(0.2),
+              color: colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
         ),
@@ -977,7 +986,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
             StyledText(
               'Suggested topics:',
               fontSize: 11,
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -993,9 +1002,9 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                       border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: StyledText(
@@ -1026,14 +1035,14 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
 
     try {
       debugPrint('🚀 Sending message to AI: $message');
-      
+
       // Send message to AI and get response
       final response = await AIChatbotService.instance.sendMessage(message);
-      
+
       debugPrint('✅ AI Response received: $response');
 
       // Update chat history immediately after receiving response
-      ref.read(aiChatMessagesProvider.notifier).state = 
+      ref.read(aiChatMessagesProvider.notifier).state =
           List.from(AIChatbotService.instance.chatHistory);
 
       // Update sentiment AI with chat context for better future analysis
@@ -1066,7 +1075,7 @@ class _SliverAIAnalysisState extends ConsumerState<SliverAIAnalysis> {
     } catch (e, stackTrace) {
       debugPrint('❌ Error sending message: $e');
       debugPrint('Stack trace: $stackTrace');
-      
+
       // Show error message in chat
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

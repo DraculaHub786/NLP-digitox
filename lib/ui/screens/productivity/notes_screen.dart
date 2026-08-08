@@ -1,7 +1,9 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/note_model.dart';
+import 'package:nlp_digitox/ui/common/glass_card.dart';
 import 'package:nlp_digitox/providers/productivity/notes_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
@@ -96,30 +98,23 @@ class NotesScreen extends ConsumerWidget {
                           itemCount: notes.length,
                           itemBuilder: (context, index) {
                             final note = notes[index];
-                            return InkWell(
+                            return GlassCard(
                               onTap: () => _showNoteDetailDialog(context, ref, note),
-                              onLongPress: () => _showDeleteDialog(context, ref, note),
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: note.color.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: note.color.withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
-                                ),
+                              tint: note.color,
+                              elevationLevel: 1,
+                              padding: const EdgeInsets.all(16),
+                              child: GestureDetector(
+                                onLongPress: () => _showDeleteDialog(context, ref, note),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
                                             color: note.color.withValues(alpha: 0.2),
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: Icon(
                                             note.icon,
@@ -210,19 +205,23 @@ class NotesScreen extends ConsumerWidget {
 
     final colors = <Color>[
       cs.primary,
-      Colors.green,
-      Colors.purple,
+      GlassTokens.of(context).statusGood,
       cs.tertiary,
-      Colors.red,
-      Colors.pink,
-      Colors.teal,
-      cs.secondary,
+      cs.error,
+      GlassTokens.of(context).statusWarn,
+      GlassTokens.of(context).statusBad,
+      cs.primaryContainer,
+      cs.secondaryContainer,
     ];
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+      builder: (context, setState) => AlertDialog(
+          backgroundColor: GlassTokens.of(context).fillTop,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          ),
           title: const Text('New Note'),
           content: SingleChildScrollView(
             child: Column(
@@ -231,18 +230,54 @@ class NotesScreen extends ConsumerWidget {
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Title',
-                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                    ),
                   ),
                   autofocus: true,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: contentController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Content',
-                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide:
+                          BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                    ),
                   ),
                   maxLines: 5,
                 ),
@@ -261,7 +296,7 @@ class NotesScreen extends ConsumerWidget {
                           color: isSelected
                               ? selectedColor.withValues(alpha: 0.3)
                               : cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
                                 ? selectedColor
@@ -290,8 +325,9 @@ class NotesScreen extends ConsumerWidget {
                           color: color,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color:
-                                isSelected ? Colors.white : Colors.transparent,
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Colors.transparent,
                             width: 3,
                           ),
                         ),
@@ -339,6 +375,10 @@ class NotesScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: GlassTokens.of(context).fillTop,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        ),
         title: Row(
           children: [
             Icon(note.icon, color: note.color),
@@ -353,17 +393,81 @@ class NotesScreen extends ConsumerWidget {
             children: [
               TextField(
                 controller: titleController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Title',
-                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(GlassTokens.radiusCard),
+                    borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.2),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(GlassTokens.radiusCard),
+                    borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.2),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(GlassTokens.radiusCard),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: contentController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Content',
-                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(GlassTokens.radiusCard),
+                    borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.2),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(GlassTokens.radiusCard),
+                    borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.2),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(GlassTokens.radiusCard),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
                 maxLines: 10,
               ),
@@ -408,6 +512,10 @@ class NotesScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: GlassTokens.of(context).fillTop,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        ),
         title: const Text('Delete Note'),
         content: Text('Are you sure you want to delete "${note.title}"?'),
         actions: [

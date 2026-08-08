@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/session_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_duration.dart';
@@ -62,9 +63,12 @@ class FocusConfigurations extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                color: colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.18),
+                ),
               ),
               child: Column(
                 children: [
@@ -97,7 +101,7 @@ class FocusConfigurations extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: StyledText(
                           profile.sessionDuration > 0

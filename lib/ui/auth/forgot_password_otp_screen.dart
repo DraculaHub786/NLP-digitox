@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
 class ForgotPasswordOtpScreen extends StatefulWidget {
@@ -110,153 +113,160 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Enter Code'),
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                /// Icon
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.all(18),
-                  child: Icon(
-                    FluentIcons.shield_lock_20_regular,
-                    size: 36,
-                    color: colorScheme.primary,
-                  ),
-                ).animate(effects: DefaultEffects.transitionIn),
+      body: TreatedBackgroundImage(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  /// Icon — glass-chip style
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius:
+                          BorderRadius.circular(GlassTokens.radiusCard),
+                      border: Border.all(
+                        color: GlassTokens.of(context).borderTop,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(18),
+                    child: Icon(
+                      FluentIcons.shield_lock_20_regular,
+                      size: 36,
+                      color: colorScheme.primary,
+                    ),
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                const SizedBox(height: 20.0),
+                  const SizedBox(height: 20.0),
 
-                /// Title
-                StyledText(
-                  'Verification Code',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  textAlign: TextAlign.center,
-                  color: colorScheme.onSurface,
-                ).animate(effects: DefaultEffects.transitionIn),
-
-                const SizedBox(height: 8.0),
-
-                StyledText(
-                  'We sent a 6-digit code to $_email. Enter it below to verify your identity.',
-                  fontSize: 14,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  textAlign: TextAlign.center,
-                ).animate(effects: DefaultEffects.transitionIn),
-
-                const SizedBox(height: 32.0),
-
-                /// OTP input field
-                TextFormField(
-                  controller: _otpController,
-                  focusNode: _focusNode,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 12,
+                  /// Title
+                  StyledText(
+                    'Verification Code',
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    textAlign: TextAlign.center,
                     color: colorScheme.onSurface,
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: InputDecoration(
-                    counterText: '',
-                    filled: true,
-                    fillColor:
-                        colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colorScheme.outline.withValues(alpha: 0.2),
+                  ).animate(effects: DefaultEffects.transitionIn),
+
+                  const SizedBox(height: 8.0),
+
+                  StyledText(
+                    'We sent a 6-digit code to $_email. Enter it below to verify your identity.',
+                    fontSize: 14,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    textAlign: TextAlign.center,
+                  ).animate(effects: DefaultEffects.transitionIn),
+
+                  const SizedBox(height: 32.0),
+
+                  /// OTP input field
+                  TextFormField(
+                    controller: _otpController,
+                    focusNode: _focusNode,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 12,
+                      color: colorScheme.onSurface,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    decoration: InputDecoration(
+                      counterText: '',
+                      filled: true,
+                      fillColor: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3),
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        borderSide: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        borderSide: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        borderSide: BorderSide(
+                          color: colorScheme.primary,
+                          width: 1.5,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colorScheme.outline.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colorScheme.primary,
-                        width: 1.5,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 18,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    if (value.length == 6) {
-                      _verifyOtp();
-                    }
-                  },
-                ).animate(effects: DefaultEffects.transitionIn),
+                    onChanged: (value) {
+                      if (value.length == 6) {
+                        _verifyOtp();
+                      }
+                    },
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                const SizedBox(height: 28.0),
+                  const SizedBox(height: 28.0),
 
-                /// Verify button
-                FilledButton(
-                  onPressed: _isLoading ? null : _verifyOtp,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20.0,
-                          width: 20.0,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Verify Code'),
-                ).animate(effects: DefaultEffects.transitionIn),
+                  /// Verify button
+                  PillButton(
+                    label: _isLoading ? null : 'Verify Code',
+                    child: _isLoading
+                        ? SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colorScheme.onPrimary,
+                            ),
+                          )
+                        : null,
+                    onPressed: _isLoading ? null : _verifyOtp,
+                    fullWidth: true,
+                  ).animate(effects: DefaultEffects.transitionIn),
 
-                const SizedBox(height: 24.0),
+                  const SizedBox(height: 24.0),
 
-                /// Resend link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    StyledText(
-                      "Didn't receive the code? ",
-                      fontSize: 14,
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                    GestureDetector(
-                      onTap: _isLoading
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      child: StyledText(
-                        'Resend',
+                  /// Resend link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      StyledText(
+                        "Didn't receive the code? ",
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                    ),
-                  ],
-                ).animate(effects: DefaultEffects.transitionIn),
-              ],
+                      GestureDetector(
+                        onTap: _isLoading
+                            ? null
+                            : () => Navigator.of(context).pop(),
+                        child: StyledText(
+                          'Resend',
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ).animate(effects: DefaultEffects.transitionIn),
+                ],
+              ),
             ),
           ),
         ),

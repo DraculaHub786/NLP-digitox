@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
@@ -28,7 +29,9 @@ class SettingsFab extends StatelessWidget {
           elevation: WidgetStatePropertyAll(5),
           padding: const WidgetStatePropertyAll(EdgeInsets.all(16)),
           shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+            ),
           ),
         ),
       ),

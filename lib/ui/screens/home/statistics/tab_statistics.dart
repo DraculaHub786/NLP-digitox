@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
@@ -204,14 +205,15 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     bool isCompact = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
-    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.18);
     return Container(
       padding: EdgeInsets.all(isCompact ? 10 : 16),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(isCompact ? 14 : 20),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
         border: Border.all(color: borderColor),
+        boxShadow: ElevationTokens.of(context).level(1),
       ),
       child: Column(
         children: [
@@ -219,7 +221,7 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
             padding: EdgeInsets.all(isCompact ? 8 : 10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(isCompact ? 10 : 14),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
             ),
             child: Icon(icon, color: color, size: isCompact ? 16 : 20),
           ),

@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
@@ -58,10 +59,11 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
+                  color: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                   border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.15),
+                    color: colorScheme.outline.withValues(alpha: 0.18),
                   ),
                 ),
                 child: Row(
@@ -103,9 +105,12 @@ class _TabTimelineState extends ConsumerState<TabFocusTimeline> {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                  color: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                  border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.18),
+                  ),
                 ),
                 child: Column(
                   children: [

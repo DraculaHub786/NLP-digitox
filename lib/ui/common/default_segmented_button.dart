@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 
 class DefaultSegmentedButton<T> extends StatelessWidget {
   const DefaultSegmentedButton({
@@ -33,7 +34,9 @@ class DefaultSegmentedButton<T> extends StatelessWidget {
           ),
         ),
         shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+          ),
         ),
       ),
       segments: segments

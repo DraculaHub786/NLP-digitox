@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/auth_service.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
@@ -17,8 +17,9 @@ import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/breathing_widget.dart';
+import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/transitions/default_effects.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -42,7 +43,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void _checkAuthenticationAndInit() async {
     // Check if user is logged in with Firebase
     bool isLoggedIn = false;
-    
+
     try {
       isLoggedIn = FirebaseAuthService.instance.isLoggedIn;
     } catch (e) {
@@ -50,7 +51,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       // If Firebase is not available, skip login and go to onboarding
       isLoggedIn = false;
     }
-    
+
     if (!isLoggedIn) {
       // Not logged in - redirect to login screen
       if (mounted) {
@@ -149,89 +150,83 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            /// Breathing logo — icon-chip style, consistent with the rest of the app
-            BreathingWidget(
-              dimension: min(220, MediaQuery.of(context).size.width * 0.55),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: colorScheme.primary.withValues(alpha: 0.15),
-                ),
-                padding: const EdgeInsets.all(32),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/logo.png',
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
+        body: TreatedBackgroundImage(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              /// Breathing logo — glass-chip style, consistent with the app
+              BreathingWidget(
+                dimension: min(220, MediaQuery.of(context).size.width * 0.55),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: colorScheme.primary.withValues(alpha: 0.15),
+                    border: Border.all(
+                      color: GlassTokens.of(context).borderTop,
+                      width: 1.5,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(32),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-            ),
+              ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.1, end: 0),
 
-            Column(
-              children: [
-                /// Title
-                StyledText(
-                  "NLP digitox",
-                  fontSize: 30,
+              Column(
+                children: [
+                  /// Title — serif display
+                  StyledText(
+                    "NLP digitox",
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ).animate().fadeIn(duration: 300.ms, delay: 250.ms).slideY(begin: 0.1, end: 0),
+
+                  const SizedBox(height: 10),
+
+                  /// Tag line
+                  StyledText(
+                    "Your digital detox companion",
+                    fontSize: 16,
+                    isSubtitle: true,
+                  ).animate().fadeIn(duration: 300.ms, delay: 400.ms).slideY(begin: 0.1, end: 0),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              _isAccessProtected
+                  ? PillButton(
+                      label: context.locale.unlock_button_label,
+                      icon: FluentIcons.fingerprint_20_regular,
+                      onPressed: _authenticate,
+                    ).animate().fadeIn(duration: 300.ms, delay: 550.ms).slideY(begin: 0.1, end: 0)
+                  : const SizedBox.shrink(),
+
+              /// Presence Over Pixels
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: GlassTokens.of(context).fillTop.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: GlassTokens.of(context).borderBottom,
+                  ),
+                ),
+                child: const StyledText(
+                  "Presence Over Pixels",
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
                 ),
-
-                const SizedBox(height: 10),
-
-                /// Tag line
-                StyledText(
-                  "Your digital detox companion",
-                  fontSize: 16,
-                  isSubtitle: true,
-                ),
-              ],
-            ),
-
-            const Divider(color: Colors.transparent),
-            _isAccessProtected
-                ? FilledButton(
-                    onPressed: _authenticate,
-                    style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(FluentIcons.fingerprint_20_regular),
-                        const SizedBox(width: 12),
-                        Text(context.locale.unlock_button_label),
-                      ],
-                    ),
-                  )
-                : 0.vBox,
-
-            ///Presence Over Pixels
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
-              child: const StyledText(
-                "Presence Over Pixels",
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ].animate(
-            effects: DefaultEffects.transitionIn,
-            delay: 100.ms,
-            interval: 100.ms,
+              ).animate().fadeIn(duration: 300.ms, delay: 700.ms).slideY(begin: 0.1, end: 0),
+            ],
           ),
         ),
       ),

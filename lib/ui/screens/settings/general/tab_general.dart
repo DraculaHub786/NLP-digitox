@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/app_themes.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/app_theme_mode.dart';
 import 'package:nlp_digitox/core/enums/default_home_tab.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
@@ -54,9 +55,9 @@ class TabGeneral extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
@@ -95,7 +96,7 @@ class TabGeneral extends ConsumerWidget {
                       width: 18,
                       decoration: BoxDecoration(
                         color: AppTheme.materialColors[item],
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                       ),
                     ),
                     items: AppTheme.materialColors.entries
@@ -150,9 +151,9 @@ class TabGeneral extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
@@ -252,9 +253,9 @@ class TabGeneral extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +266,7 @@ class TabGeneral extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: Icon(
                           FluentIcons.target_20_filled,
@@ -379,16 +380,16 @@ class TabGeneral extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
                   StyledText(
                     context.locale.service_stopping_warning,
                     fontSize: 13,
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                     textAlign: TextAlign.justify,
                   ),
                   12.vBox,
@@ -451,14 +452,14 @@ class _AIStepper extends StatelessWidget {
             children: [
               InkWell(
                 onTap: value > min ? onDecrement : null,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: value > min
                         ? colorScheme.primary.withValues(alpha: 0.1)
                         : colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                   ),
                   child: Icon(
                     FluentIcons.subtract_20_regular,
@@ -477,14 +478,14 @@ class _AIStepper extends StatelessWidget {
               ),
               InkWell(
                 onTap: value < max ? onIncrement : null,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: value < max
                         ? colorScheme.primary.withValues(alpha: 0.1)
                         : colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                   ),
                   child: Icon(
                     FluentIcons.add_20_regular,

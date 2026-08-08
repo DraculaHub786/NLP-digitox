@@ -13,6 +13,7 @@ import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/utils/db_utils.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/ui/dialogs/time_countdown_dialog.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -46,7 +47,7 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                     border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
                   ),
                   child: Column(

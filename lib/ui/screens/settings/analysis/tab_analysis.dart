@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_duration.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:nlp_digitox/providers/usage/analysis_usage_provider.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
@@ -125,7 +126,7 @@ class _RangeSelector extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
       ),
       child: Row(
@@ -142,7 +143,7 @@ class _RangeSelector extends StatelessWidget {
                   color: isSelected
                       ? colorScheme.primary
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 ),
                 child: Center(
                   child: StyledText(
@@ -649,7 +650,7 @@ class _AnalysisErrorCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: colorScheme.errorContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
         border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Row(

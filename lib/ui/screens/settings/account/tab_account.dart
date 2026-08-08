@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
@@ -198,8 +199,9 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-                  borderRadius: BorderRadius.circular(20),
+                  border:
+                      Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 ),
                 child: Column(
                   children: [
@@ -207,17 +209,17 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             FluentIcons.warning_20_filled,
-                            color: Colors.red,
+                            color: colorScheme.error,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
-                          const StyledText(
+                          StyledText(
                             'Danger Zone',
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.red,
+                            color: colorScheme.error,
                           ),
                         ],
                       ),
@@ -226,7 +228,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                       title: 'Sign Out',
                       subtitle: 'Log out of your account',
                       icon: FluentIcons.sign_out_20_regular,
-                      iconColor: Colors.blue,
+                      iconColor: colorScheme.primary,
                       showChevron: false,
                       onTap: () => _signOut(),
                     ),
@@ -235,7 +237,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                       title: 'Delete Account',
                       subtitle: 'Permanently delete your account and data',
                       icon: FluentIcons.delete_20_regular,
-                      iconColor: Colors.red,
+                      iconColor: colorScheme.error,
                       showChevron: false,
                       onTap: () => _showDeleteAccountDialog(),
                     ),
@@ -257,7 +259,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -289,12 +291,12 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.black.withValues(alpha: 0.5),
+                        color: colorScheme.scrim.withValues(alpha: 0.5),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                         ),
                       ),
                     ),
@@ -356,19 +358,21 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   }
 
   Widget _buildEmailVerificationBanner(ColorScheme colorScheme) {
+    final glass = GlassTokens.of(context);
+    final warn = glass.statusWarn;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
+        color: warn.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        border: Border.all(color: warn.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
           Icon(
             FluentIcons.mail_unread_20_filled,
-            color: Colors.orange.shade700,
+            color: warn,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -381,13 +385,13 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                   'Email not verified',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.orange.shade800,
+                  color: warn,
                 ),
                 const SizedBox(height: 2),
                 StyledText(
                   'Please verify your email to secure your account.',
                   fontSize: 11,
-                  color: Colors.orange.shade700.withValues(alpha: 0.8),
+                  color: warn.withValues(alpha: 0.8),
                 ),
               ],
             ),
@@ -399,10 +403,10 @@ class _TabAccountState extends ConsumerState<TabAccount> {
               onPressed: _isSendingVerification ? null : _sendVerificationEmail,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
-                backgroundColor: Colors.orange.withValues(alpha: 0.2),
-                foregroundColor: Colors.orange.shade800,
+                backgroundColor: warn.withValues(alpha: 0.2),
+                foregroundColor: warn,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 ),
               ),
               child: _isSendingVerification
@@ -429,7 +433,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -441,7 +445,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: colorScheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 ),
                 child: Icon(
                   FluentIcons.image_20_regular,
@@ -492,12 +496,12 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                     FilledButton.icon(
                       onPressed: _isUploading ? null : _uploadProfilePic,
                       icon: _isUploading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: colorScheme.onPrimary,
                               ),
                             )
                           : const Icon(FluentIcons.image_add_20_filled),
@@ -510,7 +514,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                         icon: const Icon(FluentIcons.delete_20_regular),
                         label: const Text('Remove Photo'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.red,
+                          foregroundColor: colorScheme.error,
                         ),
                       ),
                     ],
@@ -536,12 +540,12 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                         FilledButton.icon(
                           onPressed: _isUploading ? null : _uploadProfilePic,
                           icon: _isUploading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
+                                    color: colorScheme.onPrimary,
                                   ),
                                 )
                               : const Icon(FluentIcons.image_add_20_filled),
@@ -554,7 +558,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                             icon: const Icon(FluentIcons.delete_20_regular),
                             label: const Text('Remove Photo'),
                             style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
+                              foregroundColor: colorScheme.error,
                             ),
                           ),
                         ],
@@ -583,7 +587,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -596,7 +600,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                   ),
                   child: Icon(
                     icon,
@@ -655,7 +659,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 ),
                 child: Icon(
                   FluentIcons.image_add_20_regular,
@@ -674,12 +678,12 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     FluentIcons.delete_20_regular,
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
                 title: const Text('Remove Photo'),
@@ -733,7 +737,9 @@ class _TabAccountState extends ConsumerState<TabAccount> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Remove'),
           ),
@@ -916,7 +922,10 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(FluentIcons.warning_20_filled, color: Colors.red),
+            Icon(
+              FluentIcons.warning_20_filled,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(width: 8.0),
             const Text('Delete Account?'),
           ],
@@ -931,7 +940,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -977,7 +986,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () async {
               Navigator.pop(context);

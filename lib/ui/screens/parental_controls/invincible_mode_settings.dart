@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
@@ -64,7 +65,7 @@ class InvincibleModeSettings extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(
                   color: colorScheme.primary.withValues(alpha: 0.15),
                 ),
@@ -75,7 +76,7 @@ class InvincibleModeSettings extends ConsumerWidget {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                     ),
                     child: Icon(
                       FluentIcons.info_20_filled,
@@ -107,7 +108,7 @@ class InvincibleModeSettings extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -143,7 +144,7 @@ class InvincibleModeSettings extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: StyledText(
                           parentalControls.invincibleWindowTime.format(context),
@@ -194,7 +195,7 @@ class InvincibleModeSettings extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -206,7 +207,7 @@ class InvincibleModeSettings extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: Icon(
                           FluentIcons.apps_20_regular,
@@ -280,7 +281,7 @@ class InvincibleModeSettings extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -292,7 +293,7 @@ class InvincibleModeSettings extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.secondary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: Icon(
                           FluentIcons.app_recent_20_regular,
@@ -352,7 +353,7 @@ class InvincibleModeSettings extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -412,14 +413,14 @@ class InvincibleModeSettings extends ConsumerWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: enabled ? onTap : null,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
               color: isSelected
                   ? colorScheme.primary.withValues(alpha: 0.1)
                   : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(
                 color: isSelected
                     ? colorScheme.primary.withValues(alpha: 0.25)
@@ -432,7 +433,7 @@ class InvincibleModeSettings extends ConsumerWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: colorScheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                   ),
                   child: Icon(icon, size: 18, color: colorScheme.primary),
                 ),

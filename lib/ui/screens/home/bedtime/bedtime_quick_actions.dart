@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/providers/restrictions/bedtime_provider.dart';
 import 'package:nlp_digitox/ui/common/device_dnd_tile.dart';
@@ -40,7 +41,7 @@ class BedtimeQuickActions extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(

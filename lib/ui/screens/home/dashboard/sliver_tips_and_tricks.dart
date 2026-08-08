@@ -1,6 +1,7 @@
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/enums/default_home_tab.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
@@ -42,12 +43,24 @@ class _SliverTipsAndTricksState extends State<SliverTipsAndTricks> {
           itemBuilder: (context, index) {
             final tip = _randomTips[index];
 
+            final colorScheme = Theme.of(context).colorScheme;
+            final glass = GlassTokens.of(context);
+            // Rotate through the botanical accent set so each tip gets a
+            // distinct but theme-aware icon tint (no hardcoded Color values).
+            final tipColors = <Color>[
+              colorScheme.primary,
+              colorScheme.secondary,
+              colorScheme.tertiary,
+              glass.statusGood,
+              glass.statusWarn,
+            ];
+
             return DefaultListTile(
               onPressed: () => tip.value.call(context),
               position: getItemPositionInList(index, _randomTips.length),
               leading: Icon(
                 FluentIcons.sparkle_20_filled,
-                color: Colors.primaries[index % Colors.primaries.length],
+                color: tipColors[index % tipColors.length],
               ),
               title: StyledText(
                 tip.key,

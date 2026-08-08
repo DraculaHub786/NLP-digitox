@@ -55,7 +55,7 @@ class SessionCard extends ConsumerWidget {
         borderRadius: borderRadius,
         padding: const EdgeInsets.all(0),
         margin: const EdgeInsets.symmetric(vertical: 2),
-        color: stateColor.withAlpha(20),
+        color: stateColor.withValues(alpha: 0.08),
         circularRadius: 24,
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -117,7 +117,7 @@ class SessionCard extends ConsumerWidget {
             /// Reflection
             if (session.reflection.isNotEmpty)
               RoundedContainer(
-                color: stateColor.withAlpha(20),
+                color: stateColor.withValues(alpha: 0.08),
                 margin: const EdgeInsets.all(0),
                 alignment: Alignment.topLeft,
                 padding: const EdgeInsets.symmetric(

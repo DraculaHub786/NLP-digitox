@@ -69,6 +69,6 @@ extension NoiseTypeExtension on NoiseType {
 
   String get assetPath {
     // These would be actual audio files in production
-    return 'assets/audio/${name}.mp3';
+    return 'assets/audio/$name.mp3';
   }
 }

@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/providers/restrictions/bedtime_provider.dart';
@@ -102,9 +103,10 @@ class TabBedtime extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.18)),
+                boxShadow: ElevationTokens.of(context).level(1),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +117,7 @@ class TabBedtime extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                         ),
                         child: Icon(
                           FluentIcons.calendar_clock_20_regular,
@@ -153,14 +155,21 @@ class TabBedtime extends ConsumerWidget {
   }
 
   Widget _buildScheduleToggleCard(BuildContext context, WidgetRef ref, bool isScheduleOn, ColorScheme colorScheme) {
-    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
-    final borderColor = colorScheme.outline.withValues(alpha: 0.2);
+    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
+    final borderColor = colorScheme.outline.withValues(alpha: 0.18);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isScheduleOn ? colorScheme.primary.withValues(alpha: 0.15) : cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isScheduleOn ? colorScheme.primary.withValues(alpha: 0.3) : borderColor),
+        color: isScheduleOn
+            ? Color.alphaBlend(colorScheme.primary.withValues(alpha: 0.12), cardColor)
+            : cardColor,
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        border: Border.all(
+          color: isScheduleOn
+              ? colorScheme.primary.withValues(alpha: 0.3)
+              : borderColor,
+        ),
+        boxShadow: ElevationTokens.of(context).level(1),
       ),
       child: Row(
         children: [
@@ -172,7 +181,7 @@ class TabBedtime extends ConsumerWidget {
                 color: isScheduleOn
                     ? colorScheme.primary.withValues(alpha: 0.25)
                     : colorScheme.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
               ),
               child: Icon(
                 FluentIcons.sleep_20_filled,

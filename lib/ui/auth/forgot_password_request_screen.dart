@@ -4,9 +4,12 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
 class ForgotPasswordRequestScreen extends StatefulWidget {
@@ -120,7 +123,7 @@ class _ForgotPasswordRequestScreenState
 
     OutlineInputBorder border(Color color, double width) =>
         OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -150,129 +153,135 @@ class _ForgotPasswordRequestScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Forgot Password'),
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  /// Icon
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(18),
-                    child: Icon(
-                      FluentIcons.key_20_regular,
-                      size: 36,
-                      color: colorScheme.primary,
-                    ),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 20.0),
-
-                  /// Title
-                  StyledText(
-                    'Reset Your Password',
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                    color: colorScheme.onSurface,
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 8.0),
-
-                  StyledText(
-                    'Enter your email and we\'ll send you a 6-digit code to reset your password.',
-                    fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    textAlign: TextAlign.center,
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 32.0),
-
-                  /// Email field
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: _modernFieldDecoration(
-                      context,
-                      label: 'Email',
-                      hint: 'Enter your email',
-                      prefixIcon: FluentIcons.mail_20_regular,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 28.0),
-
-                  /// Send Code button
-                  FilledButton(
-                    onPressed:
-                        (_isLoading || _isCooldown) ? null : _sendOtpRequest,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : _isCooldown
-                            ? Text('Resend in $_cooldownSeconds s')
-                            : const Text('Send Code'),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 24.0),
-
-                  /// Back to login
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      StyledText(
-                        'Remember your password? ',
-                        fontSize: 14,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushReplacementNamed(
-                            AppRoutes.loginPath,
-                          );
-                        },
-                        child: StyledText(
-                          'Login',
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
+      body: TreatedBackgroundImage(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    /// Icon — glass-chip style
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.15),
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        border: Border.all(
+                          color: GlassTokens.of(context).borderTop,
                         ),
                       ),
-                    ],
-                  ).animate(effects: DefaultEffects.transitionIn),
-                ],
+                      padding: const EdgeInsets.all(18),
+                      child: Icon(
+                        FluentIcons.key_20_regular,
+                        size: 36,
+                        color: colorScheme.primary,
+                      ),
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 20.0),
+
+                    /// Title
+                    StyledText(
+                      'Reset Your Password',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                      color: colorScheme.onSurface,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 8.0),
+
+                    StyledText(
+                      'Enter your email and we\'ll send you a 6-digit code to reset your password.',
+                      fontSize: 14,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      textAlign: TextAlign.center,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 32.0),
+
+                    /// Email field
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: _modernFieldDecoration(
+                        context,
+                        label: 'Email',
+                        hint: 'Enter your email',
+                        prefixIcon: FluentIcons.mail_20_regular,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 28.0),
+
+                    /// Send Code button
+                    PillButton(
+                      label: _isLoading
+                          ? null
+                          : _isCooldown
+                              ? 'Resend in $_cooldownSeconds s'
+                              : 'Send Code',
+                      child: _isLoading
+                          ? SizedBox(
+                              height: 20.0,
+                              width: 20.0,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.onPrimary,
+                              ),
+                            )
+                          : null,
+                      onPressed:
+                          (_isLoading || _isCooldown) ? null : _sendOtpRequest,
+                      fullWidth: true,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 24.0),
+
+                    /// Back to login
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        StyledText(
+                          'Remember your password? ',
+                          fontSize: 14,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pushReplacementNamed(
+                              AppRoutes.loginPath,
+                            );
+                          },
+                          child: StyledText(
+                            'Login',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ).animate(effects: DefaultEffects.transitionIn),
+                  ],
+                ),
               ),
             ),
           ),

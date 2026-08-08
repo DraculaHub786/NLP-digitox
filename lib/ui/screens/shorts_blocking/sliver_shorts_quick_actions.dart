@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/platform_features.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
@@ -153,7 +154,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -211,7 +212,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -269,7 +270,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(

@@ -1,0 +1,11 @@
+=== ALL FILES (by directory) ===
+
+=== SUMMARY ===
+Fully compliant (no tokens imported, but also no violations counted as legacy-flat): 255
+Files importing design_tokens: 52
+Files with withOpacity: 0
+Files with material Icons.*: 7
+Files with hardcoded Colors.*: 21
+Files with hex Color(0x: 7
+Files with non-token radii: 25
+Total dart files scanned: 329

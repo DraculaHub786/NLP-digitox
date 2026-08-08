@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/extensions/ext_duration.dart';
 import 'package:nlp_digitox/core/extensions/ext_int.dart';
@@ -10,6 +11,7 @@ import 'package:nlp_digitox/providers/notifications/today_notifications_count_pr
 import 'package:nlp_digitox/providers/usage/device_unlock_count_provider.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
 import 'package:nlp_digitox/providers/focus/monthly_focus_provider.dart';
+import 'package:nlp_digitox/ui/common/glass_card.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class ModernStatsCards extends ConsumerWidget {
@@ -81,16 +83,11 @@ class _ModernStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
 
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
-      ),
+      tint: accentColor,
+      elevationLevel: 2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -101,7 +98,7 @@ class _ModernStatCard extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                 ),
                 child: Icon(
                   icon,
@@ -145,15 +142,17 @@ class _TrendBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final glass = GlassTokens.of(context);
     final isPositive = invertTrend ? trend < 0 : trend > 0;
-    final color = isPositive ? Colors.green[200] : Colors.red[200];
-    final icon = isPositive ? FluentIcons.arrow_up_12_filled : FluentIcons.arrow_down_12_filled;
+    final color = isPositive ? glass.statusGood : glass.statusBad;
+    final icon =
+        isPositive ? FluentIcons.arrow_up_12_filled : FluentIcons.arrow_down_12_filled;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
+        color: glass.fillTop.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -184,7 +183,8 @@ class ModernGlanceGrid extends ConsumerWidget {
       weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday]),
     );
     final unlockCount = ref.watch(deviceUnlockCountProvider).valueOrNull ?? 0;
-    final notificationsCount = ref.watch(todayNotificationsCountProvider).valueOrNull ?? 0;
+    final notificationsCount =
+        ref.watch(todayNotificationsCountProvider).valueOrNull ?? 0;
 
     final mobileData = todayUsage?.mobileData ?? 0;
     final wifiData = todayUsage?.wifiData ?? 0;
@@ -255,23 +255,18 @@ class _ModernMiniCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final iconTint = iconColor ?? color;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
 
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
-      ),
+      borderRadius: GlassTokens.radiusCard,
+      tint: color,
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
             ),
             child: Icon(icon, color: iconTint, size: 18),
           ),
@@ -323,36 +318,23 @@ class ModernQuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor),
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      borderRadius: GlassTokens.radiusPill,
+      tint: color,
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 8),
+          StyledText(
+            title,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: color,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 18),
-              const SizedBox(width: 8),
-              StyledText(
-                title,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }

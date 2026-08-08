@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/providers/funny_motivation_provider.dart';
 
 /// A sliver that displays a dismissible funny-motivation card.
@@ -93,22 +94,26 @@ class _FunnyMotivationCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = colorScheme.brightness == Brightness.dark;
 
+    final outlineColor = isDark
+        ? colorScheme.onSurface.withValues(alpha: 0.72)
+        : colorScheme.onSurface;
+
     return Container(
       decoration: BoxDecoration(
         // Flat solid background, no gradient
-        color: isDark
-            ? const Color(0xFF2D2A1A)
-            : const Color(0xFFFFF3CD),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? DesignPalette.funnyDarkFill : DesignPalette.funnyLightFill,
+        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
         // Thick black stroke — cartoon brutalist signature
         border: Border.all(
-          color: isDark ? Colors.white70 : Colors.black,
+          color: outlineColor,
           width: 2.5,
         ),
         // Chunky drop shadow
         boxShadow: [
           BoxShadow(
-            color: (isDark ? Colors.black : const Color(0x33000000)),
+            color: isDark
+                ? colorScheme.onSurface.withValues(alpha: 0.35)
+                : colorScheme.onSurface.withValues(alpha: 0.20),
             offset: const Offset(4, 4),
             blurRadius: 0,
           ),
@@ -126,7 +131,7 @@ class _FunnyMotivationCard extends StatelessWidget {
                 '🤪',
                 style: TextStyle(
                   fontSize: 28,
-                  color: isDark ? Colors.white70 : Colors.black,
+                  color: outlineColor,
                 ),
               ),
             ),
@@ -141,7 +146,9 @@ class _FunnyMotivationCard extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         height: 1.3,
-                        color: isDark ? Colors.white70 : Colors.black87,
+                        color: isDark
+                            ? colorScheme.onSurface.withValues(alpha: 0.72)
+                            : colorScheme.onSurface.withValues(alpha: 0.87),
                       ),
                     ),
             ),
@@ -186,16 +193,21 @@ class _ActionCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = colorScheme.onSurface;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 30,
         height: 30,
         decoration: BoxDecoration(
-          color: isDark ? Colors.white12 : Colors.white,
+          color: isDark
+              ? colorScheme.onSurface.withValues(alpha: 0.12)
+              : colorScheme.surface,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isDark ? Colors.white54 : Colors.black,
+            color: baseColor.withValues(alpha: isDark ? 0.54 : 1.0),
             width: 1.8,
           ),
         ),
@@ -204,7 +216,9 @@ class _ActionCircle extends StatelessWidget {
             emoji,
             style: TextStyle(
               fontSize: 14,
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: isDark
+                  ? colorScheme.onSurface.withValues(alpha: 0.70)
+                  : colorScheme.onSurface.withValues(alpha: 0.87),
             ),
           ),
         ),
@@ -242,16 +256,17 @@ class _ShimmerBlockState extends State<_ShimmerBlock>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor =
+        colorScheme.brightness == Brightness.dark ? colorScheme.surface : colorScheme.onSurface;
     return AnimatedBuilder(
       animation: _animation,
       builder: (_, __) => Container(
         height: 18,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: (isDark ? Colors.white : Colors.black)
-              .withValues(alpha: _animation.value),
-          borderRadius: BorderRadius.circular(6),
+          color: baseColor.withValues(alpha: _animation.value),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
         ),
       ),
     );

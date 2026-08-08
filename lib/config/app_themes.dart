@@ -1,11 +1,12 @@
-
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/ui/transitions/default_page_transition_builder.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class AppTheme {
-  // Modern gradient color scheme inspired by the reference UI
-  static const _kSeedColor = Color(0xFF4DD6D9); // Turquoise/Cyan
+  // Botanical fern seed — the app accents stay green by default and the
+  // user's accent-color picker can still override `primary` via seedColor.
+  static const _kSeedColor = Color(0xFF6E8460);
 
   static final _kShimmerEffect = ShimmerEffect(
     highlightColor: Colors.white.withValues(alpha: 0.6),
@@ -42,14 +43,14 @@ class AppTheme {
 
   /// Helper to create MaterialColor from Color
   static MaterialColor _createMaterialColor(Color color) {
-    List strengths = <double>[.05];
-    Map<int, Color> swatch = {};
-    final int r = color.red, g = color.green, b = color.blue;
+    final strengths = <double>[.05];
+    final swatch = <int, Color>{};
+    final int r = color.r.round(), g = color.g.round(), b = color.b.round();
 
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
-    for (var strength in strengths) {
+    for (final strength in strengths) {
       final double ds = 0.5 - strength;
       swatch[(strength * 1000).round()] = Color.fromRGBO(
         r + ((ds < 0 ? r : (255 - r)) * ds).round(),
@@ -58,7 +59,7 @@ class AppTheme {
         1,
       );
     }
-    return MaterialColor(color.value, swatch);
+    return MaterialColor(color.toARGB32(), swatch);
   }
 
   static ThemeData darkTheme({Color? seedColor, required bool isAmoled}) {
@@ -67,7 +68,7 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor ?? _kSeedColor,
         brightness: Brightness.dark,
-        surface: isAmoled ? Colors.black : const Color(0xFF0F172A), // Modern dark blue
+        surface: isAmoled ? DesignPalette.darkBg0 : DesignPalette.darkBg1,
       ),
     );
 
@@ -75,52 +76,58 @@ class AppTheme {
       pageTransitionsTheme: _kPageTransitionTheme,
       textTheme: base.textTheme.apply(fontFamily: 'Alice'),
       primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
-      scaffoldBackgroundColor: isAmoled ? Colors.black : const Color(0xFF0F172A),
-      extensions: [SkeletonizerConfigData.dark(effect: _kShimmerEffect)],
-        // Modern card theme with elevation and rounded corners
-        cardTheme: CardThemeData(
+      scaffoldBackgroundColor:
+          isAmoled ? DesignPalette.darkBg0 : DesignPalette.darkBg1,
+      extensions: [
+        GlassTokens.dark,
+        ElevationTokens.dark,
+        SkeletonizerConfigData.dark(effect: _kShimmerEffect),
+      ],
+      // Botanical card theme with soft edges
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        ),
+        color: DesignPalette.darkGlassFill,
+      ),
+      // Modern elevated button theme
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
           elevation: 0,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-          color: isAmoled ? const Color(0xFF1A1A1A) : const Color(0xFF1E293B),
-        ),
-        // Modern elevated button theme
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-        // Modern input decoration
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: isAmoled ? const Color(0xFF1A1A1A) : const Color(0xFF1E293B),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: seedColor ?? _kSeedColor,
-              width: 2,
-            ),
+      ),
+      // Modern input decoration
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor:
+            isAmoled ? DesignPalette.darkGlassFill : DesignPalette.darkBg2,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: seedColor ?? _kSeedColor,
+            width: 2,
           ),
         ),
-        // Modern app bar theme
+      ),
+      // Modern app bar theme
       appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: DesignPalette.darkInk,
       ),
     );
   }
@@ -131,7 +138,7 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor ?? _kSeedColor,
         brightness: Brightness.light,
-        surface: const Color(0xFFF8FAFC), // Light blue-grey background
+        surface: DesignPalette.lightBg0,
       ),
     );
 
@@ -139,52 +146,56 @@ class AppTheme {
       pageTransitionsTheme: _kPageTransitionTheme,
       textTheme: base.textTheme.apply(fontFamily: 'Alice'),
       primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
-      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-      extensions: [SkeletonizerConfigData(effect: _kShimmerEffect)],
-        // Modern card theme
-        cardTheme: const CardThemeData(
+      scaffoldBackgroundColor: DesignPalette.lightBg0,
+      extensions: [
+        GlassTokens.light,
+        ElevationTokens.light,
+        SkeletonizerConfigData(effect: _kShimmerEffect),
+      ],
+      // Botanical card theme
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        ),
+        color: DesignPalette.lightGlassFill,
+      ),
+      // Modern elevated button theme
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
           elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-          color: Colors.white,
-        ),
-        // Modern elevated button theme
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-        // Modern input decoration
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFFF1F5F9),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: seedColor ?? _kSeedColor,
-              width: 2,
-            ),
+      ),
+      // Modern input decoration
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: DesignPalette.lightBg2,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: seedColor ?? _kSeedColor,
+            width: 2,
           ),
         ),
-        // Modern app bar theme
-      appBarTheme: const AppBarTheme(
+      ),
+      // Modern app bar theme
+      appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: Color(0xFF0F172A),
+        foregroundColor: DesignPalette.lightInk,
       ),
     );
   }

@@ -1,10 +1,10 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/ui/common/glass_nav_bar.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -225,40 +225,22 @@ class _ScaffoldShellState extends State<ScaffoldShell>
   Widget _bottomNavBar() {
     return ValueListenableBuilder<bool>(
       valueListenable: _isBottomNavVisible,
-      builder: (context, isVisible, child) => AnimatedContainer(
-        height: isVisible ? (80 + MediaQuery.of(context).padding.bottom) : 0,
-        duration: 300.ms,
-        curve: isVisible ? Curves.easeOut : Curves.easeOut.flipped,
-        alignment: Alignment.bottomCenter,
-        child: SingleChildScrollView(child: child),
-      ),
-      child: NavigationBar(
+      builder: (context, isVisible, child) => GlassNavBar(
         selectedIndex: _selectedTabIndex,
-        animationDuration: AppConstants.defaultAnimDuration,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        isVisible: isVisible,
         onDestinationSelected: (index) => _tabController.animateTo(
           index,
           duration: AppConstants.defaultAnimDuration,
           curve: AppConstants.defaultCurve,
         ),
-        destinations: widget.items.map((e) {
-          final title = e.titleText!;
-
-          return NavigationDestination(
-            label: title,
-            icon: Icon(e.icon),
-            selectedIcon: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Icon(e.filledIcon).animate().scale(
-                    begin: const Offset(0.5, 0.5),
-                    end: const Offset(1.05, 1.05),
-                    curve: Curves.elasticOut,
-                    duration: 1.seconds,
-                  ),
+        items: [
+          for (final item in widget.items)
+            PillNavItem(
+              icon: item.icon,
+              filledIcon: item.filledIcon,
+              label: item.titleText ?? "",
             ),
-          );
-        }).toList(),
+        ],
       ),
     );
   }

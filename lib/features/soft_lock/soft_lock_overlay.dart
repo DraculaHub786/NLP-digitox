@@ -116,7 +116,7 @@ class _SoftLockOverlayState extends State<SoftLockOverlay>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Material(
-        color: Colors.black.withOpacity(0.95),
+        color: Colors.black.withValues(alpha: 0.95),
         child: SafeArea(
           child: GestureDetector(
             onTap: _handleEmergencyTap,
@@ -159,7 +159,7 @@ class _SoftLockOverlayState extends State<SoftLockOverlay>
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.2),
+                        color: Colors.blue.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -197,7 +197,7 @@ class _SoftLockOverlayState extends State<SoftLockOverlay>
                   TextButton(
                     onPressed: () => _dismiss(),
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.1),
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
                         vertical: 12,

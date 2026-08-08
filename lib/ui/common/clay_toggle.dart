@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 
 /// Clay-styled recessed toggle switch with a raised clay thumb,
@@ -27,7 +28,7 @@ class ClayToggle extends StatelessWidget {
         height: 30,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
           color: value
               ? activeColor.withValues(alpha: isDark ? 0.35 : 0.25)
               : isDark

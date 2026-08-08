@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
@@ -35,10 +36,11 @@ class TabFocus extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(16),
+                color: colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                 border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.15),
+                  color: colorScheme.outline.withValues(alpha: 0.18),
                 ),
               ),
               child: Row(

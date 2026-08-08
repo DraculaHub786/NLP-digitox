@@ -1,4 +1,7 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
+import 'package:nlp_digitox/ui/common/glass_card.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 
 class ModernSectionHeader extends StatelessWidget {
@@ -77,78 +80,64 @@ class ModernListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final tileColor = iconColor ?? colorScheme.primary;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
+    return GlassCard(
+      padding: const EdgeInsets.all(16),
+      borderRadius: GlassTokens.radiusCard,
+      tint: tileColor,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: borderColor),
+              color: tileColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
             ),
-            child: Row(
+            child: Icon(
+              icon,
+              color: tileColor,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: tileColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: tileColor,
-                    size: 20,
-                  ),
+                StyledText(
+                  title,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(width: 16),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      StyledText(
-                        title,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        StyledText(
-                          subtitle!,
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.75),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  StyledText(
+                    subtitle!,
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.75),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                trailing ??
-                    (showChevron
-                        ? FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Icon(
-                              Icons.chevron_right_rounded,
-                              color: colorScheme.onSurface.withValues(alpha: 0.45),
-                              size: 22,
-                            ),
-                          )
-                        : const SizedBox.shrink()),
+                ],
               ],
             ),
           ),
-        ),
+          trailing ??
+              (showChevron
+                  ? FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Icon(
+                        FluentIcons.chevron_right_20_regular,
+                        color: colorScheme.onSurface.withValues(alpha: 0.45),
+                        size: 22,
+                      ),
+                    )
+                  : const SizedBox.shrink()),
+        ],
       ),
     );
   }
@@ -176,71 +165,63 @@ class ModernSettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final tileColor = iconColor ?? colorScheme.primary;
-    final cardColor = colorScheme.surfaceContainerHighest.withOpacity(0.3);
-    final borderColor = colorScheme.outline.withOpacity(0.2);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: tileColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                icon,
-                color: tileColor,
-                size: 20,
-              ),
+    return GlassCard(
+      padding: const EdgeInsets.all(16),
+      borderRadius: GlassTokens.radiusCard,
+      tint: tileColor,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: tileColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: Icon(
+              icon,
+              color: tileColor,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StyledText(
+                  title,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
                   StyledText(
-                    title,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                    maxLines: 1,
+                    subtitle!,
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.75),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    StyledText(
-                      subtitle!,
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.75),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
                 ],
+              ],
+            ),
+          ),
+          Flexible(
+            flex: 0,
+            child: Transform.scale(
+              scale: 0.85,
+              child: Switch.adaptive(
+                value: value,
+                onChanged: onChanged,
+                activeColor: colorScheme.primary,
               ),
             ),
-            Flexible(
-              flex: 0,
-              child: Transform.scale(
-                scale: 0.85,
-                child: Switch.adaptive(
-                  value: value,
-                  onChanged: onChanged,
-                  activeColor: colorScheme.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

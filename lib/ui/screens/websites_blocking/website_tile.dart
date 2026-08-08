@@ -1,6 +1,8 @@
 
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
@@ -40,7 +42,7 @@ class WebsiteTile extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: cardColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
             border: Border.all(color: borderColor),
           ),
           child: Row(
@@ -55,8 +57,8 @@ class WebsiteTile extends ConsumerWidget {
                 ),
                 child: Icon(
                   isRemovable
-                      ? Icons.language_rounded
-                      : Icons.block_rounded,
+                      ? FluentIcons.globe_20_regular
+                      : FluentIcons.prohibited_20_filled,
                   size: 18,
                   color: isRemovable
                       ? colorScheme.secondary
@@ -82,7 +84,7 @@ class WebsiteTile extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    Icons.close_rounded,
+                    FluentIcons.dismiss_20_regular,
                     size: 16,
                     color: colorScheme.error,
                   ),

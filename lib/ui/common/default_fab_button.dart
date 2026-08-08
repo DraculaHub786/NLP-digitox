@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
 
 class DefaultFabButton extends StatelessWidget {
@@ -29,7 +30,9 @@ class DefaultFabButton extends StatelessWidget {
           elevation: WidgetStatePropertyAll(5),
           padding: const WidgetStatePropertyAll(EdgeInsets.all(16)),
           shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+            ),
           ),
         ),
       ),

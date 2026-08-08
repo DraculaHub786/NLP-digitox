@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
@@ -154,7 +155,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
                                 ),
                                 child: StyledText(
                                   '${currentUser.lifetimePoints} pts',
@@ -196,7 +197,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: colorScheme.primary.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
                                     border: Border.all(
                                       color: colorScheme.primary.withValues(alpha: 0.25),
                                     ),
@@ -254,7 +255,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                               label: 'Current Streak',
                               value: '${currentUser?.streak ?? 0}',
                               icon: FluentIcons.fire_20_filled,
-                              color: leaderboardStreak >= 7 ? Colors.orange : colorScheme.tertiary,
+                              color: leaderboardStreak >= 7 ? DesignPalette.goldWarm : colorScheme.tertiary,
                             ),
                           ),
                         ],
@@ -311,7 +312,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                         title: 'Max Streaks',
                         subtitle: 'Across productivity and leaderboard',
                         icon: const Icon(FluentIcons.trophy_20_filled),
-                        accentColor: Colors.orange,
+                        accentColor: DesignPalette.goldWarm,
                         children: [
                           if (_loadingStreaks)
                             const Center(child: CircularProgressIndicator())

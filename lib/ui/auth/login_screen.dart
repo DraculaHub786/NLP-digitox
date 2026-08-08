@@ -2,11 +2,14 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
+import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'package:nlp_digitox/ui/transitions/default_effects.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -125,7 +128,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
     OutlineInputBorder border(Color color, double width) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -150,207 +153,207 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  /// App icon — matches the icon-chip style used across the dashboard
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Icon(
-                      FluentIcons.brain_circuit_20_filled,
-                      size: 36.0,
+      body: TreatedBackgroundImage(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    /// App icon — glass-chip style, matches the dashboard
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.15),
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        border: Border.all(
+                          color: GlassTokens.of(context).borderTop,
+                        ),
+                      ),
+                      child: Icon(
+                        FluentIcons.brain_circuit_20_filled,
+                        size: 36.0,
+                        color: colorScheme.primary,
+                      ),
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 20.0),
+
+                    /// Title
+                    StyledText(
+                      'Welcome Back',
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                      color: colorScheme.onSurface,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 6.0),
+
+                    StyledText(
+                      'Sign in to continue your digital detox journey',
+                      fontSize: 14,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      textAlign: TextAlign.center,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 40.0),
+
+                    /// Email field
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: _modernFieldDecoration(
+                        context,
+                        label: 'Email',
+                        hint: 'Enter your email',
+                        prefixIcon: FluentIcons.mail_20_regular,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 16.0),
+
+                    /// Password field
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: _modernFieldDecoration(
+                        context,
+                        label: 'Password',
+                        hint: 'Enter your password',
+                        prefixIcon: FluentIcons.lock_closed_20_regular,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? FluentIcons.eye_20_regular
+                                : FluentIcons.eye_off_20_regular,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                          onPressed: () {
+                            setState(() => _obscurePassword = !_obscurePassword);
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 28.0),
+
+                    /// Login button
+                    PillButton(
+                      label: _isLoading ? null : 'Login',
+                      child: _isLoading
+                          ? SizedBox(
+                              height: 20.0,
+                              width: 20.0,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.onPrimary,
+                              ),
+                            )
+                          : null,
+                      onPressed: _isLoading ? null : _login,
+                      fullWidth: true,
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 20.0),
+
+                    /// Divider
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: StyledText(
+                            'OR',
+                            fontSize: 12,
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
+                    ).animate(effects: DefaultEffects.transitionIn),
+
+                    const SizedBox(height: 20.0),
+
+                    /// Google sign-in button
+                    PillButton(
+                      outlined: true,
+                      fullWidth: true,
                       color: colorScheme.primary,
-                    ),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 20.0),
-
-                  /// Title
-                  StyledText(
-                    'Welcome Back',
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                    color: colorScheme.onSurface,
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 6.0),
-
-                  StyledText(
-                    'Sign in to continue your digital detox journey',
-                    fontSize: 14,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    textAlign: TextAlign.center,
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 40.0),
-
-                  /// Email field
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: _modernFieldDecoration(
-                      context,
-                      label: 'Email',
-                      hint: 'Enter your email',
-                      prefixIcon: FluentIcons.mail_20_regular,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 16.0),
-
-                  /// Password field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: _modernFieldDecoration(
-                      context,
-                      label: 'Password',
-                      hint: 'Enter your password',
-                      prefixIcon: FluentIcons.lock_closed_20_regular,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? FluentIcons.eye_20_regular
-                              : FluentIcons.eye_off_20_regular,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                        onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
+                      onPressed: _isLoading ? null : _loginWithGoogle,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            FluentIcons.person_20_regular,
+                            size: 20.0,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Continue with Google',
+                            style: TextStyle(color: colorScheme.primary),
+                          ),
+                        ],
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ).animate(effects: DefaultEffects.transitionIn),
+                    ).animate(effects: DefaultEffects.transitionIn),
 
-                  const SizedBox(height: 28.0),
+                    const SizedBox(height: 28.0),
 
-                  /// Login button
-                  FilledButton(
-                    onPressed: _isLoading ? null : _login,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Login'),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 20.0),
-
-                  /// Divider
-                  Row(
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: StyledText(
-                          'OR',
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 20.0),
-
-                  /// Google sign-in button
-                  OutlinedButton(
-                    onPressed: _isLoading ? null : _loginWithGoogle,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Row(
+                    /// Sign up link
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          FluentIcons.person_20_regular,
-                          size: 20.0,
-                          color: colorScheme.primary,
+                        StyledText(
+                          "Don't have an account? ",
+                          fontSize: 14,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(color: colorScheme.primary),
+                        GestureDetector(
+                          onTap: _isLoading
+                              ? null
+                              : () {
+                                  Navigator.of(context).pushReplacementNamed(
+                                    AppRoutes.signupPath,
+                                  );
+                                },
+                          child: StyledText(
+                            'Sign Up',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
                         ),
                       ],
-                    ),
-                  ).animate(effects: DefaultEffects.transitionIn),
-
-                  const SizedBox(height: 28.0),
-
-                  /// Sign up link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      StyledText(
-                        "Don't have an account? ",
-                        fontSize: 14,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                      GestureDetector(
-                        onTap: _isLoading
-                            ? null
-                            : () {
-                                Navigator.of(context).pushReplacementNamed(
-                                  AppRoutes.signupPath,
-                                );
-                              },
-                        child: StyledText(
-                          'Sign Up',
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ).animate(effects: DefaultEffects.transitionIn),
-                ],
+                    ).animate(effects: DefaultEffects.transitionIn),
+                  ],
+                ),
               ),
             ),
           ),
