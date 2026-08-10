@@ -839,6 +839,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get reddit_features_tile_subtitle => 'Redditのショート動画を制限します。';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Xの動画フィードを制限します。';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle => 'Threadsの動画/リールを制限します。';
+
+  @override
   String get websites_blocking_tab_title => 'ウェブサイトブロック';
 
   @override

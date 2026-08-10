@@ -360,6 +360,8 @@ class _ForgotPasswordNewScreenState extends State<ForgotPasswordNewScreen> {
                     /// Reset Password button
                     PillButton(
                       label: _isLoading ? null : 'Reset Password',
+                      onPressed: _isLoading ? null : _resetPassword,
+                      fullWidth: true,
                       child: _isLoading
                           ? SizedBox(
                               height: 20.0,
@@ -370,8 +372,6 @@ class _ForgotPasswordNewScreenState extends State<ForgotPasswordNewScreen> {
                               ),
                             )
                           : null,
-                      onPressed: _isLoading ? null : _resetPassword,
-                      fullWidth: true,
                     ).animate(effects: DefaultEffects.transitionIn),
 
                     const SizedBox(height: 24.0),

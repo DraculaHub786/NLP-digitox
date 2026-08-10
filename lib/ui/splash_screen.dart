@@ -54,10 +54,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (!isLoggedIn) {
       // Not logged in - redirect to login screen
-      if (mounted) {
-        await Future.delayed(250.ms);
-        Navigator.of(context).pushReplacementNamed(AppRoutes.loginPath);
-      }
+      // Capture the navigator before the async gap so no BuildContext is
+      // used after it (satisfies use_build_context_synchronously).
+      final navigator = Navigator.of(context);
+      await Future.delayed(250.ms);
+      if (!mounted) return;
+      navigator.pushReplacementNamed(AppRoutes.loginPath);
       return;
     }
 
@@ -167,9 +169,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                     ),
                   ),
                   padding: const EdgeInsets.all(32),
-                  child: ClipOval(
+                  // Splash/animation uses the square "prev" icon artwork
+                  // (not the app icon / logo) so the full mark reads clearly
+                  // before it is ever cropped into a circle.
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
                     child: Image.asset(
-                      'assets/logo.png',
+                      'assets/icon-prev.png',
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
@@ -180,11 +186,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
               Column(
                 children: [
-                  /// Title — serif display
+                  /// Title — serif display (Alice)
                   StyledText(
                     "NLP digitox",
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
+                    isHeadline: true,
                     color: colorScheme.onSurface,
                   ).animate().fadeIn(duration: 300.ms, delay: 250.ms).slideY(begin: 0.1, end: 0),
 

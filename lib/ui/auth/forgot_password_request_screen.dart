@@ -239,6 +239,9 @@ class _ForgotPasswordRequestScreenState
                           : _isCooldown
                               ? 'Resend in $_cooldownSeconds s'
                               : 'Send Code',
+                      onPressed:
+                          (_isLoading || _isCooldown) ? null : _sendOtpRequest,
+                      fullWidth: true,
                       child: _isLoading
                           ? SizedBox(
                               height: 20.0,
@@ -249,9 +252,6 @@ class _ForgotPasswordRequestScreenState
                               ),
                             )
                           : null,
-                      onPressed:
-                          (_isLoading || _isCooldown) ? null : _sendOtpRequest,
-                      fullWidth: true,
                     ).animate(effects: DefaultEffects.transitionIn),
 
                     const SizedBox(height: 24.0),

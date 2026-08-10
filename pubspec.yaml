@@ -95,6 +95,12 @@ flutter:
   assets:
     # App Logo
     - assets/logo.png
+    - assets/logo-prev.png
+    - assets/icon-prev.png
+    
+    # Backgrounds
+    - assets/backgrounds/bg_light.jpg
+    - assets/backgrounds/bg_dark.jpg
     
     # Onboarding
     - assets/illustrations/onboarding_1.png
@@ -114,6 +120,8 @@ flutter:
     - assets/vectors/youtube.svg
     - assets/vectors/facebook.svg
     - assets/vectors/reddit.svg
+    - assets/vectors/x.svg
+    - assets/vectors/threads.svg
 
   fonts:
     - family: Alice

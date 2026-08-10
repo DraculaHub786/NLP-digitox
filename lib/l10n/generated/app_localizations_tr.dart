@@ -880,6 +880,19 @@ class AppLocalizationsTr extends AppLocalizations {
       'Reddit\'teki kısa videoları kısıtla.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'X\'teki video akışını kısıtla.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Threads\'teki video/reels içeriğini kısıtla.';
+
+  @override
   String get websites_blocking_tab_title => 'Website engelleyici';
 
   @override

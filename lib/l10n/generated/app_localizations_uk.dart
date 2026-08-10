@@ -882,6 +882,19 @@ class AppLocalizationsUk extends AppLocalizations {
       'Обмежити короткий контент на Reddit.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Обмежити відеострічку в X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Обмежити відео/reels у Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'Блокування сайтів';
 
   @override

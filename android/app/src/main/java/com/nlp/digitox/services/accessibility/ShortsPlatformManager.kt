@@ -7,6 +7,8 @@ import com.nlp.digitox.AppConstants.FACEBOOK_PACKAGE
 import com.nlp.digitox.AppConstants.INSTAGRAM_PACKAGE
 import com.nlp.digitox.AppConstants.REDDIT_PACKAGE
 import com.nlp.digitox.AppConstants.SNAPCHAT_PACKAGE
+import com.nlp.digitox.AppConstants.THREADS_PACKAGE
+import com.nlp.digitox.AppConstants.X_PACKAGE
 import com.nlp.digitox.AppConstants.YOUTUBE_CLIENT_PACKAGE_SUFFIX
 import com.nlp.digitox.AppConstants.YOUTUBE_PACKAGE
 import com.nlp.digitox.enums.PlatformFeatures
@@ -55,6 +57,8 @@ class ShortsPlatformManager(
             FACEBOOK_PACKAGE -> isFacebookFeatureOpen(node, blockedFeatures)
             REDDIT_PACKAGE -> isRedditFeatureOpen(node, blockedFeatures)
             YOUTUBE_PACKAGE -> isYoutubeFeatureOpen(node, blockedFeatures)
+            X_PACKAGE -> isXFeatureOpen(node, blockedFeatures)
+            THREADS_PACKAGE -> isThreadsFeatureOpen(node, blockedFeatures)
             else -> false
         }
 
@@ -145,6 +149,19 @@ class ShortsPlatformManager(
         // The minimum interval between saving short content's screen time in shared preferences
         private const val SAVING_INTERVAL_MS = (30 * 1000L)
 
+        // How often the debug view-ID capture walker may run (see
+        // logCandidateVideoViewIds) — keeps Logcat readable while the
+        // X/Threads video surface is open with the toggle enabled.
+        private const val VIEW_ID_DUMP_INTERVAL_MS = (5 * 1000L)
+
+        // Last time the candidate view-ID walker ran, for throttling.
+        private var lastViewIdDumpTime = 0L
+
+        // View-ID substrings that suggest a video-player container. The
+        // real X/Threads surface ID is one of these — see
+        // logCandidateVideoViewIds.
+        private val VIDEO_KEYWORDS = listOf("video", "player", "reel", "clip", "media", "immersive")
+
         /**
          * Max allowed duration for each short content platform (based on the highest short length or duration)
          * If the interval between two short content block event is <= DURATION then it is considered that user is watching short content
@@ -155,6 +172,8 @@ class ShortsPlatformManager(
             FACEBOOK_PACKAGE to (90 * 1000L),
             REDDIT_PACKAGE to (60 * 1000L),
             YOUTUBE_PACKAGE to (3 * 60 * 1000L),
+            X_PACKAGE to (90 * 1000L),
+            THREADS_PACKAGE to (60 * 1000L),
         )
 
         // Possible URLs of different short-form content platforms
@@ -261,6 +280,110 @@ class ShortsPlatformManager(
             blockedFeatures: Set<PlatformFeatures>,
         ): Boolean {
             return PlatformFeatures.REDDIT_SHORTS in blockedFeatures && node.viewIdResourceName == "feed_vertical_pager"
+        }
+
+        /**
+         * Checks if X's video/"For you" video surface is open.
+         *
+         * The candidate ID was NOT confirmed against a live device — X
+         * shipped a full app rewrite (new Kotlin/Compose codebase) in July
+         * 2026, and its short-video surface is the full-screen vertical
+         * player. While detection returns false, this method logs any
+         * video-looking view IDs it finds (throttled) so the real ID can be
+         * pasted in below without needing uiautomator. Capture procedure:
+         *
+         *   1. Enable the X toggle in Shorts Blocking.
+         *   2. Open a video in X.
+         *   3. `adb logcat -s Mindful.ShortsPlatformManager` and look for
+         *      "X video view candidates".
+         *   4. Replace the placeholder below with the reported ID.
+         */
+        private fun isXFeatureOpen(
+            node: AccessibilityNodeInfo,
+            blockedFeatures: Set<PlatformFeatures>,
+        ): Boolean {
+            if (PlatformFeatures.X_VIDEOS !in blockedFeatures) return false
+
+            val confirmedMatch = doesNodeByIdExists(node, "com.twitter.android:id/immersive_video_player")
+            if (confirmedMatch) return true
+
+            logCandidateVideoViewIds(node, "X")
+            return false
+        }
+
+        /**
+         * Checks if Threads' video/Reels-like surface is open.
+         *
+         * NOTE: Threads is built on Instagram's codebase, so it may reuse
+         * Instagram's `clips_video_container` — or not. As with X, while
+         * detection returns false the candidate-walker logs video-looking
+         * view IDs (tag `Mindful.ShortsPlatformManager`, "Threads video
+         * view candidates") that can be pasted in below after a quick
+         * on-device check.
+         */
+        private fun isThreadsFeatureOpen(
+            node: AccessibilityNodeInfo,
+            blockedFeatures: Set<PlatformFeatures>,
+        ): Boolean {
+            if (PlatformFeatures.THREADS_REELS !in blockedFeatures) return false
+
+            val confirmedMatch = doesNodeByIdExists(node, "com.instagram.barcelona:id/clips_video_container")
+            if (confirmedMatch) return true
+
+            logCandidateVideoViewIds(node, "Threads")
+            return false
+        }
+
+        /**
+         * Throttled debug helper: walks the current accessibility tree and
+         * logs the resource IDs of views whose IDs look like a video
+         * container. Intended to be removed once the real X/Threads IDs are
+         * confirmed and hard-coded above.
+         *
+         * @param node The root AccessibilityNodeInfo of the current screen.
+         * @param platformName "X" or "Threads" — used in the log tag line.
+         */
+        private fun logCandidateVideoViewIds(
+            node: AccessibilityNodeInfo,
+            platformName: String,
+        ) {
+            val now = System.currentTimeMillis()
+            if (now - lastViewIdDumpTime < VIEW_ID_DUMP_INTERVAL_MS) return
+            lastViewIdDumpTime = now
+
+            val matched = ArrayList<String>()
+            collectVideoViewIds(node, matched)
+            if (matched.isNotEmpty()) {
+                Log.d(
+                    TAG,
+                    "$platformName video view candidates: $matched — paste the matching ID into " +
+                            "is${platformName}FeatureOpen to enable blocking."
+                )
+            }
+        }
+
+        /**
+         * Depth-first traversal collecting resource IDs that contain a
+         * video-related keyword. Recursion is bounded by the accessibility
+         * tree depth, which Android caps (~thousands of nodes max).
+         */
+        private fun collectVideoViewIds(
+            node: AccessibilityNodeInfo,
+            output: MutableList<String>,
+        ) {
+            val viewId = node.viewIdResourceName ?: ""
+            for (keyword in VIDEO_KEYWORDS) {
+                if (viewId.contains(keyword, ignoreCase = true)) {
+                    output.add(viewId)
+                    break
+                }
+            }
+
+            for (i in 0 until node.childCount) {
+                val child = node.getChild(i) ?: continue
+                collectVideoViewIds(child, output)
+                child.recycle()
+            }
         }
 
         /**

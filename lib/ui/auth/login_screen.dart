@@ -164,7 +164,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// App icon — glass-chip style, matches the dashboard
+                    /// App icon — previous logo artwork shown on the first
+                    /// page (login) alongside the animated splash.
                     Container(
                       width: 72,
                       height: 72,
@@ -176,10 +177,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: GlassTokens.of(context).borderTop,
                         ),
                       ),
-                      child: Icon(
-                        FluentIcons.brain_circuit_20_filled,
-                        size: 36.0,
-                        color: colorScheme.primary,
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        child: Image.asset(
+                          'assets/icon-prev.png',
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ).animate(effects: DefaultEffects.transitionIn),
 
@@ -265,6 +271,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     /// Login button
                     PillButton(
                       label: _isLoading ? null : 'Login',
+                      onPressed: _isLoading ? null : _login,
+                      fullWidth: true,
                       child: _isLoading
                           ? SizedBox(
                               height: 20.0,
@@ -275,8 +283,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             )
                           : null,
-                      onPressed: _isLoading ? null : _login,
-                      fullWidth: true,
                     ).animate(effects: DefaultEffects.transitionIn),
 
                     const SizedBox(height: 20.0),

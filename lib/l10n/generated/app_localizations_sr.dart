@@ -878,6 +878,19 @@ class AppLocalizationsSr extends AppLocalizations {
       'Ограничи кратке видео-садржаје на Reddit платформи.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Ограничи видео-фид на X платформи.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Ограничи видео/Reels садржај на Threads платформи.';
+
+  @override
   String get websites_blocking_tab_title => 'Блокирање сајтова';
 
   @override

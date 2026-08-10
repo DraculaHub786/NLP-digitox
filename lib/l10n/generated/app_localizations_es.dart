@@ -882,6 +882,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reddit_features_tile_subtitle => 'Restringir Shorts en Reddit.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Restringir el feed de vídeo en X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Restringir vídeos/reels en Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'Bloqueo de webs';
 
   @override

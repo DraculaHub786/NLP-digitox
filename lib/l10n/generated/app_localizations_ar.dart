@@ -869,6 +869,19 @@ class AppLocalizationsAr extends AppLocalizations {
       'تقييد الفيديوهات القصيرة على ريديت.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'تقييد خلاصة الفيديو على X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'تقييد الفيديو/الريلز على Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'حجب المواقع الإلكترونية';
 
   @override

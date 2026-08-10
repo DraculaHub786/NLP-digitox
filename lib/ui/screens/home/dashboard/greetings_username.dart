@@ -88,6 +88,7 @@ class GreetingsUsername extends ConsumerWidget {
                           username,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          isHeadline: true,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

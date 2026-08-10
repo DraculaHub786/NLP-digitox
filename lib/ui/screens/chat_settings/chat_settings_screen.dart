@@ -187,11 +187,10 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
             onPressed: () async {
               await AIChatbotService.instance.cleanupOldChats();
               _loadSessions();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Old chats cleaned up')),
-                );
-              }
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Old chats cleaned up')),
+              );
             },
             tooltip: 'Clean up old chats',
           ),

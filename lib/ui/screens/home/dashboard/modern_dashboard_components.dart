@@ -217,7 +217,8 @@ class ModernSettingsTile extends StatelessWidget {
               child: Switch.adaptive(
                 value: value,
                 onChanged: onChanged,
-                activeColor: colorScheme.primary,
+                activeThumbColor: colorScheme.primary,
+                activeTrackColor: colorScheme.primary.withValues(alpha: 0.4),
               ),
             ),
           ),

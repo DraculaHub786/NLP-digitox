@@ -242,7 +242,7 @@ class _PrivacySettingsScreenState
     try {
       final json =
           await ref.read(privacyProvider.notifier).exportData();
-      if (!mounted) return;
+      if (!context.mounted) return;
 
       // Show the export in a bottom sheet the user can copy
       await showModalBottomSheet<void>(
@@ -253,13 +253,13 @@ class _PrivacySettingsScreenState
         builder: (ctx) => _ExportBottomSheet(jsonContent: json),
       );
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text('Export failed: $e')),
         );
       }
     } finally {
-      if (mounted) setState(() => _isExporting = false);
+      if (context.mounted) setState(() => _isExporting = false);
     }
   }
 

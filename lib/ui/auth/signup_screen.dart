@@ -360,7 +360,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// App icon — glass-chip style, matches the dashboard
+                    /// App icon — previous logo artwork shown on the first
+                    /// page (signup) alongside the animated splash.
                     Container(
                       width: 72,
                       height: 72,
@@ -372,10 +373,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           color: GlassTokens.of(context).borderTop,
                         ),
                       ),
-                      child: Icon(
-                        FluentIcons.brain_circuit_20_filled,
-                        size: 36.0,
-                        color: colorScheme.primary,
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(GlassTokens.radiusCard),
+                        child: Image.asset(
+                          'assets/icon-prev.png',
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ).animate(effects: DefaultEffects.transitionIn),
 
@@ -517,6 +523,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     /// Sign up button
                     PillButton(
                       label: _isLoading ? null : 'Sign Up',
+                      onPressed: _isLoading ? null : _signup,
+                      fullWidth: true,
                       child: _isLoading
                           ? SizedBox(
                               height: 20.0,
@@ -527,8 +535,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                               ),
                             )
                           : null,
-                      onPressed: _isLoading ? null : _signup,
-                      fullWidth: true,
                     ).animate(effects: DefaultEffects.transitionIn),
 
                     const SizedBox(height: 20.0),

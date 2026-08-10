@@ -33,13 +33,14 @@ class GlassNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final glass = GlassTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
     return AnimatedSlide(
       offset: isVisible ? Offset.zero : const Offset(0, 1.4),
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOutCubic,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
           child: BackdropFilter(
@@ -48,7 +49,7 @@ class GlassNavBar extends StatelessWidget {
               sigmaY: glass.blurSigma,
             ),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
                 gradient: glass.fillGradient,
                 borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
@@ -57,16 +58,60 @@ class GlassNavBar extends StatelessWidget {
               child: _GradientNavBorder(
                 radius: GlassTokens.radiusPill,
                 gradient: glass.borderGradient,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    for (var i = 0; i < items.length; i++)
-                      _PillNavButton(
-                        item: items[i],
-                        selected: i == selectedIndex,
-                        onTap: () => onDestinationSelected(i),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final itemWidth = constraints.maxWidth / items.length;
+                    return SizedBox(
+                      height: 44,
+                      child: Stack(
+                        children: [
+                          /// Single sliding highlight pill — one shared
+                          /// AnimatedPositioned that glides between tabs
+                          /// instead of each tab resizing itself (the old
+                          /// per-item AnimatedContainer/AnimatedSize caused
+                          /// overflow flashes on full-tree rebuilds).
+                          AnimatedPositioned(
+                            left: selectedIndex * itemWidth + 3,
+                            width: itemWidth - 6,
+                            top: 2,
+                            bottom: 2,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: scheme.primary,
+                                borderRadius:
+                                    BorderRadius.circular(GlassTokens.radiusPill),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: scheme.primary.withValues(alpha: 0.35),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          /// Nav buttons — every cell is Expanded (equal
+                          /// width), so the row can never exceed the bar's
+                          /// width regardless of label length.
+                          Row(
+                            children: [
+                              for (var i = 0; i < items.length; i++)
+                                Expanded(
+                                  child: _PillNavButton(
+                                    item: items[i],
+                                    selected: i == selectedIndex,
+                                    onTap: () => onDestinationSelected(i),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -95,46 +140,60 @@ class _PillNavButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? scheme.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: scheme.primary.withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              selected ? item.filledIcon : item.icon,
-              size: 20,
-              color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 6),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOut,
-              child: selected
-                  ? Text(
+      child: Center(
+        child: AnimatedScale(
+          scale: selected ? 1.0 : 0.96,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              /// Icon swaps filled/outline with a subtle pop.
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                switchInCurve: Curves.easeOutBack,
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                ),
+                child: Icon(
+                  selected ? item.filledIcon : item.icon,
+                  key: ValueKey(selected),
+                  size: 20,
+                  color: selected
+                      ? scheme.onPrimary
+                      : scheme.onSurfaceVariant,
+                ),
+              ),
+
+              /// Label expands horizontally via widthFactor inside ClipRect,
+              /// so even mid-animation the growing text is clipped to the
+              /// cell — no RenderFlex overflow, no ParentDataWidget error
+              /// (unlike the old AnimatedSize > Flexible nesting).
+              ClipRect(
+                child: AnimatedAlign(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  alignment:
+                      selected ? Alignment.center : Alignment.centerLeft,
+                  widthFactor: selected ? 1 : 0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: Text(
                       item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: scheme.onPrimary,
                             fontWeight: FontWeight.w600,
                           ),
-                    )
-                  : const SizedBox(width: 0),
-            ),
-          ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

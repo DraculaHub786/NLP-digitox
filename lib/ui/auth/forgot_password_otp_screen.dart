@@ -227,6 +227,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                   /// Verify button
                   PillButton(
                     label: _isLoading ? null : 'Verify Code',
+                    onPressed: _isLoading ? null : _verifyOtp,
+                    fullWidth: true,
                     child: _isLoading
                         ? SizedBox(
                             height: 20.0,
@@ -237,8 +239,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                             ),
                           )
                         : null,
-                    onPressed: _isLoading ? null : _verifyOtp,
-                    fullWidth: true,
                   ).animate(effects: DefaultEffects.transitionIn),
 
                   const SizedBox(height: 24.0),

@@ -9,23 +9,56 @@ class OnboardingPage extends StatelessWidget {
     required this.imgArtPath,
     required this.title,
     required this.description,
-    this.bottomPadding = 148,
+    this.showLogo = false,
+    this.bottomPadding = -1,
   });
 
   final String imgArtPath;
   final String title;
   final String description;
+
+  /// Show the square logo mark above the illustration (used on the
+  /// welcome page, which is the first thing seen after the splash).
+  final bool showLogo;
+
+  /// Bottom padding under the text block. Defaults to a responsive value
+  /// (~12% of screen height). The old flat 148px left a large dead gap on
+  /// tall screens, which read as "content only on half the screen".
   final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomPadding),
+    final responsiveBottomPadding = bottomPadding < 0
+        ? MediaQuery.sizeOf(context).height * 0.12
+        : bottomPadding;
+
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      padding: EdgeInsets.only(
+        bottom: responsiveBottomPadding,
+        top: 24,
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        // `spaceBetween` with only two visual blocks stranded the
+        // illustration at the top and text at the bottom with a huge
+        // empty band between them. A top-aligned flow with explicit
+        // gaps fills the screen naturally on every device height.
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          0.vBox,
+          if (showLogo) ...[
+            /// Logo mark — same square "prev" artwork used on the splash.
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                'assets/logo-prev.png',
+                width: 88,
+                height: 88,
+                fit: BoxFit.cover,
+              ),
+            ),
+            24.vBox,
+          ],
 
           /// Illustration
           AspectRatio(
@@ -36,14 +69,17 @@ class OnboardingPage extends StatelessWidget {
             ),
           ),
 
+          40.vBox,
+
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              /// Title
+              /// Title — serif display (Alice)
               StyledText(
                 title,
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
+                isHeadline: true,
                 textAlign: TextAlign.center,
                 color: Theme.of(context).colorScheme.primary,
               ),

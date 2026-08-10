@@ -805,6 +805,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reddit_features_tile_subtitle => '限制Reddit的短视频。';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => '限制X的视频动态。';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle => '限制Threads的视频/Reels。';
+
+  @override
   String get websites_blocking_tab_title => '网站屏蔽';
 
   @override

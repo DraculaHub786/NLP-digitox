@@ -868,6 +868,19 @@ class AppLocalizationsAf extends AppLocalizations {
   String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Restrict video feed on X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Restrict video/reels on Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'Websites blocking';
 
   @override
