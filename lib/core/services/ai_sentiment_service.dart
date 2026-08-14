@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 NLP digitox
+﻿// Copyright (c) 2026 NLP digitox
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -206,6 +206,8 @@ class AISentimentService {
     int? tasksCompleted,
     List<String>? recentChatMessages,
     List<String>? recentIntentSignals,
+    List<String>? recentChatThemes,
+    String? moodContextBlock,
   }) async {
     if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
       throw Exception('Groq API key is not configured.');
@@ -223,7 +225,18 @@ class AISentimentService {
       final recentIntentContext = (recentIntentSignals != null && recentIntentSignals.isNotEmpty)
           ? recentIntentSignals.take(8).map((s) => '- $s').join('\n')
           : 'No recent app-intent context.';
-      
+      // Recurring themes extracted locally (keyword/topic frequency, no
+      // extra LLM call — see ChatContextExtractor) across the full 30-day
+      // chat retention window, not just the last few messages of the
+      // current session. Gives the LLM a sense of what the user has been
+      // talking about lately, not just right now.
+      final chatThemesContext = (recentChatThemes != null && recentChatThemes.isNotEmpty)
+          ? recentChatThemes.take(8).map((t) => '- $t').join('\n')
+          : 'No recurring chat themes yet.';
+      final moodBlock = (moodContextBlock != null && moodContextBlock.trim().isNotEmpty)
+          ? moodContextBlock
+          : 'No mood check-ins recorded.';
+
       final prompt = '''
 Analyze the digital wellbeing sentiment of a user based on their smartphone usage patterns today. Provide a psychological assessment.
 
@@ -238,6 +251,11 @@ Usage Data:
 Recent user chat context:
 $recentChatContext
 
+Recurring chat themes over the last 30 days:
+$chatThemesContext
+
+$moodBlock
+
 Recent app usage intent context:
 $recentIntentContext
 
@@ -249,6 +267,11 @@ SCORING GUIDELINES (apply consistently):
 3. Streak of 3+ days: increase Positive and Focused
 4. Habits completed: increase Positive and Focused
 5. Screen time 100-130% of goal: increase Neutral
+6. Self-reported mood check-ins (if present) should outweigh keyword-derived
+   chat themes when the two disagree — they are the user's own words.
+7. Recurring chat themes are supporting context, not a primary signal —
+   use them to nudge Anxious/Negative/Positive/Focused, not to override the
+   objective usage-metric scoring above.
 
 Respond with ONLY these 5 values (must total 100):
 Positive: XX
