@@ -9,7 +9,7 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline => 'התמקדו במה שבאמת חשוב';
 
   @override
   String get unlock_button_label => 'Unlock';
@@ -457,18 +457,18 @@ class AppLocalizationsHe extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'ברוכים הבאים ל-NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'קחו שליטה על החיים הדיגיטליים שלכם ובנו הרגלי מסך בריאים יותר. NLP digitox עוזר לכם להישאר ממוקדים, לצמצם הסחות דעת ולקבל החלטות מודעות בכל יום.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'הכירו את ההרגלים שלכם.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'הבינו את הדפוסים הדיגיטליים שלכם עם תובנות מפורטות על זמן מסך, שימוש באפליקציות ומגמות ריכוז. עקבו אחר ההתקדמות שלכם וראו איך שינויים קטנים מובילים לשיפורים גדולים.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -997,7 +997,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'החליקו כדי להתחיל את הסשן';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1467,40 @@ class AppLocalizationsHe extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'ניתוח';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 ימים';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 יום';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 יום';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'מגמת זמן מסך';
 
   @override
-  String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+  String get analysis_no_data_info => 'עדיין לא נרשמו נתוני זמן מסך לתקופה זו.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'ממוצע יומי';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'סה״כ';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'אותו דבר כמו בשבוע שעבר';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% פחות מהשבוע שעבר';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% יותר מהשבוע שעבר';
   }
 
   @override

@@ -555,5 +555,21 @@
     "write_email_tile_subtitle": "メールアプリを開く",
     "privacy_policy_heading": "プライバシーポリシー",
     "privacy_policy_info": "NLP digitoxはプライバシー保護に最優先で取り組んでいます。ユーザーデータの収集、保存、または第三者に提供することはありません。アプリは完全にオフラインで動作し、インターネット接続を必要としないため、ユーザーの個人情報はデバイス上で安全に保護されます。無料でオープンソースのソフトウェア（FOSS）であり、完全な透明性とユーザーによるデータの制御を保証します。",
-    "more_details_button": "詳細情報"
+    "more_details_button": "詳細情報",
+    "onboarding_page_welcome_title": "NLP digitox へようこそ。",
+    "onboarding_page_welcome_info": "デジタルライフをコントロールし、より健全なスクリーン習慣を築きましょう。NLP digitox は、集中力を保ち、気を散らすものを減らし、毎日意識的な選択をするのに役立ちます。",
+    "onboarding_page_statistics_title": "習慣を知ろう。",
+    "onboarding_page_statistics_info": "スクリーンタイム、アプリの使用状況、集中の傾向に関する詳細なインサイトで、自分のデジタルパターンを理解しましょう。進捗を追跡し、小さな変化が大きな改善につながることを実感できます。",
+    "focus_session_start_button": "スワイプしてセッションを開始",
+    "analysis_tab_title": "分析",
+    "analysis_7_days": "7日",
+    "analysis_30_days": "30日",
+    "analysis_90_days": "90日",
+    "analysis_screen_time_trend": "スクリーンタイムの推移",
+    "analysis_no_data_info": "この期間のスクリーンタイムデータはまだ記録されていません。",
+    "analysis_daily_average": "1日の平均",
+    "analysis_total": "合計",
+    "analysis_no_change": "先週と同じ",
+    "analysis_trend_less": "先週より{percent}%減",
+    "analysis_trend_more": "先週より{percent}%増"
 }

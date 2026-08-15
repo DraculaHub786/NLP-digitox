@@ -615,5 +615,21 @@
     "write_email_tile_subtitle": "您将被重定向到电子邮件应用。",
     "privacy_policy_heading": "隐私政策",
     "privacy_policy_info": "NLP digitox 致力于保护您的隐私。我们不收集、存储或传输任何类型的用户数据。该应用完全离线运行，不需要互联网连接，确保您的个人信息在您的设备上保持私密和安全。作为免费开源软件 (FOSS) 应用，NLP digitox 保证对用户数据的完全透明度和用户控制。",
-    "more_details_button": "更多详情"
+    "more_details_button": "更多详情",
+    "onboarding_page_welcome_title": "欢迎使用 NLP digitox。",
+    "onboarding_page_welcome_info": "掌控你的数字生活，养成更健康的屏幕使用习惯。NLP digitox 帮助你保持专注、减少干扰，并每天做出有意识的选择。",
+    "onboarding_page_statistics_title": "了解你的习惯。",
+    "onboarding_page_statistics_info": "通过屏幕使用时间、应用使用情况和专注趋势的详细洞察，了解你的数字模式。跟踪你的进展，看看小改变如何带来大改善。",
+    "focus_session_start_button": "滑动以开始会话",
+    "analysis_tab_title": "分析",
+    "analysis_7_days": "7 天",
+    "analysis_30_days": "30 天",
+    "analysis_90_days": "90 天",
+    "analysis_screen_time_trend": "屏幕使用时间趋势",
+    "analysis_no_data_info": "此期间尚未记录屏幕使用时间数据。",
+    "analysis_daily_average": "每日平均",
+    "analysis_total": "总计",
+    "analysis_no_change": "与上周相同",
+    "analysis_trend_less": "比上周减少 {percent}%",
+    "analysis_trend_more": "比上周增加 {percent}%"
 }

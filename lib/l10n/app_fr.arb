@@ -344,5 +344,21 @@
     },
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "onboarding_page_welcome_title": "Bienvenue sur NLP digitox.",
+    "onboarding_page_welcome_info": "Reprenez le contrôle de votre vie numérique et adoptez de meilleures habitudes d'écran. NLP digitox vous aide à rester concentré, à réduire les distractions et à faire des choix conscients chaque jour.",
+    "onboarding_page_statistics_title": "Connaissez vos habitudes.",
+    "onboarding_page_statistics_info": "Comprenez vos habitudes numériques grâce à des informations détaillées sur le temps d'écran, l'utilisation des applications et les tendances de concentration. Suivez vos progrès et voyez comment de petits changements mènent à de grandes améliorations.",
+    "focus_session_start_button": "Balayez pour démarrer la session",
+    "analysis_tab_title": "Analyse",
+    "analysis_7_days": "7 jours",
+    "analysis_30_days": "30 jours",
+    "analysis_90_days": "90 jours",
+    "analysis_screen_time_trend": "Tendance du temps d'écran",
+    "analysis_no_data_info": "Aucune donnée de temps d'écran n'est encore enregistrée pour cette période.",
+    "analysis_daily_average": "Moyenne quotidienne",
+    "analysis_total": "Total",
+    "analysis_no_change": "Comme la semaine dernière",
+    "analysis_trend_less": "{percent}% de moins que la semaine dernière",
+    "analysis_trend_more": "{percent}% de plus que la semaine dernière"
 }

@@ -447,18 +447,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => '設定終了';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'NLP digitox へようこそ。';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'デジタルライフをコントロールし、より健全なスクリーン習慣を築きましょう。NLP digitox は、集中力を保ち、気を散らすものを減らし、毎日意識的な選択をするのに役立ちます。';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => '習慣を知ろう。';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'スクリーンタイム、アプリの使用状況、集中の傾向に関する詳細なインサイトで、自分のデジタルパターンを理解しましょう。進捗を追跡し、小さな変化が大きな改善につながることを実感できます。';
 
   @override
   String get onboarding_page_one_title => '集中力を持続させる';
@@ -961,7 +961,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'スワイプしてセッションを開始';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1421,41 +1421,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get export_db_tile_subtitle => 'データベースをファイルに保存';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => '分析';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7日';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30日';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90日';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'スクリーンタイムの推移';
 
   @override
-  String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+  String get analysis_no_data_info => 'この期間のスクリーンタイムデータはまだ記録されていません。';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => '1日の平均';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => '合計';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => '先週と同じ';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '先週より$percent%減';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '先週より$percent%増';
   }
 
   @override

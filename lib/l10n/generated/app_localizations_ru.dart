@@ -9,7 +9,8 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline =>
+      'Сосредоточьтесь на том, что действительно важно';
 
   @override
   String get unlock_button_label => 'Unlock';
@@ -457,18 +458,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Добро пожаловать в NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Возьмите под контроль свою цифровую жизнь и выработайте более здоровые привычки использования экрана. NLP digitox помогает вам оставаться сосредоточенным, сокращать отвлекающие факторы и делать осознанный выбор каждый день.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Узнайте свои привычки.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Поймите свои цифровые модели с помощью подробной информации о времени у экрана, использовании приложений и тенденциях концентрации. Отслеживайте свой прогресс и увидьте, как небольшие изменения приводят к большим улучшениям.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -997,7 +998,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button =>
+      'Проведите пальцем, чтобы начать сеанс';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1469,41 @@ class AppLocalizationsRu extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Анализ';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 дней';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 дней';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 дней';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Тенденция времени у экрана';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Для этого периода еще не записаны данные о времени у экрана.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Среднесуточное значение';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Итого';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Так же, как на прошлой неделе';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return 'на $percent% меньше, чем на прошлой неделе';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return 'на $percent% больше, чем на прошлой неделе';
   }
 
   @override

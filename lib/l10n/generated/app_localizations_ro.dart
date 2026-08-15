@@ -9,7 +9,8 @@ class AppLocalizationsRo extends AppLocalizations {
   AppLocalizationsRo([String locale = 'ro']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline =>
+      'Concentrează-te pe ceea ce contează cu adevărat';
 
   @override
   String get unlock_button_label => 'Unlock';
@@ -457,18 +458,18 @@ class AppLocalizationsRo extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Bine ați venit la NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Preia controlul asupra vieții tale digitale și construiește obiceiuri mai sănătoase de utilizare a ecranului. NLP digitox te ajută să rămâi concentrat, să reduci distragerile și să faci alegeri conștiente în fiecare zi.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Cunoaște-ți obiceiurile.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Înțelege-ți tiparele digitale cu informații detaliate despre timpul petrecut pe ecran, utilizarea aplicațiilor și tendințele de concentrare. Urmărește-ți progresul și vezi cum mici schimbări duc la îmbunătățiri mari.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -997,7 +998,7 @@ class AppLocalizationsRo extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Glisează pentru a începe sesiunea';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1468,41 @@ class AppLocalizationsRo extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Analiză';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 zile';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 de zile';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 de zile';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Tendința timpului pe ecran';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Nu există încă date despre timpul pe ecran pentru această perioadă.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Media zilnică';
 
   @override
   String get analysis_total => 'Total';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'La fel ca săptămâna trecută';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return 'cu $percent% mai puțin decât săptămâna trecută';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return 'cu $percent% mai mult decât săptămâna trecută';
   }
 
   @override

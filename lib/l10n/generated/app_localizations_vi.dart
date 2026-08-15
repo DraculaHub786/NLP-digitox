@@ -458,18 +458,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title =>
+      'Chào mừng bạn đến với NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Hãy làm chủ cuộc sống số của bạn và xây dựng thói quen sử dụng màn hình lành mạnh hơn. NLP digitox giúp bạn tập trung, giảm phiền nhiễu và đưa ra những lựa chọn có ý thức mỗi ngày.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Hiểu thói quen của bạn.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Hiểu các khuôn mẫu kỹ thuật số của bạn qua thông tin chi tiết về thời gian sử dụng màn hình, cách dùng ứng dụng và xu hướng tập trung. Theo dõi tiến trình và thấy những thay đổi nhỏ dẫn đến cải thiện lớn.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -998,7 +999,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Vuốt để bắt đầu phiên';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1468,41 +1469,42 @@ class AppLocalizationsVi extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Phân tích';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 ngày';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 ngày';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 ngày';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend =>
+      'Xu hướng thời gian sử dụng màn hình';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Chưa có dữ liệu thời gian sử dụng màn hình cho giai đoạn này.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Trung bình mỗi ngày';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Tổng';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Giống tuần trước';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return 'ít hơn $percent% so với tuần trước';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return 'nhiều hơn $percent% so với tuần trước';
   }
 
   @override

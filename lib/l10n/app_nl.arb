@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "Focus op wat er echt toe doet",
+    "onboarding_page_welcome_title": "Welkom bij NLP digitox.",
+    "onboarding_page_welcome_info": "Neem de controle over je digitale leven en bouw gezondere schermgewoonten op. NLP digitox helpt je gefocust te blijven, afleiding te minimaliseren en elke dag bewuste keuzes te maken.",
+    "onboarding_page_statistics_title": "Leer je gewoonten kennen.",
+    "onboarding_page_statistics_info": "Begrijp je digitale patronen met gedetailleerde inzichten over schermtijd, app-gebruik en focustrends. Volg je voortgang en zie hoe kleine veranderingen tot grote verbeteringen leiden.",
+    "focus_session_start_button": "Veeg om de sessie te starten",
+    "analysis_tab_title": "Analyse",
+    "analysis_7_days": "7 dagen",
+    "analysis_30_days": "30 dagen",
+    "analysis_90_days": "90 dagen",
+    "analysis_screen_time_trend": "Schermtijdtendens",
+    "analysis_no_data_info": "Voor deze periode zijn nog geen schermtijdgegevens geregistreerd.",
+    "analysis_daily_average": "Daggemiddelde",
+    "analysis_total": "Totaal",
+    "analysis_no_change": "Hetzelfde als vorige week",
+    "analysis_trend_less": "{percent}% minder dan vorige week",
+    "analysis_trend_more": "{percent}% meer dan vorige week"
 }

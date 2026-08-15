@@ -460,18 +460,18 @@ class AppLocalizationsEl extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Ολοκλήρωση Ρύθμισης';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Καλώς ήρθατε στο NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Πάρτε τον έλεγχο της ψηφιακής σας ζωής και χτίστε πιο υγιεινές συνήθειες χρήσης οθόνης. Το NLP digitox σας βοηθά να παραμένετε συγκεντρωμένοι, να ελαχιστοποιείτε τους περισπασμούς και να κάνετε συνειδητές επιλογές κάθε μέρα.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Γνωρίστε τις συνήθειές σας.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Κατανοήστε τα ψηφιακά σας πρότυπα με λεπτομερείς πληροφορίες για τον χρόνο οθόνης, τη χρήση εφαρμογών και τις τάσεις συγκέντρωσης. Παρακολουθήστε την πρόοδό σας και δείτε πώς οι μικρές αλλαγές οδηγούν σε μεγάλες βελτιώσεις.';
 
   @override
   String get onboarding_page_one_title => 'Κατέκτησε τη Συγκέντρωση.';
@@ -1014,7 +1014,8 @@ class AppLocalizationsEl extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button =>
+      'Σύρετε για να ξεκινήσετε τη συνεδρία';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1490,41 +1491,41 @@ class AppLocalizationsEl extends AppLocalizations {
       'Εξαγωγή βάσης δεδομένων σε ένα αρχείο.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Ανάλυση';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 ημέρες';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 ημέρες';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 ημέρες';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Τάση χρόνου οθόνης';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Δεν έχουν καταγραφεί ακόμη δεδομένα χρόνου οθόνης για αυτή την περίοδο.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Ημερήσιος μέσος όρος';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Σύνολο';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Ίδιο με την περασμένη εβδομάδα';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% λιγότερο από την περασμένη εβδομάδα';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% περισσότερο από την περασμένη εβδομάδα';
   }
 
   @override

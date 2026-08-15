@@ -616,5 +616,20 @@
     "write_email_tile_subtitle": "Você será redirecionado para o aplicativo de E-mail.",
     "privacy_policy_heading": "Política de privacidade",
     "privacy_policy_info": "A NLP digitox está empenhado em proteger a sua privacidade. Não recolhemos, armazenamos ou transferimos qualquer tipo de dados do usuário. O aplicativo funciona totalmente offline e não requer uma conexão com a Internet, garantindo que suas informações pessoais permaneçam privadas e seguras em seu dispositivo. Como um aplicativo de software livre e de código aberto (FOSS), o NLP digitox garante total transparência e controle do usuário sobre seus dados.",
-    "more_details_button": "Mais detalhes"
+    "more_details_button": "Mais detalhes",
+    "onboarding_page_welcome_title": "Bem-vindo(a) ao NLP digitox.",
+    "onboarding_page_welcome_info": "Assuma o controle da sua vida digital e construa hábitos de tela mais saudáveis. O NLP digitox ajuda você a manter o foco, minimizar distrações e fazer escolhas conscientes todos os dias.",
+    "onboarding_page_statistics_title": "Conheça seus hábitos.",
+    "onboarding_page_statistics_info": "Entenda seus padrões digitais com insights detalhados sobre tempo de tela, uso de aplicativos e tendências de foco. Acompanhe seu progresso e veja como pequenas mudanças levam a grandes melhorias.",
+    "analysis_tab_title": "Análise",
+    "analysis_7_days": "7 dias",
+    "analysis_30_days": "30 dias",
+    "analysis_90_days": "90 dias",
+    "analysis_screen_time_trend": "Tendência do tempo de tela",
+    "analysis_no_data_info": "Nenhum dado de tempo de tela registrado para este período ainda.",
+    "analysis_daily_average": "Média diária",
+    "analysis_total": "Total",
+    "analysis_no_change": "Igual à semana passada",
+    "analysis_trend_less": "{percent}% menos que na semana passada",
+    "analysis_trend_more": "{percent}% mais que na semana passada"
 }

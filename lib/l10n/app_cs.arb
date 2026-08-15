@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "Zaměřte se na to, na čem skutečně záleží",
+    "onboarding_page_welcome_title": "Vítejte v NLP digitox.",
+    "onboarding_page_welcome_info": "Převezměte kontrolu nad svým digitálním životem a budujte zdravější návyky při používání obrazovky. NLP digitox vám pomáhá zůstat soustředění, omezit rušivé vlivy a každý den se rozhodovat vědomě.",
+    "onboarding_page_statistics_title": "Poznejte své návyky.",
+    "onboarding_page_statistics_info": "Porozumějte svým digitálním vzorcům díky podrobným přehledům o čase stráveném na obrazovce, používání aplikací a trendech soustředění. Sledujte svůj pokrok a uvidíte, jak malé změny vedou k velkým zlepšením.",
+    "focus_session_start_button": "Přejetím zahájíte relaci",
+    "analysis_tab_title": "Analýza",
+    "analysis_7_days": "7 dní",
+    "analysis_30_days": "30 dní",
+    "analysis_90_days": "90 dní",
+    "analysis_screen_time_trend": "Trend času na obrazovce",
+    "analysis_no_data_info": "Pro toto období zatím nejsou zaznamenána žádná data o čase na obrazovce.",
+    "analysis_daily_average": "Denní průměr",
+    "analysis_total": "Celkem",
+    "analysis_no_change": "Stejně jako minulý týden",
+    "analysis_trend_less": "o {percent}% méně než minulý týden",
+    "analysis_trend_more": "o {percent}% více než minulý týden"
 }

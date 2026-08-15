@@ -1,4 +1,4 @@
-﻿{
+{
     "@----------------------------- SPLASH SCREEN -----------------------------": {},
     "unlock_button_label": "فتح",
     "@----------------------------- APP PERMISSIONS -----------------------------": {},
@@ -614,5 +614,22 @@
     "write_email_tile_subtitle": "سيتم توجيهك إلى تطبيق البريد الإلكتروني.",
     "privacy_policy_heading": "سياسة الخصوصية",
     "privacy_policy_info": "تلتزم NLP digitox بحماية خصوصيتك. نحن لا نجمع أو نخزن أو ننقل أي نوع من بيانات المستخدم. يعمل التطبيق بالكامل دون اتصال بالإنترنت، مما يضمن بقاء معلوماتك الشخصية خاصة وآمنة على جهازك. كبرنامج مجاني ومفتوح المصدر (FOSS)، يضمن NLP digitox شفافية كاملة وتحكم المستخدم الكامل في بياناته.",
-    "more_details_button": "مزيد من التفاصيل"
+    "more_details_button": "مزيد من التفاصيل",
+    "mindful_tagline": "ركّز على ما يهم حقًا",
+    "onboarding_page_welcome_title": "مرحبًا بك في NLP digitox.",
+    "onboarding_page_welcome_info": "تحكّم في حياتك الرقمية وابنِ عادات صحية لاستخدام الشاشة. يساعدك NLP digitox على البقاء مركّزًا وتقليل المشتتات واتخاذ خيارات واعية كل يوم.",
+    "onboarding_page_statistics_title": "اعرف عاداتك.",
+    "onboarding_page_statistics_info": "افهم أنماطك الرقمية من خلال رؤى مفصّلة حول وقت الشاشة واستخدام التطبيقات واتجاهات التركيز. تتبّع تقدّمك وشاهد كيف تؤدي التغييرات الصغيرة إلى تحسينات كبيرة.",
+    "focus_session_start_button": "مرّر لبدء الجلسة",
+    "analysis_tab_title": "التحليل",
+    "analysis_7_days": "7 أيام",
+    "analysis_30_days": "30 يومًا",
+    "analysis_90_days": "90 يومًا",
+    "analysis_screen_time_trend": "اتجاه وقت الشاشة",
+    "analysis_no_data_info": "لا توجد بيانات وقت شاشة مسجلة لهذه الفترة بعد.",
+    "analysis_daily_average": "المتوسط اليومي",
+    "analysis_total": "الإجمالي",
+    "analysis_no_change": "نفس الأسبوع الماضي",
+    "analysis_trend_less": "{percent}% أقل من الأسبوع الماضي",
+    "analysis_trend_more": "{percent}% أكثر من الأسبوع الماضي"
 }

@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "התמקדו במה שבאמת חשוב",
+    "onboarding_page_welcome_title": "ברוכים הבאים ל-NLP digitox.",
+    "onboarding_page_welcome_info": "קחו שליטה על החיים הדיגיטליים שלכם ובנו הרגלי מסך בריאים יותר. NLP digitox עוזר לכם להישאר ממוקדים, לצמצם הסחות דעת ולקבל החלטות מודעות בכל יום.",
+    "onboarding_page_statistics_title": "הכירו את ההרגלים שלכם.",
+    "onboarding_page_statistics_info": "הבינו את הדפוסים הדיגיטליים שלכם עם תובנות מפורטות על זמן מסך, שימוש באפליקציות ומגמות ריכוז. עקבו אחר ההתקדמות שלכם וראו איך שינויים קטנים מובילים לשיפורים גדולים.",
+    "focus_session_start_button": "החליקו כדי להתחיל את הסשן",
+    "analysis_tab_title": "ניתוח",
+    "analysis_7_days": "7 ימים",
+    "analysis_30_days": "30 יום",
+    "analysis_90_days": "90 יום",
+    "analysis_screen_time_trend": "מגמת זמן מסך",
+    "analysis_no_data_info": "עדיין לא נרשמו נתוני זמן מסך לתקופה זו.",
+    "analysis_daily_average": "ממוצע יומי",
+    "analysis_total": "סה״כ",
+    "analysis_no_change": "אותו דבר כמו בשבוע שעבר",
+    "analysis_trend_less": "{percent}% פחות מהשבוע שעבר",
+    "analysis_trend_more": "{percent}% יותר מהשבוע שעבר"
 }

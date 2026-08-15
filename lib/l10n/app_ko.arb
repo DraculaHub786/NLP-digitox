@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "진정으로 중요한 것에 집중하세요",
+    "onboarding_page_welcome_title": "NLP digitox에 오신 것을 환영합니다.",
+    "onboarding_page_welcome_info": "디지털 생활을 통제하고 더 건강한 화면 사용 습관을 기르세요. NLP digitox는 집중력을 유지하고 방해 요소를 줄이며 매일 의식적인 선택을 하도록 도와줍니다.",
+    "onboarding_page_statistics_title": "습관을 알아보세요.",
+    "onboarding_page_statistics_info": "화면 사용 시간, 앱 사용, 집중 추세에 대한 상세한 인사이트로 디지털 패턴을 이해하세요. 진행 상황을 추적하고 작은 변화가 큰 개선으로 이어지는 것을 확인하세요.",
+    "focus_session_start_button": "밀어서 세션 시작",
+    "analysis_tab_title": "분석",
+    "analysis_7_days": "7일",
+    "analysis_30_days": "30일",
+    "analysis_90_days": "90일",
+    "analysis_screen_time_trend": "화면 사용 시간 추세",
+    "analysis_no_data_info": "이 기간 동안 기록된 화면 사용 시간 데이터가 없습니다.",
+    "analysis_daily_average": "일일 평균",
+    "analysis_total": "합계",
+    "analysis_no_change": "지난주와 동일",
+    "analysis_trend_less": "지난주보다 {percent}% 감소",
+    "analysis_trend_more": "지난주보다 {percent}% 증가"
 }

@@ -9,7 +9,7 @@ class AppLocalizationsHu extends AppLocalizations {
   AppLocalizationsHu([String locale = 'hu']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline => 'Arra összpontosíts, ami igazán számít';
 
   @override
   String get unlock_button_label => 'Unlock';
@@ -457,18 +457,19 @@ class AppLocalizationsHu extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title =>
+      'Üdvözlünk az NLP digitox alkalmazásban.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Vedd kézbe a digitális életed, és alakíts ki egészségesebb képernyőhasználati szokásokat. Az NLP digitox segít összpontosítva maradni, csökkenteni a zavaró tényezőket, és minden nap tudatos döntéseket hozni.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Ismerd meg a szokásaidat.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Értsd meg digitális szokásmintáidat a képernyőidőről, az alkalmazáshasználatról és a fókusz-trendekről szóló részletes adatokkal. Kövesd a fejlődésed, és lásd, hogyan vezetnek a kis változások nagy javulásokhoz.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -997,7 +998,7 @@ class AppLocalizationsHu extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Csúsztass az ülés indításához';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1468,41 @@ class AppLocalizationsHu extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Elemzés';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 nap';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 nap';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 nap';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Képernyőidő-trend';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Ehhez az időszakhoz még nincs rögzített képernyőidő-adat.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Napi átlag';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Összesen';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Ugyanaz, mint a múlt héten';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent%-kal kevesebb, mint a múlt héten';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent%-kal több, mint a múlt héten';
   }
 
   @override

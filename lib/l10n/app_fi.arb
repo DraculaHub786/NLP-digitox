@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "Keskity siihen, mikä todella merkitsee",
+    "onboarding_page_welcome_title": "Tervetuloa NLP digitoxiin.",
+    "onboarding_page_welcome_info": "Ota hallintaan digitaalinen elämäsi ja rakenna terveellisempiä ruutuaikatottumuksia. NLP digitox auttaa sinua pysymään keskittyneenä, vähentämään häiriötekijöitä ja tekemään tietoisia valintoja joka päivä.",
+    "onboarding_page_statistics_title": "Tunne tapasi.",
+    "onboarding_page_statistics_info": "Ymmärrä digitaalisia käyttäytymismallejasi yksityiskohtaisten näkemysten avulla ruutuajasta, sovellusten käytöstä ja keskittymistrendeistä. Seuraa edistymistäsi ja huomaa, kuinka pienet muutokset johtavat suuriin parannuksiin.",
+    "focus_session_start_button": "Pyyhkäise aloittaaksesi istunnon",
+    "analysis_tab_title": "Analyysi",
+    "analysis_7_days": "7 päivää",
+    "analysis_30_days": "30 päivää",
+    "analysis_90_days": "90 päivää",
+    "analysis_screen_time_trend": "Ruutuajan trendi",
+    "analysis_no_data_info": "Tälle ajanjaksolle ei ole vielä tallennettu ruutuaikatietoja.",
+    "analysis_daily_average": "Päivittäinen keskiarvo",
+    "analysis_total": "Yhteensä",
+    "analysis_no_change": "Sama kuin viime viikolla",
+    "analysis_trend_less": "{percent}% vähemmän kuin viime viikolla",
+    "analysis_trend_more": "{percent}% enemmän kuin viime viikolla"
 }

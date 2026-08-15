@@ -578,5 +578,21 @@
     "write_email_tile_subtitle": "E-posta uygulamasına yönlendirileceksiniz.",
     "privacy_policy_heading": "Gizlilik politikası",
     "privacy_policy_info": "NLP digitox, gizliliğinizi korumaya kararlıdır. Herhangi bir kullanıcı verisini toplamaz, depolamaz veya aktarmaz. Uygulama tamamen çevrimdışıdır ve internet bağlantısı gerektirmez, böylece kişisel bilgileriniz cihazınızda özel ve güvenli kalır. Ücretsiz ve Açık Kaynak Yazılım (FOSS) uygulaması olarak, NLP digitox, verileriniz üzerinde tam şeffaflık ve kullanıcı kontrolü sağlar.",
-    "more_details_button": "Daha fazla bilgi"
+    "more_details_button": "Daha fazla bilgi",
+    "onboarding_page_welcome_title": "NLP digitox'a hoş geldiniz.",
+    "onboarding_page_welcome_info": "Dijital hayatınızın kontrolünü elinize alın ve daha sağlıklı ekran alışkanlıkları edinin. NLP digitox odaklanmanıza, dikkat dağıtıcıları azaltmanıza ve her gün bilinçli seçimler yapmanıza yardımcı olur.",
+    "onboarding_page_statistics_title": "Alışkanlıklarınızı tanıyın.",
+    "onboarding_page_statistics_info": "Ekran süresi, uygulama kullanımı ve odaklanma eğilimleri hakkında ayrıntılı içgörülerle dijital kalıplarınızı anlayın. İlerlemenizi takip edin ve küçük değişikliklerin büyük iyileşmelere nasıl yol açtığını görün.",
+    "focus_session_start_button": "Oturumu başlatmak için kaydırın",
+    "analysis_tab_title": "Analiz",
+    "analysis_7_days": "7 gün",
+    "analysis_30_days": "30 gün",
+    "analysis_90_days": "90 gün",
+    "analysis_screen_time_trend": "Ekran süresi eğilimi",
+    "analysis_no_data_info": "Bu dönem için henüz ekran süresi verisi kaydedilmedi.",
+    "analysis_daily_average": "Günlük ortalama",
+    "analysis_total": "Toplam",
+    "analysis_no_change": "Geçen haftayla aynı",
+    "analysis_trend_less": "Geçen haftadan %{percent} daha az",
+    "analysis_trend_more": "Geçen haftadan %{percent} daha fazla"
 }

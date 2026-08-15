@@ -459,18 +459,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Witamy w NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Przejmij kontrolę nad swoim cyfrowym życiem i zbuduj zdrowsze nawyki korzystania z ekranu. NLP digitox pomaga Ci pozostać skupionym, ograniczać rozpraszacze i dokonywać świadomych wyborów każdego dnia.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Poznaj swoje nawyki.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Zrozum swoje cyfrowe wzorce dzięki szczegółowym informacjom o czasie spędzonym przed ekranem, korzystaniu z aplikacji i trendach koncentracji. Śledź swoje postępy i zobacz, jak małe zmiany prowadzą do dużych ulepszeń.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -999,7 +999,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Przesuń, aby rozpocząć sesję';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1469,41 +1469,41 @@ class AppLocalizationsPl extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Analiza';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 dni';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 dni';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 dni';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Trend czasu przed ekranem';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Brak zarejestrowanych danych o czasie przed ekranem dla tego okresu.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Średnia dzienna';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Razem';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Tak samo jak w zeszłym tygodniu';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% mniej niż w zeszłym tygodniu';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% więcej niż w zeszłym tygodniu';
   }
 
   @override

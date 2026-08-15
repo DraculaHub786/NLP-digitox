@@ -53,5 +53,21 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "onboarding_page_welcome_title": "Chào mừng bạn đến với NLP digitox.",
+    "onboarding_page_welcome_info": "Hãy làm chủ cuộc sống số của bạn và xây dựng thói quen sử dụng màn hình lành mạnh hơn. NLP digitox giúp bạn tập trung, giảm phiền nhiễu và đưa ra những lựa chọn có ý thức mỗi ngày.",
+    "onboarding_page_statistics_title": "Hiểu thói quen của bạn.",
+    "onboarding_page_statistics_info": "Hiểu các khuôn mẫu kỹ thuật số của bạn qua thông tin chi tiết về thời gian sử dụng màn hình, cách dùng ứng dụng và xu hướng tập trung. Theo dõi tiến trình và thấy những thay đổi nhỏ dẫn đến cải thiện lớn.",
+    "focus_session_start_button": "Vuốt để bắt đầu phiên",
+    "analysis_tab_title": "Phân tích",
+    "analysis_7_days": "7 ngày",
+    "analysis_30_days": "30 ngày",
+    "analysis_90_days": "90 ngày",
+    "analysis_screen_time_trend": "Xu hướng thời gian sử dụng màn hình",
+    "analysis_no_data_info": "Chưa có dữ liệu thời gian sử dụng màn hình cho giai đoạn này.",
+    "analysis_daily_average": "Trung bình mỗi ngày",
+    "analysis_total": "Tổng",
+    "analysis_no_change": "Giống tuần trước",
+    "analysis_trend_less": "ít hơn {percent}% so với tuần trước",
+    "analysis_trend_more": "nhiều hơn {percent}% so với tuần trước"
 }

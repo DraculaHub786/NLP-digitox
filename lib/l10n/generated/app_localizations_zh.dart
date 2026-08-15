@@ -418,18 +418,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => '完成设置';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => '欢迎使用 NLP digitox。';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      '掌控你的数字生活，养成更健康的屏幕使用习惯。NLP digitox 帮助你保持专注、减少干扰，并每天做出有意识的选择。';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => '了解你的习惯。';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      '通过屏幕使用时间、应用使用情况和专注趋势的详细洞察，了解你的数字模式。跟踪你的进展，看看小改变如何带来大改善。';
 
   @override
   String get onboarding_page_one_title => '掌握专注。';
@@ -925,7 +925,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get focus_enforce_tile_subtitle => '防止在计时结束前结束会话。';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => '滑动以开始会话';
 
   @override
   String get focus_session_minimum_apps_snack_alert => '请至少选择一个干扰应用以开始专注会话';
@@ -1375,41 +1375,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get export_db_tile_subtitle => '将数据库导出至文件';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => '分析';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 天';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 天';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 天';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => '屏幕使用时间趋势';
 
   @override
-  String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+  String get analysis_no_data_info => '此期间尚未记录屏幕使用时间数据。';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => '每日平均';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => '总计';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => '与上周相同';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '比上周减少 $percent%';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '比上周增加 $percent%';
   }
 
   @override

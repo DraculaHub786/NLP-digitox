@@ -9,7 +9,7 @@ class AppLocalizationsSv extends AppLocalizations {
   AppLocalizationsSv([String locale = 'sv']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline => 'Fokusera på det som verkligen betyder något';
 
   @override
   String get unlock_button_label => 'Unlock';
@@ -457,18 +457,18 @@ class AppLocalizationsSv extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Välkommen till NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Ta kontroll över ditt digitala liv och bygg hälsosammare skärmvanor. NLP digitox hjälper dig att hålla fokus, minska distraktioner och fatta medvetna val varje dag.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Känn dina vanor.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Förstå dina digitala mönster med detaljerade insikter om skärmtid, appanvändning och fokustrender. Följ dina framsteg och se hur små förändringar leder till stora förbättringar.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -997,7 +997,7 @@ class AppLocalizationsSv extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Svep för att starta sessionen';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1467,41 @@ class AppLocalizationsSv extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Analys';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 dagar';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 dagar';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 dagar';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Skärmtidstrend';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Ingen skärmtiddata har registrerats för denna period ännu.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Dagligt genomsnitt';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Totalt';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Samma som förra veckan';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% mindre än förra veckan';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% mer än förra veckan';
   }
 
   @override

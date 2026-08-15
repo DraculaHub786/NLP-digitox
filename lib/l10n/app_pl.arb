@@ -111,5 +111,21 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "onboarding_page_welcome_title": "Witamy w NLP digitox.",
+    "onboarding_page_welcome_info": "Przejmij kontrolę nad swoim cyfrowym życiem i zbuduj zdrowsze nawyki korzystania z ekranu. NLP digitox pomaga Ci pozostać skupionym, ograniczać rozpraszacze i dokonywać świadomych wyborów każdego dnia.",
+    "onboarding_page_statistics_title": "Poznaj swoje nawyki.",
+    "onboarding_page_statistics_info": "Zrozum swoje cyfrowe wzorce dzięki szczegółowym informacjom o czasie spędzonym przed ekranem, korzystaniu z aplikacji i trendach koncentracji. Śledź swoje postępy i zobacz, jak małe zmiany prowadzą do dużych ulepszeń.",
+    "focus_session_start_button": "Przesuń, aby rozpocząć sesję",
+    "analysis_tab_title": "Analiza",
+    "analysis_7_days": "7 dni",
+    "analysis_30_days": "30 dni",
+    "analysis_90_days": "90 dni",
+    "analysis_screen_time_trend": "Trend czasu przed ekranem",
+    "analysis_no_data_info": "Brak zarejestrowanych danych o czasie przed ekranem dla tego okresu.",
+    "analysis_daily_average": "Średnia dzienna",
+    "analysis_total": "Razem",
+    "analysis_no_change": "Tak samo jak w zeszłym tygodniu",
+    "analysis_trend_less": "{percent}% mniej niż w zeszłym tygodniu",
+    "analysis_trend_more": "{percent}% więcej niż w zeszłym tygodniu"
 }

@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline => 'ركّز على ما يهم حقًا';
 
   @override
   String get unlock_button_label => 'فتح';
@@ -458,18 +458,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'إنهاء الإعداد';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'مرحبًا بك في NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'تحكّم في حياتك الرقمية وابنِ عادات صحية لاستخدام الشاشة. يساعدك NLP digitox على البقاء مركّزًا وتقليل المشتتات واتخاذ خيارات واعية كل يوم.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'اعرف عاداتك.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'افهم أنماطك الرقمية من خلال رؤى مفصّلة حول وقت الشاشة واستخدام التطبيقات واتجاهات التركيز. تتبّع تقدّمك وشاهد كيف تؤدي التغييرات الصغيرة إلى تحسينات كبيرة.';
 
   @override
   String get onboarding_page_one_title => 'التركيز المتقن.';
@@ -998,7 +998,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'يمنع إنهاء الجلسة قبل انتهاء الوقت المحدد.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'مرّر لبدء الجلسة';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1467,41 @@ class AppLocalizationsAr extends AppLocalizations {
   String get export_db_tile_subtitle => 'تصدير قاعدة البيانات إلى ملف.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'التحليل';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 أيام';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 يومًا';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 يومًا';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'اتجاه وقت الشاشة';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'لا توجد بيانات وقت شاشة مسجلة لهذه الفترة بعد.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'المتوسط اليومي';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'الإجمالي';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'نفس الأسبوع الماضي';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% أقل من الأسبوع الماضي';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% أكثر من الأسبوع الماضي';
   }
 
   @override

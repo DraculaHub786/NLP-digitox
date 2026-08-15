@@ -9,7 +9,7 @@ class AppLocalizationsCa extends AppLocalizations {
   AppLocalizationsCa([String locale = 'ca']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline => 'Centra\'t en allò que realment importa';
 
   @override
   String get unlock_button_label => 'Unlock';
@@ -457,18 +457,18 @@ class AppLocalizationsCa extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finish Setup';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Benvingut/da a NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Pren el control de la teva vida digital i crea hàbits de pantalla més saludables. NLP digitox t\'ajuda a mantenir-te concentrat, reduir distraccions i prendre decisions conscients cada dia.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Coneix els teus hàbits.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Entén els teus patrons digitals amb informació detallada sobre temps de pantalla, ús d\'aplicacions i tendències de concentració. Fes un seguiment del teu progrés i veu com petits canvis porten a grans millores.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
@@ -997,7 +997,7 @@ class AppLocalizationsCa extends AppLocalizations {
       'Prevents ending a session before time ends.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Llisca per iniciar la sessió';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1467,41 +1467,41 @@ class AppLocalizationsCa extends AppLocalizations {
   String get export_db_tile_subtitle => 'Export database to a file.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Anàlisi';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 dies';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 dies';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 dies';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Tendència del temps de pantalla';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Encara no hi ha dades de temps de pantalla per a aquest període.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Mitjana diària';
 
   @override
   String get analysis_total => 'Total';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Igual que la setmana passada';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% menys que la setmana passada';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% més que la setmana passada';
   }
 
   @override

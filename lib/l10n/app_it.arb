@@ -218,5 +218,21 @@
     "suggest_idea_tile_title": "Suggerisci un'idea",
     "write_email_tile_title": "Scrivici via e-mail",
     "write_email_tile_subtitle": "Sarai reindirizzato al tuo client mail.",
-    "more_details_button": "Più dettagli"
+    "more_details_button": "Più dettagli",
+    "onboarding_page_welcome_title": "Benvenuto/a in NLP digitox.",
+    "onboarding_page_welcome_info": "Prendi il controllo della tua vita digitale e costruisci abitudini di schermo più sane. NLP digitox ti aiuta a rimanere concentrato, ridurre le distrazioni e fare scelte consapevoli ogni giorno.",
+    "onboarding_page_statistics_title": "Conosci le tue abitudini.",
+    "onboarding_page_statistics_info": "Comprendi i tuoi schemi digitali con approfondimenti dettagliati su tempo di schermo, utilizzo delle app e tendenze di concentrazione. Monitora i tuoi progressi e scopri come piccoli cambiamenti portano a grandi miglioramenti.",
+    "focus_session_start_button": "Scorri per avviare la sessione",
+    "analysis_tab_title": "Analisi",
+    "analysis_7_days": "7 giorni",
+    "analysis_30_days": "30 giorni",
+    "analysis_90_days": "90 giorni",
+    "analysis_screen_time_trend": "Andamento del tempo di schermo",
+    "analysis_no_data_info": "Nessun dato sul tempo di schermo registrato per questo periodo.",
+    "analysis_daily_average": "Media giornaliera",
+    "analysis_total": "Totale",
+    "analysis_no_change": "Come la scorsa settimana",
+    "analysis_trend_less": "{percent}% in meno rispetto alla scorsa settimana",
+    "analysis_trend_more": "{percent}% in più rispetto alla scorsa settimana"
 }

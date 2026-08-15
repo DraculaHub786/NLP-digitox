@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "Centra't en allò que realment importa",
+    "onboarding_page_welcome_title": "Benvingut/da a NLP digitox.",
+    "onboarding_page_welcome_info": "Pren el control de la teva vida digital i crea hàbits de pantalla més saludables. NLP digitox t'ajuda a mantenir-te concentrat, reduir distraccions i prendre decisions conscients cada dia.",
+    "onboarding_page_statistics_title": "Coneix els teus hàbits.",
+    "onboarding_page_statistics_info": "Entén els teus patrons digitals amb informació detallada sobre temps de pantalla, ús d'aplicacions i tendències de concentració. Fes un seguiment del teu progrés i veu com petits canvis porten a grans millores.",
+    "focus_session_start_button": "Llisca per iniciar la sessió",
+    "analysis_tab_title": "Anàlisi",
+    "analysis_7_days": "7 dies",
+    "analysis_30_days": "30 dies",
+    "analysis_90_days": "90 dies",
+    "analysis_screen_time_trend": "Tendència del temps de pantalla",
+    "analysis_no_data_info": "Encara no hi ha dades de temps de pantalla per a aquest període.",
+    "analysis_daily_average": "Mitjana diària",
+    "analysis_total": "Total",
+    "analysis_no_change": "Igual que la setmana passada",
+    "analysis_trend_less": "{percent}% menys que la setmana passada",
+    "analysis_trend_more": "{percent}% més que la setmana passada"
 }

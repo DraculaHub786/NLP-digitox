@@ -22,5 +22,22 @@
     "@----------------------------- APPS DASHBOARD SCREEN -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - GENERAL TAB -----------------------------": {},
     "@----------------------------- SETTINGS SCREEN - DATABASE TAB -----------------------------": {},
-    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {}
+    "@----------------------------- SETTINGS SCREEN - ABOUT TAB -----------------------------": {},
+    "mindful_tagline": "Arra összpontosíts, ami igazán számít",
+    "onboarding_page_welcome_title": "Üdvözlünk az NLP digitox alkalmazásban.",
+    "onboarding_page_welcome_info": "Vedd kézbe a digitális életed, és alakíts ki egészségesebb képernyőhasználati szokásokat. Az NLP digitox segít összpontosítva maradni, csökkenteni a zavaró tényezőket, és minden nap tudatos döntéseket hozni.",
+    "onboarding_page_statistics_title": "Ismerd meg a szokásaidat.",
+    "onboarding_page_statistics_info": "Értsd meg digitális szokásmintáidat a képernyőidőről, az alkalmazáshasználatról és a fókusz-trendekről szóló részletes adatokkal. Kövesd a fejlődésed, és lásd, hogyan vezetnek a kis változások nagy javulásokhoz.",
+    "focus_session_start_button": "Csúsztass az ülés indításához",
+    "analysis_tab_title": "Elemzés",
+    "analysis_7_days": "7 nap",
+    "analysis_30_days": "30 nap",
+    "analysis_90_days": "90 nap",
+    "analysis_screen_time_trend": "Képernyőidő-trend",
+    "analysis_no_data_info": "Ehhez az időszakhoz még nincs rögzített képernyőidő-adat.",
+    "analysis_daily_average": "Napi átlag",
+    "analysis_total": "Összesen",
+    "analysis_no_change": "Ugyanaz, mint a múlt héten",
+    "analysis_trend_less": "{percent}%-kal kevesebb, mint a múlt héten",
+    "analysis_trend_more": "{percent}%-kal több, mint a múlt héten"
 }
