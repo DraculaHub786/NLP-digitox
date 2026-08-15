@@ -235,7 +235,7 @@ class AppLocalizationsEl extends AppLocalizations {
       locale: localeName,
       other: '$countString δευτερόλεπτα',
       one: '1 δευτερόλεπτο',
-      zero: '0 δευτερόλεπτο',
+      zero: '0 δευτερόλεπτα',
     );
     return '$_temp0';
   }
@@ -391,67 +391,67 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Θέλετε να παρακολουθείτε τις συνεδρίες εστίασης; Δείτε το χρονοδιάγραμμα για να δείτε τη διαδρομή εστίασής σας.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Αποσπάται η προσοχή από τις κοινωνικές εφαρμογές; Αποκλείστε σύντομο περιεχόμενο στο Instagram, το YouTube κ.λπ., για να παραμείνετε συγκεντρωμένοι.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Χρειάζεστε γονικό έλεγχο; Ορίστε περιορισμούς για τη συσκευή του παιδιού σας για να εξασφαλίσετε μια ασφαλή εμπειρία.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Θέλετε να μειώσετε τους περισπασμούς; Χρησιμοποιήστε το Notification Batching για να ομαδοποιήσετε τις ειδοποιήσεις και να τις ελέγξετε αμέσως.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Θέλετε να διαχειριστείτε τις ειδοποιήσεις; Προγραμματίστε πότε λαμβάνετε ειδοποιήσεις για συγκεκριμένες εφαρμογές.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Χρειάζεστε γρήγορη πρόσβαση για εστίαση; Προσθέστε ένα πλακίδιο γρήγορης εστίασης για να ενεργοποιήσετε άμεσα τη λειτουργία εστίασης.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Θέλετε άμεση πρόσβαση στην εφαρμογή; Προσθέστε συντομεύσεις πατώντας παρατεταμένα το εικονίδιο της εφαρμογής για γρήγορες ενέργειες.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Θέλετε να αποθηκεύσετε τα δεδομένα σας; Δημιουργήστε αντίγραφα ασφαλείας της βάσης δεδομένων χρήσης για να διατηρήσετε τα αρχεία σας ασφαλή.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Θέλετε ένα προσαρμοσμένο θέμα; Ενεργοποιήστε το χρώμα Dynamic Material You ώστε να ταιριάζει με το θέμα της συσκευής σας.';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'Θέλετε να εξοικονομήσετε μπαταρία; Χρησιμοποιήστε το AMOLED Dark Theme για να μειώσετε την κατανάλωση ενέργειας στις οθόνες OLED.';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      'Θέλετε να διατηρήσετε το ιστορικό χρήσης; Προσαρμόστε πόσες εβδομάδες δεδομένων θα αποθηκεύονται στο Ιστορικό χρήσης.';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Θέλετε να αποκλείσετε εφαρμογές μαζί; Χρησιμοποιήστε τις Ομάδες περιορισμού για να ομαδοποιήσετε τα όρια εφαρμογών και να αποκλείσετε πολλές εφαρμογές ταυτόχρονα.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Θέλετε μια πιο καθαρή εμπειρία περιήγησης; Αποκλείστε προσαρμοσμένους ιστότοπους ή ιστότοπους NSFW για πιο εστιασμένο χρόνο στο διαδίκτυο.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Θέλετε να παρακολουθείτε τα δεδομένα σας; Παρακολουθήστε τη χρήση δεδομένων κινητής τηλεφωνίας και Wi-Fi για κατανάλωση Διαδικτύου.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Θέλετε να αποκλείσετε το Διαδίκτυο μιας εφαρμογής; Κόψτε το διαδίκτυο για συγκεκριμένη εφαρμογή από τον πίνακα ελέγχου της εφαρμογής.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Χρειάζεστε ένα διάλειμμα; Χρησιμοποιήστε 3 κάρτες έκτακτης ανάγκης καθημερινά για να ξεμπλοκάρετε προσωρινά εφαρμογές για 5 λεπτά.';
 
   @override
   String get onboarding_skip_btn_label => 'Παράλειψη';
@@ -618,7 +618,7 @@ class AppLocalizationsEl extends AppLocalizations {
   String get show_all_apps_tile_title => 'Εμφάνιση όλων των εφαρμογών';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'Αναζήτηση εφαρμογών...';
 
   @override
   String get notifications_tab_title => 'Ειδοποιήσεις';
@@ -631,26 +631,27 @@ class AppLocalizationsEl extends AppLocalizations {
   String get batched_apps_tile_title => 'Εφαρμογές σε παρτίδα';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Τύπος ανακεφαλαίωσης παρτίδας';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Επιλέξτε τι θα προωθήσετε όταν ενεργοποιείται ένα χρονοδιάγραμμα — όλες οι ειδοποιήσεις ή απλώς μια περίληψη.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Περίληψη μόνο';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Όλες οι ειδοποιήσεις';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Ιστορικό ειδοποιήσεων';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'Αποθηκεύστε όλες τις ειδοποιήσεις';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle =>
+      'Αποθηκεύστε επίσης μη ομαδοποιημένες ειδοποιήσεις.';
 
   @override
   String get schedules_heading => 'Προγράμματα';
@@ -799,7 +800,7 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'Αφού ενεργοποιηθεί, δεν θα μπορείτε να απεγκαταστήσετε, να διακόψετε αναγκαστικά ή να διαγράψετε τα δεδομένα του NLP digitox, εκτός από το επιλεγμένο παράθυρο απεγκατάστασης. Δεν υπάρχουν λύσεις.\n\nΠροχωρήστε με δική σας ευθύνη.';
 
   @override
   String get uninstall_window_tile_title => 'Παράθυρο απεγκατάστασης';
@@ -986,7 +987,7 @@ class AppLocalizationsEl extends AppLocalizations {
       'Η αφαίρεση εφαρμογών από τη λίστα ενοχλητικών εφαρμογών δεν επιτρέπεται όταν μια συνεδρία εστίασης είναι ενεργή. Ωστόσο, μπορείς να προσθέσεις πρόσθετες εφαρμογές στη λίστα κατά τη διάρκεια αυτής της περιόδου.';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'Εστίαση προφίλ';
 
   @override
   String get focus_session_duration_tile_title => 'Διάρκεια συνεδρίας';
@@ -1000,18 +1001,18 @@ class AppLocalizationsEl extends AppLocalizations {
       'Παρακαλώ επέλεξε την επιθυμητή διάρκεια για αυτή τη συνεδρία συγκέντρωσης, προσδιορίζοντας το χρονικό διάστημα που επιθυμείς να παραμείνεις σε συγκέντρωση και χωρίς περισπασμούς.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'Προσαρμογή προφίλ';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'Προσαρμόστε τις ρυθμίσεις για το επιλεγμένο προφίλ.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Επιβολή συνεδρίας';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Αποτρέπει τον τερματισμό μιας συνεδρίας πριν από τη λήξη του χρόνου.';
 
   @override
   String get focus_session_start_button =>
@@ -1093,7 +1094,7 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Εξερευνήστε το ταξίδι εστίασης επιλέγοντας μια ημερομηνία από το ημερολόγιο. Παρακολουθήστε την πρόοδό σας, επανεξετάστε τις επιτυχίες σας και μάθετε από τις προκλήσεις.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
@@ -1127,13 +1128,13 @@ class AppLocalizationsEl extends AppLocalizations {
       'Δεν καταγράφηκαν συνεδρίες εστίασης για την επιλεγμένη ημέρα.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Χρονική σήμανση';
 
   @override
   String get focus_session_tile_duration_label => 'Διάρκεια';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Αντανάκλαση';
 
   @override
   String get focus_session_state_active => 'Ενεργή';
@@ -1170,15 +1171,15 @@ class AppLocalizationsEl extends AppLocalizations {
       'Κρατήσου! Σχεδόν τα κατάφερες, μη τα παρατάς τώρα! Σίγουρα θες να τερματίσεις αυτήν την συνεδρία εστίασης νωρίτερα; Η πρόοδος θα χαθεί.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Αντανάκλαση συνεδρίας';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'Αφιερώστε λίγο χρόνο για να σκεφτείτε την πρόοδό σας. Ποιος είναι ο στόχος σας για αυτή τη συνεδρία; Τι καταφέρατε κατά τη διάρκεια αυτής της συνεδρίας;';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'Συμβουλή: Μπορείτε πάντα να το επεξεργαστείτε αργότερα στο χρονικό πλαίσιο της περιόδου σύνδεσης.';
 
   @override
   String get active_session_giveup_snack_alert =>
@@ -1249,34 +1250,34 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Δεν έχουν συγκεντρωθεί ειδοποιήσεις για την ημέρα.';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => 'συνομιλίες';
 
   @override
   String get last_24_hours_heading => 'Τελευταίες 24 ώρες';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Περιηγηθείτε στο ιστορικό ειδοποιήσεων επιλέγοντας μια ημερομηνία από το ημερολόγιο. Δείτε ποιες εφαρμογές τράβηξαν την προσοχή σας και σκεφτείτε τις ψηφιακές σας συνήθειες.';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => 'Μηνιαία';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => 'Καθημερινά';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Βρείτε εύκολα προηγούμενες ειδοποιήσεις κάνοντας αναζήτηση στον τίτλο ή το περιεχόμενό τους. Σας βοηθά να εντοπίσετε γρήγορα σημαντικές ειδοποιήσεις.';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => 'Αναζήτηση ειδοποιήσεων...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Δεν βρέθηκαν ειδοποιήσεις που να ταιριάζουν με την αναζήτησή σας.';
 
   @override
   String get app_info_none_warning =>
@@ -1316,11 +1317,11 @@ class AppLocalizationsEl extends AppLocalizations {
       'Όρισε ένα ημερήσιο χρονικό όριο για αυτήν την εφαρμογή. Μόλις συμπληρωθεί το όριό σου, η εφαρμογή θα τεθεί σε παύση μέχρι τα μεσάνυχτα.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Υπενθυμίσεις χρήσης';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Απαλές ωθήσεις κατά τη χρήση χρονομετρημένων εφαρμογών.';
 
   @override
   String get app_launch_limit_tile_title => 'Όριο εκκίνησης';

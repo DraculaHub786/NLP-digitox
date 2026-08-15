@@ -6,7 +6,7 @@ import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
-import 'package:nlp_digitox/core/services/profile_service.dart';
+import 'package:nlp_digitox/ui/common/profile_avatar.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/input_field_dialog.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
@@ -117,8 +117,7 @@ class GreetingsUsername extends ConsumerWidget {
         /// Right side - Profile pic shortcut
         GestureDetector(
           onTap: () => Navigator.of(context).pushNamed(
-            AppRoutes.settingsPath,
-            arguments: 1,
+            AppRoutes.profilePath,
           ),
           child: Container(
             padding: const EdgeInsets.all(3),
@@ -129,108 +128,10 @@ class GreetingsUsername extends ConsumerWidget {
                 width: 2,
               ),
             ),
-            child: const _ProfilePicWidget(size: 40),
+            child: const ProfileAvatar(size: 40),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ProfilePicWidget extends StatefulWidget {
-  final double size;
-
-  const _ProfilePicWidget({this.size = 40});
-
-  @override
-  State<_ProfilePicWidget> createState() => _ProfilePicWidgetState();
-}
-
-class _ProfilePicWidgetState extends State<_ProfilePicWidget> {
-  String? _profileUrl;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProfilePic();
-  }
-
-  Future<void> _loadProfilePic() async {
-    try {
-      final url = await ProfileService.instance.getProfileUrl();
-      if (mounted) {
-        setState(() {
-          _profileUrl = url;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (_isLoading) {
-      return Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colorScheme.primaryContainer,
-        ),
-        child: Center(
-          child: SizedBox(
-            width: widget.size * 0.5,
-            height: widget.size * 0.5,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: colorScheme.primary,
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (_profileUrl != null && _profileUrl!.isNotEmpty) {
-      return ClipOval(
-        child: Image.network(
-          _profileUrl!,
-          width: widget.size,
-          height: widget.size,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(colorScheme),
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return _buildDefaultAvatar(colorScheme);
-          },
-        ),
-      );
-    }
-
-    return _buildDefaultAvatar(colorScheme);
-  }
-
-  Widget _buildDefaultAvatar(ColorScheme colorScheme) {
-    return Container(
-      width: widget.size,
-      height: widget.size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: colorScheme.primaryContainer,
-      ),
-      child: Icon(
-        FluentIcons.person_20_filled,
-        size: widget.size * 0.5,
-        color: colorScheme.primary,
-      ),
     );
   }
 }

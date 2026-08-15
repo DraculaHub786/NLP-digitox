@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/note_model.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
 import 'package:nlp_digitox/ui/common/glass_card.dart';
 import 'package:nlp_digitox/providers/productivity/notes_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class NotesScreen extends ConsumerWidget {
   const NotesScreen({super.key});
@@ -27,7 +27,7 @@ class NotesScreen extends ConsumerWidget {
           icon: FluentIcons.note_20_regular,
           filledIcon: FluentIcons.note_20_filled,
           titleText: 'Notes & Lists',
-          fab: GlassFAB(
+          fab: DefaultFabButton(
             icon: FluentIcons.add_20_filled,
             label: 'New Note',
             onPressed: () => _showAddNoteDialog(context, ref),

@@ -12,162 +12,161 @@ class AppLocalizationsSv extends AppLocalizations {
   String get mindful_tagline => 'Fokusera på det som verkligen betyder något';
 
   @override
-  String get unlock_button_label => 'Unlock';
+  String get unlock_button_label => 'Lås upp';
 
   @override
-  String get permission_status_off => 'Off';
+  String get permission_status_off => 'Av';
 
   @override
-  String get permission_status_allowed => 'Allowed';
+  String get permission_status_allowed => 'Tillåtet';
 
   @override
-  String get permission_status_not_allowed => 'Not allowed';
+  String get permission_status_not_allowed => 'Inte tillåtet';
 
   @override
-  String get permission_button_grant_permission => 'Grant Permission';
+  String get permission_button_grant_permission => 'Ge tillstånd';
 
   @override
-  String get permission_button_agree_and_continue => 'Agree & Continue';
+  String get permission_button_agree_and_continue => 'Håll med & fortsätt';
 
   @override
-  String get permission_button_not_now => 'Not Now';
+  String get permission_button_not_now => 'Inte nu';
 
   @override
-  String get permission_button_help => 'Help?';
+  String get permission_button_help => 'Hjälp?';
 
   @override
   String get permission_sheet_privacy_info =>
-      'NLP digitox is 100% secure and works offline. We do not collect or store any personal data.';
+      'NLP digitox är 100 % säker och fungerar offline. Vi samlar inte in eller lagrar några personuppgifter.';
 
   @override
   String permission_grant_step_one(String button_label) {
-    return '1. Click on $button_label button.';
+    return '1. Klicka på knappen $button_label.';
   }
 
   @override
-  String get permission_grant_step_two =>
-      '2. Select NLP digitox in the next screen.';
+  String get permission_grant_step_two => '2. Välj NLP digitox på nästa skärm.';
 
   @override
   String get permission_grant_step_three =>
-      '3. Click and turn on the switch like below.';
+      '3. Klicka och slå på strömbrytaren enligt nedan.';
 
   @override
-  String get permission_notification_title => 'Send Notifications';
+  String get permission_notification_title => 'Skicka meddelanden';
 
   @override
-  String get permission_alarms_title => 'Alarms & Reminders';
+  String get permission_alarms_title => 'Larm och påminnelser';
 
   @override
   String get permission_alarms_info =>
-      'Please grant permission for setting alarms and reminders. This will allow NLP digitox to start your bedtime schedule on time and reset app timers daily at midnight and help you stay on track.';
+      'Vänligen ge tillstånd för att ställa in larm och påminnelser. Detta gör att NLP digitox kan starta ditt läggdagsschema i tid och återställa apptimers dagligen vid midnatt och hjälpa dig att hålla dig på rätt spår.';
 
   @override
   String get permission_alarms_device_tile_label =>
-      'Allow setting alarms and reminders';
+      'Tillåt inställning av larm och påminnelser';
 
   @override
-  String get permission_usage_title => 'Usage Access';
+  String get permission_usage_title => 'Användningsåtkomst';
 
   @override
   String get permission_usage_info =>
-      'Please grant usage access permission. This will allow NLP digitox to monitor app usage and manage access to certain apps, ensuring a more focused and controlled digital environment.';
+      'Vänligen ge åtkomstbehörighet för användning. Detta gör att NLP digitox kan övervaka appanvändning och hantera åtkomst till vissa appar, vilket säkerställer en mer fokuserad och kontrollerad digital miljö.';
 
   @override
-  String get permission_usage_device_tile_label => 'Permit usage access';
+  String get permission_usage_device_tile_label => 'Tillåt användningsåtkomst';
 
   @override
-  String get permission_overlay_title => 'Display Overlay';
+  String get permission_overlay_title => 'Visa överlägg';
 
   @override
   String get permission_overlay_info =>
-      'Please grant display overlay permission. This will allow NLP digitox to show an overlay when a paused app is opened, helping you stay focused and maintain your schedule.';
+      'Vänligen ge visningsöverlagringsbehörighet. Detta gör att NLP digitox kan visa en överlagring när en pausad app öppnas, vilket hjälper dig att hålla fokus och behålla ditt schema.';
 
   @override
   String get permission_overlay_device_tile_label =>
-      'Allow display over other apps';
+      'Tillåt visning över andra appar';
 
   @override
-  String get permission_accessibility_title => 'Accessibility';
+  String get permission_accessibility_title => 'Tillgänglighet';
 
   @override
   String get permission_accessibility_info =>
-      'Please grant accessibility permission. This will allow NLP digitox to restrict access to short-form video content (e.g., Reels, Shorts) within social media apps and browsers, and filter inappropriate websites.';
+      'Vänligen ge tillgänglighetstillstånd. Detta kommer att tillåta NLP digitox att begränsa åtkomsten till kortformat videoinnehåll (t.ex. Reels, Shorts) i appar och webbläsare för sociala medier och filtrera olämpliga webbplatser.';
 
   @override
   String get permission_accessibility_required =>
-      'NLP digitox requires accessibility permission to block short content and websites effectively.';
+      'NLP digitox kräver tillgänglighetstillstånd för att blockera kort innehåll och webbplatser effektivt.';
 
   @override
-  String get permission_accessibility_device_tile_label => 'Use NLP digitox';
+  String get permission_accessibility_device_tile_label => 'Använd NLP digitox';
 
   @override
-  String get permission_dnd_title => 'Do not disturb';
+  String get permission_dnd_title => 'Stör inte';
 
   @override
   String get permission_dnd_info =>
-      'Please grant Do Not Disturb access. This will allow NLP digitox to start and stop Do Not Disturb mode during the bedtime schedule.';
+      'Vänligen ge Stör ej åtkomst. Detta gör att NLP digitox kan starta och stoppa Stör ej-läget under läggdagsschemat.';
 
   @override
-  String get permission_dnd_tile_title => 'Start DND';
+  String get permission_dnd_tile_title => 'Starta DND';
 
   @override
-  String get permission_dnd_tile_subtitle => 'Also enable Do Not Disturb mode.';
+  String get permission_dnd_tile_subtitle => 'Aktivera även Stör ej-läget.';
 
   @override
   String get permission_battery_optimization_tile_title =>
-      'Ignore Battery Optimization';
+      'Ignorera batterioptimering';
 
   @override
   String get permission_battery_optimization_status_enabled =>
-      'Already unrestricted';
+      'Redan obegränsad';
 
   @override
   String get permission_battery_optimization_status_disabled =>
-      'Disable background restriction';
+      'Inaktivera bakgrundsbegränsning';
 
   @override
   String get permission_battery_optimization_allow_info =>
-      'Allowing \'Ignore Battery Optimization\' will automatically grant the \'Alarms & Reminders\' permission on some devices.';
+      'Om du tillåter \"Ignorera batterioptimering\" beviljas automatiskt behörigheten \"Larm och påminnelser\" på vissa enheter.';
 
   @override
-  String get permission_vpn_title => 'Create VPN';
+  String get permission_vpn_title => 'Skapa VPN';
 
   @override
   String get permission_vpn_info =>
-      'Please grant permission to create virtual private network (VPN) connection. This will enable NLP digitox to restrict internet access for designated applications by creating local on device VPN.';
+      'Vänligen ge tillstånd att skapa en anslutning till ett virtuellt privat nätverk (VPN). Detta gör det möjligt för NLP digitox att begränsa internetåtkomst för angivna applikationer genom att skapa lokal VPN på enheten.';
 
   @override
   String get permission_admin_title => 'Admin';
 
   @override
   String get permission_admin_info =>
-      'Administrative privileges are needed only for essential operations to ensure the app works properly and remains tamper-proof.';
+      'Administrativa behörigheter behövs endast för väsentliga åtgärder för att säkerställa att appen fungerar korrekt och förblir manipuleringssäker.';
 
   @override
   String get permission_admin_snack_alert =>
-      'Tamper protection can only be disabled during the selected time window.';
+      'Sabotageskydd kan endast inaktiveras under det valda tidsfönstret.';
 
   @override
-  String get permission_notification_access_title => 'Notification Access';
+  String get permission_notification_access_title => 'Aviseringsåtkomst';
 
   @override
   String get permission_notification_access_info =>
-      'Please grant notification access permission. This will allow NLP digitox to organize your notifications and deliver them on your schedule.';
+      'Vänligen ge åtkomstbehörighet för meddelanden. Detta gör att NLP digitox kan organisera dina aviseringar och leverera dem enligt ditt schema.';
 
   @override
   String get permission_notification_access_required =>
-      'NLP digitox requires notification access to batch and schedule notifications.';
+      'NLP digitox kräver aviseringsåtkomst till batch- och schemameddelanden.';
 
   @override
   String get permission_notification_access_device_tile_label =>
-      'Allow notification access';
+      'Tillåt åtkomst till aviseringar';
 
   @override
-  String get day_today => 'Today';
+  String get day_today => 'Idag';
 
   @override
-  String get day_yesterday => 'Yesterday';
+  String get day_yesterday => 'Igår';
 
   @override
   String nDays(num count) {
@@ -179,9 +178,9 @@ class AppLocalizationsSv extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString days',
-      one: '1 day',
-      zero: '0 day',
+      other: '$countString dagar',
+      one: '1 dag',
+      zero: '0 dagar',
     );
     return '$_temp0';
   }
@@ -196,9 +195,9 @@ class AppLocalizationsSv extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString hours',
-      one: '1 hour',
-      zero: '0 hour',
+      other: '$countString timmar',
+      one: '1 timme',
+      zero: '0 timmar',
     );
     return '$_temp0';
   }
@@ -213,9 +212,9 @@ class AppLocalizationsSv extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString minutes',
-      one: '1 minute',
-      zero: '0 minute',
+      other: '$countString minuter',
+      one: '1 minut',
+      zero: '0 minuter',
     );
     return '$_temp0';
   }
@@ -230,231 +229,231 @@ class AppLocalizationsSv extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString seconds',
-      one: '1 second',
-      zero: '0 second',
+      other: '$countString sekunder',
+      one: '1 sekund',
+      zero: '0 sekunder',
     );
     return '$_temp0';
   }
 
   @override
-  String get time_separator_and => 'and';
+  String get time_separator_and => 'och';
 
   @override
-  String get timer_status_active => 'Active';
+  String get timer_status_active => 'Aktiv';
 
   @override
-  String get timer_status_paused => 'Paused';
+  String get timer_status_paused => 'Pausad';
 
   @override
-  String get create_button => 'Create';
+  String get create_button => 'Skapa';
 
   @override
-  String get update_button => 'Update';
+  String get update_button => 'Uppdatering';
 
   @override
-  String get dialog_button_cancel => 'Cancel';
+  String get dialog_button_cancel => 'Avbryt';
 
   @override
-  String get dialog_button_remove => 'Remove';
+  String get dialog_button_remove => 'Ta bort';
 
   @override
-  String get dialog_button_set => 'Set';
+  String get dialog_button_set => 'Ställ in';
 
   @override
-  String get dialog_button_reset => 'Reset';
+  String get dialog_button_reset => 'Återställ';
 
   @override
-  String get dialog_button_infinite => 'Infinite';
+  String get dialog_button_infinite => 'Oändligt';
 
   @override
-  String get schedule_start_label => 'Start';
+  String get schedule_start_label => 'Starta';
 
   @override
-  String get schedule_end_label => 'End';
+  String get schedule_end_label => 'Slut';
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Är du säker på att du vill avsluta utan att spara?';
 
   @override
   String get development_dialog_info =>
-      'NLP digitox is currently under development and may have bugs or incomplete features. If you encounter any issues, please report them to help us improve.\n\nThank you for your feedback!';
+      'NLP digitox är för närvarande under utveckling och kan ha buggar eller ofullständiga funktioner. Om du stöter på några problem, vänligen rapportera dem för att hjälpa oss att förbättra.\n\nTack för din feedback!';
 
   @override
-  String get development_dialog_button_report_issue => 'Report Issue';
+  String get development_dialog_button_report_issue => 'Rapportera problem';
 
   @override
-  String get development_dialog_button_close => 'Close';
+  String get development_dialog_button_close => 'Stäng';
 
   @override
-  String get dnd_settings_tile_title => 'Do not disturb settings';
+  String get dnd_settings_tile_title => 'Stör ej inställningar';
 
   @override
   String get dnd_settings_tile_subtitle =>
-      'Manage which apps and notifications can reach you in DND.';
+      'Hantera vilka appar och aviseringar som kan nå dig i DND.';
 
   @override
-  String get quick_actions_heading => 'Quick actions';
+  String get quick_actions_heading => 'Snabba åtgärder';
 
   @override
-  String get select_distracting_apps_heading => 'Select distracting apps';
+  String get select_distracting_apps_heading => 'Välj distraherande appar';
 
   @override
-  String get your_distracting_apps_heading => 'Your distracting apps';
+  String get your_distracting_apps_heading => 'Dina distraherande appar';
 
   @override
-  String get select_more_apps_heading => 'Select more apps';
+  String get select_more_apps_heading => 'Välj fler appar';
 
   @override
   String get imp_distracting_apps_snack_alert =>
-      'Adding important system apps to the list of distracting apps is not permitted.';
+      'Det är inte tillåtet att lägga till viktiga systemappar i listan över distraherande appar.';
 
   @override
   String get custom_apps_quick_actions_unavailable_warning =>
-      'Screen usage and restrictions are unavailable for this application. At present, only network usage is accessible';
+      'Skärmanvändning och begränsningar är inte tillgängliga för denna applikation. För närvarande är endast nätverksanvändning tillgänglig';
 
   @override
-  String get create_group_fab_button => 'Create Group';
+  String get create_group_fab_button => 'Skapa grupp';
 
   @override
   String get active_period_info =>
-      'Set a time period during which access will be allowed. Outside of this time frame, access will be restricted.';
+      'Ställ in en tidsperiod under vilken åtkomst tillåts. Utanför denna tidsram kommer åtkomsten att vara begränsad.';
 
   @override
   String get minimum_distracting_apps_snack_alert =>
-      'Select at least one distracting app.';
+      'Välj minst en distraherande app.';
 
   @override
-  String get donation_card_title => 'Support us';
+  String get donation_card_title => 'Stöd oss';
 
   @override
   String get donation_card_info =>
-      'NLP digitox is free and open-source, developed with months of dedication. If it has helped you, your donation would mean the world to us. Every contribution helps us continue improving and maintaining it for everyone.';
+      'NLP digitox är gratis och öppen källkod, utvecklad med månader av engagemang. Om det har hjälpt dig skulle din donation betyda världen för oss. Varje bidrag hjälper oss att fortsätta att förbättra och underhålla det för alla.';
 
   @override
   String get operation_failed_snack_alert =>
-      'Operation failed, something went wrong!';
+      'Operation misslyckades, något gick fel!';
 
   @override
-  String get donation_card_button_donate => 'Donate';
+  String get donation_card_button_donate => 'Donera';
 
   @override
-  String get app_restart_dialog_title => 'Need restart';
+  String get app_restart_dialog_title => 'Behöver omstart';
 
   @override
   String get app_restart_dialog_info =>
-      'NLP digitox will automatically restart once the countdown finishes. Please be patient as changes are applied.';
+      'NLP digitox startar om automatiskt när nedräkningen är klar. Vänligen ha tålamod eftersom ändringar tillämpas.';
 
   @override
   String get accessibility_tip =>
-      'Want smarter, more battery-friendly blocking? Enable Accessibility permission for NLP digitox.';
+      'Vill du ha smartare, mer batterivänlig blockering? Aktivera tillgänglighetsbehörighet för NLP digitox.';
 
   @override
   String get battery_optimization_tip =>
-      'NLP digitox not working? Allow \'Ignore Battery Optimization\' in Settings to keep it running smoothly.';
+      'NLP digitox fungerar inte? Tillåt \"Ignorera batterioptimering\" i Inställningar för att det ska fungera smidigt.';
 
   @override
   String get invincible_mode_tip =>
-      'Accidentally removed restrictions? Use Invincible Mode to lock them until the next day or adjustment window.';
+      'Av misstag tagit bort restriktioner? Använd Invincible Mode för att låsa dem till nästa dag eller justeringsfönster.';
 
   @override
   String get glance_usage_tip =>
-      'Want insights? Check the Glance section to view your usage patterns and screen time.';
+      'Vill du ha insikter? Kolla avsnittet Glance för att se dina användningsmönster och skärmtid.';
 
   @override
   String get tamper_protection_tip =>
-      'Uninstalling NLP digitox? Enable the Uninstall Window to safely disable tamper protection first.';
+      'Avinstallera NLP digitox? Aktivera avinstallationsfönstret för att säkert inaktivera manipuleringsskyddet först.';
 
   @override
   String get notification_blocking_tip =>
-      'Want to reduce distractions? Use Notification Blocking to silence selected apps.';
+      'Vill du minska distraktioner? Använd aviseringsblockering för att tysta valda appar.';
 
   @override
   String get usage_history_tip =>
-      'Want to reflect on your habits? Check Usage History to see past patterns.';
+      'Vill du reflektera över dina vanor? Kontrollera Användningshistorik för att se tidigare mönster.';
 
   @override
   String get focus_mode_tip =>
-      'Need deep focus? Turn on Focus Mode to block apps and notifications during tasks.';
+      'Behöver du djup fokus? Aktivera fokusläge för att blockera appar och aviseringar under uppgifter.';
 
   @override
   String get bedtime_reminder_tip =>
-      'Want to improve your sleep? Set a Bedtime Reminder to wind down nightly.';
+      'Vill du förbättra din sömn? Ställ in en läggdagspåminnelse för att varva ner varje kväll.';
 
   @override
   String get custom_blocking_tip =>
-      'Need a custom experience? Create app blocking rules that fit your needs.';
+      'Behöver du en anpassad upplevelse? Skapa appblockeringsregler som passar dina behov.';
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Vill du spåra fokussessioner? Se tidslinjen för att se din fokusresa.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Distraherad av sociala appar? Blockera kort innehåll på Instagram, YouTube, etc. för att hålla fokus.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Behöver du föräldrakontroll? Ställ in begränsningar för ditt barns enhet för att säkerställa en säker upplevelse.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Vill du minska distraktioner? Använd Notification Batching för att gruppera aviseringar och kontrollera dem på en gång.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Behöver du hantera aviseringar? Schemalägg när du får aviseringar för specifika appar.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Behöver du snabb tillgång till fokus? Lägg till en snabbfokusruta för att omedelbart aktivera fokusläget.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Vill du ha åtkomst till appar direkt? Lägg till genvägar genom att trycka länge på appikonen för snabba åtgärder.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Vill du spara din data? Säkerhetskopiera din användningsdatabasen för att hålla dina register säkra.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Vill du ha ett anpassat tema? Aktivera dynamiskt material Du färgar för att matcha enhetens tema.';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'Vill du spara batteri? Använd AMOLED Dark Theme för att minska strömförbrukningen på OLED-skärmar.';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      'Vill du behålla användningshistoriken? Anpassa hur många veckors data som ska lagras i Användningshistorik.';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Vill du blockera appar tillsammans? Använd begränsningsgrupper för att gruppera appgränser och blockera flera appar samtidigt.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Vill du ha en renare webbupplevelse? Blockera anpassade eller NSFW-webbplatser för en mer fokuserad onlinetid.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Vill du spåra din data? Övervaka din mobil- och Wi-Fi-dataanvändning för internetkonsumtion.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Behöver du blockera en apps internet? Stäng av internet för specifik app från appens instrumentpanel.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Behöver du en paus? Använd 3 nödpass dagligen för att tillfälligt avblockera appar i 5 minuter.';
 
   @override
-  String get onboarding_skip_btn_label => 'Skip';
+  String get onboarding_skip_btn_label => 'Hoppa över';
 
   @override
-  String get onboarding_finish_setup_btn_label => 'Finish Setup';
+  String get onboarding_finish_setup_btn_label => 'Slutför installationen';
 
   @override
   String get onboarding_page_welcome_title => 'Välkommen till NLP digitox.';
@@ -471,1000 +470,1006 @@ class AppLocalizationsSv extends AppLocalizations {
       'Förstå dina digitala mönster med detaljerade insikter om skärmtid, appanvändning och fokustrender. Följ dina framsteg och se hur små förändringar leder till stora förbättringar.';
 
   @override
-  String get onboarding_page_one_title => 'Master Focus.';
+  String get onboarding_page_one_title => 'Mästarfokus.';
 
   @override
   String get onboarding_page_one_info =>
-      'Pause distracting apps, block short content, and stay on track with customizable focus sessions. Whether you\'re working, studying, or relaxing, NLP digitox helps you stay in control.';
+      'Pausa distraherande appar, blockera kort innehåll och håll dig på rätt spår med anpassningsbara fokussessioner. Oavsett om du arbetar, studerar eller kopplar av, hjälper NLP digitox dig att behålla kontrollen.';
 
   @override
-  String get onboarding_page_two_title => 'Block Distractions.';
+  String get onboarding_page_two_title => 'Blockera distraktioner.';
 
   @override
   String get onboarding_page_two_info =>
-      'Set usage limits, automatically pause apps, and create healthier digital habits. Use Bedtime Mode to unwind and enjoy a distraction-free night.';
+      'Ställ in användningsgränser, pausa appar automatiskt och skapa hälsosammare digitala vanor. Använd läggdagsläge för att varva ner och njuta av en natt utan distraktion.';
 
   @override
-  String get onboarding_page_three_title => 'Privacy First.';
+  String get onboarding_page_three_title => 'Sekretess först.';
 
   @override
   String get onboarding_page_three_info =>
-      'NLP digitox is 100% open-source and operates entirely offline. We don\'t collect or share your personal data — your privacy is guaranteed in every way.';
+      'NLP digitox är 100 % öppen källkod och fungerar helt offline. Vi samlar inte in eller delar dina personuppgifter – din integritet garanteras på alla sätt.';
 
   @override
-  String get onboarding_page_permissions_title => 'Essential Permissions.';
+  String get onboarding_page_permissions_title => 'Viktiga behörigheter.';
 
   @override
   String get onboarding_page_permissions_info =>
-      'NLP digitox requires following essential permissions to track and manage your screen time, helping reduce distractions and improve focus.';
+      'NLP digitox kräver följande viktiga behörigheter för att spåra och hantera din skärmtid, vilket hjälper till att minska distraktioner och förbättra fokus.';
 
   @override
-  String get dashboard_tab_title => 'Dashboard';
+  String get dashboard_tab_title => 'Instrumentbräda';
 
   @override
-  String get focus_now_fab_button => 'Focus now';
+  String get focus_now_fab_button => 'Fokusera nu';
 
   @override
-  String get welcome_greetings => 'Welcome back,';
+  String get welcome_greetings => 'Välkommen tillbaka,';
 
   @override
-  String get username_snack_alert => 'Long press to edit username.';
+  String get username_snack_alert =>
+      'Tryck länge för att redigera användarnamn.';
 
   @override
-  String get username_dialog_title => 'Username';
+  String get username_dialog_title => 'Användarnamn';
 
   @override
   String get username_dialog_info =>
-      'Enter your username which will be displayed on dashboard.';
+      'Ange ditt användarnamn som kommer att visas på instrumentpanelen.';
 
   @override
-  String get username_dialog_button_apply => 'Apply';
+  String get username_dialog_button_apply => 'Ansök';
 
   @override
-  String get glance_tile_title => 'Glance';
+  String get glance_tile_title => 'Blicka';
 
   @override
-  String get glance_tile_subtitle => 'Take a quick glance at your usage.';
+  String get glance_tile_subtitle => 'Ta en snabb blick på din användning.';
 
   @override
   String get parental_controls_tile_subtitle =>
-      'Invincible mode and tamper protection.';
+      'Oövervinnerligt läge och manipuleringsskydd.';
 
   @override
-  String get restrictions_heading => 'Restrictions';
+  String get restrictions_heading => 'Restriktioner';
 
   @override
-  String get apps_blocking_tile_title => 'Apps blocking';
+  String get apps_blocking_tile_title => 'Appar blockerar';
 
   @override
-  String get apps_blocking_tile_subtitle => 'Limit apps in multiple ways.';
+  String get apps_blocking_tile_subtitle => 'Begränsa appar på flera sätt.';
 
   @override
-  String get grouped_apps_blocking_tile_title => 'Grouped apps blocking';
+  String get grouped_apps_blocking_tile_title =>
+      'Blockering av grupperade appar';
 
   @override
   String get grouped_apps_blocking_tile_subtitle =>
-      'Limit group of apps simultaneously.';
+      'Begränsa grupp av appar samtidigt.';
 
   @override
   String get shorts_blocking_tile_subtitle =>
-      'Limit short content on multiple platforms.';
+      'Begränsa kort innehåll på flera plattformar.';
 
   @override
   String get websites_blocking_tile_subtitle =>
-      'Limit adult and custom websites.';
+      'Begränsa vuxna och anpassade webbplatser.';
 
   @override
-  String get screen_time_label => 'Screen time';
+  String get screen_time_label => 'Skärmtid';
 
   @override
-  String get total_data_label => 'Total data';
+  String get total_data_label => 'Totala data';
 
   @override
-  String get mobile_data_label => 'Mobile data';
+  String get mobile_data_label => 'Mobildata';
 
   @override
-  String get wifi_data_label => 'Wifi data';
+  String get wifi_data_label => 'Wifi-data';
 
   @override
-  String get focus_today_label => 'Focus today';
+  String get focus_today_label => 'Fokus idag';
 
   @override
-  String get focus_weekly_label => 'Focus weekly';
+  String get focus_weekly_label => 'Fokusera varje vecka';
 
   @override
-  String get focus_monthly_label => 'Focus monthly';
+  String get focus_monthly_label => 'Fokus varje månad';
 
   @override
-  String get focus_lifetime_label => 'Focus lifetime';
+  String get focus_lifetime_label => 'Fokus livstid';
 
   @override
-  String get longest_streak_label => 'Longest streak';
+  String get longest_streak_label => 'Längsta rad';
 
   @override
-  String get current_streak_label => 'Current streak';
+  String get current_streak_label => 'Nuvarande rad';
 
   @override
-  String get successful_sessions_label => 'Successful sessions';
+  String get successful_sessions_label => 'Framgångsrika sessioner';
 
   @override
-  String get failed_sessions_label => 'Failed sessions';
+  String get failed_sessions_label => 'Misslyckade sessioner';
 
   @override
-  String get statistics_tab_title => 'Statistics';
+  String get statistics_tab_title => 'Statistik';
 
   @override
-  String get screen_segment_label => 'Screen';
+  String get screen_segment_label => 'Skärm';
 
   @override
   String get data_segment_label => 'Data';
 
   @override
-  String get mobile_label => 'Mobile';
+  String get mobile_label => 'Mobil';
 
   @override
   String get wifi_label => 'Wifi';
 
   @override
-  String get most_used_apps_heading => 'Most used apps';
+  String get most_used_apps_heading => 'Mest använda appar';
 
   @override
-  String get show_all_apps_tile_title => 'Show all apps';
+  String get show_all_apps_tile_title => 'Visa alla appar';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'Sök appar...';
 
   @override
-  String get notifications_tab_title => 'Notifications';
+  String get notifications_tab_title => 'Aviseringar';
 
   @override
   String get notifications_tab_info =>
-      'Batch notification from apps and set schedules like morning, noon, evening and night. Stay updated without constant interruptions.';
+      'Gruppaviseringar från appar och ställ in scheman som morgon, middag, kväll och kväll. Håll dig uppdaterad utan ständiga avbrott.';
 
   @override
-  String get batched_apps_tile_title => 'Batched apps';
+  String get batched_apps_tile_title => 'Batchade appar';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Batch-recap typ';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Välj vad som ska skickas när ett schema utlöses – alla aviseringar eller bara en sammanfattning.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Endast sammanfattning';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Alla aviseringar';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Aviseringshistorik';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'Lagra alla aviseringar';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle =>
+      'Spara icke-batchade meddelanden också.';
 
   @override
-  String get schedules_heading => 'Schedules';
+  String get schedules_heading => 'Scheman';
 
   @override
-  String get new_schedule_fab_button => 'New Schedule';
+  String get new_schedule_fab_button => 'Nytt schema';
 
   @override
   String get new_schedule_dialog_info =>
-      'Enter a name for the notification schedule to help identify it easily.';
+      'Ange ett namn för aviseringsschemat för att lättare kunna identifiera det.';
 
   @override
-  String get new_schedule_dialog_field_label => 'Schedule name';
+  String get new_schedule_dialog_field_label => 'Schemanamn';
 
   @override
-  String get bedtime_tab_title => 'Bedtime';
+  String get bedtime_tab_title => 'Sovdags';
 
   @override
   String get bedtime_tab_info =>
-      'Set your bedtime schedule by selecting a time period and days of the week. Choose distracting apps to block and enable Do Not Disturb (DND) mode for a peaceful night.';
+      'Ställ in ditt läggdagsschema genom att välja en tidsperiod och veckodagar. Välj distraherande appar för att blockera och aktivera läget Stör ej (DND) för en lugn natt.';
 
   @override
-  String get schedule_tile_title => 'Schedule';
+  String get schedule_tile_title => 'Schema';
 
   @override
-  String get schedule_tile_subtitle => 'Enable or disable daily schedule.';
+  String get schedule_tile_subtitle =>
+      'Aktivera eller inaktivera dagligt schema.';
 
   @override
   String get bedtime_no_days_selected_snack_alert =>
-      'Select at least one day of the week.';
+      'Välj minst en dag i veckan.';
 
   @override
   String get bedtime_minimum_duration_snack_alert =>
-      'The total bedtime duration must be at least 30 minutes.';
+      'Den totala läggdagstiden måste vara minst 30 minuter.';
 
   @override
-  String get distracting_apps_tile_title => 'Distracting apps';
+  String get distracting_apps_tile_title => 'Distraherande appar';
 
   @override
   String get distracting_apps_tile_subtitle =>
-      'Select which apps are distracting you from your bedtime routine.';
+      'Välj vilka appar som distraherar dig från din läggdagsrutin.';
 
   @override
   String get bedtime_distracting_apps_modify_snack_alert =>
-      'Modifications to the list of distracting apps is not permitted while the bedtime schedule is active.';
+      'Ändringar av listan över distraherande appar är inte tillåtna medan läggdagsschemat är aktivt.';
 
   @override
-  String get parental_controls_tab_title => 'Parental controls';
+  String get parental_controls_tab_title => 'Föräldrakontroll';
 
   @override
-  String get invincible_mode_heading => 'Invincible mode';
+  String get invincible_mode_heading => 'Oövervinnerligt läge';
 
   @override
-  String get invincible_mode_tile_title => 'Activate invincible mode';
+  String get invincible_mode_tile_title => 'Aktivera oövervinnerligt läge';
 
   @override
   String get invincible_mode_info =>
-      'When Invincible Mode is on, you won\'t be able to adjust selected limits after reaching your daily quota. However, you can make changes within a selected 10-minute invincible window.';
+      'När Invincible Mode är på kommer du inte att kunna justera valda gränser efter att du har nått din dagliga kvot. Du kan dock göra ändringar inom ett valt 10-minuters oövervinnerligt fönster.';
 
   @override
   String get invincible_mode_snack_alert =>
-      'Due to invincible mode, modifications to restrictions is not allowed.';
+      'På grund av oövervinnerligt läge är ändringar av restriktioner inte tillåtna.';
 
   @override
   String get invincible_mode_dialog_info =>
-      'Are you absolutely sure you want to enable Invincible Mode? This action is irreversible. Once Invincible Mode is turned on, you cannot turn it off as long as this app is installed on your device.';
+      'Är du helt säker på att du vill aktivera Invincible Mode? Denna åtgärd är oåterkallelig. När Invincible Mode är aktiverat kan du inte stänga av det så länge den här appen är installerad på din enhet.';
 
   @override
   String get invincible_mode_turn_off_snack_alert =>
-      'Invincible Mode cannot be turned off as long as this app remains installed on your device.';
+      'Invincible Mode kan inte stängas av så länge den här appen förblir installerad på din enhet.';
 
   @override
-  String get invincible_mode_dialog_button_start_anyway => 'Start anyway';
+  String get invincible_mode_dialog_button_start_anyway => 'Börja ändå';
 
   @override
-  String get invincible_mode_include_timer_tile_title => 'Include timer';
+  String get invincible_mode_include_timer_tile_title => 'Inkludera timer';
 
   @override
   String get invincible_mode_include_launch_limit_tile_title =>
-      'Include launch limit';
+      'Inkludera lanseringsgräns';
 
   @override
   String get invincible_mode_include_active_period_tile_title =>
-      'Include active period';
+      'Inkludera aktiv period';
 
   @override
-  String get invincible_mode_app_restrictions_tile_title => 'App restrictions';
+  String get invincible_mode_app_restrictions_tile_title => 'Appbegränsningar';
 
   @override
   String get invincible_mode_app_restrictions_tile_subtitle =>
-      'Prevent changes to the app\'s selected restrictions once the daily limits are exceeded.';
+      'Förhindra ändringar av appens valda begränsningar när de dagliga gränserna överskrids.';
 
   @override
   String get invincible_mode_group_restrictions_tile_title =>
-      'Group restrictions';
+      'Grupprestriktioner';
 
   @override
   String get invincible_mode_group_restrictions_tile_subtitle =>
-      'Prevent changes to the group\'s selected restrictions once the daily limits are exceeded.';
+      'Förhindra ändringar av gruppens valda begränsningar när de dagliga gränserna överskrids.';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_title =>
-      'Include shorts timer';
+      'Inkludera shorts timer';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_subtitle =>
-      'Prevents changes after reaching your daily shorts limit.';
+      'Förhindrar förändringar efter att du har nått din dagliga shorts-gräns.';
 
   @override
-  String get invincible_mode_include_bedtime_tile_title => 'Include bedtime';
+  String get invincible_mode_include_bedtime_tile_title => 'Inkludera läggdags';
 
   @override
   String get invincible_mode_include_bedtime_tile_subtitle =>
-      'Prevents changes during the active bedtime schedule.';
+      'Förhindrar ändringar under det aktiva läggdagsschemat.';
 
   @override
-  String get protected_access_tile_title => 'Protected access';
+  String get protected_access_tile_title => 'Skyddad åtkomst';
 
   @override
   String get protected_access_tile_subtitle =>
-      'Protect NLP digitox with your device lock.';
+      'Skydda NLP digitox med ditt enhetslås.';
 
   @override
   String get protected_access_no_lock_snack_alert =>
-      'Please set up a biometric lock on your device first to enable this feature.';
+      'Vänligen ställ in ett biometriskt lås på din enhet först för att aktivera den här funktionen.';
 
   @override
   String get protected_access_removed_lock_snack_alert =>
-      'Your device lock has been removed. To continue, please set up a new lock.';
+      'Ditt enhetslås har tagits bort. För att fortsätta, ställ in ett nytt lås.';
 
   @override
   String get protected_access_failed_lock_snack_alert =>
-      'Authentication failed. You need to verify your device lock to proceed.';
+      'Autentiseringen misslyckades. Du måste verifiera ditt enhetslås för att fortsätta.';
 
   @override
-  String get tamper_protection_tile_title => 'Tamper protection';
+  String get tamper_protection_tile_title => 'Sabotageskydd';
 
   @override
   String get tamper_protection_tile_subtitle =>
-      'Prevent uninstalling and force stopping the app.';
+      'Förhindra avinstallation och tvinga fram stopp av appen.';
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'När det är aktiverat kommer du inte att kunna avinstallera, tvinga fram stopp eller rensa NLP digitoxs data, förutom under det valda avinstallationsfönstret. Det finns inga lösningar.\n\nFortsätt på egen risk.';
 
   @override
-  String get uninstall_window_tile_title => 'Uninstall window';
+  String get uninstall_window_tile_title => 'Avinstallera fönstret';
 
   @override
   String get uninstall_window_tile_subtitle =>
-      'Tamper protection can be disabled within 10 minutes from the selected time.';
+      'Sabotageskydd kan inaktiveras inom 10 minuter från den valda tiden.';
 
   @override
-  String get invincible_window_tile_title => 'Invincible window';
+  String get invincible_window_tile_title => 'Oövervinnerligt fönster';
 
   @override
   String get invincible_window_tile_subtitle =>
-      'Selected limits can be modified within 10 minutes from the selected time.';
+      'Valda gränser kan ändras inom 10 minuter från den valda tiden.';
 
   @override
-  String get shorts_blocking_tab_title => 'Shorts blocking';
+  String get shorts_blocking_tab_title => 'Shorts som blockerar';
 
   @override
   String get shorts_blocking_tab_info =>
-      'Control how much time you spend on short content across platforms like Instagram, YouTube, Snapchat, and Facebook, including their websites.';
+      'Kontrollera hur mycket tid du lägger på kort innehåll på plattformar som Instagram, YouTube, Snapchat och Facebook, inklusive deras webbplatser.';
 
   @override
-  String get short_content_heading => 'Short content';
+  String get short_content_heading => 'Kort innehåll';
 
   @override
   String shorts_time_left_from(String timeShortString) {
-    return 'Left from $timeShortString';
+    return 'Vänster från $timeShortString';
   }
 
   @override
   String get short_content_timer_picker_dialog_info =>
-      'Set a daily time limit for short content. Once your limit is reached, the short content will be paused until midnight.';
+      'Ställ in en daglig tidsgräns för kort innehåll. När din gräns har nåtts pausas det korta innehållet till midnatt.';
 
   @override
   String get instagram_features_tile_title => 'Instagram';
 
   @override
   String get instagram_features_tile_subtitle =>
-      'Restrict features on instagram.';
+      'Begränsa funktioner på instagram.';
 
   @override
-  String get instagram_features_block_reels => 'Restrict reels section.';
+  String get instagram_features_block_reels => 'Begränsa rullarna.';
 
   @override
-  String get instagram_features_block_explore => 'Restrict explore section.';
+  String get instagram_features_block_explore => 'Begränsa utforskandet.';
 
   @override
   String get snapchat_features_tile_title => 'Snapchat';
 
   @override
   String get snapchat_features_tile_subtitle =>
-      'Restrict features on snapchat.';
+      'Begränsa funktioner på snapchat.';
 
   @override
-  String get snapchat_features_block_spotlight => 'Restrict spotlight section.';
+  String get snapchat_features_block_spotlight =>
+      'Begränsa strålkastarsektionen.';
 
   @override
-  String get snapchat_features_block_discover => 'Restrict discover section.';
+  String get snapchat_features_block_discover => 'Begränsa upptäckssektionen.';
 
   @override
   String get youtube_features_tile_title => 'Youtube';
 
   @override
-  String get youtube_features_tile_subtitle => 'Restrict shorts on youtube.';
+  String get youtube_features_tile_subtitle =>
+      'Begränsa kortfilmer på youtube.';
 
   @override
   String get facebook_features_tile_title => 'Facebook';
 
   @override
-  String get facebook_features_tile_subtitle => 'Restrict reels on facebook.';
+  String get facebook_features_tile_subtitle => 'Begränsa rullar på facebook.';
 
   @override
   String get reddit_features_tile_title => 'Reddit';
 
   @override
-  String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
+  String get reddit_features_tile_subtitle => 'Begränsa shorts på reddit.';
 
   @override
   String get x_features_tile_title => 'X';
 
   @override
-  String get x_features_tile_subtitle => 'Restrict video feed on X.';
+  String get x_features_tile_subtitle => 'Begränsa videoflödet på X.';
 
   @override
-  String get threads_features_tile_title => 'Threads';
+  String get threads_features_tile_title => 'Trådar';
 
   @override
   String get threads_features_tile_subtitle =>
-      'Restrict video/reels on Threads.';
+      'Begränsa video/rullar på trådar.';
 
   @override
-  String get websites_blocking_tab_title => 'Websites blocking';
+  String get websites_blocking_tab_title => 'Webbplatser blockerar';
 
   @override
   String get websites_blocking_tab_info =>
-      'Block adult websites and any custom sites you choose to create a safer and more focused online experience. Take charge of your browsing and stay distraction-free.';
+      'Blockera webbplatser för vuxna och alla anpassade webbplatser du väljer för att skapa en säkrare och mer fokuserad onlineupplevelse. Ta hand om din surfning och förbli distraktionsfri.';
 
   @override
-  String get adult_content_heading => 'Adult content';
+  String get adult_content_heading => 'Vuxet innehåll';
 
   @override
-  String get block_nsfw_title => 'Block Nsfw';
+  String get block_nsfw_title => 'Blockera Nsfw';
 
   @override
   String get block_nsfw_subtitle =>
-      'Restrict browsers from opening adult and porn websites.';
+      'Begränsa webbläsare från att öppna vuxen- och porrwebbplatser.';
 
   @override
   String get block_nsfw_dialog_info =>
-      'Are you sure? This action is irreversible. Once adult sites blocker is turned ON, you cannot turn it OFF as long as this app is installed on your device.';
+      'Är du säker? Denna åtgärd är oåterkallelig. När blockeraren för vuxna webbplatser är PÅ kan du inte stänga av den så länge den här appen är installerad på din enhet.';
 
   @override
-  String get block_nsfw_dialog_button_block_anyway => 'Block anyway';
+  String get block_nsfw_dialog_button_block_anyway => 'Blockera ändå';
 
   @override
-  String get blocked_websites_heading => 'Blocked websites';
+  String get blocked_websites_heading => 'Blockerade webbplatser';
 
   @override
   String get blocked_websites_empty_list_hint =>
-      'Click on \'+ Add Website\' button to add distracting websites which you wish to block.';
+      'Klicka på knappen \"+ Lägg till webbplats\" för att lägga till distraherande webbplatser som du vill blockera.';
 
   @override
-  String get add_website_fab_button => 'Add Website';
+  String get add_website_fab_button => 'Lägg till webbplats';
 
   @override
-  String get add_website_dialog_title => 'Distracting website';
+  String get add_website_dialog_title => 'Distraherande webbplats';
 
   @override
   String get add_website_dialog_info =>
-      'Enter url of a website which you want to block.';
+      'Ange webbadressen till en webbplats som du vill blockera.';
 
   @override
-  String get add_website_dialog_is_nsfw => 'Is nsfw site?';
+  String get add_website_dialog_is_nsfw => 'Är nsfw webbplats?';
 
   @override
   String get add_website_dialog_nsfw_warning =>
-      'Warning: Nsfw sites cannot be removed once added.';
+      'Varning: Nsfw-webbplatser kan inte tas bort när de väl har lagts till.';
 
   @override
   String get add_website_dialog_button_block => 'Block';
 
   @override
   String get add_website_already_exist_snack_alert =>
-      'The URL has already been added to the list of blocked websites.';
+      'Webbadressen har redan lagts till i listan över blockerade webbplatser.';
 
   @override
   String get add_website_invalid_url_snack_alert =>
-      'Invalid URL! Unable to parse the host name.';
+      'Ogiltig URL! Det går inte att analysera värdnamnet.';
 
   @override
-  String get remove_website_dialog_title => 'Remove website';
+  String get remove_website_dialog_title => 'Ta bort webbplats';
 
   @override
   String remove_website_dialog_info(String websitehost) {
-    return 'Are you sure? you want to remove \'$websitehost\' from blocked websites.';
+    return 'Är du säker? du vill ta bort \'$websitehost\' från blockerade webbplatser.';
   }
 
   @override
-  String get focus_tab_title => 'Focus';
+  String get focus_tab_title => 'Fokusera';
 
   @override
   String get focus_tab_info =>
-      'When you need time to focus, start a new session by selecting the type, choosing distracting apps to pause, and enabling Do Not Disturb for uninterrupted concentration.';
+      'När du behöver tid att fokusera, starta en ny session genom att välja typ, välja distraherande appar att pausa och aktivera Stör ej för oavbruten koncentration.';
 
   @override
-  String get active_session_card_title => 'Active session';
+  String get active_session_card_title => 'Aktiv session';
 
   @override
   String get active_session_card_info =>
-      'You have an active focus session running! Click \'View\' to check your progress and see how much time has elapsed.';
+      'Du har ett aktivt fokuspass igång! Klicka på \"Visa\" för att kontrollera dina framsteg och se hur lång tid som har gått.';
 
   @override
-  String get active_session_card_view_button => 'View';
+  String get active_session_card_view_button => 'Visa';
 
   @override
   String get focus_distracting_apps_removal_snack_alert =>
-      'Removal of apps from the distracting apps list is not permitted while a Focus Session is active. However, you may still add additional apps to the list during this time.';
+      'Det är inte tillåtet att ta bort appar från den distraherande applistan medan en fokussession är aktiv. Du kan dock fortfarande lägga till ytterligare appar till listan under denna tid.';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'Fokus profil';
 
   @override
-  String get focus_session_duration_tile_title => 'Session duration';
+  String get focus_session_duration_tile_title => 'Sessionens längd';
 
   @override
   String get focus_session_duration_tile_subtitle =>
-      'Infinite (unless you stop)';
+      'Oändligt (om du inte slutar)';
 
   @override
   String get focus_session_duration_dialog_info =>
-      'Please select the desired duration for this focus session, determining how long you wish to remain focused and distraction-free.';
+      'Vänligen välj önskad varaktighet för denna fokussession, och bestäm hur länge du vill förbli fokuserad och fri från distraktion.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'Profilanpassning';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'Anpassa inställningarna för den valda profilen.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Framtvinga session';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Förhindrar att en session avslutas innan tiden är slut.';
 
   @override
   String get focus_session_start_button => 'Svep för att starta sessionen';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
-      'Select at least one distracting app to start focus session';
+      'Välj minst en distraherande app för att starta fokussessionen';
 
   @override
   String get focus_session_already_active_snack_alert =>
-      'You already have an active focus session running. Please complete or stop your current session before starting a new one.';
+      'Du har redan en aktiv fokussession igång. Vänligen slutför eller stoppa din nuvarande session innan du startar en ny.';
 
   @override
-  String get focus_session_type_study => 'Study';
+  String get focus_session_type_study => 'Studera';
 
   @override
-  String get focus_session_type_work => 'Work';
+  String get focus_session_type_work => 'Arbete';
 
   @override
-  String get focus_session_type_exercise => 'Exercise';
+  String get focus_session_type_exercise => 'Träning';
 
   @override
   String get focus_session_type_meditation => 'Meditation';
 
   @override
-  String get focus_session_type_creativeWriting => 'Creative Writing';
+  String get focus_session_type_creativeWriting => 'Kreativt skrivande';
 
   @override
-  String get focus_session_type_reading => 'Reading';
+  String get focus_session_type_reading => 'Läsning';
 
   @override
-  String get focus_session_type_programming => 'Programming';
+  String get focus_session_type_programming => 'Programmering';
 
   @override
-  String get focus_session_type_chores => 'Chores';
+  String get focus_session_type_chores => 'Sysslor';
 
   @override
-  String get focus_session_type_projectPlanning => 'Project Planning';
+  String get focus_session_type_projectPlanning => 'Projektering';
 
   @override
-  String get focus_session_type_artAndDesign => 'Art and Design';
+  String get focus_session_type_artAndDesign => 'Konst och design';
 
   @override
-  String get focus_session_type_languageLearning => 'Language Learning';
+  String get focus_session_type_languageLearning => 'Språkinlärning';
 
   @override
-  String get focus_session_type_musicPractice => 'Music Practice';
+  String get focus_session_type_musicPractice => 'Musikövningar';
 
   @override
-  String get focus_session_type_selfCare => 'Self Care';
+  String get focus_session_type_selfCare => 'Egenvård';
 
   @override
   String get focus_session_type_brainstorming => 'Brainstorming';
 
   @override
-  String get focus_session_type_skillDevelopment => 'Skill Development';
+  String get focus_session_type_skillDevelopment => 'Kompetensutveckling';
 
   @override
-  String get focus_session_type_research => 'Research';
+  String get focus_session_type_research => 'Forskning';
 
   @override
-  String get focus_session_type_networking => 'Networking';
+  String get focus_session_type_networking => 'Nätverk';
 
   @override
-  String get focus_session_type_cooking => 'Cooking';
+  String get focus_session_type_cooking => 'Matlagning';
 
   @override
-  String get focus_session_type_sportsTraining => 'Sports Training';
+  String get focus_session_type_sportsTraining => 'Idrottsträning';
 
   @override
-  String get focus_session_type_restAndRelaxation => 'Rest and Relaxation';
+  String get focus_session_type_restAndRelaxation => 'Vila och avkoppling';
 
   @override
-  String get focus_session_type_other => 'Other';
+  String get focus_session_type_other => 'Annat';
 
   @override
-  String get timeline_tab_title => 'Timeline';
+  String get timeline_tab_title => 'Tidslinje';
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Utforska din fokusresa genom att välja ett datum från kalendern. Spåra dina framsteg, se om dina framgångar och lär av utmaningarna.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
-    return 'Your total productive time for the selected month is $timeString.';
+    return 'Din totala produktiva tid för den valda månaden är $timeString.';
   }
 
   @override
-  String get selected_month_productive_days_label => 'Productive days';
+  String get selected_month_productive_days_label => 'Produktiva dagar';
 
   @override
   String selected_month_productive_days_snack_alert(num daysCount) {
-    return 'You\'ve had a total of $daysCount productive days in the selected month.';
+    return 'Du har haft totalt $daysCount produktiva dagar under den valda månaden.';
   }
 
   @override
-  String get selected_day_focused_time_label => 'Focused time';
+  String get selected_day_focused_time_label => 'Fokuserad tid';
 
   @override
   String selected_day_focused_time_snack_alert(String timeString) {
-    return 'Your total focused time for the selected day is $timeString.';
+    return 'Din totala fokuserade tid för den valda dagen är $timeString.';
   }
 
   @override
-  String get calender_heading => 'Calender';
+  String get calender_heading => 'Kalender';
 
   @override
-  String get your_sessions_heading => 'Your sessions';
+  String get your_sessions_heading => 'Dina sessioner';
 
   @override
   String get your_sessions_empty_list_hint =>
-      'No focus sessions recorded for the selected day.';
+      'Inga fokussessioner registrerades för den valda dagen.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Tidsstämpel';
 
   @override
-  String get focus_session_tile_duration_label => 'Duration';
+  String get focus_session_tile_duration_label => 'Varaktighet';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Reflektion';
 
   @override
-  String get focus_session_state_active => 'Active';
+  String get focus_session_state_active => 'Aktiv';
 
   @override
-  String get focus_session_state_successful => 'Successful';
+  String get focus_session_state_successful => 'Framgångsrik';
 
   @override
-  String get focus_session_state_failed => 'Failed';
+  String get focus_session_state_failed => 'Misslyckades';
 
   @override
   String get active_session_tab_title => 'Session';
 
   @override
   String get active_session_none_warning =>
-      'No active session found. Returning to the home screen.';
+      'Ingen aktiv session hittades. Återgår till startskärmen.';
 
   @override
-  String get active_session_dialog_button_keep_pushing => 'Keep pushing';
+  String get active_session_dialog_button_keep_pushing => 'Fortsätt trycka på';
 
   @override
-  String get active_session_finish_dialog_title => 'Finish';
+  String get active_session_finish_dialog_title => 'Avsluta';
 
   @override
   String get active_session_finish_dialog_info =>
-      'Stay strong! You\'re building valuable focus. Are you sure you want to end this focus session? Every extra moment counts toward your goals.';
+      'Håll dig stark! Du bygger värdefullt fokus. Är du säker på att du vill avsluta den här fokussessionen? Varje extra ögonblick räknas mot dina mål.';
 
   @override
-  String get active_session_giveup_dialog_title => 'Give up';
+  String get active_session_giveup_dialog_title => 'Ge upp';
 
   @override
   String get active_session_giveup_dialog_info =>
-      'Hold on! You\'re almost there don\'t give up now! Are you sure you want to end this focus session early? Progress will be lost.';
+      'Håll ut! Du är nästan där, ge inte upp nu! Är du säker på att du vill avsluta den här fokussessionen tidigt? Framsteg kommer att gå förlorade.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Sessionsreflektion';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'Ta en stund att reflektera över dina framsteg. Vad är ditt mål för den här sessionen? Vad har du åstadkommit under denna session?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'Tips: Du kan alltid redigera detta senare i sessionens tidslinje.';
 
   @override
   String get active_session_giveup_snack_alert =>
-      'You gave up! Don\'t worry, you can do better next time. Every effort counts - just keep going';
+      'Du gav upp! Oroa dig inte, du kan göra bättre nästa gång. Varje ansträngning räknas - det är bara att fortsätta';
 
   @override
   String get active_session_quote_one =>
-      'Every step counts, stay strong and keep going';
+      'Varje steg räknas, var stark och fortsätt';
 
   @override
   String get active_session_quote_two =>
-      'Stay focused! you\'re making amazing progress';
+      'Håll fokus! du gör fantastiska framsteg';
 
   @override
-  String get active_session_quote_three =>
-      'You\'re crushing it! Keep the momentum going';
+  String get active_session_quote_three => 'Du krossar det! Håll farten igång';
 
   @override
   String get active_session_quote_four =>
-      'Just a little more to go, you\'re doing fantastic';
+      'Bara lite till kvar, du gör det fantastiskt';
 
   @override
   String active_session_quote_five(String durationString) {
-    return 'Congratulations 🎉 \n You\'ve completed your focus session of $durationString.\n\nGreat job, keep up the amazing work';
+    return 'Grattis 🎉 \n Du har slutfört din fokussession med $durationString.\n\nBra jobbat, fortsätt med det fantastiska arbetet';
   }
 
   @override
-  String get restriction_groups_tab_title => 'Restriction groups';
+  String get restriction_groups_tab_title => 'Restriktionsgrupper';
 
   @override
   String get restriction_groups_tab_info =>
-      'Set a combined screen time limit for a group of apps. Once the total usage reaches your limit, all apps in the group will be paused to help maintain focus and balance.';
+      'Ställ in en kombinerad skärmtidsgräns för en grupp appar. När den totala användningen når din gräns kommer alla appar i gruppen att pausas för att bibehålla fokus och balans.';
 
   @override
-  String get restriction_group_time_spent_label => 'Time spent today';
+  String get restriction_group_time_spent_label => 'Tillbringad tid idag';
 
   @override
-  String get restriction_group_time_left_label => 'Time left today';
+  String get restriction_group_time_left_label => 'Tid kvar idag';
 
   @override
-  String get restriction_group_name_tile_title => 'Group name';
+  String get restriction_group_name_tile_title => 'Gruppnamn';
 
   @override
   String get restriction_group_name_picker_dialog_info =>
-      'Enter a name for the restriction group to help identify and manage it easily.';
+      'Ange ett namn för begränsningsgruppen för att lättare kunna identifiera och hantera den.';
 
   @override
-  String get restriction_group_timer_tile_title => 'Group timer';
+  String get restriction_group_timer_tile_title => 'Grupptimer';
 
   @override
   String get restriction_group_timer_picker_dialog_info =>
-      'Set a daily time limit for this group. Once your limit is reached, all the apps in this group will be paused until midnight.';
+      'Ställ in en daglig tidsgräns för den här gruppen. När din gräns har nåtts kommer alla appar i den här gruppen att pausas till midnatt.';
 
   @override
-  String get restriction_group_active_period_tile_title =>
-      'Group active period';
+  String get restriction_group_active_period_tile_title => 'Grupp aktiv period';
 
   @override
-  String get remove_restriction_group_dialog_title => 'Remove group';
+  String get remove_restriction_group_dialog_title => 'Ta bort grupp';
 
   @override
   String remove_restriction_group_dialog_info(String groupName) {
-    return 'Are you sure? you want to remove \'$groupName\' from restriction groups.';
+    return 'Är du säker? du vill ta bort \'$groupName\' från restriktionsgrupper.';
   }
 
   @override
   String get restriction_group_invalid_limits_snack_alert =>
-      'Set either a timer or an active period limit.';
+      'Ställ in antingen en timer eller en aktiv periodgräns.';
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Inga aviseringar har skickats för dagen.';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => 'Samtal';
 
   @override
-  String get last_24_hours_heading => 'Last 24 hours';
+  String get last_24_hours_heading => 'Senaste 24 timmarna';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Bläddra i din aviseringshistorik genom att välja ett datum från kalendern. Se vilka appar som fångade din uppmärksamhet och reflektera över dina digitala vanor.';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => 'Månadsvis';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => 'Dagligen';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Hitta enkelt tidigare aviseringar genom att söka igenom deras titel eller innehåll. Hjälper dig att snabbt hitta viktiga varningar.';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => 'Sök aviseringar...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Inga aviseringar hittades som matchar din sökning.';
 
   @override
   String get app_info_none_warning =>
-      'Couldn\'t find the app for the given package. Returning to the home screen.';
+      'Det gick inte att hitta appen för det givna paketet. Återgår till startskärmen.';
 
   @override
-  String get emergency_fab_button => 'Emergency';
+  String get emergency_fab_button => 'Nödsituation';
 
   @override
   String emergency_dialog_info(num leftPassesCount) {
-    return 'This action will pause the app blocker for next 5 minutes. You have $leftPassesCount passes left. After using all passes, the app will stay blocked until midnight, or the active focus session ends.\n\nDo you still wish to proceed?';
+    return 'Den här åtgärden pausar appblockeraren under de kommande 5 minuterna. Du har $leftPassesCount-kort kvar. Efter att ha använt alla pass kommer appen att förbli blockerad till midnatt, eller den aktiva fokussessionen avslutas.\n\nVill du fortfarande fortsätta?';
   }
 
   @override
-  String get emergency_dialog_button_use_anyway => 'Use anyway';
+  String get emergency_dialog_button_use_anyway => 'Använd ändå';
 
   @override
   String get emergency_started_snack_alert =>
-      'The app blocker is paused and will resume blocking in 5 minutes.';
+      'Appblockeraren är pausad och kommer att återuppta blockeringen om 5 minuter.';
 
   @override
   String get emergency_already_active_snack_alert =>
-      'The app blocker is currently either paused or inactive. If notifications are enabled, you will receive updates regarding the remaining time.';
+      'Appblockeraren är för närvarande antingen pausad eller inaktiv. Om aviseringar är aktiverade kommer du att få uppdateringar om den återstående tiden.';
 
   @override
   String get emergency_no_pass_left_snack_alert =>
-      'You have used all your emergency passes. The blocked apps will stay blocked until midnight, or the active focus session ends.';
+      'Du har använt alla dina nödpass. De blockerade apparna förblir blockerade till midnatt, eller så avslutas den aktiva fokussessionen.';
 
   @override
-  String get app_limit_status_not_set => 'Not set';
+  String get app_limit_status_not_set => 'Inte inställt';
 
   @override
-  String get app_timer_tile_title => 'App timer';
+  String get app_timer_tile_title => 'Apptimer';
 
   @override
   String get app_timer_picker_dialog_info =>
-      'Set a daily time limit for this app. Once your limit is reached, the app will be paused until midnight.';
+      'Ställ in en daglig tidsgräns för den här appen. När din gräns har nåtts pausas appen till midnatt.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Användningspåminnelser';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Milda knuffar när du använder tidsinställda appar.';
 
   @override
-  String get app_launch_limit_tile_title => 'Launch limit';
+  String get app_launch_limit_tile_title => 'Startgräns';
 
   @override
   String app_launch_limit_tile_subtitle(num count) {
-    return 'Launched $count times today.';
+    return 'Lanserade $count gånger idag.';
   }
 
   @override
   String get app_launch_limit_picker_dialog_info =>
-      'Set how many times you can open this app each day. Once the limit is reached, it will be paused until midnight.';
+      'Ställ in hur många gånger du kan öppna den här appen varje dag. När gränsen är nådd pausas den till midnatt.';
 
   @override
-  String get app_active_period_tile_title => 'Active period';
+  String get app_active_period_tile_title => 'Aktiv period';
 
   @override
   String app_active_period_tile_subtitle(String startTime, String endTime) {
-    return 'From $startTime to $endTime';
+    return 'Från $startTime till $endTime';
   }
 
   @override
-  String get internet_access_tile_title => 'Internet access';
+  String get internet_access_tile_title => 'Tillgång till Internet';
 
   @override
   String get internet_access_tile_subtitle =>
-      'Switch off to block app\'s internet.';
+      'Stäng av för att blockera appens internet.';
 
   @override
   String internet_access_blocked_snack_alert(String appName) {
-    return '$appName\'s internet is blocked.';
+    return '${appName}s internet är blockerat.';
   }
 
   @override
   String internet_access_unblocked_snack_alert(String appName) {
-    return '$appName\'s internet is unblocked.';
+    return '${appName}s internet är avblockerat.';
   }
 
   @override
-  String get launch_app_tile_title => 'Launch app';
+  String get launch_app_tile_title => 'Starta appen';
 
   @override
   String launch_app_tile_subtitle(String appName) {
-    return 'Open $appName.';
+    return 'Öppna $appName.';
   }
 
   @override
-  String get go_to_app_settings_tile_title => 'Go to app settings';
+  String get go_to_app_settings_tile_title => 'Gå till appinställningar';
 
   @override
   String get go_to_app_settings_tile_subtitle =>
-      'Manage app settings like notifications, permissions, storage and more.';
+      'Hantera appinställningar som aviseringar, behörigheter, lagring och mer.';
 
   @override
-  String get include_in_stats_tile_title => 'Include in screen usage';
+  String get include_in_stats_tile_title => 'Inkludera i skärmanvändning';
 
   @override
   String get include_in_stats_tile_subtitle =>
-      'Switch off to exclude this app from total screen usage.';
+      'Stäng av för att utesluta den här appen från total skärmanvändning.';
 
   @override
   String app_excluded_from_stats_snack_alert(String appName) {
-    return '$appName is excluded from total screen usage.';
+    return '$appName exkluderas från total skärmanvändning.';
   }
 
   @override
   String app_include_to_stats_snack_alert(String appName) {
-    return '$appName is included to total screen usage.';
+    return '$appName ingår för total skärmanvändning.';
   }
 
   @override
-  String get general_tab_title => 'General';
+  String get general_tab_title => 'Allmänt';
 
   @override
-  String get appearance_heading => 'Appearance';
+  String get appearance_heading => 'Utseende';
 
   @override
-  String get theme_mode_tile_title => 'Theme mode';
+  String get theme_mode_tile_title => 'Temaläge';
 
   @override
   String get theme_mode_system_label => 'System';
 
   @override
-  String get theme_mode_light_label => 'Light';
+  String get theme_mode_light_label => 'Ljus';
 
   @override
-  String get theme_mode_dark_label => 'Dark';
+  String get theme_mode_dark_label => 'Mörkt';
 
   @override
-  String get material_color_tile_title => 'Material color';
+  String get material_color_tile_title => 'Material färg';
 
   @override
-  String get amoled_dark_tile_title => 'AMOLED dark';
+  String get amoled_dark_tile_title => 'AMOLED mörk';
 
   @override
   String get amoled_dark_tile_subtitle =>
-      'Use pure black color for the dark theme.';
+      'Använd ren svart färg för det mörka temat.';
 
   @override
-  String get dynamic_colors_tile_title => 'Dynamic colors';
+  String get dynamic_colors_tile_title => 'Dynamiska färger';
 
   @override
-  String get dynamic_colors_tile_subtitle => 'Use device colors if supported.';
+  String get dynamic_colors_tile_subtitle =>
+      'Använd enhetsfärger om det stöds.';
 
   @override
-  String get defaults_heading => 'Defaults';
+  String get defaults_heading => 'Standardvärden';
 
   @override
-  String get app_language_tile_title => 'App language';
+  String get app_language_tile_title => 'Appens språk';
 
   @override
-  String get default_home_tab_tile_title => 'Home tab';
+  String get default_home_tab_tile_title => 'Fliken Hem';
 
   @override
-  String get usage_history_tile_title => 'Usage history';
+  String get usage_history_tile_title => 'Användningshistorik';
 
   @override
-  String get usage_history_15_days => '15 days';
+  String get usage_history_15_days => '15 dagar';
 
   @override
-  String get usage_history_1_month => '1 month';
+  String get usage_history_1_month => '1 månad';
 
   @override
-  String get usage_history_3_month => '3 months';
+  String get usage_history_3_month => '3 månader';
 
   @override
-  String get usage_history_6_month => '6 months';
+  String get usage_history_6_month => '6 månader';
 
   @override
-  String get usage_history_1_year => '1 year';
+  String get usage_history_1_year => '1 år';
 
   @override
   String get service_heading => 'Service';
 
   @override
   String get service_stopping_warning =>
-      'If NLP digitox stops working unexpectedly, please grant the \'Ignore Battery Optimization\' permission to keep it running in the background. If the issue continues, try whitelisting NLP digitox for uninterrupted performance.';
+      'Om NLP digitox slutar fungera oväntat, vänligen ge tillståndet \"Ignorera batterioptimering\" för att hålla den igång i bakgrunden. Om problemet kvarstår, försök att vitlista NLP digitox för oavbruten prestanda.';
 
   @override
-  String get whitelist_app_tile_title => 'Whitelist NLP digitox';
+  String get whitelist_app_tile_title => 'Vitlista NLP digitox';
 
   @override
-  String get whitelist_app_tile_subtitle => 'Allow NLP digitox to auto start.';
+  String get whitelist_app_tile_subtitle =>
+      'Låt NLP digitox starta automatiskt.';
 
   @override
   String get whitelist_app_unsupported_snack_alert =>
-      'This device does not support automatic startup management.';
+      'Den här enheten stöder inte automatisk starthantering.';
 
   @override
-  String get database_tab_title => 'Database';
+  String get database_tab_title => 'Databas';
 
   @override
-  String get import_db_tile_title => 'Import database';
+  String get import_db_tile_title => 'Importera databas';
 
   @override
-  String get import_db_tile_subtitle => 'Import database from a file.';
+  String get import_db_tile_subtitle => 'Importera databas från en fil.';
 
   @override
-  String get export_db_tile_title => 'Export database';
+  String get export_db_tile_title => 'Exportera databas';
 
   @override
-  String get export_db_tile_subtitle => 'Export database to a file.';
+  String get export_db_tile_subtitle => 'Exportera databas till en fil.';
 
   @override
   String get analysis_tab_title => 'Analys';
@@ -1505,87 +1510,87 @@ class AppLocalizationsSv extends AppLocalizations {
   }
 
   @override
-  String get crash_logs_heading => 'Crash logs';
+  String get crash_logs_heading => 'Krockloggar';
 
   @override
   String get crash_logs_info =>
-      'If you encounter any issue, you can report it on GitHub along with the log file. The file will include details such as your device\'s manufacturer, model, Android version, SDK version, and crash logs. This information will help us identify and resolve the problem more effectively.';
+      'Om du stöter på något problem kan du rapportera det på GitHub tillsammans med loggfilen. Filen kommer att innehålla detaljer som enhetens tillverkare, modell, Android-version, SDK-version och kraschloggar. Denna information hjälper oss att identifiera och lösa problemet mer effektivt.';
 
   @override
-  String get crash_logs_export_tile_title => 'Export crash logs';
+  String get crash_logs_export_tile_title => 'Exportera kraschloggar';
 
   @override
   String get crash_logs_export_tile_subtitle =>
-      'Export crash logs to a json file.';
+      'Exportera kraschloggar till en json-fil.';
 
   @override
-  String get crash_logs_view_tile_title => 'View logs';
+  String get crash_logs_view_tile_title => 'Visa loggar';
 
   @override
-  String get crash_logs_view_tile_subtitle => 'Explore stored crash logs.';
+  String get crash_logs_view_tile_subtitle => 'Utforska lagrade kraschloggar.';
 
   @override
-  String get crash_logs_empty_list_hint => 'No crash logged till now.';
+  String get crash_logs_empty_list_hint => 'Ingen kraschloggad förrän nu.';
 
   @override
-  String get crash_logs_clear_tile_title => 'Clear logs';
+  String get crash_logs_clear_tile_title => 'Rensa loggar';
 
   @override
   String get crash_logs_clear_tile_subtitle =>
-      'Delete all crash logs from database.';
+      'Ta bort alla kraschloggar från databasen.';
 
   @override
   String get crash_logs_clear_dialog_info =>
-      'Are you sure you wish to clear all crash logs from the database?';
+      'Är du säker på att du vill rensa alla kraschloggar från databasen?';
 
   @override
-  String get crash_logs_clear_dialog_button_clear_anyway => 'Clear anyway';
+  String get crash_logs_clear_dialog_button_clear_anyway => 'Klart i alla fall';
 
   @override
-  String get about_tab_title => 'About';
+  String get about_tab_title => 'Om';
 
   @override
-  String get changelog_tile_title => 'Changelog';
+  String get changelog_tile_title => 'Ändringslogg';
 
   @override
-  String get changelog_tile_subtitle => 'Find out what\'s new.';
+  String get changelog_tile_subtitle => 'Ta reda på vad som är nytt.';
 
   @override
-  String get full_changelog_tile_title => 'Full changelog';
+  String get full_changelog_tile_title => 'Fullständig ändringslogg';
 
   @override
   String get redirected_to_github_subtitle =>
-      'You will be redirected to GitHub.';
+      'Du kommer att omdirigeras till GitHub.';
 
   @override
-  String get contribute_heading => 'Contribute';
+  String get contribute_heading => 'Bidra';
 
   @override
   String get github_tile_title => 'GitHub';
 
   @override
-  String get github_tile_subtitle => 'View the source code.';
+  String get github_tile_subtitle => 'Se källkoden.';
 
   @override
-  String get report_issue_tile_title => 'Report an issue';
+  String get report_issue_tile_title => 'Rapportera ett problem';
 
   @override
-  String get suggest_idea_tile_title => 'Suggest an idea';
+  String get suggest_idea_tile_title => 'Föreslå en idé';
 
   @override
-  String get write_email_tile_title => 'Write to us via email';
+  String get write_email_tile_title => 'Skriv till oss via mejl';
 
   @override
   String get write_email_tile_subtitle =>
-      'You will be redirected to Email app.';
+      'Du kommer att omdirigeras till e-postappen.';
 
   @override
-  String get privacy_policy_heading => 'Privacy policy';
+  String get privacy_policy_heading => 'Integritetspolicy';
 
   @override
   String get privacy_policy_info =>
-      'NLP digitox is committed to protecting your privacy. We do not collect, store, or transfer any type of user data. The app operates entirely offline and does not require an internet connection, ensuring that your personal information remains private and secure on your device. As a Free and Open Source Software (FOSS) application, NLP digitox guarantees complete transparency and user control over their data.';
+      'NLP digitox har åtagit sig att skydda din integritet. Vi samlar inte in, lagrar eller överför någon typ av användardata. Appen fungerar helt offline och kräver ingen internetanslutning, vilket säkerställer att din personliga information förblir privat och säker på din enhet. Som en gratis och öppen källkodsprogram (FOSS)-applikation garanterar NLP digitox fullständig transparens och användarkontroll över deras data.';
 
   @override
-  String get more_details_button => 'More details';
+  String get more_details_button => 'Mer information';
 }

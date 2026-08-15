@@ -7,6 +7,7 @@ import 'package:nlp_digitox/core/services/bg_executor_service.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/features/mood/mood_service.dart';
 import 'package:nlp_digitox/mindful_app.dart';
 
 /// Dart background
@@ -30,6 +31,12 @@ Future<void> main() async {
   /// Initialize method channel and drift Database
   await MethodChannelService.instance.init();
   await DriftDbService.instance.init();
+
+  /// Load saved mood check-ins back from disk. Without this, MoodService's
+  /// in-memory history starts empty on every launch — even for a user with
+  /// weeks of saved check-ins — which silently breaks SentimentMoodBridge's
+  /// mood signal (it always reports "No mood check-ins yet").
+  await MoodService().init();
 
   FlutterError.onError = (errorDetails) {
     CrashLogService.instance.recordCrashError(

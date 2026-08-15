@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 NLP digitox
+ * Copyright (c) 2026 NLP digitox
  * Author : Afjal Ansari
  *
  * This source code is licensed under the GPL-2.0 license found in the

@@ -103,6 +103,7 @@ class GlassNavBar extends StatelessWidget {
                                   child: _PillNavButton(
                                     item: items[i],
                                     selected: i == selectedIndex,
+                                    maxWidth: itemWidth,
                                     onTap: () => onDestinationSelected(i),
                                   ),
                                 ),
@@ -125,11 +126,13 @@ class GlassNavBar extends StatelessWidget {
 class _PillNavButton extends StatelessWidget {
   final PillNavItem item;
   final bool selected;
+  final double maxWidth;
   final VoidCallback onTap;
 
   const _PillNavButton({
     required this.item,
     required this.selected,
+    required this.maxWidth,
     required this.onTap,
   });
 
@@ -145,9 +148,11 @@ class _PillNavButton extends StatelessWidget {
           scale: selected ? 1.0 : 0.96,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               /// Icon swaps filled/outline with a subtle pop.
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 180),
@@ -193,6 +198,7 @@ class _PillNavButton extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

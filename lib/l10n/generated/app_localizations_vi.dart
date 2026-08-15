@@ -15,7 +15,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get unlock_button_label => 'Mở khóa';
 
   @override
-  String get permission_status_off => 'Off';
+  String get permission_status_off => 'Tắt';
 
   @override
   String get permission_status_allowed => 'Được phép';
@@ -67,21 +67,21 @@ class AppLocalizationsVi extends AppLocalizations {
       'Cho phép cài đặt báo thức và nhắc nhở';
 
   @override
-  String get permission_usage_title => 'Usage Access';
+  String get permission_usage_title => 'Quyền truy cập sử dụng';
 
   @override
   String get permission_usage_info =>
-      'Please grant usage access permission. This will allow NLP digitox to monitor app usage and manage access to certain apps, ensuring a more focused and controlled digital environment.';
+      'Vui lòng cấp quyền truy cập sử dụng. Điều này sẽ cho phép NLP digitox giám sát việc sử dụng ứng dụng và quản lý quyền truy cập vào một số ứng dụng nhất định, đảm bảo môi trường kỹ thuật số tập trung và được kiểm soát hơn.';
 
   @override
-  String get permission_usage_device_tile_label => 'Permit usage access';
+  String get permission_usage_device_tile_label => 'Cho phép truy cập sử dụng';
 
   @override
   String get permission_overlay_title => 'Lớp phủ hiển thị';
 
   @override
   String get permission_overlay_info =>
-      'Please grant display overlay permission. This will allow NLP digitox to show an overlay when a paused app is opened, helping you stay focused and maintain your schedule.';
+      'Vui lòng cấp quyền lớp phủ hiển thị. Điều này sẽ cho phép NLP digitox hiển thị lớp phủ khi mở ứng dụng bị tạm dừng, giúp bạn tập trung và duy trì lịch trình của mình.';
 
   @override
   String get permission_overlay_device_tile_label =>
@@ -92,11 +92,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get permission_accessibility_info =>
-      'Please grant accessibility permission. This will allow NLP digitox to restrict access to short-form video content (e.g., Reels, Shorts) within social media apps and browsers, and filter inappropriate websites.';
+      'Vui lòng cấp quyền truy cập. Điều này sẽ cho phép NLP digitox hạn chế quyền truy cập vào nội dung video dạng ngắn (ví dụ: Câu chuyện, Video ngắn) trong các ứng dụng và trình duyệt mạng xã hội, đồng thời lọc các trang web không phù hợp.';
 
   @override
   String get permission_accessibility_required =>
-      'NLP digitox requires accessibility permission to block short content and websites effectively.';
+      'NLP digitox yêu cầu quyền truy cập để chặn nội dung và trang web ngắn một cách hiệu quả.';
 
   @override
   String get permission_accessibility_device_tile_label =>
@@ -107,58 +107,59 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get permission_dnd_info =>
-      'Please grant Do Not Disturb access. This will allow NLP digitox to start and stop Do Not Disturb mode during the bedtime schedule.';
+      'Vui lòng cấp quyền truy cập Không làm phiền. Điều này sẽ cho phép NLP digitox bắt đầu và dừng chế độ Không làm phiền trong lịch trình đi ngủ.';
 
   @override
-  String get permission_dnd_tile_title => 'Start DND';
+  String get permission_dnd_tile_title => 'Bắt đầu DND';
 
   @override
-  String get permission_dnd_tile_subtitle => 'Also enable Do Not Disturb mode.';
+  String get permission_dnd_tile_subtitle =>
+      'Đồng thời bật chế độ Không làm phiền.';
 
   @override
   String get permission_battery_optimization_tile_title =>
-      'Ignore Battery Optimization';
+      'Bỏ qua tối ưu hóa pin';
 
   @override
   String get permission_battery_optimization_status_enabled =>
-      'Already unrestricted';
+      'Đã không bị hạn chế';
 
   @override
   String get permission_battery_optimization_status_disabled =>
-      'Disable background restriction';
+      'Vô hiệu hóa hạn chế nền';
 
   @override
   String get permission_battery_optimization_allow_info =>
-      'Allowing \'Ignore Battery Optimization\' will automatically grant the \'Alarms & Reminders\' permission on some devices.';
+      'Việc cho phép \'Bỏ qua tối ưu hóa pin\' sẽ tự động cấp quyền \'Báo thức & Lời nhắc\' trên một số thiết bị.';
 
   @override
-  String get permission_vpn_title => 'Create VPN';
+  String get permission_vpn_title => 'Tạo VPN';
 
   @override
   String get permission_vpn_info =>
-      'Please grant permission to create virtual private network (VPN) connection. This will enable NLP digitox to restrict internet access for designated applications by creating local on device VPN.';
+      'Vui lòng cấp quyền tạo kết nối mạng riêng ảo (VPN). Điều này sẽ cho phép NLP digitox hạn chế quyền truy cập internet đối với các ứng dụng được chỉ định bằng cách tạo VPN cục bộ trên thiết bị.';
 
   @override
-  String get permission_admin_title => 'Admin';
+  String get permission_admin_title => 'Quản trị viên';
 
   @override
   String get permission_admin_info =>
-      'Administrative privileges are needed only for essential operations to ensure the app works properly and remains tamper-proof.';
+      'Đặc quyền quản trị chỉ cần thiết cho các hoạt động thiết yếu để đảm bảo ứng dụng hoạt động bình thường và không bị giả mạo.';
 
   @override
   String get permission_admin_snack_alert =>
-      'Tamper protection can only be disabled during the selected time window.';
+      'Bảo vệ giả mạo chỉ có thể bị vô hiệu hóa trong khoảng thời gian đã chọn.';
 
   @override
-  String get permission_notification_access_title => 'Notification Access';
+  String get permission_notification_access_title => 'Truy cập thông báo';
 
   @override
   String get permission_notification_access_info =>
-      'Please grant notification access permission. This will allow NLP digitox to organize your notifications and deliver them on your schedule.';
+      'Vui lòng cấp quyền truy cập thông báo. Điều này sẽ cho phép NLP digitox sắp xếp các thông báo của bạn và gửi chúng theo lịch trình của bạn.';
 
   @override
   String get permission_notification_access_required =>
-      'NLP digitox requires notification access to batch and schedule notifications.';
+      'NLP digitox yêu cầu quyền truy cập thông báo vào thông báo hàng loạt và lịch trình.';
 
   @override
   String get permission_notification_access_device_tile_label =>
@@ -180,9 +181,9 @@ class AppLocalizationsVi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString days',
-      one: '1 day',
-      zero: '0 day',
+      other: '$countString ngày',
+      one: '1 ngày',
+      zero: '0 ngày',
     );
     return '$_temp0';
   }
@@ -197,9 +198,9 @@ class AppLocalizationsVi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString hours',
-      one: '1 hour',
-      zero: '0 hour',
+      other: '$countString giờ',
+      one: '1 giờ',
+      zero: '0 giờ',
     );
     return '$_temp0';
   }
@@ -214,9 +215,9 @@ class AppLocalizationsVi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString minutes',
-      one: '1 minute',
-      zero: '0 minute',
+      other: '$countString phút',
+      one: '1 phút',
+      zero: '0 phút',
     );
     return '$_temp0';
   }
@@ -231,231 +232,233 @@ class AppLocalizationsVi extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString seconds',
-      one: '1 second',
-      zero: '0 second',
+      other: '$countString giây',
+      one: '1 giây',
+      zero: '0 giây',
     );
     return '$_temp0';
   }
 
   @override
-  String get time_separator_and => 'and';
+  String get time_separator_and => 'và';
 
   @override
-  String get timer_status_active => 'Active';
+  String get timer_status_active => 'Đang hoạt động';
 
   @override
-  String get timer_status_paused => 'Paused';
+  String get timer_status_paused => 'Đã tạm dừng';
 
   @override
-  String get create_button => 'Create';
+  String get create_button => 'Tạo';
 
   @override
-  String get update_button => 'Update';
+  String get update_button => 'cập nhật';
 
   @override
-  String get dialog_button_cancel => 'Cancel';
+  String get dialog_button_cancel => 'Hủy bỏ';
 
   @override
-  String get dialog_button_remove => 'Remove';
+  String get dialog_button_remove => 'Xóa';
 
   @override
-  String get dialog_button_set => 'Set';
+  String get dialog_button_set => 'Đặt';
 
   @override
-  String get dialog_button_reset => 'Reset';
+  String get dialog_button_reset => 'Đặt lại';
 
   @override
-  String get dialog_button_infinite => 'Infinite';
+  String get dialog_button_infinite => 'vô hạn';
 
   @override
-  String get schedule_start_label => 'Start';
+  String get schedule_start_label => 'Bắt đầu';
 
   @override
-  String get schedule_end_label => 'End';
+  String get schedule_end_label => 'Kết thúc';
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Bạn có chắc chắn muốn thoát mà không lưu không?';
 
   @override
   String get development_dialog_info =>
-      'NLP digitox is currently under development and may have bugs or incomplete features. If you encounter any issues, please report them to help us improve.\n\nThank you for your feedback!';
+      'NLP digitox hiện đang được phát triển và có thể có lỗi hoặc tính năng chưa hoàn thiện. Nếu bạn gặp bất kỳ vấn đề nào, vui lòng báo cáo để giúp chúng tôi cải thiện.\n\nCảm ơn bạn đã phản hồi!';
 
   @override
-  String get development_dialog_button_report_issue => 'Report Issue';
+  String get development_dialog_button_report_issue => 'Báo cáo vấn đề';
 
   @override
-  String get development_dialog_button_close => 'Close';
+  String get development_dialog_button_close => 'Đóng';
 
   @override
-  String get dnd_settings_tile_title => 'Do not disturb settings';
+  String get dnd_settings_tile_title => 'Cài đặt không làm phiền';
 
   @override
   String get dnd_settings_tile_subtitle =>
-      'Manage which apps and notifications can reach you in DND.';
+      'Quản lý những ứng dụng và thông báo nào có thể liên hệ với bạn trong DND.';
 
   @override
-  String get quick_actions_heading => 'Quick actions';
+  String get quick_actions_heading => 'Hành động nhanh';
 
   @override
-  String get select_distracting_apps_heading => 'Select distracting apps';
+  String get select_distracting_apps_heading =>
+      'Chọn ứng dụng gây mất tập trung';
 
   @override
-  String get your_distracting_apps_heading => 'Your distracting apps';
+  String get your_distracting_apps_heading =>
+      'Ứng dụng gây mất tập trung của bạn';
 
   @override
-  String get select_more_apps_heading => 'Select more apps';
+  String get select_more_apps_heading => 'Chọn thêm ứng dụng';
 
   @override
   String get imp_distracting_apps_snack_alert =>
-      'Adding important system apps to the list of distracting apps is not permitted.';
+      'Không được phép thêm các ứng dụng hệ thống quan trọng vào danh sách các ứng dụng gây mất tập trung.';
 
   @override
   String get custom_apps_quick_actions_unavailable_warning =>
-      'Screen usage and restrictions are unavailable for this application. At present, only network usage is accessible';
+      'Việc sử dụng và hạn chế màn hình không có sẵn cho ứng dụng này. Hiện tại, chỉ có thể sử dụng mạng';
 
   @override
-  String get create_group_fab_button => 'Create Group';
+  String get create_group_fab_button => 'Tạo nhóm';
 
   @override
   String get active_period_info =>
-      'Set a time period during which access will be allowed. Outside of this time frame, access will be restricted.';
+      'Đặt khoảng thời gian trong đó quyền truy cập sẽ được cho phép. Ngoài khung thời gian này, quyền truy cập sẽ bị hạn chế.';
 
   @override
   String get minimum_distracting_apps_snack_alert =>
-      'Select at least one distracting app.';
+      'Chọn ít nhất một ứng dụng gây mất tập trung.';
 
   @override
-  String get donation_card_title => 'Support us';
+  String get donation_card_title => 'Hỗ trợ chúng tôi';
 
   @override
   String get donation_card_info =>
-      'NLP digitox is free and open-source, developed with months of dedication. If it has helped you, your donation would mean the world to us. Every contribution helps us continue improving and maintaining it for everyone.';
+      'NLP digitox là mã nguồn mở và miễn phí, được phát triển sau nhiều tháng cống hiến. Nếu nó giúp ích được cho bạn thì khoản đóng góp của bạn sẽ có ý nghĩa rất lớn đối với chúng tôi. Mọi đóng góp đều giúp chúng tôi tiếp tục cải thiện và duy trì nó cho mọi người.';
 
   @override
   String get operation_failed_snack_alert =>
-      'Operation failed, something went wrong!';
+      'Thao tác không thành công, đã xảy ra lỗi!';
 
   @override
-  String get donation_card_button_donate => 'Donate';
+  String get donation_card_button_donate => 'Đóng góp';
 
   @override
-  String get app_restart_dialog_title => 'Need restart';
+  String get app_restart_dialog_title => 'Cần khởi động lại';
 
   @override
   String get app_restart_dialog_info =>
-      'NLP digitox will automatically restart once the countdown finishes. Please be patient as changes are applied.';
+      'NLP digitox sẽ tự động khởi động lại sau khi quá trình đếm ngược kết thúc. Hãy kiên nhẫn khi những thay đổi được áp dụng.';
 
   @override
   String get accessibility_tip =>
-      'Want smarter, more battery-friendly blocking? Enable Accessibility permission for NLP digitox.';
+      'Bạn muốn chặn thông minh hơn, thân thiện với pin hơn? Bật quyền Trợ năng cho NLP digitox.';
 
   @override
   String get battery_optimization_tip =>
-      'NLP digitox not working? Allow \'Ignore Battery Optimization\' in Settings to keep it running smoothly.';
+      'NLP digitox không hoạt động? Cho phép \'Bỏ qua tối ưu hóa pin\' trong Cài đặt để giúp thiết bị hoạt động trơn tru.';
 
   @override
   String get invincible_mode_tip =>
-      'Accidentally removed restrictions? Use Invincible Mode to lock them until the next day or adjustment window.';
+      'Vô tình loại bỏ các hạn chế? Sử dụng Chế độ bất khả chiến bại để khóa chúng cho đến ngày hôm sau hoặc cửa sổ điều chỉnh.';
 
   @override
   String get glance_usage_tip =>
-      'Want insights? Check the Glance section to view your usage patterns and screen time.';
+      'Muốn có thông tin chi tiết? Kiểm tra phần Glance để xem cách sử dụng và thời gian sử dụng thiết bị của bạn.';
 
   @override
   String get tamper_protection_tip =>
-      'Uninstalling NLP digitox? Enable the Uninstall Window to safely disable tamper protection first.';
+      'Gỡ cài đặt NLP digitox? Trước tiên, hãy bật Cửa sổ gỡ cài đặt để tắt tính năng bảo vệ chống giả mạo một cách an toàn.';
 
   @override
   String get notification_blocking_tip =>
-      'Want to reduce distractions? Use Notification Blocking to silence selected apps.';
+      'Bạn muốn giảm phiền nhiễu? Sử dụng Chặn thông báo để tắt tiếng các ứng dụng đã chọn.';
 
   @override
   String get usage_history_tip =>
-      'Want to reflect on your habits? Check Usage History to see past patterns.';
+      'Bạn muốn suy ngẫm về thói quen của bạn? Kiểm tra Lịch sử sử dụng để xem các mẫu trong quá khứ.';
 
   @override
   String get focus_mode_tip =>
-      'Need deep focus? Turn on Focus Mode to block apps and notifications during tasks.';
+      'Cần tập trung sâu sắc? Bật Chế độ lấy nét để chặn ứng dụng và thông báo trong khi thực hiện tác vụ.';
 
   @override
   String get bedtime_reminder_tip =>
-      'Want to improve your sleep? Set a Bedtime Reminder to wind down nightly.';
+      'Bạn muốn cải thiện giấc ngủ của mình? Đặt Lời nhắc giờ đi ngủ để thư giãn hàng đêm.';
 
   @override
   String get custom_blocking_tip =>
-      'Need a custom experience? Create app blocking rules that fit your needs.';
+      'Cần một trải nghiệm tùy chỉnh? Tạo quy tắc chặn ứng dụng phù hợp với nhu cầu của bạn.';
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Bạn muốn theo dõi các phiên tập trung? Xem dòng thời gian để biết hành trình tập trung của bạn.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Bị phân tâm bởi các ứng dụng xã hội? Chặn nội dung ngắn trên Instagram, YouTube, v.v. để duy trì sự tập trung.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Cần sự kiểm soát của cha mẹ? Đặt giới hạn cho thiết bị của con bạn để đảm bảo trải nghiệm an toàn.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Bạn muốn giảm phiền nhiễu? Sử dụng Thông báo hàng loạt để nhóm các thông báo và kiểm tra chúng cùng một lúc.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Cần quản lý thông báo? Lên lịch khi bạn nhận được thông báo cho các ứng dụng cụ thể.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Cần truy cập nhanh để tập trung? Thêm Ô lấy nét nhanh để kích hoạt ngay Chế độ lấy nét.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Bạn muốn truy cập ứng dụng ngay lập tức? Thêm phím tắt bằng cách nhấn và giữ biểu tượng ứng dụng để thao tác nhanh.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Bạn muốn lưu dữ liệu của bạn? Sao lưu cơ sở dữ liệu sử dụng của bạn để giữ hồ sơ của bạn an toàn.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Muốn có một chủ đề tùy chỉnh? Bật Vật liệu động Màu sắc của bạn để phù hợp với chủ đề của thiết bị.';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'Bạn muốn tiết kiệm pin? Sử dụng AMOLED Dark Theme để giảm mức tiêu thụ điện năng trên màn hình OLED.';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      'Bạn muốn giữ lịch sử sử dụng? Tùy chỉnh số tuần lưu trữ dữ liệu trong Lịch sử sử dụng.';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Bạn muốn chặn các ứng dụng cùng nhau? Sử dụng Nhóm hạn chế để nhóm các giới hạn ứng dụng và chặn nhiều ứng dụng cùng một lúc.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Bạn muốn có trải nghiệm duyệt web sạch hơn? Chặn các trang web tùy chỉnh hoặc NSFW để có thời gian trực tuyến tập trung hơn.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Bạn muốn theo dõi dữ liệu của bạn? Giám sát việc sử dụng dữ liệu di động và Wi-Fi của bạn để sử dụng internet.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Cần chặn internet của ứng dụng? Cắt internet cho ứng dụng cụ thể từ bảng điều khiển của ứng dụng.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Cần nghỉ ngơi? Sử dụng 3 Thẻ khẩn cấp hàng ngày để tạm thời bỏ chặn ứng dụng trong 5 phút.';
 
   @override
-  String get onboarding_skip_btn_label => 'Skip';
+  String get onboarding_skip_btn_label => 'Bỏ qua';
 
   @override
-  String get onboarding_finish_setup_btn_label => 'Finish Setup';
+  String get onboarding_finish_setup_btn_label => 'Hoàn tất thiết lập';
 
   @override
   String get onboarding_page_welcome_title =>
@@ -473,1000 +476,1006 @@ class AppLocalizationsVi extends AppLocalizations {
       'Hiểu các khuôn mẫu kỹ thuật số của bạn qua thông tin chi tiết về thời gian sử dụng màn hình, cách dùng ứng dụng và xu hướng tập trung. Theo dõi tiến trình và thấy những thay đổi nhỏ dẫn đến cải thiện lớn.';
 
   @override
-  String get onboarding_page_one_title => 'Master Focus.';
+  String get onboarding_page_one_title => 'Tập trung chính.';
 
   @override
   String get onboarding_page_one_info =>
-      'Pause distracting apps, block short content, and stay on track with customizable focus sessions. Whether you\'re working, studying, or relaxing, NLP digitox helps you stay in control.';
+      'Tạm dừng các ứng dụng gây mất tập trung, chặn nội dung ngắn và theo dõi các phiên tập trung có thể tùy chỉnh. Cho dù bạn đang làm việc, học tập hay thư giãn, NLP digitox đều giúp bạn luôn kiểm soát.';
 
   @override
-  String get onboarding_page_two_title => 'Block Distractions.';
+  String get onboarding_page_two_title => 'Chặn phiền nhiễu.';
 
   @override
   String get onboarding_page_two_info =>
-      'Set usage limits, automatically pause apps, and create healthier digital habits. Use Bedtime Mode to unwind and enjoy a distraction-free night.';
+      'Đặt giới hạn sử dụng, tự động tạm dừng ứng dụng và tạo thói quen kỹ thuật số lành mạnh hơn. Sử dụng Chế độ giờ đi ngủ để thư giãn và tận hưởng một đêm không bị phân tâm.';
 
   @override
-  String get onboarding_page_three_title => 'Privacy First.';
+  String get onboarding_page_three_title => 'Quyền riêng tư đầu tiên.';
 
   @override
   String get onboarding_page_three_info =>
-      'NLP digitox is 100% open-source and operates entirely offline. We don\'t collect or share your personal data — your privacy is guaranteed in every way.';
+      'NLP digitox là nguồn mở 100% và hoạt động hoàn toàn ngoại tuyến. Chúng tôi không thu thập hoặc chia sẻ dữ liệu cá nhân của bạn - quyền riêng tư của bạn được đảm bảo bằng mọi cách.';
 
   @override
-  String get onboarding_page_permissions_title => 'Essential Permissions.';
+  String get onboarding_page_permissions_title => 'Quyền cần thiết.';
 
   @override
   String get onboarding_page_permissions_info =>
-      'NLP digitox requires following essential permissions to track and manage your screen time, helping reduce distractions and improve focus.';
+      'NLP digitox yêu cầu các quyền thiết yếu sau để theo dõi và quản lý thời gian sử dụng thiết bị của bạn, giúp giảm phiền nhiễu và cải thiện sự tập trung.';
 
   @override
-  String get dashboard_tab_title => 'Dashboard';
+  String get dashboard_tab_title => 'Trang tổng quan';
 
   @override
-  String get focus_now_fab_button => 'Focus now';
+  String get focus_now_fab_button => 'Tập trung ngay bây giờ';
 
   @override
-  String get welcome_greetings => 'Welcome back,';
+  String get welcome_greetings => 'Chào mừng trở lại,';
 
   @override
-  String get username_snack_alert => 'Long press to edit username.';
+  String get username_snack_alert => 'Nhấn và giữ để chỉnh sửa tên người dùng.';
 
   @override
-  String get username_dialog_title => 'Username';
+  String get username_dialog_title => 'Tên người dùng';
 
   @override
   String get username_dialog_info =>
-      'Enter your username which will be displayed on dashboard.';
+      'Nhập tên người dùng của bạn sẽ được hiển thị trên bảng điều khiển.';
 
   @override
-  String get username_dialog_button_apply => 'Apply';
+  String get username_dialog_button_apply => 'Áp dụng';
 
   @override
-  String get glance_tile_title => 'Glance';
+  String get glance_tile_title => 'Nhìn thoáng qua';
 
   @override
-  String get glance_tile_subtitle => 'Take a quick glance at your usage.';
+  String get glance_tile_subtitle => 'Hãy xem nhanh việc sử dụng của bạn.';
 
   @override
   String get parental_controls_tile_subtitle =>
-      'Invincible mode and tamper protection.';
+      'Chế độ bất khả chiến bại và bảo vệ giả mạo.';
 
   @override
-  String get restrictions_heading => 'Restrictions';
+  String get restrictions_heading => 'Hạn chế';
 
   @override
-  String get apps_blocking_tile_title => 'Apps blocking';
+  String get apps_blocking_tile_title => 'Chặn ứng dụng';
 
   @override
-  String get apps_blocking_tile_subtitle => 'Limit apps in multiple ways.';
+  String get apps_blocking_tile_subtitle =>
+      'Giới hạn ứng dụng theo nhiều cách.';
 
   @override
-  String get grouped_apps_blocking_tile_title => 'Grouped apps blocking';
+  String get grouped_apps_blocking_tile_title => 'Chặn ứng dụng được nhóm';
 
   @override
   String get grouped_apps_blocking_tile_subtitle =>
-      'Limit group of apps simultaneously.';
+      'Giới hạn nhóm ứng dụng cùng lúc.';
 
   @override
   String get shorts_blocking_tile_subtitle =>
-      'Limit short content on multiple platforms.';
+      'Giới hạn nội dung ngắn trên nhiều nền tảng.';
 
   @override
   String get websites_blocking_tile_subtitle =>
-      'Limit adult and custom websites.';
+      'Hạn chế các trang web người lớn và tùy chỉnh.';
 
   @override
-  String get screen_time_label => 'Screen time';
+  String get screen_time_label => 'Thời gian sử dụng màn hình';
 
   @override
-  String get total_data_label => 'Total data';
+  String get total_data_label => 'Tổng số dữ liệu';
 
   @override
-  String get mobile_data_label => 'Mobile data';
+  String get mobile_data_label => 'Dữ liệu di động';
 
   @override
-  String get wifi_data_label => 'Wifi data';
+  String get wifi_data_label => 'Dữ liệu Wi-Fi';
 
   @override
-  String get focus_today_label => 'Focus today';
+  String get focus_today_label => 'Tập trung ngay hôm nay';
 
   @override
-  String get focus_weekly_label => 'Focus weekly';
+  String get focus_weekly_label => 'Tập trung hàng tuần';
 
   @override
-  String get focus_monthly_label => 'Focus monthly';
+  String get focus_monthly_label => 'Tập trung hàng tháng';
 
   @override
-  String get focus_lifetime_label => 'Focus lifetime';
+  String get focus_lifetime_label => 'tập trung trọn đời';
 
   @override
-  String get longest_streak_label => 'Longest streak';
+  String get longest_streak_label => 'Chuỗi dài nhất';
 
   @override
-  String get current_streak_label => 'Current streak';
+  String get current_streak_label => 'Chuỗi hiện tại';
 
   @override
-  String get successful_sessions_label => 'Successful sessions';
+  String get successful_sessions_label => 'Phiên thành công';
 
   @override
-  String get failed_sessions_label => 'Failed sessions';
+  String get failed_sessions_label => 'Phiên thất bại';
 
   @override
-  String get statistics_tab_title => 'Statistics';
+  String get statistics_tab_title => 'Thống kê';
 
   @override
-  String get screen_segment_label => 'Screen';
+  String get screen_segment_label => 'Màn hình';
 
   @override
-  String get data_segment_label => 'Data';
+  String get data_segment_label => 'dữ liệu';
 
   @override
-  String get mobile_label => 'Mobile';
+  String get mobile_label => 'Điện thoại di động';
 
   @override
   String get wifi_label => 'Wifi';
 
   @override
-  String get most_used_apps_heading => 'Most used apps';
+  String get most_used_apps_heading => 'Ứng dụng được sử dụng nhiều nhất';
 
   @override
-  String get show_all_apps_tile_title => 'Show all apps';
+  String get show_all_apps_tile_title => 'Hiển thị tất cả ứng dụng';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'Tìm kiếm ứng dụng...';
 
   @override
-  String get notifications_tab_title => 'Notifications';
+  String get notifications_tab_title => 'Thông báo';
 
   @override
   String get notifications_tab_info =>
-      'Batch notification from apps and set schedules like morning, noon, evening and night. Stay updated without constant interruptions.';
+      'Thông báo hàng loạt từ các ứng dụng và đặt lịch như sáng, trưa, tối và tối. Luôn cập nhật mà không bị gián đoạn liên tục.';
 
   @override
-  String get batched_apps_tile_title => 'Batched apps';
+  String get batched_apps_tile_title => 'Ứng dụng theo lô';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Loại tóm tắt hàng loạt';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Chọn nội dung cần đẩy khi lịch trình kích hoạt — tất cả thông báo hoặc chỉ là bản tóm tắt.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Chỉ tóm tắt';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Tất cả thông báo';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Lịch sử thông báo';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'Lưu trữ tất cả thông báo';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle => 'Lưu thông báo không theo đợt.';
 
   @override
-  String get schedules_heading => 'Schedules';
+  String get schedules_heading => 'Lịch trình';
 
   @override
-  String get new_schedule_fab_button => 'New Schedule';
+  String get new_schedule_fab_button => 'Lịch trình mới';
 
   @override
   String get new_schedule_dialog_info =>
-      'Enter a name for the notification schedule to help identify it easily.';
+      'Nhập tên cho lịch thông báo để giúp nhận biết dễ dàng.';
 
   @override
-  String get new_schedule_dialog_field_label => 'Schedule name';
+  String get new_schedule_dialog_field_label => 'Tên lịch trình';
 
   @override
-  String get bedtime_tab_title => 'Bedtime';
+  String get bedtime_tab_title => 'Giờ đi ngủ';
 
   @override
   String get bedtime_tab_info =>
-      'Set your bedtime schedule by selecting a time period and days of the week. Choose distracting apps to block and enable Do Not Disturb (DND) mode for a peaceful night.';
+      'Đặt lịch đi ngủ của bạn bằng cách chọn khoảng thời gian và các ngày trong tuần. Chọn các ứng dụng gây mất tập trung để chặn và bật chế độ Không làm phiền (DND) để có một đêm yên bình.';
 
   @override
-  String get schedule_tile_title => 'Schedule';
+  String get schedule_tile_title => 'lịch trình';
 
   @override
-  String get schedule_tile_subtitle => 'Enable or disable daily schedule.';
+  String get schedule_tile_subtitle => 'Bật hoặc tắt lịch trình hàng ngày.';
 
   @override
   String get bedtime_no_days_selected_snack_alert =>
-      'Select at least one day of the week.';
+      'Chọn ít nhất một ngày trong tuần.';
 
   @override
   String get bedtime_minimum_duration_snack_alert =>
-      'The total bedtime duration must be at least 30 minutes.';
+      'Tổng thời gian đi ngủ phải ít nhất là 30 phút.';
 
   @override
-  String get distracting_apps_tile_title => 'Distracting apps';
+  String get distracting_apps_tile_title => 'Ứng dụng gây mất tập trung';
 
   @override
   String get distracting_apps_tile_subtitle =>
-      'Select which apps are distracting you from your bedtime routine.';
+      'Chọn những ứng dụng đang khiến bạn mất tập trung vào thói quen đi ngủ.';
 
   @override
   String get bedtime_distracting_apps_modify_snack_alert =>
-      'Modifications to the list of distracting apps is not permitted while the bedtime schedule is active.';
+      'Không được phép sửa đổi danh sách các ứng dụng gây mất tập trung khi lịch đi ngủ đang hoạt động.';
 
   @override
-  String get parental_controls_tab_title => 'Parental controls';
+  String get parental_controls_tab_title => 'Kiểm soát của phụ huynh';
 
   @override
-  String get invincible_mode_heading => 'Invincible mode';
+  String get invincible_mode_heading => 'Chế độ bất khả chiến bại';
 
   @override
-  String get invincible_mode_tile_title => 'Activate invincible mode';
+  String get invincible_mode_tile_title => 'Kích hoạt chế độ bất khả chiến bại';
 
   @override
   String get invincible_mode_info =>
-      'When Invincible Mode is on, you won\'t be able to adjust selected limits after reaching your daily quota. However, you can make changes within a selected 10-minute invincible window.';
+      'Khi Chế độ Bất khả chiến bại được bật, bạn sẽ không thể điều chỉnh các giới hạn đã chọn sau khi đạt hạn mức hàng ngày của mình. Tuy nhiên, bạn có thể thực hiện các thay đổi trong khoảng thời gian bất khả chiến bại 10 phút đã chọn.';
 
   @override
   String get invincible_mode_snack_alert =>
-      'Due to invincible mode, modifications to restrictions is not allowed.';
+      'Do chế độ bất khả chiến bại, không được phép sửa đổi các hạn chế.';
 
   @override
   String get invincible_mode_dialog_info =>
-      'Are you absolutely sure you want to enable Invincible Mode? This action is irreversible. Once Invincible Mode is turned on, you cannot turn it off as long as this app is installed on your device.';
+      'Bạn có chắc chắn muốn bật Chế độ bất khả chiến bại không? Hành động này là không thể đảo ngược. Khi Chế độ bất khả chiến bại được bật, bạn không thể tắt nó miễn là ứng dụng này được cài đặt trên thiết bị của bạn.';
 
   @override
   String get invincible_mode_turn_off_snack_alert =>
-      'Invincible Mode cannot be turned off as long as this app remains installed on your device.';
+      'Không thể tắt Chế độ bất khả chiến bại miễn là ứng dụng này vẫn được cài đặt trên thiết bị của bạn.';
 
   @override
-  String get invincible_mode_dialog_button_start_anyway => 'Start anyway';
+  String get invincible_mode_dialog_button_start_anyway => 'Vẫn bắt đầu';
 
   @override
-  String get invincible_mode_include_timer_tile_title => 'Include timer';
+  String get invincible_mode_include_timer_tile_title => 'Bao gồm bộ hẹn giờ';
 
   @override
   String get invincible_mode_include_launch_limit_tile_title =>
-      'Include launch limit';
+      'Bao gồm giới hạn khởi chạy';
 
   @override
   String get invincible_mode_include_active_period_tile_title =>
-      'Include active period';
+      'Bao gồm thời gian hoạt động';
 
   @override
-  String get invincible_mode_app_restrictions_tile_title => 'App restrictions';
+  String get invincible_mode_app_restrictions_tile_title => 'Hạn chế ứng dụng';
 
   @override
   String get invincible_mode_app_restrictions_tile_subtitle =>
-      'Prevent changes to the app\'s selected restrictions once the daily limits are exceeded.';
+      'Ngăn chặn các thay đổi đối với các hạn chế đã chọn của ứng dụng sau khi vượt quá giới hạn hàng ngày.';
 
   @override
-  String get invincible_mode_group_restrictions_tile_title =>
-      'Group restrictions';
+  String get invincible_mode_group_restrictions_tile_title => 'Hạn chế nhóm';
 
   @override
   String get invincible_mode_group_restrictions_tile_subtitle =>
-      'Prevent changes to the group\'s selected restrictions once the daily limits are exceeded.';
+      'Ngăn chặn các thay đổi đối với các hạn chế đã chọn của nhóm khi vượt quá giới hạn hàng ngày.';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_title =>
-      'Include shorts timer';
+      'Bao gồm bộ đếm thời gian ngắn';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_subtitle =>
-      'Prevents changes after reaching your daily shorts limit.';
+      'Ngăn chặn những thay đổi sau khi đạt đến giới hạn bán khống hàng ngày của bạn.';
 
   @override
-  String get invincible_mode_include_bedtime_tile_title => 'Include bedtime';
+  String get invincible_mode_include_bedtime_tile_title => 'Bao gồm giờ đi ngủ';
 
   @override
   String get invincible_mode_include_bedtime_tile_subtitle =>
-      'Prevents changes during the active bedtime schedule.';
+      'Ngăn chặn những thay đổi trong lịch trình đi ngủ hoạt động.';
 
   @override
-  String get protected_access_tile_title => 'Protected access';
+  String get protected_access_tile_title => 'Quyền truy cập được bảo vệ';
 
   @override
   String get protected_access_tile_subtitle =>
-      'Protect NLP digitox with your device lock.';
+      'Bảo vệ NLP digitox bằng khóa thiết bị của bạn.';
 
   @override
   String get protected_access_no_lock_snack_alert =>
-      'Please set up a biometric lock on your device first to enable this feature.';
+      'Trước tiên, hãy thiết lập khóa sinh trắc học trên thiết bị của bạn để bật tính năng này.';
 
   @override
   String get protected_access_removed_lock_snack_alert =>
-      'Your device lock has been removed. To continue, please set up a new lock.';
+      'Khóa thiết bị của bạn đã bị xóa. Để tiếp tục, vui lòng thiết lập một khóa mới.';
 
   @override
   String get protected_access_failed_lock_snack_alert =>
-      'Authentication failed. You need to verify your device lock to proceed.';
+      'Xác thực không thành công. Bạn cần xác minh khóa thiết bị của mình để tiếp tục.';
 
   @override
-  String get tamper_protection_tile_title => 'Tamper protection';
+  String get tamper_protection_tile_title => 'Bảo vệ giả mạo';
 
   @override
   String get tamper_protection_tile_subtitle =>
-      'Prevent uninstalling and force stopping the app.';
+      'Ngăn chặn việc gỡ cài đặt và buộc dừng ứng dụng.';
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'Sau khi được bật, bạn sẽ không thể gỡ cài đặt, buộc dừng hoặc xóa dữ liệu của NLP digitox, ngoại trừ trong cửa sổ gỡ cài đặt đã chọn. Không có cách giải quyết nào.\n\nHãy tự chịu rủi ro khi tiếp tục.';
 
   @override
-  String get uninstall_window_tile_title => 'Uninstall window';
+  String get uninstall_window_tile_title => 'Gỡ cài đặt cửa sổ';
 
   @override
   String get uninstall_window_tile_subtitle =>
-      'Tamper protection can be disabled within 10 minutes from the selected time.';
+      'Bảo vệ giả mạo có thể bị vô hiệu hóa trong vòng 10 phút kể từ thời gian đã chọn.';
 
   @override
-  String get invincible_window_tile_title => 'Invincible window';
+  String get invincible_window_tile_title => 'Cửa sổ bất khả chiến bại';
 
   @override
   String get invincible_window_tile_subtitle =>
-      'Selected limits can be modified within 10 minutes from the selected time.';
+      'Giới hạn đã chọn có thể được sửa đổi trong vòng 10 phút kể từ thời điểm đã chọn.';
 
   @override
-  String get shorts_blocking_tab_title => 'Shorts blocking';
+  String get shorts_blocking_tab_title => 'Chặn video ngắn';
 
   @override
   String get shorts_blocking_tab_info =>
-      'Control how much time you spend on short content across platforms like Instagram, YouTube, Snapchat, and Facebook, including their websites.';
+      'Kiểm soát lượng thời gian bạn dành cho nội dung ngắn trên các nền tảng như Instagram, YouTube, Snapchat và Facebook, bao gồm cả trang web của họ.';
 
   @override
-  String get short_content_heading => 'Short content';
+  String get short_content_heading => 'Nội dung ngắn';
 
   @override
   String shorts_time_left_from(String timeShortString) {
-    return 'Left from $timeShortString';
+    return 'Còn lại từ $timeShortString';
   }
 
   @override
   String get short_content_timer_picker_dialog_info =>
-      'Set a daily time limit for short content. Once your limit is reached, the short content will be paused until midnight.';
+      'Đặt giới hạn thời gian hàng ngày cho nội dung ngắn. Sau khi đạt đến giới hạn của bạn, nội dung ngắn sẽ bị tạm dừng cho đến nửa đêm.';
 
   @override
   String get instagram_features_tile_title => 'Instagram';
 
   @override
   String get instagram_features_tile_subtitle =>
-      'Restrict features on instagram.';
+      'Hạn chế các tính năng trên instagram.';
 
   @override
-  String get instagram_features_block_reels => 'Restrict reels section.';
+  String get instagram_features_block_reels => 'Hạn chế phần cuộn.';
 
   @override
-  String get instagram_features_block_explore => 'Restrict explore section.';
+  String get instagram_features_block_explore => 'Hạn chế phần khám phá.';
 
   @override
   String get snapchat_features_tile_title => 'Snapchat';
 
   @override
   String get snapchat_features_tile_subtitle =>
-      'Restrict features on snapchat.';
+      'Hạn chế các tính năng trên Snapchat.';
 
   @override
-  String get snapchat_features_block_spotlight => 'Restrict spotlight section.';
+  String get snapchat_features_block_spotlight =>
+      'Hạn chế phần ánh đèn sân khấu.';
 
   @override
-  String get snapchat_features_block_discover => 'Restrict discover section.';
+  String get snapchat_features_block_discover => 'Hạn chế phần khám phá.';
 
   @override
   String get youtube_features_tile_title => 'Youtube';
 
   @override
-  String get youtube_features_tile_subtitle => 'Restrict shorts on youtube.';
+  String get youtube_features_tile_subtitle =>
+      'Hạn chế quần short trên youtube.';
 
   @override
   String get facebook_features_tile_title => 'Facebook';
 
   @override
-  String get facebook_features_tile_subtitle => 'Restrict reels on facebook.';
+  String get facebook_features_tile_subtitle =>
+      'Hạn chế quay phim trên facebook.';
 
   @override
   String get reddit_features_tile_title => 'Reddit';
 
   @override
-  String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
+  String get reddit_features_tile_subtitle => 'Hạn chế quần short trên reddit.';
 
   @override
   String get x_features_tile_title => 'X';
 
   @override
-  String get x_features_tile_subtitle => 'Restrict video feed on X.';
+  String get x_features_tile_subtitle =>
+      'Hạn chế nguồn cấp dữ liệu video trên X.';
 
   @override
-  String get threads_features_tile_title => 'Threads';
+  String get threads_features_tile_title => 'chủ đề';
 
   @override
   String get threads_features_tile_subtitle =>
-      'Restrict video/reels on Threads.';
+      'Hạn chế video/cuộn trên Chủ đề.';
 
   @override
-  String get websites_blocking_tab_title => 'Websites blocking';
+  String get websites_blocking_tab_title => 'Chặn trang web';
 
   @override
   String get websites_blocking_tab_info =>
-      'Block adult websites and any custom sites you choose to create a safer and more focused online experience. Take charge of your browsing and stay distraction-free.';
+      'Chặn các trang web người lớn và bất kỳ trang web tùy chỉnh nào bạn chọn để tạo trải nghiệm trực tuyến an toàn hơn và tập trung hơn. Chịu trách nhiệm về việc duyệt web của bạn và không bị phân tâm.';
 
   @override
-  String get adult_content_heading => 'Adult content';
+  String get adult_content_heading => 'Nội dung người lớn';
 
   @override
-  String get block_nsfw_title => 'Block Nsfw';
+  String get block_nsfw_title => 'Chặn Nsfw';
 
   @override
   String get block_nsfw_subtitle =>
-      'Restrict browsers from opening adult and porn websites.';
+      'Hạn chế trình duyệt mở các trang web người lớn và khiêu dâm.';
 
   @override
   String get block_nsfw_dialog_info =>
-      'Are you sure? This action is irreversible. Once adult sites blocker is turned ON, you cannot turn it OFF as long as this app is installed on your device.';
+      'Bạn có chắc không? Hành động này là không thể đảo ngược. Sau khi BẬT trình chặn trang web người lớn, bạn không thể TẮT nó miễn là ứng dụng này được cài đặt trên thiết bị của bạn.';
 
   @override
-  String get block_nsfw_dialog_button_block_anyway => 'Block anyway';
+  String get block_nsfw_dialog_button_block_anyway => 'Vẫn chặn';
 
   @override
-  String get blocked_websites_heading => 'Blocked websites';
+  String get blocked_websites_heading => 'Trang web bị chặn';
 
   @override
   String get blocked_websites_empty_list_hint =>
-      'Click on \'+ Add Website\' button to add distracting websites which you wish to block.';
+      'Nhấp vào nút \'+ Thêm trang web\' để thêm các trang web gây mất tập trung mà bạn muốn chặn.';
 
   @override
-  String get add_website_fab_button => 'Add Website';
+  String get add_website_fab_button => 'Thêm trang web';
 
   @override
-  String get add_website_dialog_title => 'Distracting website';
+  String get add_website_dialog_title => 'Trang web gây mất tập trung';
 
   @override
-  String get add_website_dialog_info =>
-      'Enter url of a website which you want to block.';
+  String get add_website_dialog_info => 'Nhập url của trang web bạn muốn chặn.';
 
   @override
-  String get add_website_dialog_is_nsfw => 'Is nsfw site?';
+  String get add_website_dialog_is_nsfw => 'Là trang web nsfw?';
 
   @override
   String get add_website_dialog_nsfw_warning =>
-      'Warning: Nsfw sites cannot be removed once added.';
+      'Cảnh báo: Không thể xóa các trang Nsfw sau khi đã thêm.';
 
   @override
-  String get add_website_dialog_button_block => 'Block';
+  String get add_website_dialog_button_block => 'Chặn';
 
   @override
   String get add_website_already_exist_snack_alert =>
-      'The URL has already been added to the list of blocked websites.';
+      'URL đã được thêm vào danh sách các trang web bị chặn.';
 
   @override
   String get add_website_invalid_url_snack_alert =>
-      'Invalid URL! Unable to parse the host name.';
+      'URL không hợp lệ! Không thể phân tích tên máy chủ.';
 
   @override
-  String get remove_website_dialog_title => 'Remove website';
+  String get remove_website_dialog_title => 'Xóa trang web';
 
   @override
   String remove_website_dialog_info(String websitehost) {
-    return 'Are you sure? you want to remove \'$websitehost\' from blocked websites.';
+    return 'Bạn có chắc không? bạn muốn xóa \'$websitehost\' khỏi các trang web bị chặn.';
   }
 
   @override
-  String get focus_tab_title => 'Focus';
+  String get focus_tab_title => 'Tập trung';
 
   @override
   String get focus_tab_info =>
-      'When you need time to focus, start a new session by selecting the type, choosing distracting apps to pause, and enabling Do Not Disturb for uninterrupted concentration.';
+      'Khi bạn cần thời gian để tập trung, hãy bắt đầu một phiên mới bằng cách chọn loại, chọn các ứng dụng gây mất tập trung để tạm dừng và bật Không làm phiền để không bị gián đoạn tập trung.';
 
   @override
-  String get active_session_card_title => 'Active session';
+  String get active_session_card_title => 'Phiên hoạt động';
 
   @override
   String get active_session_card_info =>
-      'You have an active focus session running! Click \'View\' to check your progress and see how much time has elapsed.';
+      'Bạn có một phiên tập trung đang hoạt động! Nhấp vào \'Xem\' để kiểm tra tiến trình của bạn và xem thời gian đã trôi qua.';
 
   @override
-  String get active_session_card_view_button => 'View';
+  String get active_session_card_view_button => 'Xem';
 
   @override
   String get focus_distracting_apps_removal_snack_alert =>
-      'Removal of apps from the distracting apps list is not permitted while a Focus Session is active. However, you may still add additional apps to the list during this time.';
+      'Không được phép xóa ứng dụng khỏi danh sách ứng dụng gây mất tập trung khi Phiên tập trung đang hoạt động. Tuy nhiên, bạn vẫn có thể thêm ứng dụng bổ sung vào danh sách trong thời gian này.';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'Hồ sơ tập trung';
 
   @override
-  String get focus_session_duration_tile_title => 'Session duration';
+  String get focus_session_duration_tile_title => 'Thời lượng phiên';
 
   @override
   String get focus_session_duration_tile_subtitle =>
-      'Infinite (unless you stop)';
+      'Vô hạn (trừ khi bạn dừng lại)';
 
   @override
   String get focus_session_duration_dialog_info =>
-      'Please select the desired duration for this focus session, determining how long you wish to remain focused and distraction-free.';
+      'Vui lòng chọn thời lượng mong muốn cho phiên tập trung này, xác định xem bạn muốn duy trì sự tập trung và không bị phân tâm trong bao lâu.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'Tùy chỉnh hồ sơ';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'Tùy chỉnh cài đặt cho cấu hình đã chọn.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Thực thi phiên';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Ngăn chặn việc kết thúc phiên trước khi hết thời gian.';
 
   @override
   String get focus_session_start_button => 'Vuốt để bắt đầu phiên';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
-      'Select at least one distracting app to start focus session';
+      'Chọn ít nhất một ứng dụng gây mất tập trung để bắt đầu phiên tập trung';
 
   @override
   String get focus_session_already_active_snack_alert =>
-      'You already have an active focus session running. Please complete or stop your current session before starting a new one.';
+      'Bạn đã có một phiên tập trung đang hoạt động. Vui lòng hoàn thành hoặc dừng phiên hiện tại của bạn trước khi bắt đầu phiên mới.';
 
   @override
-  String get focus_session_type_study => 'Study';
+  String get focus_session_type_study => 'học tập';
 
   @override
-  String get focus_session_type_work => 'Work';
+  String get focus_session_type_work => 'công việc';
 
   @override
-  String get focus_session_type_exercise => 'Exercise';
+  String get focus_session_type_exercise => 'tập thể dục';
 
   @override
-  String get focus_session_type_meditation => 'Meditation';
+  String get focus_session_type_meditation => 'Thiền';
 
   @override
-  String get focus_session_type_creativeWriting => 'Creative Writing';
+  String get focus_session_type_creativeWriting => 'Viết sáng tạo';
 
   @override
-  String get focus_session_type_reading => 'Reading';
+  String get focus_session_type_reading => 'Đọc';
 
   @override
-  String get focus_session_type_programming => 'Programming';
+  String get focus_session_type_programming => 'Lập trình';
 
   @override
-  String get focus_session_type_chores => 'Chores';
+  String get focus_session_type_chores => 'Công việc nhà';
 
   @override
-  String get focus_session_type_projectPlanning => 'Project Planning';
+  String get focus_session_type_projectPlanning => 'Lập kế hoạch dự án';
 
   @override
-  String get focus_session_type_artAndDesign => 'Art and Design';
+  String get focus_session_type_artAndDesign => 'Nghệ thuật và Thiết kế';
 
   @override
-  String get focus_session_type_languageLearning => 'Language Learning';
+  String get focus_session_type_languageLearning => 'Học ngôn ngữ';
 
   @override
-  String get focus_session_type_musicPractice => 'Music Practice';
+  String get focus_session_type_musicPractice => 'Luyện tập âm nhạc';
 
   @override
-  String get focus_session_type_selfCare => 'Self Care';
+  String get focus_session_type_selfCare => 'Tự chăm sóc';
 
   @override
-  String get focus_session_type_brainstorming => 'Brainstorming';
+  String get focus_session_type_brainstorming => 'Động não';
 
   @override
-  String get focus_session_type_skillDevelopment => 'Skill Development';
+  String get focus_session_type_skillDevelopment => 'Phát triển kỹ năng';
 
   @override
-  String get focus_session_type_research => 'Research';
+  String get focus_session_type_research => 'Nghiên cứu';
 
   @override
-  String get focus_session_type_networking => 'Networking';
+  String get focus_session_type_networking => 'Mạng';
 
   @override
-  String get focus_session_type_cooking => 'Cooking';
+  String get focus_session_type_cooking => 'nấu ăn';
 
   @override
-  String get focus_session_type_sportsTraining => 'Sports Training';
+  String get focus_session_type_sportsTraining => 'Huấn luyện thể thao';
 
   @override
-  String get focus_session_type_restAndRelaxation => 'Rest and Relaxation';
+  String get focus_session_type_restAndRelaxation => 'Nghỉ ngơi và thư giãn';
 
   @override
-  String get focus_session_type_other => 'Other';
+  String get focus_session_type_other => 'Khác';
 
   @override
-  String get timeline_tab_title => 'Timeline';
+  String get timeline_tab_title => 'Dòng thời gian';
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Khám phá hành trình tập trung của bạn bằng cách chọn một ngày từ lịch. Theo dõi tiến trình của bạn, xem lại những thành công của bạn và học hỏi từ những thử thách.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
-    return 'Your total productive time for the selected month is $timeString.';
+    return 'Tổng thời gian làm việc hiệu quả của bạn trong tháng đã chọn là $timeString.';
   }
 
   @override
-  String get selected_month_productive_days_label => 'Productive days';
+  String get selected_month_productive_days_label => 'Ngày năng suất';
 
   @override
   String selected_month_productive_days_snack_alert(num daysCount) {
-    return 'You\'ve had a total of $daysCount productive days in the selected month.';
+    return 'Bạn đã có tổng cộng $daysCount ngày làm việc hiệu quả trong tháng đã chọn.';
   }
 
   @override
-  String get selected_day_focused_time_label => 'Focused time';
+  String get selected_day_focused_time_label => 'thời gian tập trung';
 
   @override
   String selected_day_focused_time_snack_alert(String timeString) {
-    return 'Your total focused time for the selected day is $timeString.';
+    return 'Tổng thời gian tập trung của bạn cho ngày đã chọn là $timeString.';
   }
 
   @override
-  String get calender_heading => 'Calender';
+  String get calender_heading => 'Lịch';
 
   @override
-  String get your_sessions_heading => 'Your sessions';
+  String get your_sessions_heading => 'Phiên của bạn';
 
   @override
   String get your_sessions_empty_list_hint =>
-      'No focus sessions recorded for the selected day.';
+      'Không có phiên tập trung nào được ghi lại cho ngày đã chọn.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Dấu thời gian';
 
   @override
-  String get focus_session_tile_duration_label => 'Duration';
+  String get focus_session_tile_duration_label => 'Thời lượng';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Sự phản chiếu';
 
   @override
-  String get focus_session_state_active => 'Active';
+  String get focus_session_state_active => 'Đang hoạt động';
 
   @override
-  String get focus_session_state_successful => 'Successful';
+  String get focus_session_state_successful => 'thành công';
 
   @override
-  String get focus_session_state_failed => 'Failed';
+  String get focus_session_state_failed => 'thất bại';
 
   @override
-  String get active_session_tab_title => 'Session';
+  String get active_session_tab_title => 'Phiên';
 
   @override
   String get active_session_none_warning =>
-      'No active session found. Returning to the home screen.';
+      'Không tìm thấy phiên hoạt động nào. Trở lại màn hình chính.';
 
   @override
-  String get active_session_dialog_button_keep_pushing => 'Keep pushing';
+  String get active_session_dialog_button_keep_pushing => 'Tiếp tục đẩy';
 
   @override
-  String get active_session_finish_dialog_title => 'Finish';
+  String get active_session_finish_dialog_title => 'Kết thúc';
 
   @override
   String get active_session_finish_dialog_info =>
-      'Stay strong! You\'re building valuable focus. Are you sure you want to end this focus session? Every extra moment counts toward your goals.';
+      'Hãy mạnh mẽ lên! Bạn đang xây dựng sự tập trung có giá trị. Bạn có chắc chắn muốn kết thúc phiên tập trung này không? Mỗi khoảnh khắc thêm đều được tính vào mục tiêu của bạn.';
 
   @override
-  String get active_session_giveup_dialog_title => 'Give up';
+  String get active_session_giveup_dialog_title => 'từ bỏ';
 
   @override
   String get active_session_giveup_dialog_info =>
-      'Hold on! You\'re almost there don\'t give up now! Are you sure you want to end this focus session early? Progress will be lost.';
+      'Đợi đã! Bạn sắp đến đích rồi, đừng bỏ cuộc ngay bây giờ! Bạn có chắc chắn muốn kết thúc sớm phiên tập trung này không? Sự tiến bộ sẽ bị mất.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Phản ánh phiên';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'Hãy dành một chút thời gian để suy ngẫm về sự tiến bộ của bạn. Mục tiêu của bạn cho buổi học này là gì? Bạn đã đạt được điều gì trong buổi học này?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'Mẹo: Bạn luôn có thể chỉnh sửa phần này sau trong dòng thời gian của phiên.';
 
   @override
   String get active_session_giveup_snack_alert =>
-      'You gave up! Don\'t worry, you can do better next time. Every effort counts - just keep going';
+      'Bạn đã bỏ cuộc! Đừng lo lắng, lần sau bạn có thể làm tốt hơn. Mọi nỗ lực đều có giá trị - hãy cứ tiếp tục';
 
   @override
   String get active_session_quote_one =>
-      'Every step counts, stay strong and keep going';
+      'Mỗi bước đều có giá trị, hãy mạnh mẽ và tiếp tục đi';
 
   @override
   String get active_session_quote_two =>
-      'Stay focused! you\'re making amazing progress';
+      'Hãy tập trung! bạn đang đạt được tiến bộ đáng kinh ngạc';
 
   @override
   String get active_session_quote_three =>
-      'You\'re crushing it! Keep the momentum going';
+      'Bạn đang nghiền nát nó! Giữ đà phát triển';
 
   @override
   String get active_session_quote_four =>
-      'Just a little more to go, you\'re doing fantastic';
+      'Chỉ còn một chút nữa thôi, bạn đang làm rất tốt';
 
   @override
   String active_session_quote_five(String durationString) {
-    return 'Congratulations 🎉 \n You\'ve completed your focus session of $durationString.\n\nGreat job, keep up the amazing work';
+    return 'Xin chúc mừng 🎉 \n Bạn đã hoàn thành phiên tập trung của $durationString.\n\nLàm tốt lắm, hãy tiếp tục phát huy nhé';
   }
 
   @override
-  String get restriction_groups_tab_title => 'Restriction groups';
+  String get restriction_groups_tab_title => 'Nhóm hạn chế';
 
   @override
   String get restriction_groups_tab_info =>
-      'Set a combined screen time limit for a group of apps. Once the total usage reaches your limit, all apps in the group will be paused to help maintain focus and balance.';
+      'Đặt giới hạn thời gian sử dụng thiết bị kết hợp cho một nhóm ứng dụng. Sau khi tổng mức sử dụng đạt đến giới hạn của bạn, tất cả ứng dụng trong nhóm sẽ bị tạm dừng để giúp duy trì sự tập trung và cân bằng.';
 
   @override
-  String get restriction_group_time_spent_label => 'Time spent today';
+  String get restriction_group_time_spent_label =>
+      'Thời gian dành cho ngày hôm nay';
 
   @override
-  String get restriction_group_time_left_label => 'Time left today';
+  String get restriction_group_time_left_label => 'Thời gian còn lại hôm nay';
 
   @override
-  String get restriction_group_name_tile_title => 'Group name';
+  String get restriction_group_name_tile_title => 'Tên nhóm';
 
   @override
   String get restriction_group_name_picker_dialog_info =>
-      'Enter a name for the restriction group to help identify and manage it easily.';
+      'Nhập tên cho nhóm hạn chế để giúp nhận biết và quản lý dễ dàng.';
 
   @override
-  String get restriction_group_timer_tile_title => 'Group timer';
+  String get restriction_group_timer_tile_title => 'Hẹn giờ nhóm';
 
   @override
   String get restriction_group_timer_picker_dialog_info =>
-      'Set a daily time limit for this group. Once your limit is reached, all the apps in this group will be paused until midnight.';
+      'Đặt giới hạn thời gian hàng ngày cho nhóm này. Sau khi đạt đến giới hạn của bạn, tất cả ứng dụng trong nhóm này sẽ bị tạm dừng cho đến nửa đêm.';
 
   @override
   String get restriction_group_active_period_tile_title =>
-      'Group active period';
+      'Thời gian hoạt động nhóm';
 
   @override
-  String get remove_restriction_group_dialog_title => 'Remove group';
+  String get remove_restriction_group_dialog_title => 'Xóa nhóm';
 
   @override
   String remove_restriction_group_dialog_info(String groupName) {
-    return 'Are you sure? you want to remove \'$groupName\' from restriction groups.';
+    return 'Bạn có chắc không? bạn muốn xóa \'$groupName\' khỏi các nhóm hạn chế.';
   }
 
   @override
   String get restriction_group_invalid_limits_snack_alert =>
-      'Set either a timer or an active period limit.';
+      'Đặt bộ hẹn giờ hoặc giới hạn thời gian hoạt động.';
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Không có thông báo nào được gửi theo đợt trong ngày.';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => 'Cuộc trò chuyện';
 
   @override
-  String get last_24_hours_heading => 'Last 24 hours';
+  String get last_24_hours_heading => '24 giờ qua';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Duyệt lịch sử thông báo của bạn bằng cách chọn một ngày từ lịch. Xem ứng dụng nào đã thu hút sự chú ý của bạn và phản ánh thói quen sử dụng kỹ thuật số của bạn.';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => 'hàng tháng';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => 'hàng ngày';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Dễ dàng tìm thấy các thông báo trước đây bằng cách tìm kiếm thông qua tiêu đề hoặc nội dung của chúng. Giúp bạn nhanh chóng xác định vị trí các cảnh báo quan trọng.';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => 'Tìm kiếm thông báo...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Không tìm thấy thông báo nào phù hợp với tìm kiếm của bạn.';
 
   @override
   String get app_info_none_warning =>
-      'Couldn\'t find the app for the given package. Returning to the home screen.';
+      'Không thể tìm thấy ứng dụng cho gói đã cho. Trở lại màn hình chính.';
 
   @override
-  String get emergency_fab_button => 'Emergency';
+  String get emergency_fab_button => 'khẩn cấp';
 
   @override
   String emergency_dialog_info(num leftPassesCount) {
-    return 'This action will pause the app blocker for next 5 minutes. You have $leftPassesCount passes left. After using all passes, the app will stay blocked until midnight, or the active focus session ends.\n\nDo you still wish to proceed?';
+    return 'Hành động này sẽ tạm dừng trình chặn ứng dụng trong 5 phút tiếp theo. Bạn còn lại thẻ $leftPassesCount. Sau khi sử dụng tất cả các thẻ, ứng dụng sẽ bị chặn cho đến nửa đêm hoặc phiên tập trung hiện hoạt kết thúc.\n\nBạn vẫn muốn tiếp tục phải không?';
   }
 
   @override
-  String get emergency_dialog_button_use_anyway => 'Use anyway';
+  String get emergency_dialog_button_use_anyway => 'Vẫn sử dụng';
 
   @override
   String get emergency_started_snack_alert =>
-      'The app blocker is paused and will resume blocking in 5 minutes.';
+      'Trình chặn ứng dụng bị tạm dừng và sẽ tiếp tục chặn sau 5 phút.';
 
   @override
   String get emergency_already_active_snack_alert =>
-      'The app blocker is currently either paused or inactive. If notifications are enabled, you will receive updates regarding the remaining time.';
+      'Trình chặn ứng dụng hiện đang bị tạm dừng hoặc không hoạt động. Nếu thông báo được bật, bạn sẽ nhận được thông tin cập nhật về thời gian còn lại.';
 
   @override
   String get emergency_no_pass_left_snack_alert =>
-      'You have used all your emergency passes. The blocked apps will stay blocked until midnight, or the active focus session ends.';
+      'Bạn đã sử dụng tất cả thẻ khẩn cấp của mình. Các ứng dụng bị chặn sẽ vẫn bị chặn cho đến nửa đêm hoặc phiên tập trung hiện hoạt kết thúc.';
 
   @override
-  String get app_limit_status_not_set => 'Not set';
+  String get app_limit_status_not_set => 'Chưa đặt';
 
   @override
-  String get app_timer_tile_title => 'App timer';
+  String get app_timer_tile_title => 'hẹn giờ ứng dụng';
 
   @override
   String get app_timer_picker_dialog_info =>
-      'Set a daily time limit for this app. Once your limit is reached, the app will be paused until midnight.';
+      'Đặt giới hạn thời gian hàng ngày cho ứng dụng này. Khi đạt đến giới hạn của bạn, ứng dụng sẽ bị tạm dừng cho đến nửa đêm.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Lời nhắc sử dụng';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Cú huých nhẹ nhàng khi sử dụng các ứng dụng hẹn giờ.';
 
   @override
-  String get app_launch_limit_tile_title => 'Launch limit';
+  String get app_launch_limit_tile_title => 'Giới hạn khởi chạy';
 
   @override
   String app_launch_limit_tile_subtitle(num count) {
-    return 'Launched $count times today.';
+    return 'Đã ra mắt $count lần hôm nay.';
   }
 
   @override
   String get app_launch_limit_picker_dialog_info =>
-      'Set how many times you can open this app each day. Once the limit is reached, it will be paused until midnight.';
+      'Đặt số lần bạn có thể mở ứng dụng này mỗi ngày. Khi đạt đến giới hạn, nó sẽ bị tạm dừng cho đến nửa đêm.';
 
   @override
-  String get app_active_period_tile_title => 'Active period';
+  String get app_active_period_tile_title => 'Thời gian hoạt động';
 
   @override
   String app_active_period_tile_subtitle(String startTime, String endTime) {
-    return 'From $startTime to $endTime';
+    return 'Từ $startTime đến $endTime';
   }
 
   @override
-  String get internet_access_tile_title => 'Internet access';
+  String get internet_access_tile_title => 'truy cập Internet';
 
   @override
   String get internet_access_tile_subtitle =>
-      'Switch off to block app\'s internet.';
+      'Tắt để chặn internet của ứng dụng.';
 
   @override
   String internet_access_blocked_snack_alert(String appName) {
-    return '$appName\'s internet is blocked.';
+    return 'Internet của $appName bị chặn.';
   }
 
   @override
   String internet_access_unblocked_snack_alert(String appName) {
-    return '$appName\'s internet is unblocked.';
+    return 'Internet của $appName không bị chặn.';
   }
 
   @override
-  String get launch_app_tile_title => 'Launch app';
+  String get launch_app_tile_title => 'Khởi chạy ứng dụng';
 
   @override
   String launch_app_tile_subtitle(String appName) {
-    return 'Open $appName.';
+    return 'Mở $appName.';
   }
 
   @override
-  String get go_to_app_settings_tile_title => 'Go to app settings';
+  String get go_to_app_settings_tile_title => 'Đi tới cài đặt ứng dụng';
 
   @override
   String get go_to_app_settings_tile_subtitle =>
-      'Manage app settings like notifications, permissions, storage and more.';
+      'Quản lý cài đặt ứng dụng như thông báo, quyền, bộ nhớ, v.v.';
 
   @override
-  String get include_in_stats_tile_title => 'Include in screen usage';
+  String get include_in_stats_tile_title => 'Bao gồm việc sử dụng màn hình';
 
   @override
   String get include_in_stats_tile_subtitle =>
-      'Switch off to exclude this app from total screen usage.';
+      'Tắt để loại trừ ứng dụng này khỏi tổng mức sử dụng màn hình.';
 
   @override
   String app_excluded_from_stats_snack_alert(String appName) {
-    return '$appName is excluded from total screen usage.';
+    return '$appName bị loại trừ khỏi tổng mức sử dụng màn hình.';
   }
 
   @override
   String app_include_to_stats_snack_alert(String appName) {
-    return '$appName is included to total screen usage.';
+    return '$appName được tính vào tổng mức sử dụng màn hình.';
   }
 
   @override
-  String get general_tab_title => 'General';
+  String get general_tab_title => 'chung';
 
   @override
-  String get appearance_heading => 'Appearance';
+  String get appearance_heading => 'Ngoại hình';
 
   @override
-  String get theme_mode_tile_title => 'Theme mode';
+  String get theme_mode_tile_title => 'Chế độ chủ đề';
 
   @override
-  String get theme_mode_system_label => 'System';
+  String get theme_mode_system_label => 'Hệ thống';
 
   @override
-  String get theme_mode_light_label => 'Light';
+  String get theme_mode_light_label => 'Ánh sáng';
 
   @override
-  String get theme_mode_dark_label => 'Dark';
+  String get theme_mode_dark_label => 'Tối';
 
   @override
-  String get material_color_tile_title => 'Material color';
+  String get material_color_tile_title => 'Màu vật liệu';
 
   @override
-  String get amoled_dark_tile_title => 'AMOLED dark';
+  String get amoled_dark_tile_title => 'AMOLED tối';
 
   @override
   String get amoled_dark_tile_subtitle =>
-      'Use pure black color for the dark theme.';
+      'Sử dụng màu đen thuần khiết cho chủ đề tối.';
 
   @override
-  String get dynamic_colors_tile_title => 'Dynamic colors';
+  String get dynamic_colors_tile_title => 'Màu sắc năng động';
 
   @override
-  String get dynamic_colors_tile_subtitle => 'Use device colors if supported.';
+  String get dynamic_colors_tile_subtitle =>
+      'Sử dụng màu sắc của thiết bị nếu được hỗ trợ.';
 
   @override
-  String get defaults_heading => 'Defaults';
+  String get defaults_heading => 'Mặc định';
 
   @override
-  String get app_language_tile_title => 'App language';
+  String get app_language_tile_title => 'Ngôn ngữ ứng dụng';
 
   @override
-  String get default_home_tab_tile_title => 'Home tab';
+  String get default_home_tab_tile_title => 'tab Trang chủ';
 
   @override
-  String get usage_history_tile_title => 'Usage history';
+  String get usage_history_tile_title => 'Lịch sử sử dụng';
 
   @override
-  String get usage_history_15_days => '15 days';
+  String get usage_history_15_days => '15 ngày';
 
   @override
-  String get usage_history_1_month => '1 month';
+  String get usage_history_1_month => '1 tháng';
 
   @override
-  String get usage_history_3_month => '3 months';
+  String get usage_history_3_month => '3 tháng';
 
   @override
-  String get usage_history_6_month => '6 months';
+  String get usage_history_6_month => '6 tháng';
 
   @override
-  String get usage_history_1_year => '1 year';
+  String get usage_history_1_year => '1 năm';
 
   @override
-  String get service_heading => 'Service';
+  String get service_heading => 'Dịch vụ';
 
   @override
   String get service_stopping_warning =>
-      'If NLP digitox stops working unexpectedly, please grant the \'Ignore Battery Optimization\' permission to keep it running in the background. If the issue continues, try whitelisting NLP digitox for uninterrupted performance.';
+      'Nếu NLP digitox ngừng hoạt động đột ngột, vui lòng cấp quyền \'Bỏ qua tối ưu hóa pin\' để ứng dụng tiếp tục chạy ở chế độ nền. Nếu sự cố vẫn tiếp diễn, hãy thử đưa NLP digitox vào danh sách trắng để có hiệu suất không bị gián đoạn.';
 
   @override
-  String get whitelist_app_tile_title => 'Whitelist NLP digitox';
+  String get whitelist_app_tile_title => 'Danh sách trắng NLP digitox';
 
   @override
-  String get whitelist_app_tile_subtitle => 'Allow NLP digitox to auto start.';
+  String get whitelist_app_tile_subtitle =>
+      'Cho phép NLP digitox tự động khởi động.';
 
   @override
   String get whitelist_app_unsupported_snack_alert =>
-      'This device does not support automatic startup management.';
+      'Thiết bị này không hỗ trợ quản lý khởi động tự động.';
 
   @override
-  String get database_tab_title => 'Database';
+  String get database_tab_title => 'Cơ sở dữ liệu';
 
   @override
-  String get import_db_tile_title => 'Import database';
+  String get import_db_tile_title => 'Nhập cơ sở dữ liệu';
 
   @override
-  String get import_db_tile_subtitle => 'Import database from a file.';
+  String get import_db_tile_subtitle => 'Nhập cơ sở dữ liệu từ một tập tin.';
 
   @override
-  String get export_db_tile_title => 'Export database';
+  String get export_db_tile_title => 'Xuất cơ sở dữ liệu';
 
   @override
-  String get export_db_tile_subtitle => 'Export database to a file.';
+  String get export_db_tile_subtitle => 'Xuất cơ sở dữ liệu sang một tập tin.';
 
   @override
   String get analysis_tab_title => 'Phân tích';
@@ -1508,87 +1517,89 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get crash_logs_heading => 'Crash logs';
+  String get crash_logs_heading => 'Nhật ký sự cố';
 
   @override
   String get crash_logs_info =>
-      'If you encounter any issue, you can report it on GitHub along with the log file. The file will include details such as your device\'s manufacturer, model, Android version, SDK version, and crash logs. This information will help us identify and resolve the problem more effectively.';
+      'Nếu gặp bất kỳ vấn đề nào, bạn có thể báo cáo trên GitHub cùng với tệp nhật ký. Tệp sẽ bao gồm các chi tiết như nhà sản xuất, kiểu máy, phiên bản Android, phiên bản SDK và nhật ký sự cố của thiết bị. Thông tin này sẽ giúp chúng tôi xác định và giải quyết vấn đề hiệu quả hơn.';
 
   @override
-  String get crash_logs_export_tile_title => 'Export crash logs';
+  String get crash_logs_export_tile_title => 'Xuất nhật ký sự cố';
 
   @override
   String get crash_logs_export_tile_subtitle =>
-      'Export crash logs to a json file.';
+      'Xuất nhật ký sự cố sang tệp json.';
 
   @override
-  String get crash_logs_view_tile_title => 'View logs';
+  String get crash_logs_view_tile_title => 'Xem nhật ký';
 
   @override
-  String get crash_logs_view_tile_subtitle => 'Explore stored crash logs.';
+  String get crash_logs_view_tile_subtitle =>
+      'Khám phá nhật ký sự cố được lưu trữ.';
 
   @override
-  String get crash_logs_empty_list_hint => 'No crash logged till now.';
+  String get crash_logs_empty_list_hint =>
+      'Không có sự cố nào được ghi lại cho đến bây giờ.';
 
   @override
-  String get crash_logs_clear_tile_title => 'Clear logs';
+  String get crash_logs_clear_tile_title => 'Xóa nhật ký';
 
   @override
   String get crash_logs_clear_tile_subtitle =>
-      'Delete all crash logs from database.';
+      'Xóa tất cả nhật ký sự cố khỏi cơ sở dữ liệu.';
 
   @override
   String get crash_logs_clear_dialog_info =>
-      'Are you sure you wish to clear all crash logs from the database?';
+      'Bạn có chắc chắn muốn xóa tất cả nhật ký sự cố khỏi cơ sở dữ liệu không?';
 
   @override
-  String get crash_logs_clear_dialog_button_clear_anyway => 'Clear anyway';
+  String get crash_logs_clear_dialog_button_clear_anyway => 'Vẫn xóa';
 
   @override
-  String get about_tab_title => 'About';
+  String get about_tab_title => 'Giới thiệu';
 
   @override
-  String get changelog_tile_title => 'Changelog';
+  String get changelog_tile_title => 'Nhật ký thay đổi';
 
   @override
-  String get changelog_tile_subtitle => 'Find out what\'s new.';
+  String get changelog_tile_subtitle => 'Tìm hiểu những gì mới.';
 
   @override
-  String get full_changelog_tile_title => 'Full changelog';
+  String get full_changelog_tile_title => 'Nhật ký thay đổi đầy đủ';
 
   @override
   String get redirected_to_github_subtitle =>
-      'You will be redirected to GitHub.';
+      'Bạn sẽ được chuyển hướng đến GitHub.';
 
   @override
-  String get contribute_heading => 'Contribute';
+  String get contribute_heading => 'Đóng góp';
 
   @override
   String get github_tile_title => 'GitHub';
 
   @override
-  String get github_tile_subtitle => 'View the source code.';
+  String get github_tile_subtitle => 'Xem mã nguồn.';
 
   @override
-  String get report_issue_tile_title => 'Report an issue';
+  String get report_issue_tile_title => 'Báo cáo sự cố';
 
   @override
-  String get suggest_idea_tile_title => 'Suggest an idea';
+  String get suggest_idea_tile_title => 'Đề xuất một ý tưởng';
 
   @override
-  String get write_email_tile_title => 'Write to us via email';
+  String get write_email_tile_title => 'Viết thư cho chúng tôi qua email';
 
   @override
   String get write_email_tile_subtitle =>
-      'You will be redirected to Email app.';
+      'Bạn sẽ được chuyển hướng đến ứng dụng Email.';
 
   @override
-  String get privacy_policy_heading => 'Privacy policy';
+  String get privacy_policy_heading => 'Chính sách bảo mật';
 
   @override
   String get privacy_policy_info =>
-      'NLP digitox is committed to protecting your privacy. We do not collect, store, or transfer any type of user data. The app operates entirely offline and does not require an internet connection, ensuring that your personal information remains private and secure on your device. As a Free and Open Source Software (FOSS) application, NLP digitox guarantees complete transparency and user control over their data.';
+      'NLP digitox cam kết bảo vệ quyền riêng tư của bạn. Chúng tôi không thu thập, lưu trữ hoặc chuyển bất kỳ loại dữ liệu người dùng nào. Ứng dụng hoạt động hoàn toàn ngoại tuyến và không yêu cầu kết nối internet, đảm bảo thông tin cá nhân của bạn được giữ riêng tư và an toàn trên thiết bị của bạn. Là một ứng dụng Phần mềm nguồn mở và miễn phí (FOSS), NLP digitox đảm bảo tính minh bạch hoàn toàn và quyền kiểm soát của người dùng đối với dữ liệu của họ.';
 
   @override
-  String get more_details_button => 'More details';
+  String get more_details_button => 'Thêm chi tiết';
 }

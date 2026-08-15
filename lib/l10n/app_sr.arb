@@ -630,5 +630,6 @@
     "analysis_total": "Укупно",
     "analysis_no_change": "Исто као прошле недеље",
     "analysis_trend_less": "{percent}% мање него прошле недеље",
-    "analysis_trend_more": "{percent}% више него прошле недеље"
+    "analysis_trend_more": "{percent}% више него прошле недеље",
+    "exit_without_saving_dialog_info": "Да ли сте сигурни да желите да изађете без чувања?"
 }

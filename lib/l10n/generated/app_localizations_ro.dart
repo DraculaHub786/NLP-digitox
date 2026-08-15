@@ -13,162 +13,164 @@ class AppLocalizationsRo extends AppLocalizations {
       'Concentrează-te pe ceea ce contează cu adevărat';
 
   @override
-  String get unlock_button_label => 'Unlock';
+  String get unlock_button_label => 'Deblocați';
 
   @override
-  String get permission_status_off => 'Off';
+  String get permission_status_off => 'Oprit';
 
   @override
-  String get permission_status_allowed => 'Allowed';
+  String get permission_status_allowed => 'Permis';
 
   @override
-  String get permission_status_not_allowed => 'Not allowed';
+  String get permission_status_not_allowed => 'Nu este permis';
 
   @override
-  String get permission_button_grant_permission => 'Grant Permission';
+  String get permission_button_grant_permission => 'Acordați permisiunea';
 
   @override
-  String get permission_button_agree_and_continue => 'Agree & Continue';
+  String get permission_button_agree_and_continue => 'De acord și continua';
 
   @override
-  String get permission_button_not_now => 'Not Now';
+  String get permission_button_not_now => 'Nu acum';
 
   @override
-  String get permission_button_help => 'Help?';
+  String get permission_button_help => 'Ajutor?';
 
   @override
   String get permission_sheet_privacy_info =>
-      'NLP digitox is 100% secure and works offline. We do not collect or store any personal data.';
+      'NLP digitox este 100% sigur și funcționează offline. Nu colectăm și nu stocăm date personale.';
 
   @override
   String permission_grant_step_one(String button_label) {
-    return '1. Click on $button_label button.';
+    return '1. Faceți clic pe butonul $button_label.';
   }
 
   @override
   String get permission_grant_step_two =>
-      '2. Select NLP digitox in the next screen.';
+      '2. Selectați NLP digitox în ecranul următor.';
 
   @override
   String get permission_grant_step_three =>
-      '3. Click and turn on the switch like below.';
+      '3. Faceți clic și porniți comutatorul ca mai jos.';
 
   @override
-  String get permission_notification_title => 'Send Notifications';
+  String get permission_notification_title => 'Trimite notificări';
 
   @override
-  String get permission_alarms_title => 'Alarms & Reminders';
+  String get permission_alarms_title => 'Alarme și memento-uri';
 
   @override
   String get permission_alarms_info =>
-      'Please grant permission for setting alarms and reminders. This will allow NLP digitox to start your bedtime schedule on time and reset app timers daily at midnight and help you stay on track.';
+      'Vă rugăm să acordați permisiunea pentru setarea alarmelor și mementourilor. Acest lucru va permite lui NLP digitox să înceapă programul de culcare la timp și să resetați cronometrele aplicației zilnic la miezul nopții și vă va ajuta să rămâneți pe drumul cel bun.';
 
   @override
   String get permission_alarms_device_tile_label =>
-      'Allow setting alarms and reminders';
+      'Permite setarea alarmelor și mementourilor';
 
   @override
-  String get permission_usage_title => 'Usage Access';
+  String get permission_usage_title => 'Acces de utilizare';
 
   @override
   String get permission_usage_info =>
-      'Please grant usage access permission. This will allow NLP digitox to monitor app usage and manage access to certain apps, ensuring a more focused and controlled digital environment.';
+      'Vă rugăm să acordați permisiunea de acces de utilizare. Acest lucru va permite lui NLP digitox să monitorizeze utilizarea aplicațiilor și să gestioneze accesul la anumite aplicații, asigurând un mediu digital mai concentrat și controlat.';
 
   @override
-  String get permission_usage_device_tile_label => 'Permit usage access';
+  String get permission_usage_device_tile_label =>
+      'Permite accesul de utilizare';
 
   @override
-  String get permission_overlay_title => 'Display Overlay';
+  String get permission_overlay_title => 'Afișare suprapunere';
 
   @override
   String get permission_overlay_info =>
-      'Please grant display overlay permission. This will allow NLP digitox to show an overlay when a paused app is opened, helping you stay focused and maintain your schedule.';
+      'Vă rugăm să acordați permisiunea de suprapunere de afișare. Acest lucru va permite NLP digitox să afișeze o suprapunere atunci când este deschisă o aplicație întreruptă, ajutându-vă să rămâneți concentrat și să vă mențineți programul.';
 
   @override
   String get permission_overlay_device_tile_label =>
-      'Allow display over other apps';
+      'Permite afișarea peste alte aplicații';
 
   @override
-  String get permission_accessibility_title => 'Accessibility';
+  String get permission_accessibility_title => 'Accesibilitate';
 
   @override
   String get permission_accessibility_info =>
-      'Please grant accessibility permission. This will allow NLP digitox to restrict access to short-form video content (e.g., Reels, Shorts) within social media apps and browsers, and filter inappropriate websites.';
+      'Vă rugăm să acordați permisiunea de accesibilitate. Acest lucru va permite NLP digitox să restricționeze accesul la conținut video de scurtă durată (de exemplu, Reels, Shorts) în aplicațiile și browserele de rețele sociale și să filtreze site-urile web neadecvate.';
 
   @override
   String get permission_accessibility_required =>
-      'NLP digitox requires accessibility permission to block short content and websites effectively.';
+      'NLP digitox necesită permisiunea de accesibilitate pentru a bloca eficient conținutul scurt și site-urile web.';
 
   @override
-  String get permission_accessibility_device_tile_label => 'Use NLP digitox';
+  String get permission_accessibility_device_tile_label =>
+      'Utilizați NLP digitox';
 
   @override
-  String get permission_dnd_title => 'Do not disturb';
+  String get permission_dnd_title => 'Nu deranja';
 
   @override
   String get permission_dnd_info =>
-      'Please grant Do Not Disturb access. This will allow NLP digitox to start and stop Do Not Disturb mode during the bedtime schedule.';
+      'Vă rugăm să acordați acces Nu deranja. Acest lucru va permite lui NLP digitox să pornească și să oprească modul Nu deranjați în timpul programului de culcare.';
 
   @override
-  String get permission_dnd_tile_title => 'Start DND';
+  String get permission_dnd_tile_title => 'Începeți DND';
 
   @override
-  String get permission_dnd_tile_subtitle => 'Also enable Do Not Disturb mode.';
+  String get permission_dnd_tile_subtitle => 'Activați și modul Nu deranja.';
 
   @override
   String get permission_battery_optimization_tile_title =>
-      'Ignore Battery Optimization';
+      'Ignorați optimizarea bateriei';
 
   @override
   String get permission_battery_optimization_status_enabled =>
-      'Already unrestricted';
+      'Deja nerestricționat';
 
   @override
   String get permission_battery_optimization_status_disabled =>
-      'Disable background restriction';
+      'Dezactivați restricția de fundal';
 
   @override
   String get permission_battery_optimization_allow_info =>
-      'Allowing \'Ignore Battery Optimization\' will automatically grant the \'Alarms & Reminders\' permission on some devices.';
+      'Permiterea „Ignorați optimizarea bateriei” va acorda automat permisiunea „Alarme și mementouri” pe unele dispozitive.';
 
   @override
-  String get permission_vpn_title => 'Create VPN';
+  String get permission_vpn_title => 'Creați VPN';
 
   @override
   String get permission_vpn_info =>
-      'Please grant permission to create virtual private network (VPN) connection. This will enable NLP digitox to restrict internet access for designated applications by creating local on device VPN.';
+      'Vă rugăm să acordați permisiunea de a crea o conexiune la rețea privată virtuală (VPN). Acest lucru va permite NLP digitox să restricționeze accesul la internet pentru aplicațiile desemnate prin crearea unui VPN local pe dispozitiv.';
 
   @override
   String get permission_admin_title => 'Admin';
 
   @override
   String get permission_admin_info =>
-      'Administrative privileges are needed only for essential operations to ensure the app works properly and remains tamper-proof.';
+      'Privilegiile administrative sunt necesare numai pentru operațiunile esențiale pentru a se asigura că aplicația funcționează corect și rămâne inviolabilă.';
 
   @override
   String get permission_admin_snack_alert =>
-      'Tamper protection can only be disabled during the selected time window.';
+      'Protecția împotriva manipularii poate fi dezactivată numai în intervalul de timp selectat.';
 
   @override
-  String get permission_notification_access_title => 'Notification Access';
+  String get permission_notification_access_title => 'Acces la notificare';
 
   @override
   String get permission_notification_access_info =>
-      'Please grant notification access permission. This will allow NLP digitox to organize your notifications and deliver them on your schedule.';
+      'Vă rugăm să acordați permisiunea de acces la notificări. Acest lucru va permite lui NLP digitox să vă organizeze notificările și să le livreze conform programului dvs.';
 
   @override
   String get permission_notification_access_required =>
-      'NLP digitox requires notification access to batch and schedule notifications.';
+      'NLP digitox necesită acces la notificări la notificări de lot și de programare.';
 
   @override
   String get permission_notification_access_device_tile_label =>
-      'Allow notification access';
+      'Permite accesul la notificări';
 
   @override
-  String get day_today => 'Today';
+  String get day_today => 'Astăzi';
 
   @override
-  String get day_yesterday => 'Yesterday';
+  String get day_yesterday => 'Ieri';
 
   @override
   String nDays(num count) {
@@ -180,9 +182,9 @@ class AppLocalizationsRo extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString days',
-      one: '1 day',
-      zero: '0 day',
+      other: '$countString zile',
+      one: '1 zi',
+      zero: '0 zile',
     );
     return '$_temp0';
   }
@@ -197,9 +199,9 @@ class AppLocalizationsRo extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString hours',
-      one: '1 hour',
-      zero: '0 hour',
+      other: '$countString ore',
+      one: '1 oră',
+      zero: '0 ore',
     );
     return '$_temp0';
   }
@@ -214,8 +216,8 @@ class AppLocalizationsRo extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString minutes',
-      one: '1 minute',
+      other: '$countString minute',
+      one: '1 minut',
       zero: '0 minute',
     );
     return '$_temp0';
@@ -231,231 +233,233 @@ class AppLocalizationsRo extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString seconds',
-      one: '1 second',
-      zero: '0 second',
+      other: '$countString secunde',
+      one: '1 secundă',
+      zero: '0 secunde',
     );
     return '$_temp0';
   }
 
   @override
-  String get time_separator_and => 'and';
+  String get time_separator_and => 'şi';
 
   @override
-  String get timer_status_active => 'Active';
+  String get timer_status_active => 'Activ';
 
   @override
-  String get timer_status_paused => 'Paused';
+  String get timer_status_paused => 'Întrerupt';
 
   @override
-  String get create_button => 'Create';
+  String get create_button => 'Creați';
 
   @override
-  String get update_button => 'Update';
+  String get update_button => 'Actualizare';
 
   @override
-  String get dialog_button_cancel => 'Cancel';
+  String get dialog_button_cancel => 'Anulează';
 
   @override
-  String get dialog_button_remove => 'Remove';
+  String get dialog_button_remove => 'Eliminați';
 
   @override
-  String get dialog_button_set => 'Set';
+  String get dialog_button_set => 'Setați';
 
   @override
-  String get dialog_button_reset => 'Reset';
+  String get dialog_button_reset => 'Resetați';
 
   @override
-  String get dialog_button_infinite => 'Infinite';
+  String get dialog_button_infinite => 'Infinit';
 
   @override
-  String get schedule_start_label => 'Start';
+  String get schedule_start_label => 'Începeți';
 
   @override
-  String get schedule_end_label => 'End';
+  String get schedule_end_label => 'Sfârșit';
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Sigur vrei să ieși fără a salva?';
 
   @override
   String get development_dialog_info =>
-      'NLP digitox is currently under development and may have bugs or incomplete features. If you encounter any issues, please report them to help us improve.\n\nThank you for your feedback!';
+      'NLP digitox este în prezent în curs de dezvoltare și poate avea erori sau caracteristici incomplete. Dacă întâmpinați probleme, vă rugăm să le raportați pentru a ne ajuta să ne îmbunătățim.\n\nVă mulțumim pentru feedback!';
 
   @override
-  String get development_dialog_button_report_issue => 'Report Issue';
+  String get development_dialog_button_report_issue => 'Raportați o problemă';
 
   @override
-  String get development_dialog_button_close => 'Close';
+  String get development_dialog_button_close => 'Închide';
 
   @override
-  String get dnd_settings_tile_title => 'Do not disturb settings';
+  String get dnd_settings_tile_title => 'Nu deranjați setările';
 
   @override
   String get dnd_settings_tile_subtitle =>
-      'Manage which apps and notifications can reach you in DND.';
+      'Gestionați aplicațiile și notificările care vă pot ajunge în DND.';
 
   @override
-  String get quick_actions_heading => 'Quick actions';
+  String get quick_actions_heading => 'Acțiuni rapide';
 
   @override
-  String get select_distracting_apps_heading => 'Select distracting apps';
+  String get select_distracting_apps_heading =>
+      'Selectați aplicații care vă distrag atenția';
 
   @override
-  String get your_distracting_apps_heading => 'Your distracting apps';
+  String get your_distracting_apps_heading =>
+      'Aplicațiile dvs. care vă distrag atenția';
 
   @override
-  String get select_more_apps_heading => 'Select more apps';
+  String get select_more_apps_heading => 'Selectați mai multe aplicații';
 
   @override
   String get imp_distracting_apps_snack_alert =>
-      'Adding important system apps to the list of distracting apps is not permitted.';
+      'Adăugarea de aplicații importante de sistem la lista de aplicații care distrag atenția nu este permisă.';
 
   @override
   String get custom_apps_quick_actions_unavailable_warning =>
-      'Screen usage and restrictions are unavailable for this application. At present, only network usage is accessible';
+      'Utilizarea ecranului și restricțiile nu sunt disponibile pentru această aplicație. În prezent, numai utilizarea rețelei este accesibilă';
 
   @override
-  String get create_group_fab_button => 'Create Group';
+  String get create_group_fab_button => 'Creați grup';
 
   @override
   String get active_period_info =>
-      'Set a time period during which access will be allowed. Outside of this time frame, access will be restricted.';
+      'Setați o perioadă de timp în care accesul va fi permis. În afara acestui interval de timp, accesul va fi restricționat.';
 
   @override
   String get minimum_distracting_apps_snack_alert =>
-      'Select at least one distracting app.';
+      'Selectați cel puțin o aplicație care vă distrage atenția.';
 
   @override
-  String get donation_card_title => 'Support us';
+  String get donation_card_title => 'Sprijină-ne';
 
   @override
   String get donation_card_info =>
-      'NLP digitox is free and open-source, developed with months of dedication. If it has helped you, your donation would mean the world to us. Every contribution helps us continue improving and maintaining it for everyone.';
+      'NLP digitox este gratuit și open-source, dezvoltat cu luni de dedicare. Dacă te-a ajutat, donația ta ar însemna lumea pentru noi. Fiecare contribuție ne ajută să continuăm să o îmbunătățim și să o menținem pentru toată lumea.';
 
   @override
   String get operation_failed_snack_alert =>
-      'Operation failed, something went wrong!';
+      'Operațiunea a eșuat, ceva a mers prost!';
 
   @override
-  String get donation_card_button_donate => 'Donate';
+  String get donation_card_button_donate => 'Donează';
 
   @override
-  String get app_restart_dialog_title => 'Need restart';
+  String get app_restart_dialog_title => 'Trebuie repornit';
 
   @override
   String get app_restart_dialog_info =>
-      'NLP digitox will automatically restart once the countdown finishes. Please be patient as changes are applied.';
+      'NLP digitox va reporni automat odată ce numărătoarea inversă se termină. Vă rugăm să aveți răbdare, deoarece se aplică modificări.';
 
   @override
   String get accessibility_tip =>
-      'Want smarter, more battery-friendly blocking? Enable Accessibility permission for NLP digitox.';
+      'Vrei o blocare mai inteligentă, mai ecologică pentru baterie? Activați permisiunea de accesibilitate pentru NLP digitox.';
 
   @override
   String get battery_optimization_tip =>
-      'NLP digitox not working? Allow \'Ignore Battery Optimization\' in Settings to keep it running smoothly.';
+      'NLP digitox nu funcționează? Permiteți „Ignorați optimizarea bateriei” în Setări pentru ca acesta să funcționeze fără probleme.';
 
   @override
   String get invincible_mode_tip =>
-      'Accidentally removed restrictions? Use Invincible Mode to lock them until the next day or adjustment window.';
+      'Restricții eliminate accidental? Utilizați modul Invincible pentru a le bloca până a doua zi sau în fereastra de ajustare.';
 
   @override
   String get glance_usage_tip =>
-      'Want insights? Check the Glance section to view your usage patterns and screen time.';
+      'Doriți informații? Verificați secțiunea Privire pentru a vedea modelele de utilizare și timpul de utilizare.';
 
   @override
   String get tamper_protection_tip =>
-      'Uninstalling NLP digitox? Enable the Uninstall Window to safely disable tamper protection first.';
+      'Dezinstalați NLP digitox? Activați mai întâi fereastra de dezinstalare pentru a dezactiva în siguranță protecția împotriva manipulării.';
 
   @override
   String get notification_blocking_tip =>
-      'Want to reduce distractions? Use Notification Blocking to silence selected apps.';
+      'Doriți să reduceți distracția? Utilizați Blocarea notificărilor pentru a opri aplicațiile selectate.';
 
   @override
   String get usage_history_tip =>
-      'Want to reflect on your habits? Check Usage History to see past patterns.';
+      'Vrei să reflectezi asupra obiceiurilor tale? Verificați Istoricul utilizării pentru a vedea modelele din trecut.';
 
   @override
   String get focus_mode_tip =>
-      'Need deep focus? Turn on Focus Mode to block apps and notifications during tasks.';
+      'Ai nevoie de concentrare profundă? Activați modul Focus pentru a bloca aplicațiile și notificările în timpul sarcinilor.';
 
   @override
   String get bedtime_reminder_tip =>
-      'Want to improve your sleep? Set a Bedtime Reminder to wind down nightly.';
+      'Vrei să-ți îmbunătățești somnul? Setați un memento pentru ora de culcare să se relaxeze noaptea.';
 
   @override
   String get custom_blocking_tip =>
-      'Need a custom experience? Create app blocking rules that fit your needs.';
+      'Ai nevoie de o experiență personalizată? Creați reguli de blocare a aplicațiilor care se potrivesc nevoilor dvs.';
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Doriți să urmăriți sesiunile de focalizare? Vizualizați cronologia pentru a vedea călătoria dvs. de focalizare.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Distras de aplicațiile sociale? Blocați conținutul scurt de pe Instagram, YouTube etc., pentru a rămâne concentrat.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Ai nevoie de control parental? Setați restricții pentru dispozitivul copilului dvs. pentru a asigura o experiență sigură.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Doriți să reduceți distracția? Utilizați Notification Lotching pentru a grupa notificările și pentru a le verifica imediat.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Trebuie să gestionați notificările? Programați când primiți notificări pentru anumite aplicații.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Aveți nevoie de acces rapid pentru a vă concentra? Adăugați o piesă de focalizare rapidă pentru a activa instantaneu modul de focalizare.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Doriți acces instantaneu la aplicație? Adăugați comenzi rapide apăsând lung pe pictograma aplicației pentru acțiuni rapide.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Doriți să vă salvați datele? Faceți o copie de rezervă a bazei de date de utilizare pentru a vă păstra în siguranță înregistrările.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Vrei o temă personalizată? Activați Materialul dinamic pe care îl colorați pentru a se potrivi cu tema dispozitivului dvs.';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'Doriți să economisiți bateria? Utilizați tema întunecată AMOLED pentru a reduce consumul de energie pe ecranele OLED.';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      'Doriți să păstrați istoricul utilizării? Personalizați câte săptămâni de date de stocat în Istoricul utilizării.';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Doriți să blocați aplicațiile împreună? Utilizați Grupuri de restricții pentru a grupa limitele aplicațiilor și pentru a bloca mai multe aplicații simultan.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Doriți o experiență de navigare mai curată? Blocați site-urile web personalizate sau NSFW pentru un timp online mai concentrat.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Doriți să vă urmăriți datele? Monitorizați utilizarea datelor mobile și Wi-Fi pentru consumul de internet.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Trebuie să blocați internetul unei aplicații? Opriți internetul pentru o anumită aplicație din tabloul de bord al aplicației.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Ai nevoie de o pauză? Utilizați 3 permise de urgență zilnic pentru a debloca temporar aplicațiile timp de 5 minute.';
 
   @override
-  String get onboarding_skip_btn_label => 'Skip';
+  String get onboarding_skip_btn_label => 'Sari peste';
 
   @override
-  String get onboarding_finish_setup_btn_label => 'Finish Setup';
+  String get onboarding_finish_setup_btn_label => 'Finalizați configurarea';
 
   @override
   String get onboarding_page_welcome_title => 'Bine ați venit la NLP digitox.';
@@ -472,1000 +476,1020 @@ class AppLocalizationsRo extends AppLocalizations {
       'Înțelege-ți tiparele digitale cu informații detaliate despre timpul petrecut pe ecran, utilizarea aplicațiilor și tendințele de concentrare. Urmărește-ți progresul și vezi cum mici schimbări duc la îmbunătățiri mari.';
 
   @override
-  String get onboarding_page_one_title => 'Master Focus.';
+  String get onboarding_page_one_title => 'Maestru Focus.';
 
   @override
   String get onboarding_page_one_info =>
-      'Pause distracting apps, block short content, and stay on track with customizable focus sessions. Whether you\'re working, studying, or relaxing, NLP digitox helps you stay in control.';
+      'Întrerupeți aplicațiile care vă distrag atenția, blocați conținutul scurt și rămâneți pe drumul cel bun cu sesiuni de focalizare personalizabile. Indiferent dacă lucrați, studiați sau vă relaxați, NLP digitox vă ajută să păstrați controlul.';
 
   @override
-  String get onboarding_page_two_title => 'Block Distractions.';
+  String get onboarding_page_two_title => 'Blocați distragerile.';
 
   @override
   String get onboarding_page_two_info =>
-      'Set usage limits, automatically pause apps, and create healthier digital habits. Use Bedtime Mode to unwind and enjoy a distraction-free night.';
+      'Setați limite de utilizare, întrerupeți automat aplicațiile și creați obiceiuri digitale mai sănătoase. Utilizați modul Ora de culcare pentru a vă relaxa și a vă bucura de o noapte fără distrageri.';
 
   @override
-  String get onboarding_page_three_title => 'Privacy First.';
+  String get onboarding_page_three_title =>
+      'În primul rând, confidențialitatea.';
 
   @override
   String get onboarding_page_three_info =>
-      'NLP digitox is 100% open-source and operates entirely offline. We don\'t collect or share your personal data — your privacy is guaranteed in every way.';
+      'NLP digitox este 100% open-source și funcționează în întregime offline. Nu colectăm și nu partajăm datele dumneavoastră cu caracter personal – confidențialitatea dumneavoastră este garantată în toate privințele.';
 
   @override
-  String get onboarding_page_permissions_title => 'Essential Permissions.';
+  String get onboarding_page_permissions_title => 'Permisiuni esențiale.';
 
   @override
   String get onboarding_page_permissions_info =>
-      'NLP digitox requires following essential permissions to track and manage your screen time, helping reduce distractions and improve focus.';
+      'NLP digitox necesită următoarele permisiuni esențiale pentru a urmări și gestiona timpul petrecut pe ecran, ajutând la reducerea distragerilor și la îmbunătățirea concentrării.';
 
   @override
-  String get dashboard_tab_title => 'Dashboard';
+  String get dashboard_tab_title => 'Tabloul de bord';
 
   @override
-  String get focus_now_fab_button => 'Focus now';
+  String get focus_now_fab_button => 'Concentrează-te acum';
 
   @override
-  String get welcome_greetings => 'Welcome back,';
+  String get welcome_greetings => 'Bine ai revenit,';
 
   @override
-  String get username_snack_alert => 'Long press to edit username.';
+  String get username_snack_alert =>
+      'Apăsați lung pentru a edita numele de utilizator.';
 
   @override
-  String get username_dialog_title => 'Username';
+  String get username_dialog_title => 'Nume de utilizator';
 
   @override
   String get username_dialog_info =>
-      'Enter your username which will be displayed on dashboard.';
+      'Introduceți numele de utilizator care va fi afișat pe tabloul de bord.';
 
   @override
-  String get username_dialog_button_apply => 'Apply';
+  String get username_dialog_button_apply => 'Aplicați';
 
   @override
-  String get glance_tile_title => 'Glance';
+  String get glance_tile_title => 'Privire';
 
   @override
-  String get glance_tile_subtitle => 'Take a quick glance at your usage.';
+  String get glance_tile_subtitle =>
+      'Aruncă o privire rapidă asupra utilizării tale.';
 
   @override
   String get parental_controls_tile_subtitle =>
-      'Invincible mode and tamper protection.';
+      'Modul invincibil și protecție împotriva falsificării.';
 
   @override
-  String get restrictions_heading => 'Restrictions';
+  String get restrictions_heading => 'Restricții';
 
   @override
-  String get apps_blocking_tile_title => 'Apps blocking';
+  String get apps_blocking_tile_title => 'Blocarea aplicațiilor';
 
   @override
-  String get apps_blocking_tile_subtitle => 'Limit apps in multiple ways.';
+  String get apps_blocking_tile_subtitle =>
+      'Limitați aplicațiile în mai multe moduri.';
 
   @override
-  String get grouped_apps_blocking_tile_title => 'Grouped apps blocking';
+  String get grouped_apps_blocking_tile_title =>
+      'Blocarea aplicațiilor grupate';
 
   @override
   String get grouped_apps_blocking_tile_subtitle =>
-      'Limit group of apps simultaneously.';
+      'Limitați grupul de aplicații simultan.';
 
   @override
   String get shorts_blocking_tile_subtitle =>
-      'Limit short content on multiple platforms.';
+      'Limitați conținutul scurt pe mai multe platforme.';
 
   @override
   String get websites_blocking_tile_subtitle =>
-      'Limit adult and custom websites.';
+      'Limitați site-urile web pentru adulți și personalizate.';
 
   @override
-  String get screen_time_label => 'Screen time';
+  String get screen_time_label => 'Timpul ecranului';
 
   @override
-  String get total_data_label => 'Total data';
+  String get total_data_label => 'Date totale';
 
   @override
-  String get mobile_data_label => 'Mobile data';
+  String get mobile_data_label => 'Date mobile';
 
   @override
-  String get wifi_data_label => 'Wifi data';
+  String get wifi_data_label => 'Date Wifi';
 
   @override
-  String get focus_today_label => 'Focus today';
+  String get focus_today_label => 'Concentrează-te astăzi';
 
   @override
-  String get focus_weekly_label => 'Focus weekly';
+  String get focus_weekly_label => 'Concentrați-vă săptămânal';
 
   @override
-  String get focus_monthly_label => 'Focus monthly';
+  String get focus_monthly_label => 'Concentrați-vă lunar';
 
   @override
-  String get focus_lifetime_label => 'Focus lifetime';
+  String get focus_lifetime_label => 'Concentrați-vă toată viața';
 
   @override
-  String get longest_streak_label => 'Longest streak';
+  String get longest_streak_label => 'Cea mai lungă serie';
 
   @override
-  String get current_streak_label => 'Current streak';
+  String get current_streak_label => 'Serie actuală';
 
   @override
-  String get successful_sessions_label => 'Successful sessions';
+  String get successful_sessions_label => 'Sesiuni de succes';
 
   @override
-  String get failed_sessions_label => 'Failed sessions';
+  String get failed_sessions_label => 'Sesiuni eșuate';
 
   @override
-  String get statistics_tab_title => 'Statistics';
+  String get statistics_tab_title => 'Statistici';
 
   @override
-  String get screen_segment_label => 'Screen';
+  String get screen_segment_label => 'Ecran';
 
   @override
-  String get data_segment_label => 'Data';
+  String get data_segment_label => 'Date';
 
   @override
-  String get mobile_label => 'Mobile';
+  String get mobile_label => 'Mobil';
 
   @override
   String get wifi_label => 'Wifi';
 
   @override
-  String get most_used_apps_heading => 'Most used apps';
+  String get most_used_apps_heading => 'Cele mai folosite aplicații';
 
   @override
-  String get show_all_apps_tile_title => 'Show all apps';
+  String get show_all_apps_tile_title => 'Afișați toate aplicațiile';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'Căutați aplicații...';
 
   @override
-  String get notifications_tab_title => 'Notifications';
+  String get notifications_tab_title => 'Notificări';
 
   @override
   String get notifications_tab_info =>
-      'Batch notification from apps and set schedules like morning, noon, evening and night. Stay updated without constant interruptions.';
+      'Notificări în lot din aplicații și setați programe precum dimineața, prânzul, seara și seara. Rămâneți la curent fără întreruperi constante.';
 
   @override
-  String get batched_apps_tile_title => 'Batched apps';
+  String get batched_apps_tile_title => 'Aplicații grupate';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Tip de recapitulare lot';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Alegeți ce să împingeți când se declanșează o programare - toate notificările sau doar un rezumat.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Numai rezumat';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Toate notificările';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Istoricul notificărilor';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'Stocați toate notificările';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle => 'Salvați și notificările negrupate.';
 
   @override
-  String get schedules_heading => 'Schedules';
+  String get schedules_heading => 'Programe';
 
   @override
-  String get new_schedule_fab_button => 'New Schedule';
+  String get new_schedule_fab_button => 'Program nou';
 
   @override
   String get new_schedule_dialog_info =>
-      'Enter a name for the notification schedule to help identify it easily.';
+      'Introduceți un nume pentru programul de notificare pentru a ajuta la identificarea acestuia cu ușurință.';
 
   @override
-  String get new_schedule_dialog_field_label => 'Schedule name';
+  String get new_schedule_dialog_field_label => 'Numele programului';
 
   @override
-  String get bedtime_tab_title => 'Bedtime';
+  String get bedtime_tab_title => 'Ora de culcare';
 
   @override
   String get bedtime_tab_info =>
-      'Set your bedtime schedule by selecting a time period and days of the week. Choose distracting apps to block and enable Do Not Disturb (DND) mode for a peaceful night.';
+      'Setează-ți programul de culcare selectând o perioadă de timp și zile ale săptămânii. Alegeți aplicații care vă distrag atenția pe care să le blocați și să activați modul Nu deranjați (DND) pentru o noapte liniștită.';
 
   @override
-  String get schedule_tile_title => 'Schedule';
+  String get schedule_tile_title => 'Program';
 
   @override
-  String get schedule_tile_subtitle => 'Enable or disable daily schedule.';
+  String get schedule_tile_subtitle =>
+      'Activați sau dezactivați programul zilnic.';
 
   @override
   String get bedtime_no_days_selected_snack_alert =>
-      'Select at least one day of the week.';
+      'Selectați cel puțin o zi a săptămânii.';
 
   @override
   String get bedtime_minimum_duration_snack_alert =>
-      'The total bedtime duration must be at least 30 minutes.';
+      'Durata totală de culcare trebuie să fie de cel puțin 30 de minute.';
 
   @override
-  String get distracting_apps_tile_title => 'Distracting apps';
+  String get distracting_apps_tile_title => 'Aplicații care distrag atenția';
 
   @override
   String get distracting_apps_tile_subtitle =>
-      'Select which apps are distracting you from your bedtime routine.';
+      'Selectați ce aplicații vă distrage atenția de la rutina de culcare.';
 
   @override
   String get bedtime_distracting_apps_modify_snack_alert =>
-      'Modifications to the list of distracting apps is not permitted while the bedtime schedule is active.';
+      'Modificările la lista de aplicații care distrag atenția nu sunt permise în timp ce programul de culcare este activ.';
 
   @override
-  String get parental_controls_tab_title => 'Parental controls';
+  String get parental_controls_tab_title => 'Control parental';
 
   @override
-  String get invincible_mode_heading => 'Invincible mode';
+  String get invincible_mode_heading => 'Modul invincibil';
 
   @override
-  String get invincible_mode_tile_title => 'Activate invincible mode';
+  String get invincible_mode_tile_title => 'Activați modul invincibil';
 
   @override
   String get invincible_mode_info =>
-      'When Invincible Mode is on, you won\'t be able to adjust selected limits after reaching your daily quota. However, you can make changes within a selected 10-minute invincible window.';
+      'Când modul Invincible este activat, nu veți putea ajusta limitele selectate după ce ați atins cota zilnică. Cu toate acestea, puteți face modificări într-o fereastră invincibilă selectată de 10 minute.';
 
   @override
   String get invincible_mode_snack_alert =>
-      'Due to invincible mode, modifications to restrictions is not allowed.';
+      'Din cauza modului invincibil, modificările restricțiilor nu sunt permise.';
 
   @override
   String get invincible_mode_dialog_info =>
-      'Are you absolutely sure you want to enable Invincible Mode? This action is irreversible. Once Invincible Mode is turned on, you cannot turn it off as long as this app is installed on your device.';
+      'Sunteți absolut sigur că doriți să activați modul Invincible? Această acțiune este ireversibilă. Odată ce modul Invincible este pornit, nu îl puteți dezactiva atâta timp cât această aplicație este instalată pe dispozitiv.';
 
   @override
   String get invincible_mode_turn_off_snack_alert =>
-      'Invincible Mode cannot be turned off as long as this app remains installed on your device.';
+      'Modul Invincible nu poate fi dezactivat atâta timp cât această aplicație rămâne instalată pe dispozitiv.';
 
   @override
-  String get invincible_mode_dialog_button_start_anyway => 'Start anyway';
+  String get invincible_mode_dialog_button_start_anyway => 'Începe oricum';
 
   @override
-  String get invincible_mode_include_timer_tile_title => 'Include timer';
+  String get invincible_mode_include_timer_tile_title =>
+      'Includeți cronometrul';
 
   @override
   String get invincible_mode_include_launch_limit_tile_title =>
-      'Include launch limit';
+      'Includeți limita de lansare';
 
   @override
   String get invincible_mode_include_active_period_tile_title =>
-      'Include active period';
+      'Includeți perioada activă';
 
   @override
-  String get invincible_mode_app_restrictions_tile_title => 'App restrictions';
+  String get invincible_mode_app_restrictions_tile_title =>
+      'Restricții ale aplicației';
 
   @override
   String get invincible_mode_app_restrictions_tile_subtitle =>
-      'Prevent changes to the app\'s selected restrictions once the daily limits are exceeded.';
+      'Preveniți modificări ale restricțiilor selectate ale aplicației odată ce limitele zilnice sunt depășite.';
 
   @override
   String get invincible_mode_group_restrictions_tile_title =>
-      'Group restrictions';
+      'Restricții de grup';
 
   @override
   String get invincible_mode_group_restrictions_tile_subtitle =>
-      'Prevent changes to the group\'s selected restrictions once the daily limits are exceeded.';
+      'Preveniți modificări ale restricțiilor selectate ale grupului odată ce limitele zilnice sunt depășite.';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_title =>
-      'Include shorts timer';
+      'Includeți cronometrul pentru pantaloni scurți';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_subtitle =>
-      'Prevents changes after reaching your daily shorts limit.';
+      'Împiedică modificările după atingerea limitei zilnice de pantaloni scurți.';
 
   @override
-  String get invincible_mode_include_bedtime_tile_title => 'Include bedtime';
+  String get invincible_mode_include_bedtime_tile_title =>
+      'Include ora de culcare';
 
   @override
   String get invincible_mode_include_bedtime_tile_subtitle =>
-      'Prevents changes during the active bedtime schedule.';
+      'Previne schimbările în timpul programului activ de culcare.';
 
   @override
-  String get protected_access_tile_title => 'Protected access';
+  String get protected_access_tile_title => 'Acces protejat';
 
   @override
   String get protected_access_tile_subtitle =>
-      'Protect NLP digitox with your device lock.';
+      'Protejați NLP digitox cu blocarea dispozitivului.';
 
   @override
   String get protected_access_no_lock_snack_alert =>
-      'Please set up a biometric lock on your device first to enable this feature.';
+      'Vă rugăm să configurați mai întâi o blocare biometrică pe dispozitiv pentru a activa această funcție.';
 
   @override
   String get protected_access_removed_lock_snack_alert =>
-      'Your device lock has been removed. To continue, please set up a new lock.';
+      'Blocarea dispozitivului dvs. a fost eliminată. Pentru a continua, vă rugăm să configurați o nouă blocare.';
 
   @override
   String get protected_access_failed_lock_snack_alert =>
-      'Authentication failed. You need to verify your device lock to proceed.';
+      'Autentificarea eșuată. Trebuie să verificați blocarea dispozitivului pentru a continua.';
 
   @override
-  String get tamper_protection_tile_title => 'Tamper protection';
+  String get tamper_protection_tile_title => 'Protecție împotriva manipulării';
 
   @override
   String get tamper_protection_tile_subtitle =>
-      'Prevent uninstalling and force stopping the app.';
+      'Preveniți dezinstalarea și forțați oprirea aplicației.';
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'Odată activat, nu veți putea să dezinstalați, să forțați oprirea sau să ștergeți datele NLP digitox, decât în ​​timpul ferestrei de dezinstalare selectate. Nu există soluții alternative.\n\nProcedați pe propriul risc.';
 
   @override
-  String get uninstall_window_tile_title => 'Uninstall window';
+  String get uninstall_window_tile_title => 'Dezinstalează fereastra';
 
   @override
   String get uninstall_window_tile_subtitle =>
-      'Tamper protection can be disabled within 10 minutes from the selected time.';
+      'Protecția împotriva manipularii poate fi dezactivată în 10 minute de la ora selectată.';
 
   @override
-  String get invincible_window_tile_title => 'Invincible window';
+  String get invincible_window_tile_title => 'Fereastra invincibilă';
 
   @override
   String get invincible_window_tile_subtitle =>
-      'Selected limits can be modified within 10 minutes from the selected time.';
+      'Limitele selectate pot fi modificate în 10 minute de la ora selectată.';
 
   @override
-  String get shorts_blocking_tab_title => 'Shorts blocking';
+  String get shorts_blocking_tab_title => 'Blocarea pantalonilor scurți';
 
   @override
   String get shorts_blocking_tab_info =>
-      'Control how much time you spend on short content across platforms like Instagram, YouTube, Snapchat, and Facebook, including their websites.';
+      'Controlați cât timp petreceți pentru conținut scurt pe platforme precum Instagram, YouTube, Snapchat și Facebook, inclusiv site-urile lor web.';
 
   @override
-  String get short_content_heading => 'Short content';
+  String get short_content_heading => 'Conținut scurt';
 
   @override
   String shorts_time_left_from(String timeShortString) {
-    return 'Left from $timeShortString';
+    return 'A plecat de la $timeShortString';
   }
 
   @override
   String get short_content_timer_picker_dialog_info =>
-      'Set a daily time limit for short content. Once your limit is reached, the short content will be paused until midnight.';
+      'Setați o limită de timp zilnică pentru conținut scurt. Odată ce limita este atinsă, conținutul scurt va fi întrerupt până la miezul nopții.';
 
   @override
   String get instagram_features_tile_title => 'Instagram';
 
   @override
   String get instagram_features_tile_subtitle =>
-      'Restrict features on instagram.';
+      'Restricționați funcțiile pe instagram.';
 
   @override
-  String get instagram_features_block_reels => 'Restrict reels section.';
+  String get instagram_features_block_reels => 'Secțiunea Restricționați role.';
 
   @override
-  String get instagram_features_block_explore => 'Restrict explore section.';
+  String get instagram_features_block_explore =>
+      'Restricționați secțiunea de explorare.';
 
   @override
   String get snapchat_features_tile_title => 'Snapchat';
 
   @override
   String get snapchat_features_tile_subtitle =>
-      'Restrict features on snapchat.';
+      'Restricționați funcțiile pe Snapchat.';
 
   @override
-  String get snapchat_features_block_spotlight => 'Restrict spotlight section.';
+  String get snapchat_features_block_spotlight =>
+      'Restricționați secțiunea reflectoarelor.';
 
   @override
-  String get snapchat_features_block_discover => 'Restrict discover section.';
+  String get snapchat_features_block_discover =>
+      'Restricționați secțiunea descoperire.';
 
   @override
   String get youtube_features_tile_title => 'Youtube';
 
   @override
-  String get youtube_features_tile_subtitle => 'Restrict shorts on youtube.';
+  String get youtube_features_tile_subtitle =>
+      'Restricționați scurtmetraje pe youtube.';
 
   @override
   String get facebook_features_tile_title => 'Facebook';
 
   @override
-  String get facebook_features_tile_subtitle => 'Restrict reels on facebook.';
+  String get facebook_features_tile_subtitle =>
+      'Restricționați rolele pe Facebook.';
 
   @override
   String get reddit_features_tile_title => 'Reddit';
 
   @override
-  String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
+  String get reddit_features_tile_subtitle =>
+      'Restricționați scurtmetraje pe reddit.';
 
   @override
   String get x_features_tile_title => 'X';
 
   @override
-  String get x_features_tile_subtitle => 'Restrict video feed on X.';
+  String get x_features_tile_subtitle => 'Restricționați fluxul video pe X.';
 
   @override
-  String get threads_features_tile_title => 'Threads';
+  String get threads_features_tile_title => 'Fire';
 
   @override
   String get threads_features_tile_subtitle =>
-      'Restrict video/reels on Threads.';
+      'Restricționați videoclipurile/bobinele pe fire.';
 
   @override
-  String get websites_blocking_tab_title => 'Websites blocking';
+  String get websites_blocking_tab_title => 'Blocarea site-urilor web';
 
   @override
   String get websites_blocking_tab_info =>
-      'Block adult websites and any custom sites you choose to create a safer and more focused online experience. Take charge of your browsing and stay distraction-free.';
+      'Blocați site-urile web pentru adulți și orice site-uri personalizate pe care le alegeți pentru a crea o experiență online mai sigură și mai concentrată. Preluați-vă controlul asupra navigării dvs. și rămâneți fără distracție.';
 
   @override
-  String get adult_content_heading => 'Adult content';
+  String get adult_content_heading => 'Conținut pentru adulți';
 
   @override
-  String get block_nsfw_title => 'Block Nsfw';
+  String get block_nsfw_title => 'Bloc Nsfw';
 
   @override
   String get block_nsfw_subtitle =>
-      'Restrict browsers from opening adult and porn websites.';
+      'Limitați browserele să deschidă site-uri web pentru adulți și porno.';
 
   @override
   String get block_nsfw_dialog_info =>
-      'Are you sure? This action is irreversible. Once adult sites blocker is turned ON, you cannot turn it OFF as long as this app is installed on your device.';
+      'esti sigur? Această acțiune este ireversibilă. Odată ce blocarea site-urilor pentru adulți este activată, nu o puteți dezactiva atâta timp cât această aplicație este instalată pe dispozitiv.';
 
   @override
-  String get block_nsfw_dialog_button_block_anyway => 'Block anyway';
+  String get block_nsfw_dialog_button_block_anyway => 'Blocați oricum';
 
   @override
-  String get blocked_websites_heading => 'Blocked websites';
+  String get blocked_websites_heading => 'Site-uri web blocate';
 
   @override
   String get blocked_websites_empty_list_hint =>
-      'Click on \'+ Add Website\' button to add distracting websites which you wish to block.';
+      'Faceți clic pe butonul „+ Adăugați site web” pentru a adăuga site-uri web care vă distrag atenția pe care doriți să le blocați.';
 
   @override
-  String get add_website_fab_button => 'Add Website';
+  String get add_website_fab_button => 'Adăugați site-ul web';
 
   @override
-  String get add_website_dialog_title => 'Distracting website';
+  String get add_website_dialog_title => 'Site care distrag atenția';
 
   @override
   String get add_website_dialog_info =>
-      'Enter url of a website which you want to block.';
+      'Introduceți adresa URL a unui site web pe care doriți să îl blocați.';
 
   @override
-  String get add_website_dialog_is_nsfw => 'Is nsfw site?';
+  String get add_website_dialog_is_nsfw => 'Este site-ul nsfw?';
 
   @override
   String get add_website_dialog_nsfw_warning =>
-      'Warning: Nsfw sites cannot be removed once added.';
+      'Avertisment: site-urile Nsfw nu pot fi eliminate odată adăugate.';
 
   @override
-  String get add_website_dialog_button_block => 'Block';
+  String get add_website_dialog_button_block => 'Blocați';
 
   @override
   String get add_website_already_exist_snack_alert =>
-      'The URL has already been added to the list of blocked websites.';
+      'Adresa URL a fost deja adăugată la lista de site-uri web blocate.';
 
   @override
   String get add_website_invalid_url_snack_alert =>
-      'Invalid URL! Unable to parse the host name.';
+      'Adresă URL nevalidă! Nu se poate analiza numele gazdei.';
 
   @override
-  String get remove_website_dialog_title => 'Remove website';
+  String get remove_website_dialog_title => 'Eliminați site-ul web';
 
   @override
   String remove_website_dialog_info(String websitehost) {
-    return 'Are you sure? you want to remove \'$websitehost\' from blocked websites.';
+    return 'esti sigur? doriți să eliminați „$websitehost” de pe site-urile web blocate.';
   }
 
   @override
-  String get focus_tab_title => 'Focus';
+  String get focus_tab_title => 'Concentrează-te';
 
   @override
   String get focus_tab_info =>
-      'When you need time to focus, start a new session by selecting the type, choosing distracting apps to pause, and enabling Do Not Disturb for uninterrupted concentration.';
+      'Când aveți nevoie de timp pentru a vă concentra, începeți o nouă sesiune selectând tipul, alegând aplicațiile care vă distrag atenția pe care să le întrerupeți și activând Nu deranjați pentru o concentrare neîntreruptă.';
 
   @override
-  String get active_session_card_title => 'Active session';
+  String get active_session_card_title => 'Sesiune activă';
 
   @override
   String get active_session_card_info =>
-      'You have an active focus session running! Click \'View\' to check your progress and see how much time has elapsed.';
+      'Ai o sesiune de focalizare activă care rulează! Faceți clic pe „Vizualizare” pentru a verifica progresul și pentru a vedea cât timp a trecut.';
 
   @override
-  String get active_session_card_view_button => 'View';
+  String get active_session_card_view_button => 'Vedeți';
 
   @override
   String get focus_distracting_apps_removal_snack_alert =>
-      'Removal of apps from the distracting apps list is not permitted while a Focus Session is active. However, you may still add additional apps to the list during this time.';
+      'Eliminarea aplicațiilor din lista de aplicații care distrag atenția nu este permisă în timp ce o sesiune Focus este activă. Cu toate acestea, puteți adăuga în continuare aplicații suplimentare la listă în acest timp.';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'Profil de focalizare';
 
   @override
-  String get focus_session_duration_tile_title => 'Session duration';
+  String get focus_session_duration_tile_title => 'Durata sesiunii';
 
   @override
   String get focus_session_duration_tile_subtitle =>
-      'Infinite (unless you stop)';
+      'Infinit (dacă nu te oprești)';
 
   @override
   String get focus_session_duration_dialog_info =>
-      'Please select the desired duration for this focus session, determining how long you wish to remain focused and distraction-free.';
+      'Vă rugăm să selectați durata dorită pentru această sesiune de concentrare, determinând cât timp doriți să rămâneți concentrat și fără distracție.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title =>
+      'Personalizarea profilului';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'Personalizați setările pentru profilul selectat.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Aplicați sesiunea';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Împiedică încheierea unei sesiuni înainte de încheierea timpului.';
 
   @override
   String get focus_session_start_button => 'Glisează pentru a începe sesiunea';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
-      'Select at least one distracting app to start focus session';
+      'Selectați cel puțin o aplicație care vă distrage atenția pentru a începe sesiunea de focalizare';
 
   @override
   String get focus_session_already_active_snack_alert =>
-      'You already have an active focus session running. Please complete or stop your current session before starting a new one.';
+      'Aveți deja o sesiune de focalizare activă în desfășurare. Vă rugăm să finalizați sau să opriți sesiunea curentă înainte de a începe una nouă.';
 
   @override
-  String get focus_session_type_study => 'Study';
+  String get focus_session_type_study => 'Studiază';
 
   @override
-  String get focus_session_type_work => 'Work';
+  String get focus_session_type_work => 'Munca';
 
   @override
-  String get focus_session_type_exercise => 'Exercise';
+  String get focus_session_type_exercise => 'Exercițiu';
 
   @override
-  String get focus_session_type_meditation => 'Meditation';
+  String get focus_session_type_meditation => 'Meditația';
 
   @override
-  String get focus_session_type_creativeWriting => 'Creative Writing';
+  String get focus_session_type_creativeWriting => 'Scriere creativă';
 
   @override
-  String get focus_session_type_reading => 'Reading';
+  String get focus_session_type_reading => 'Citirea';
 
   @override
-  String get focus_session_type_programming => 'Programming';
+  String get focus_session_type_programming => 'Programare';
 
   @override
-  String get focus_session_type_chores => 'Chores';
+  String get focus_session_type_chores => 'Treburi';
 
   @override
-  String get focus_session_type_projectPlanning => 'Project Planning';
+  String get focus_session_type_projectPlanning => 'Planificarea Proiectului';
 
   @override
-  String get focus_session_type_artAndDesign => 'Art and Design';
+  String get focus_session_type_artAndDesign => 'Artă și Design';
 
   @override
-  String get focus_session_type_languageLearning => 'Language Learning';
+  String get focus_session_type_languageLearning =>
+      'Învățarea limbilor străine';
 
   @override
-  String get focus_session_type_musicPractice => 'Music Practice';
+  String get focus_session_type_musicPractice => 'Practică muzicală';
 
   @override
-  String get focus_session_type_selfCare => 'Self Care';
+  String get focus_session_type_selfCare => 'Îngrijire de sine';
 
   @override
   String get focus_session_type_brainstorming => 'Brainstorming';
 
   @override
-  String get focus_session_type_skillDevelopment => 'Skill Development';
+  String get focus_session_type_skillDevelopment => 'Dezvoltarea aptitudinilor';
 
   @override
-  String get focus_session_type_research => 'Research';
+  String get focus_session_type_research => 'Cercetare';
 
   @override
-  String get focus_session_type_networking => 'Networking';
+  String get focus_session_type_networking => 'Rețele';
 
   @override
-  String get focus_session_type_cooking => 'Cooking';
+  String get focus_session_type_cooking => 'Gătit';
 
   @override
-  String get focus_session_type_sportsTraining => 'Sports Training';
+  String get focus_session_type_sportsTraining => 'Antrenament sportiv';
 
   @override
-  String get focus_session_type_restAndRelaxation => 'Rest and Relaxation';
+  String get focus_session_type_restAndRelaxation => 'Odihnă și Relaxare';
 
   @override
-  String get focus_session_type_other => 'Other';
+  String get focus_session_type_other => 'Altele';
 
   @override
-  String get timeline_tab_title => 'Timeline';
+  String get timeline_tab_title => 'Cronologie';
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Explorați călătoria dvs. de focalizare selectând o dată din calendar. Urmăriți-vă progresul, revizuiți-vă succesele și învățați din provocări.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
-    return 'Your total productive time for the selected month is $timeString.';
+    return 'Timpul total de productivitate pentru luna selectată este $timeString.';
   }
 
   @override
-  String get selected_month_productive_days_label => 'Productive days';
+  String get selected_month_productive_days_label => 'Zile productive';
 
   @override
   String selected_month_productive_days_snack_alert(num daysCount) {
-    return 'You\'ve had a total of $daysCount productive days in the selected month.';
+    return 'Ați avut un total de $daysCount zile productive în luna selectată.';
   }
 
   @override
-  String get selected_day_focused_time_label => 'Focused time';
+  String get selected_day_focused_time_label => 'Timp concentrat';
 
   @override
   String selected_day_focused_time_snack_alert(String timeString) {
-    return 'Your total focused time for the selected day is $timeString.';
+    return 'Timpul total de concentrare pentru ziua selectată este $timeString.';
   }
 
   @override
-  String get calender_heading => 'Calender';
+  String get calender_heading => 'Calendar';
 
   @override
-  String get your_sessions_heading => 'Your sessions';
+  String get your_sessions_heading => 'Sesiunile tale';
 
   @override
   String get your_sessions_empty_list_hint =>
-      'No focus sessions recorded for the selected day.';
+      'Nu au fost înregistrate sesiuni de focalizare pentru ziua selectată.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Marca temporală';
 
   @override
-  String get focus_session_tile_duration_label => 'Duration';
+  String get focus_session_tile_duration_label => 'Durata';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Reflecție';
 
   @override
-  String get focus_session_state_active => 'Active';
+  String get focus_session_state_active => 'Activ';
 
   @override
-  String get focus_session_state_successful => 'Successful';
+  String get focus_session_state_successful => 'De succes';
 
   @override
-  String get focus_session_state_failed => 'Failed';
+  String get focus_session_state_failed => 'A eșuat';
 
   @override
-  String get active_session_tab_title => 'Session';
+  String get active_session_tab_title => 'Sesiune';
 
   @override
   String get active_session_none_warning =>
-      'No active session found. Returning to the home screen.';
+      'Nu a fost găsită nicio sesiune activă. Revenind la ecranul de start.';
 
   @override
-  String get active_session_dialog_button_keep_pushing => 'Keep pushing';
+  String get active_session_dialog_button_keep_pushing =>
+      'Continuați să împingeți';
 
   @override
-  String get active_session_finish_dialog_title => 'Finish';
+  String get active_session_finish_dialog_title => 'Termină';
 
   @override
   String get active_session_finish_dialog_info =>
-      'Stay strong! You\'re building valuable focus. Are you sure you want to end this focus session? Every extra moment counts toward your goals.';
+      'Fii tare! Vă construiți o concentrare valoroasă. Sigur doriți să încheiați această sesiune de concentrare? Fiecare moment în plus contează pentru obiectivele tale.';
 
   @override
-  String get active_session_giveup_dialog_title => 'Give up';
+  String get active_session_giveup_dialog_title => 'Renunță';
 
   @override
   String get active_session_giveup_dialog_info =>
-      'Hold on! You\'re almost there don\'t give up now! Are you sure you want to end this focus session early? Progress will be lost.';
+      'Stai bine! Aproape că ești acolo, nu te da bătut acum! Sigur doriți să încheiați această sesiune de focalizare mai devreme? Progresul va fi pierdut.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Reflecție de sesiune';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'Fă-ți un moment pentru a reflecta la progresul tău. Care este scopul tău pentru această sesiune? Ce ai realizat în această sesiune?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'Sfat: puteți oricând să editați acest lucru mai târziu în cronologia sesiunii.';
 
   @override
   String get active_session_giveup_snack_alert =>
-      'You gave up! Don\'t worry, you can do better next time. Every effort counts - just keep going';
+      'Ai renunțat! Nu-ți face griji, poți să faci mai bine data viitoare. Fiecare efort contează - continuați';
 
   @override
   String get active_session_quote_one =>
-      'Every step counts, stay strong and keep going';
+      'Fiecare pas contează, fii puternic și continuă';
 
   @override
   String get active_session_quote_two =>
-      'Stay focused! you\'re making amazing progress';
+      'Rămâi concentrat! faci progrese uimitoare';
 
   @override
-  String get active_session_quote_three =>
-      'You\'re crushing it! Keep the momentum going';
+  String get active_session_quote_three => 'Îl striviți! Păstrați impulsul';
 
   @override
   String get active_session_quote_four =>
-      'Just a little more to go, you\'re doing fantastic';
+      'Mai rămâne puțin, te descurci fantastic';
 
   @override
   String active_session_quote_five(String durationString) {
-    return 'Congratulations 🎉 \n You\'ve completed your focus session of $durationString.\n\nGreat job, keep up the amazing work';
+    return 'Felicitări 🎉 \n Ți-ai încheiat sesiunea de focalizare a $durationString.\n\nO treabă grozavă, ține tot așa';
   }
 
   @override
-  String get restriction_groups_tab_title => 'Restriction groups';
+  String get restriction_groups_tab_title => 'Grupuri de restricții';
 
   @override
   String get restriction_groups_tab_info =>
-      'Set a combined screen time limit for a group of apps. Once the total usage reaches your limit, all apps in the group will be paused to help maintain focus and balance.';
+      'Setați o limită de timp de utilizare combinată pentru un grup de aplicații. Odată ce utilizarea totală atinge limita dvs., toate aplicațiile din grup vor fi întrerupte pentru a vă menține concentrarea și echilibrul.';
 
   @override
-  String get restriction_group_time_spent_label => 'Time spent today';
+  String get restriction_group_time_spent_label => 'Timpul petrecut astăzi';
 
   @override
-  String get restriction_group_time_left_label => 'Time left today';
+  String get restriction_group_time_left_label => 'Timp rămas astăzi';
 
   @override
-  String get restriction_group_name_tile_title => 'Group name';
+  String get restriction_group_name_tile_title => 'Numele grupului';
 
   @override
   String get restriction_group_name_picker_dialog_info =>
-      'Enter a name for the restriction group to help identify and manage it easily.';
+      'Introduceți un nume pentru grupul de restricții pentru a ajuta la identificarea și gestionarea acestuia cu ușurință.';
 
   @override
-  String get restriction_group_timer_tile_title => 'Group timer';
+  String get restriction_group_timer_tile_title => 'Cronometru de grup';
 
   @override
   String get restriction_group_timer_picker_dialog_info =>
-      'Set a daily time limit for this group. Once your limit is reached, all the apps in this group will be paused until midnight.';
+      'Setați o limită de timp zilnică pentru acest grup. Odată ce limita dvs. este atinsă, toate aplicațiile din acest grup vor fi întrerupte până la miezul nopții.';
 
   @override
   String get restriction_group_active_period_tile_title =>
-      'Group active period';
+      'Perioada activă a grupului';
 
   @override
-  String get remove_restriction_group_dialog_title => 'Remove group';
+  String get remove_restriction_group_dialog_title => 'Eliminați grupul';
 
   @override
   String remove_restriction_group_dialog_info(String groupName) {
-    return 'Are you sure? you want to remove \'$groupName\' from restriction groups.';
+    return 'esti sigur? doriți să eliminați „$groupName” din grupurile de restricții.';
   }
 
   @override
   String get restriction_group_invalid_limits_snack_alert =>
-      'Set either a timer or an active period limit.';
+      'Setați fie un cronometru, fie o limită de perioadă activă.';
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Nu au fost grupate notificări pentru ziua respectivă.';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => 'Conversații';
 
   @override
-  String get last_24_hours_heading => 'Last 24 hours';
+  String get last_24_hours_heading => 'Ultimele 24 de ore';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Răsfoiți istoricul notificărilor selectând o dată din calendar. Vedeți ce aplicații v-au atras atenția și reflectați asupra obiceiurilor dvs. digitale.';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => 'Lunar';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => 'Zilnic';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Găsiți cu ușurință notificările anterioare căutând prin titlul sau conținutul acestora. Vă ajută să localizați rapid alertele importante.';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => 'Caută notificări...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Nu s-au găsit notificări care să corespundă căutării dvs.';
 
   @override
   String get app_info_none_warning =>
-      'Couldn\'t find the app for the given package. Returning to the home screen.';
+      'Nu s-a putut găsi aplicația pentru pachetul dat. Revenind la ecranul de start.';
 
   @override
-  String get emergency_fab_button => 'Emergency';
+  String get emergency_fab_button => 'Urgență';
 
   @override
   String emergency_dialog_info(num leftPassesCount) {
-    return 'This action will pause the app blocker for next 5 minutes. You have $leftPassesCount passes left. After using all passes, the app will stay blocked until midnight, or the active focus session ends.\n\nDo you still wish to proceed?';
+    return 'Această acțiune va întrerupe blocarea aplicației pentru următoarele 5 minute. Mai aveți permise $leftPassesCount. După folosirea tuturor permiselor, aplicația va rămâne blocată până la miezul nopții sau se termină sesiunea de focalizare activă.\n\nTotuși doriți să continuați?';
   }
 
   @override
-  String get emergency_dialog_button_use_anyway => 'Use anyway';
+  String get emergency_dialog_button_use_anyway => 'Folosește oricum';
 
   @override
   String get emergency_started_snack_alert =>
-      'The app blocker is paused and will resume blocking in 5 minutes.';
+      'Blocarea aplicației este întreruptă și va relua blocarea în 5 minute.';
 
   @override
   String get emergency_already_active_snack_alert =>
-      'The app blocker is currently either paused or inactive. If notifications are enabled, you will receive updates regarding the remaining time.';
+      'Blocarea aplicației este momentan fie întreruptă, fie inactivă. Dacă notificările sunt activate, veți primi actualizări cu privire la timpul rămas.';
 
   @override
   String get emergency_no_pass_left_snack_alert =>
-      'You have used all your emergency passes. The blocked apps will stay blocked until midnight, or the active focus session ends.';
+      'Ți-ai folosit toate permisele de urgență. Aplicațiile blocate vor rămâne blocate până la miezul nopții sau se încheie sesiunea de focalizare activă.';
 
   @override
-  String get app_limit_status_not_set => 'Not set';
+  String get app_limit_status_not_set => 'Nu setat';
 
   @override
-  String get app_timer_tile_title => 'App timer';
+  String get app_timer_tile_title => 'Cronometru aplicație';
 
   @override
   String get app_timer_picker_dialog_info =>
-      'Set a daily time limit for this app. Once your limit is reached, the app will be paused until midnight.';
+      'Setați o limită de timp zilnică pentru această aplicație. Odată ce limita este atinsă, aplicația va fi întreruptă până la miezul nopții.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Mementouri de utilizare';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Apăsări blânde atunci când utilizați aplicații cronometrate.';
 
   @override
-  String get app_launch_limit_tile_title => 'Launch limit';
+  String get app_launch_limit_tile_title => 'Limită de lansare';
 
   @override
   String app_launch_limit_tile_subtitle(num count) {
-    return 'Launched $count times today.';
+    return 'Lansat $count ori astăzi.';
   }
 
   @override
   String get app_launch_limit_picker_dialog_info =>
-      'Set how many times you can open this app each day. Once the limit is reached, it will be paused until midnight.';
+      'Setați de câte ori puteți deschide această aplicație în fiecare zi. Odată atinsă limita, aceasta va fi întreruptă până la miezul nopții.';
 
   @override
-  String get app_active_period_tile_title => 'Active period';
+  String get app_active_period_tile_title => 'Perioada activă';
 
   @override
   String app_active_period_tile_subtitle(String startTime, String endTime) {
-    return 'From $startTime to $endTime';
+    return 'De la $startTime la $endTime';
   }
 
   @override
-  String get internet_access_tile_title => 'Internet access';
+  String get internet_access_tile_title => 'Acces la internet';
 
   @override
   String get internet_access_tile_subtitle =>
-      'Switch off to block app\'s internet.';
+      'Opriți pentru a bloca internetul aplicației.';
 
   @override
   String internet_access_blocked_snack_alert(String appName) {
-    return '$appName\'s internet is blocked.';
+    return 'Internetul lui $appName este blocat.';
   }
 
   @override
   String internet_access_unblocked_snack_alert(String appName) {
-    return '$appName\'s internet is unblocked.';
+    return 'Internetul lui $appName este deblocat.';
   }
 
   @override
-  String get launch_app_tile_title => 'Launch app';
+  String get launch_app_tile_title => 'Lansați aplicația';
 
   @override
   String launch_app_tile_subtitle(String appName) {
-    return 'Open $appName.';
+    return 'Deschideți $appName.';
   }
 
   @override
-  String get go_to_app_settings_tile_title => 'Go to app settings';
+  String get go_to_app_settings_tile_title => 'Accesați setările aplicației';
 
   @override
   String get go_to_app_settings_tile_subtitle =>
-      'Manage app settings like notifications, permissions, storage and more.';
+      'Gestionați setările aplicației, cum ar fi notificările, permisiunile, spațiul de stocare și multe altele.';
 
   @override
-  String get include_in_stats_tile_title => 'Include in screen usage';
+  String get include_in_stats_tile_title => 'Includeți în utilizarea ecranului';
 
   @override
   String get include_in_stats_tile_subtitle =>
-      'Switch off to exclude this app from total screen usage.';
+      'Dezactivați pentru a exclude această aplicație din utilizarea totală a ecranului.';
 
   @override
   String app_excluded_from_stats_snack_alert(String appName) {
-    return '$appName is excluded from total screen usage.';
+    return '$appName este exclus din utilizarea totală a ecranului.';
   }
 
   @override
   String app_include_to_stats_snack_alert(String appName) {
-    return '$appName is included to total screen usage.';
+    return '$appName este inclus în utilizarea totală a ecranului.';
   }
 
   @override
-  String get general_tab_title => 'General';
+  String get general_tab_title => 'general';
 
   @override
-  String get appearance_heading => 'Appearance';
+  String get appearance_heading => 'Aspectul';
 
   @override
-  String get theme_mode_tile_title => 'Theme mode';
+  String get theme_mode_tile_title => 'Modul temă';
 
   @override
-  String get theme_mode_system_label => 'System';
+  String get theme_mode_system_label => 'Sistem';
 
   @override
-  String get theme_mode_light_label => 'Light';
+  String get theme_mode_light_label => 'Lumină';
 
   @override
-  String get theme_mode_dark_label => 'Dark';
+  String get theme_mode_dark_label => 'Întuneric';
 
   @override
-  String get material_color_tile_title => 'Material color';
+  String get material_color_tile_title => 'Culoarea materialului';
 
   @override
-  String get amoled_dark_tile_title => 'AMOLED dark';
+  String get amoled_dark_tile_title => 'AMOLED întunecat';
 
   @override
   String get amoled_dark_tile_subtitle =>
-      'Use pure black color for the dark theme.';
+      'Utilizați culoarea neagră pură pentru tema întunecată.';
 
   @override
-  String get dynamic_colors_tile_title => 'Dynamic colors';
+  String get dynamic_colors_tile_title => 'Culori dinamice';
 
   @override
-  String get dynamic_colors_tile_subtitle => 'Use device colors if supported.';
+  String get dynamic_colors_tile_subtitle =>
+      'Folosiți culorile dispozitivului dacă este acceptat.';
 
   @override
-  String get defaults_heading => 'Defaults';
+  String get defaults_heading => 'Valori implicite';
 
   @override
-  String get app_language_tile_title => 'App language';
+  String get app_language_tile_title => 'Limba aplicației';
 
   @override
-  String get default_home_tab_tile_title => 'Home tab';
+  String get default_home_tab_tile_title => 'Fila Acasă';
 
   @override
-  String get usage_history_tile_title => 'Usage history';
+  String get usage_history_tile_title => 'Istoricul utilizării';
 
   @override
-  String get usage_history_15_days => '15 days';
+  String get usage_history_15_days => '15 zile';
 
   @override
-  String get usage_history_1_month => '1 month';
+  String get usage_history_1_month => '1 luna';
 
   @override
-  String get usage_history_3_month => '3 months';
+  String get usage_history_3_month => '3 luni';
 
   @override
-  String get usage_history_6_month => '6 months';
+  String get usage_history_6_month => '6 luni';
 
   @override
-  String get usage_history_1_year => '1 year';
+  String get usage_history_1_year => '1 an';
 
   @override
-  String get service_heading => 'Service';
+  String get service_heading => 'Serviciu';
 
   @override
   String get service_stopping_warning =>
-      'If NLP digitox stops working unexpectedly, please grant the \'Ignore Battery Optimization\' permission to keep it running in the background. If the issue continues, try whitelisting NLP digitox for uninterrupted performance.';
+      'Dacă NLP digitox nu mai funcționează în mod neașteptat, acordați permisiunea „Ignorați optimizarea bateriei” pentru a-l menține să ruleze în fundal. Dacă problema continuă, încercați să adăugați NLP digitox pe lista albă pentru performanță neîntreruptă.';
 
   @override
-  String get whitelist_app_tile_title => 'Whitelist NLP digitox';
+  String get whitelist_app_tile_title => 'Lista albă NLP digitox';
 
   @override
-  String get whitelist_app_tile_subtitle => 'Allow NLP digitox to auto start.';
+  String get whitelist_app_tile_subtitle =>
+      'Permiteți NLP digitox să pornească automat.';
 
   @override
   String get whitelist_app_unsupported_snack_alert =>
-      'This device does not support automatic startup management.';
+      'Acest dispozitiv nu acceptă gestionarea automată a pornirii.';
 
   @override
-  String get database_tab_title => 'Database';
+  String get database_tab_title => 'Baza de date';
 
   @override
-  String get import_db_tile_title => 'Import database';
+  String get import_db_tile_title => 'Importă baza de date';
 
   @override
-  String get import_db_tile_subtitle => 'Import database from a file.';
+  String get import_db_tile_subtitle => 'Importă baza de date dintr-un fișier.';
 
   @override
-  String get export_db_tile_title => 'Export database';
+  String get export_db_tile_title => 'Exportați baza de date';
 
   @override
-  String get export_db_tile_subtitle => 'Export database to a file.';
+  String get export_db_tile_subtitle =>
+      'Exportați baza de date într-un fișier.';
 
   @override
   String get analysis_tab_title => 'Analiză';
@@ -1506,87 +1530,89 @@ class AppLocalizationsRo extends AppLocalizations {
   }
 
   @override
-  String get crash_logs_heading => 'Crash logs';
+  String get crash_logs_heading => 'Jurnalele de accidente';
 
   @override
   String get crash_logs_info =>
-      'If you encounter any issue, you can report it on GitHub along with the log file. The file will include details such as your device\'s manufacturer, model, Android version, SDK version, and crash logs. This information will help us identify and resolve the problem more effectively.';
+      'Dacă întâmpinați vreo problemă, o puteți raporta pe GitHub împreună cu fișierul jurnal. Fișierul va include detalii precum producătorul dispozitivului, modelul, versiunea Android, versiunea SDK și jurnalele de blocare. Aceste informații ne vor ajuta să identificăm și să rezolvăm problema mai eficient.';
 
   @override
-  String get crash_logs_export_tile_title => 'Export crash logs';
+  String get crash_logs_export_tile_title => 'Exportați jurnalele de blocare';
 
   @override
   String get crash_logs_export_tile_subtitle =>
-      'Export crash logs to a json file.';
+      'Exportați jurnalele de blocare într-un fișier json.';
 
   @override
-  String get crash_logs_view_tile_title => 'View logs';
+  String get crash_logs_view_tile_title => 'Vizualizați jurnalele';
 
   @override
-  String get crash_logs_view_tile_subtitle => 'Explore stored crash logs.';
+  String get crash_logs_view_tile_subtitle =>
+      'Explorați jurnalele de blocare stocate.';
 
   @override
-  String get crash_logs_empty_list_hint => 'No crash logged till now.';
+  String get crash_logs_empty_list_hint =>
+      'Niciun accident nu a fost înregistrat până acum.';
 
   @override
-  String get crash_logs_clear_tile_title => 'Clear logs';
+  String get crash_logs_clear_tile_title => 'Ștergeți jurnalele';
 
   @override
   String get crash_logs_clear_tile_subtitle =>
-      'Delete all crash logs from database.';
+      'Ștergeți toate jurnalele de blocare din baza de date.';
 
   @override
   String get crash_logs_clear_dialog_info =>
-      'Are you sure you wish to clear all crash logs from the database?';
+      'Sigur doriți să ștergeți toate jurnalele de blocare din baza de date?';
 
   @override
-  String get crash_logs_clear_dialog_button_clear_anyway => 'Clear anyway';
+  String get crash_logs_clear_dialog_button_clear_anyway => 'Curata oricum';
 
   @override
-  String get about_tab_title => 'About';
+  String get about_tab_title => 'Despre';
 
   @override
-  String get changelog_tile_title => 'Changelog';
+  String get changelog_tile_title => 'Jurnalul modificărilor';
 
   @override
-  String get changelog_tile_subtitle => 'Find out what\'s new.';
+  String get changelog_tile_subtitle => 'Află ce este nou.';
 
   @override
-  String get full_changelog_tile_title => 'Full changelog';
+  String get full_changelog_tile_title => 'Jurnal complet de modificări';
 
   @override
   String get redirected_to_github_subtitle =>
-      'You will be redirected to GitHub.';
+      'Veți fi redirecționat către GitHub.';
 
   @override
-  String get contribute_heading => 'Contribute';
+  String get contribute_heading => 'Contribuie';
 
   @override
   String get github_tile_title => 'GitHub';
 
   @override
-  String get github_tile_subtitle => 'View the source code.';
+  String get github_tile_subtitle => 'Vizualizați codul sursă.';
 
   @override
-  String get report_issue_tile_title => 'Report an issue';
+  String get report_issue_tile_title => 'Raportați o problemă';
 
   @override
-  String get suggest_idea_tile_title => 'Suggest an idea';
+  String get suggest_idea_tile_title => 'Propune o idee';
 
   @override
-  String get write_email_tile_title => 'Write to us via email';
+  String get write_email_tile_title => 'Scrie-ne prin e-mail';
 
   @override
   String get write_email_tile_subtitle =>
-      'You will be redirected to Email app.';
+      'Veți fi redirecționat către aplicația de e-mail.';
 
   @override
-  String get privacy_policy_heading => 'Privacy policy';
+  String get privacy_policy_heading => 'Politica de confidențialitate';
 
   @override
   String get privacy_policy_info =>
-      'NLP digitox is committed to protecting your privacy. We do not collect, store, or transfer any type of user data. The app operates entirely offline and does not require an internet connection, ensuring that your personal information remains private and secure on your device. As a Free and Open Source Software (FOSS) application, NLP digitox guarantees complete transparency and user control over their data.';
+      'NLP digitox se angajează să vă protejeze confidențialitatea. Nu colectăm, stocăm și nu transferăm niciun tip de date despre utilizatori. Aplicația funcționează în întregime offline și nu necesită o conexiune la internet, asigurându-vă că informațiile dvs. personale rămân private și securizate pe dispozitiv. Fiind o aplicație software gratuită și cu sursă deschisă (FOSS), NLP digitox garantează transparență completă și control de utilizator asupra datelor lor.';
 
   @override
-  String get more_details_button => 'More details';
+  String get more_details_button => 'Mai multe detalii';
 }

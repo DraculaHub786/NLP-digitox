@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/task_model.dart';
 import 'package:nlp_digitox/providers/productivity/tasks_provider.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class TasksScreen extends ConsumerWidget {
   const TasksScreen({super.key});
@@ -26,7 +26,7 @@ class TasksScreen extends ConsumerWidget {
           icon: FluentIcons.reading_list_20_regular,
           filledIcon: FluentIcons.reading_list_20_filled,
           titleText: 'Tasks & To-dos',
-          fab: GlassFAB(
+          fab: DefaultFabButton(
             icon: FluentIcons.add_20_filled,
             label: 'New Task',
             onPressed: () => _showAddTaskDialog(context, ref),

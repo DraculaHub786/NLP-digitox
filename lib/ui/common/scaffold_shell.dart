@@ -172,6 +172,7 @@ class _ScaffoldShellState extends State<ScaffoldShell>
   ) {
     final navItem = widget.items[tabIndex];
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnimatedBuilder(
       animation: _appBarScrollOffSet,
@@ -181,7 +182,7 @@ class _ScaffoldShellState extends State<ScaffoldShell>
                 (widget.appBarExpandedHeight - kToolbarHeight))
             .clamp(0.0, 1.0);
 
-        // Interpolate the color for the AppBar
+        // Interpolate the color for the AppBar (single-tab collapse path only)
         final appBarColor = Color.lerp(
           Theme.of(context).colorScheme.surface,
           Theme.of(context).colorScheme.secondaryContainer,
@@ -197,11 +198,12 @@ class _ScaffoldShellState extends State<ScaffoldShell>
           pinned: !_haveMultiTabs,
           stretch: true,
           primary: true,
-          backgroundColor: _haveMultiTabs
-              ? Theme.of(context).colorScheme.surface
-              : appBarColor,
-          surfaceTintColor:
-              _haveMultiTabs ? Theme.of(context).colorScheme.surfaceTint : null,
+          // Multi-tab shells: transparent so the single `TreatedBackgroundImage`
+          // layer behind the whole Stack shows through the header region too —
+          // no more hard seam between the app bar and the body background.
+          backgroundColor:
+              _haveMultiTabs ? Colors.transparent : appBarColor,
+          surfaceTintColor: _haveMultiTabs ? Colors.transparent : null,
           automaticallyImplyLeading: false,
           actions: [
             ...navItem.actions ?? [],
@@ -218,7 +220,12 @@ class _ScaffoldShellState extends State<ScaffoldShell>
               : null,
           flexibleSpace: FlexibleSpaceBar(
             expandedTitleScale: 1.75,
-            background: innerBoxIsScrolled ? null : navItem.appBarBg,
+            // Multi-tab shells get a soft gradient scrim only — it samples
+            // through to the single background image layer already painted
+            // behind the whole Stack (no second image decode, no double blur).
+            background: _haveMultiTabs
+                ? AmbientHeaderScrim(isDark: isDark)
+                : (innerBoxIsScrolled ? null : navItem.appBarBg),
             collapseMode: CollapseMode.parallax,
             titlePadding: EdgeInsets.only(
               bottom: 13,
@@ -252,6 +259,39 @@ class _ScaffoldShellState extends State<ScaffoldShell>
               label: item.titleText ?? "",
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Soft gradient scrim behind multi-tab app-bar titles. Keeps text legible
+/// against the botanical background without painting an opaque surface over
+/// the photo — the image + blur come from the single `TreatedBackgroundImage`
+/// layer behind the whole Stack.
+class AmbientHeaderScrim extends StatelessWidget {
+  final bool isDark;
+
+  const AmbientHeaderScrim({super.key, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? const [
+                  Color(0x8C121712),
+                  Color(0x4D121712),
+                  Colors.transparent,
+                ]
+              : const [
+                  Color(0x8CF6F3EA),
+                  Color(0x4DF6F3EA),
+                  Colors.transparent,
+                ],
+        ),
       ),
     );
   }

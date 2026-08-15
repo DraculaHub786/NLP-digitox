@@ -82,7 +82,7 @@
             }
         }
     },
-    "nSeconds": "{count, plural, =0{0 saniye}=1{1 saniye} other{{count} saniye}}",
+    "nSeconds": "{count, plural, =0{0 saniye} =1{1 saniye} other{{count} saniye}}",
     "@nSeconds": {
         "placeholders": {
             "count": {
@@ -594,5 +594,42 @@
     "analysis_total": "Toplam",
     "analysis_no_change": "Geçen haftayla aynı",
     "analysis_trend_less": "Geçen haftadan %{percent} daha az",
-    "analysis_trend_more": "Geçen haftadan %{percent} daha fazla"
+    "analysis_trend_more": "Geçen haftadan %{percent} daha fazla",
+    "session_timeline_tip": "Odaklanma oturumlarını mı takip etmek istiyorsunuz? Odaklanma yolculuğunuzu görmek için zaman çizelgesini görüntüleyin.",
+    "short_content_blocking_tip": "Sosyal uygulamalar dikkatinizi mi dağıttı? Odaklanmak için Instagram, YouTube vb. platformlardaki kısa içerikleri engelleyin.",
+    "parental_controls_tip": "Ebeveyn kontrolüne mi ihtiyacınız var? Güvenli bir deneyim sağlamak için çocuğunuzun cihazına yönelik kısıtlamalar ayarlayın.",
+    "notification_batching_tip": "Dikkat dağıtıcı şeyleri azaltmak mı istiyorsunuz? Bildirimleri gruplamak ve tek seferde kontrol etmek için Bildirim Toplu İşlemi'ni kullanın.",
+    "notification_scheduling_tip": "Bildirimleri yönetmeniz mi gerekiyor? Belirli uygulamalar için ne zaman bildirim alacağınızı planlayın.",
+    "quick_focus_tile_tip": "Odaklanmak için hızlı erişime mi ihtiyacınız var? Odak Modunu anında etkinleştirmek için Hızlı Odaklama Parçası ekleyin.",
+    "app_shortcuts_tip": "Anında uygulama erişimi mi istiyorsunuz? Hızlı işlemler için uygulama simgesine uzun basarak kısayollar ekleyin.",
+    "backup_usage_db_tip": "Verilerinizi kaydetmek ister misiniz? Kayıtlarınızı güvende tutmak için kullanım veritabanınızı yedekleyin.",
+    "dynamic_material_color_tip": "Özel bir tema mı istiyorsunuz? Dinamik Malzemeyi Etkinleştirin Cihazınızın temasına uyacak şekilde renklendirin.",
+    "grouped_apps_blocking_tip": "Uygulamaları birlikte engellemek mi istiyorsunuz? Uygulama sınırlarını gruplandırmak ve birden fazla uygulamayı aynı anda engellemek için Kısıtlama Gruplarını kullanın.",
+    "websites_blocking_tip": "Daha temiz bir tarama deneyimi mi istiyorsunuz? Daha odaklı bir çevrimiçi zaman için özel veya NSFW web sitelerini engelleyin.",
+    "data_usage_tip": "Verilerinizi takip etmek mi istiyorsunuz? İnternet tüketimi için mobil ve Wi-Fi veri kullanımınızı izleyin.",
+    "block_internet_tip": "Bir uygulamanın internetini engellemeniz mi gerekiyor? Uygulamanın kontrol panelinden belirli bir uygulama için interneti kesin.",
+    "emergency_passes_tip": "Molaya mı ihtiyacınız var? Uygulamaların engellemesini 5 dakika süreyle geçici olarak kaldırmak için günde 3 Acil Durum Geçiş Kartı kullanın.",
+    "batch_recap_dropdown_title": "Toplu özet türü",
+    "batch_recap_dropdown_info": "Bir program tetiklendiğinde neyin iletileceğini seçin; tüm bildirimler veya yalnızca bir özet.",
+    "batch_recap_option_summery_only": "Yalnızca özet",
+    "batch_recap_option_all_notifications": "Tüm bildirimler",
+    "notification_history_tile_title": "Bildirim geçmişi",
+    "store_all_tile_subtitle": "Toplu olmayan bildirimleri de kaydedin.",
+    "tamper_protection_confirmation_dialog_info": "Etkinleştirildiğinde, seçilen kaldırma penceresi dışında NLP digitox'nun yüklemesini kaldıramaz, zorla durduramaz veya verilerini temizleyemezsiniz. Hiçbir geçici çözüm yoktur.\n\nDevam etmek riski size aittir.",
+    "focus_profile_customization_tile_title": "Profil özelleştirme",
+    "focus_profile_customization_tile_subtitle": "Seçilen profilin ayarlarını özelleştirin.",
+    "focus_enforce_tile_title": "Oturumu zorunlu kıl",
+    "focus_enforce_tile_subtitle": "Oturumun süre dolmadan sonlandırılmasını engeller.",
+    "focus_timeline_tab_info": "Takvimden bir tarih seçerek odaklanma yolculuğunuzu keşfedin. İlerlemenizi takip edin, başarılarınızı tekrar gözden geçirin ve zorluklardan ders alın.",
+    "focus_session_tile_timestamp_label": "Zaman damgası",
+    "focus_session_tile_reflection_label": "Yansıma",
+    "active_session_reflection_dialog_title": "Oturum yansıması",
+    "active_session_reflection_dialog_info": "İlerlemenizi düşünmek için bir dakikanızı ayırın. Bu oturumdaki hedefiniz nedir? Bu oturumda neler başardınız?",
+    "active_session_reflection_dialog_tip": "İpucu: Bunu daha sonra istediğiniz zaman oturum zaman çizelgesinde düzenleyebilirsiniz.",
+    "notifications_empty_list_hint": "Gün için hiçbir bildirim toplu olarak gönderilmedi.",
+    "notification_timeline_tab_info": "Takvimden bir tarih seçerek bildirim geçmişinize göz atın. Hangi uygulamaların dikkatinizi çektiğini görün ve dijital alışkanlıklarınızı değerlendirin.",
+    "search_notifications_sheet_info": "Başlıklarına veya içeriklerine göre arama yaparak geçmiş bildirimleri kolayca bulun. Önemli uyarıları hızla bulmanıza yardımcı olur.",
+    "search_notifications_empty_list_hint": "Aramanızla eşleşen bildirim bulunamadı.",
+    "usage_reminders_tile_title": "Kullanım hatırlatıcıları",
+    "usage_reminders_tile_subtitle": "Zamanlanmış uygulamaları kullanırken nazik dürtüklemeler."
 }

@@ -267,8 +267,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get schedule_end_label => '終了';
 
   @override
-  String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+  String get exit_without_saving_dialog_info => '保存せずに終了してもよろしいですか?';
 
   @override
   String get development_dialog_info =>
@@ -338,7 +337,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get accessibility_tip =>
-      'Want smarter, more battery-friendly blocking? Enable Accessibility permission for NLP digitox.';
+      'よりスマートでバッテリーに優しいブロックをご希望ですか? NLP digitox のアクセシビリティ権限を有効にします。';
 
   @override
   String get battery_optimization_tip =>
@@ -346,99 +345,99 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get invincible_mode_tip =>
-      'Accidentally removed restrictions? Use Invincible Mode to lock them until the next day or adjustment window.';
+      '誤って制限を解除してしまいましたか?無敵モードを使用して、翌日または調整ウィンドウまでロックします。';
 
   @override
   String get glance_usage_tip =>
-      'Want insights? Check the Glance section to view your usage patterns and screen time.';
+      '洞察が必要ですか? 「一目」セクションをチェックして、使用パターンと使用時間を確認してください。';
 
   @override
   String get tamper_protection_tip =>
-      'Uninstalling NLP digitox? Enable the Uninstall Window to safely disable tamper protection first.';
+      'NLP digitox をアンインストールしますか?まずアンインストール ウィンドウを有効にして、タンパー プロテクションを安全に無効にします。';
 
   @override
   String get notification_blocking_tip =>
-      'Want to reduce distractions? Use Notification Blocking to silence selected apps.';
+      '気を散らすものを減らしたいですか?通知ブロックを使用して、選択したアプリを沈黙させます。';
 
   @override
   String get usage_history_tip =>
-      'Want to reflect on your habits? Check Usage History to see past patterns.';
+      '自分の習慣を振り返ってみませんか?過去のパターンを確認するには、使用履歴を確認してください。';
 
   @override
   String get focus_mode_tip =>
-      'Need deep focus? Turn on Focus Mode to block apps and notifications during tasks.';
+      '深い集中力が必要ですか?タスク中のアプリと通知をブロックするには、フォーカス モードをオンにします。';
 
   @override
   String get bedtime_reminder_tip =>
-      'Want to improve your sleep? Set a Bedtime Reminder to wind down nightly.';
+      '睡眠を改善したいですか?就寝時間リマインダーを設定して、毎晩リラックスしましょう。';
 
   @override
   String get custom_blocking_tip =>
-      'Need a custom experience? Create app blocking rules that fit your needs.';
+      'カスタムエクスペリエンスが必要ですか?ニーズに合ったアプリのブロック ルールを作成します。';
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'フォーカスセッションを追跡したいですか?タイムラインを表示して、集中の過程を確認します。';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'ソーシャルアプリに気を取られていますか？集中力を保つために、Instagram や YouTube などの短いコンテンツをブロックします。';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'ペアレンタルコントロールが必要ですか?お子様のデバイスに制限を設定して、安全な体験を確保してください。';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      '気を散らすものを減らしたいですか?通知のバッチ処理を使用して、通知をグループ化し、一度に確認します。';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      '通知を管理する必要がありますか?特定のアプリの通知をいつ受信するかをスケジュールします。';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'フォーカスにすばやくアクセスする必要がありますか?クイック フォーカス タイルを追加すると、フォーカス モードが即座に有効になります。';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'インスタントアプリにアクセスしたいですか?アプリアイコンを長押ししてショートカットを追加すると、素早い操作が可能になります。';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'データを保存したいですか?記録を安全に保つために、使用状況データベースをバックアップしてください。';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'カスタムテーマが必要ですか?ダイナミック マテリアルを有効にする デバイスのテーマに合わせて色を設定します。';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'バッテリーを節約したいですか? AMOLED ダークテーマを使用して、OLED スクリーンの消費電力を削減します。';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      '使用履歴を残しておきたいですか？使用履歴に何週間分のデータを保存するかをカスタマイズします。';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'アプリをまとめてブロックしたいですか?制限グループを使用してアプリの制限をグループ化し、複数のアプリを一度にブロックします。';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'よりクリーンなブラウジング体験をご希望ですか?カスタム Web サイトや NSFW Web サイトをブロックして、オンライン時間をより集中させましょう。';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'データを追跡したいですか?インターネット消費のためにモバイルと Wi-Fi のデータ使用量を監視します。';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'アプリのインターネットをブロックする必要がありますか?アプリのダッシュボードから特定のアプリのインターネットを遮断します。';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      '休憩が必要ですか?毎日 3 つの緊急パスを使用すると、5 分間アプリのブロックを一時的に解除できます。';
 
   @override
   String get onboarding_skip_btn_label => 'スキップ';
@@ -597,7 +596,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get show_all_apps_tile_title => 'すべてのアプリを表示';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'アプリを検索...';
 
   @override
   String get notifications_tab_title => '通知';
@@ -610,26 +609,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get batched_apps_tile_title => '通知をまとめるアプリ';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'バッチ要約タイプ';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'スケジュールがトリガーされたときにプッシュする内容 (すべての通知または概要のみ) を選択します。';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => '概要のみ';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'すべての通知';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => '通知履歴';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'すべての通知を保存する';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle => 'バッチではない通知も保存します。';
 
   @override
   String get schedules_heading => 'スケジュール';
@@ -763,7 +762,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      '有効にすると、選択したアンインストール ウィンドウ中を除き、NLP digitox のデータをアンインストール、強制停止、またはクリアできなくなります。回避策はありません。\n\nご自身の責任で続行してください。';
 
   @override
   String get uninstall_window_tile_title => 'アンインストール画面';
@@ -797,7 +796,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'ショート動画の毎日の利用時間を制限できます。制限時間に達すると、深夜0時までショート動画は視聴できなくなります。';
 
   @override
-  String get instagram_features_tile_title => 'Instagram';
+  String get instagram_features_tile_title => 'インスタグラム';
 
   @override
   String get instagram_features_tile_subtitle => 'Instagramの機能を制限します。';
@@ -809,7 +808,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get instagram_features_block_explore => '探索セクションを制限します。';
 
   @override
-  String get snapchat_features_tile_title => 'Snapchat';
+  String get snapchat_features_tile_title => 'スナップチャット';
 
   @override
   String get snapchat_features_tile_subtitle => 'Snapchatの機能を制限します。';
@@ -827,13 +826,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get youtube_features_tile_subtitle => 'YouTubeのショート動画を制限します。';
 
   @override
-  String get facebook_features_tile_title => 'Facebook';
+  String get facebook_features_tile_title => 'フェイスブック';
 
   @override
   String get facebook_features_tile_subtitle => 'Facebookのリールを制限します。';
 
   @override
-  String get reddit_features_tile_title => 'Reddit';
+  String get reddit_features_tile_title => 'レディット';
 
   @override
   String get reddit_features_tile_subtitle => 'Redditのショート動画を制限します。';
@@ -935,7 +934,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '集中記録が有効な間は、集中を妨げるアプリを削除することはできません。ただし、新しいアプリを追加することはできます。';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'フォーカスプロファイル';
 
   @override
   String get focus_session_duration_tile_title => '集中する時間';
@@ -947,18 +946,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get focus_session_duration_dialog_info => '集中したい時間を選択してください。';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'プロファイルのカスタマイズ';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      '選択したプロファイルの設定をカスタマイズします。';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'セッションを強制する';
 
   @override
-  String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+  String get focus_enforce_tile_subtitle => '時間が終了する前にセッションが終了することを防ぎます。';
 
   @override
   String get focus_session_start_button => 'スワイプしてセッションを開始';
@@ -1039,7 +1037,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'カレンダーから日付を選択して、集中の旅を探索してください。進捗状況を追跡し、成功を振り返り、課題から学びましょう。';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
@@ -1072,13 +1070,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get your_sessions_empty_list_hint => '選択した日は活動記録がありませんでした。';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'タイムスタンプ';
 
   @override
   String get focus_session_tile_duration_label => '継続時間';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => '反射';
 
   @override
   String get focus_session_state_active => '有効';
@@ -1113,15 +1111,15 @@ class AppLocalizationsJa extends AppLocalizations {
       'もう少しで目標達成です！本当にこの集中記録を途中で終了しますか？これまでの進捗は失われます。';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'セッションの振り返り';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      '少し時間を取って自分の進歩を振り返ってください。このセッションの目標は何ですか?このセッション中に何を達成しましたか?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'ヒント: これは、後からセッション タイムラインでいつでも編集できます。';
 
   @override
   String get active_session_giveup_snack_alert =>
@@ -1188,35 +1186,33 @@ class AppLocalizationsJa extends AppLocalizations {
       'タイマーを設定するか、使用時間帯を制限してください。';
 
   @override
-  String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+  String get notifications_empty_list_hint => 'その日にバッチ通知された通知はありません。';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => '会話';
 
   @override
   String get last_24_hours_heading => '過去24時間';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'カレンダーから日付を選択して、通知履歴を参照します。どのアプリがあなたの注意を引いたかを確認し、デジタル習慣を振り返ってください。';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => '毎月';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => '毎日';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'タイトルや内容を検索することで、過去の通知を簡単に見つけることができます。重要なアラートをすばやく見つけるのに役立ちます。';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => '通知を検索...';
 
   @override
-  String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+  String get search_notifications_empty_list_hint => '検索に一致する通知は見つかりませんでした。';
 
   @override
   String get app_info_none_warning => '指定されたパッケージのアプリが見つかりませんでした。ホーム画面に戻ります。';
@@ -1255,11 +1251,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'このアプリに毎日の使用時間の制限を設定しましょう。制限時間に達すると、アプリは深夜0時まで一時停止します。';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => '使用リマインダー';
 
   @override
-  String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+  String get usage_reminders_tile_subtitle => '時間制限のあるアプリを使用するときに優しくナッジします。';
 
   @override
   String get app_launch_limit_tile_title => '起動回数の制限';

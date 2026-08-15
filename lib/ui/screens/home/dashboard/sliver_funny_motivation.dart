@@ -1,4 +1,4 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 //
 // Funny motivation card — a dismissible, cartoon-brutalist UI element that
 // shows a witty AI-generated message based on the user's mood, persona, and

@@ -391,39 +391,39 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Odaklanma oturumlarını mı takip etmek istiyorsunuz? Odaklanma yolculuğunuzu görmek için zaman çizelgesini görüntüleyin.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Sosyal uygulamalar dikkatinizi mi dağıttı? Odaklanmak için Instagram, YouTube vb. platformlardaki kısa içerikleri engelleyin.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Ebeveyn kontrolüne mi ihtiyacınız var? Güvenli bir deneyim sağlamak için çocuğunuzun cihazına yönelik kısıtlamalar ayarlayın.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Dikkat dağıtıcı şeyleri azaltmak mı istiyorsunuz? Bildirimleri gruplamak ve tek seferde kontrol etmek için Bildirim Toplu İşlemi\'ni kullanın.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Bildirimleri yönetmeniz mi gerekiyor? Belirli uygulamalar için ne zaman bildirim alacağınızı planlayın.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Odaklanmak için hızlı erişime mi ihtiyacınız var? Odak Modunu anında etkinleştirmek için Hızlı Odaklama Parçası ekleyin.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Anında uygulama erişimi mi istiyorsunuz? Hızlı işlemler için uygulama simgesine uzun basarak kısayollar ekleyin.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Verilerinizi kaydetmek ister misiniz? Kayıtlarınızı güvende tutmak için kullanım veritabanınızı yedekleyin.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Özel bir tema mı istiyorsunuz? Dinamik Malzemeyi Etkinleştirin Cihazınızın temasına uyacak şekilde renklendirin.';
 
   @override
   String get amoled_dark_theme_tip =>
@@ -435,23 +435,23 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Uygulamaları birlikte engellemek mi istiyorsunuz? Uygulama sınırlarını gruplandırmak ve birden fazla uygulamayı aynı anda engellemek için Kısıtlama Gruplarını kullanın.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Daha temiz bir tarama deneyimi mi istiyorsunuz? Daha odaklı bir çevrimiçi zaman için özel veya NSFW web sitelerini engelleyin.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Verilerinizi takip etmek mi istiyorsunuz? İnternet tüketimi için mobil ve Wi-Fi veri kullanımınızı izleyin.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Bir uygulamanın internetini engellemeniz mi gerekiyor? Uygulamanın kontrol panelinden belirli bir uygulama için interneti kesin.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Molaya mı ihtiyacınız var? Uygulamaların engellemesini 5 dakika süreyle geçici olarak kaldırmak için günde 3 Acil Durum Geçiş Kartı kullanın.';
 
   @override
   String get onboarding_skip_btn_label => 'Atla';
@@ -630,26 +630,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get batched_apps_tile_title => 'Gruplanmış uygulamalar';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Toplu özet türü';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Bir program tetiklendiğinde neyin iletileceğini seçin; tüm bildirimler veya yalnızca bir özet.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Yalnızca özet';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Tüm bildirimler';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Bildirim geçmişi';
 
   @override
   String get store_all_tile_title => 'Tüm bildirimleri sakla';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle =>
+      'Toplu olmayan bildirimleri de kaydedin.';
 
   @override
   String get schedules_heading => 'Program';
@@ -796,7 +797,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'Etkinleştirildiğinde, seçilen kaldırma penceresi dışında NLP digitox\'nun yüklemesini kaldıramaz, zorla durduramaz veya verilerini temizleyemezsiniz. Hiçbir geçici çözüm yoktur.\n\nDevam etmek riski size aittir.';
 
   @override
   String get uninstall_window_tile_title => 'Kaldırma penceresi';
@@ -994,18 +995,18 @@ class AppLocalizationsTr extends AppLocalizations {
       'Lütfen bu odaklanma oturumu için istediğiniz süreyi seçin, ne kadar süre odaklanmış ve dikkatiniz dağılmadan kalmak istediğinizi belirleyin.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'Profil özelleştirme';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'Seçilen profilin ayarlarını özelleştirin.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Oturumu zorunlu kıl';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Oturumun süre dolmadan sonlandırılmasını engeller.';
 
   @override
   String get focus_session_start_button => 'Oturumu başlatmak için kaydırın';
@@ -1086,7 +1087,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Takvimden bir tarih seçerek odaklanma yolculuğunuzu keşfedin. İlerlemenizi takip edin, başarılarınızı tekrar gözden geçirin ve zorluklardan ders alın.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
@@ -1120,13 +1121,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Seçilen gün için hiçbir odak oturumu kaydedilmemiştir.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Zaman damgası';
 
   @override
   String get focus_session_tile_duration_label => 'Süre';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Yansıma';
 
   @override
   String get focus_session_state_active => 'Aktif';
@@ -1162,15 +1163,15 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bir saniye! Neredeyse tamamladın, şimdi pes etme! Bu odaklanma oturumunu erken bitirmek istediğinden emin misin? İlerleme kaybolacak.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Oturum yansıması';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'İlerlemenizi düşünmek için bir dakikanızı ayırın. Bu oturumdaki hedefiniz nedir? Bu oturumda neler başardınız?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'İpucu: Bunu daha sonra istediğiniz zaman oturum zaman çizelgesinde düzenleyebilirsiniz.';
 
   @override
   String get active_session_giveup_snack_alert =>
@@ -1240,7 +1241,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Gün için hiçbir bildirim toplu olarak gönderilmedi.';
 
   @override
   String get conversations_label => 'Sohbetler';
@@ -1250,7 +1251,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Takvimden bir tarih seçerek bildirim geçmişinize göz atın. Hangi uygulamaların dikkatinizi çektiğini görün ve dijital alışkanlıklarınızı değerlendirin.';
 
   @override
   String get monthly_label => 'Aylık';
@@ -1260,14 +1261,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Başlıklarına veya içeriklerine göre arama yaparak geçmiş bildirimleri kolayca bulun. Önemli uyarıları hızla bulmanıza yardımcı olur.';
 
   @override
   String get search_notifications_hint => 'Bildirimleri ara...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Aramanızla eşleşen bildirim bulunamadı.';
 
   @override
   String get app_info_none_warning =>
@@ -1307,11 +1308,11 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bu uygulama için günlük bir zaman sınırı belirleyin. Sınırınıza ulaşıldığında, uygulama gece yarısına kadar duraklatılacaktır.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Kullanım hatırlatıcıları';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Zamanlanmış uygulamaları kullanırken nazik dürtüklemeler.';
 
   @override
   String get app_launch_limit_tile_title => 'Başlatma limiti';

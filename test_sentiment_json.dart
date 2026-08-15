@@ -1,4 +1,4 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 //
 // Part N live smoke test — verifies the new JSON-only Groq request shapes:
 //   1. Sentiment mood-nudge: response_format json_object + max_tokens 200.

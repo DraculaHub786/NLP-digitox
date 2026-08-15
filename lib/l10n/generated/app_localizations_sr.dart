@@ -276,7 +276,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Да ли сте сигурни да желите да изађете без чувања?';
 
   @override
   String get development_dialog_info =>

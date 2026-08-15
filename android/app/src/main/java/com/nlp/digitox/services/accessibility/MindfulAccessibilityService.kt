@@ -19,6 +19,8 @@ import com.nlp.digitox.AppConstants.INSTAGRAM_PACKAGE
 import com.nlp.digitox.AppConstants.REDDIT_PACKAGE
 import com.nlp.digitox.AppConstants.SETTINGS_PACKAGE
 import com.nlp.digitox.AppConstants.SNAPCHAT_PACKAGE
+import com.nlp.digitox.AppConstants.THREADS_PACKAGE
+import com.nlp.digitox.AppConstants.X_PACKAGE
 import com.nlp.digitox.AppConstants.YOUTUBE_PACKAGE
 import com.nlp.digitox.R
 import com.nlp.digitox.enums.PlatformFeatures
@@ -277,6 +279,14 @@ class MindfulAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
                                 shortsPlatformPackages.add(it.activityInfo.packageName)
                             }
                     }
+
+                    // X (Twitter)
+                    PlatformFeatures.X_VIDEOS ->
+                        shortsPlatformPackages.add(X_PACKAGE)
+
+                    // Threads
+                    PlatformFeatures.THREADS_REELS ->
+                        shortsPlatformPackages.add(THREADS_PACKAGE)
                 }
             }
 

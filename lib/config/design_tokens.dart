@@ -60,6 +60,10 @@ abstract final class DesignPalette {
 
 /// Layered glass tokens: gradient fill + gradient border + soft tinted
 /// shadow, all theme aware. This is the Guide 6 layered version.
+///
+/// IMPORTANT: This is the ONLY glass system in the app. Do not hand-roll
+/// `BackdropFilter` + `Container` combos — use `GlassCard`
+/// (see `ui/common/glass_card.dart`).
 @immutable
 class GlassTokens extends ThemeExtension<GlassTokens> {
   final Color fillTop;

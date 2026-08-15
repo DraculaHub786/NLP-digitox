@@ -390,7 +390,7 @@ class DynamicRecordsDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Future<void> addDuplicateSessions() async {
-  //   final firstDay = DateTime(2024, 12, 1);
+  //   final firstDay = DateTime(2026, 12, 1);
   //   List<FocusSessionsTableCompanion> sessions = [];
 
   //   for (var i = 1; i <= 31; i++) {

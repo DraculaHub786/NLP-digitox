@@ -12,162 +12,165 @@ class AppLocalizationsHu extends AppLocalizations {
   String get mindful_tagline => 'Arra összpontosíts, ami igazán számít';
 
   @override
-  String get unlock_button_label => 'Unlock';
+  String get unlock_button_label => 'Oldja fel';
 
   @override
-  String get permission_status_off => 'Off';
+  String get permission_status_off => 'Ki';
 
   @override
-  String get permission_status_allowed => 'Allowed';
+  String get permission_status_allowed => 'Engedélyezett';
 
   @override
-  String get permission_status_not_allowed => 'Not allowed';
+  String get permission_status_not_allowed => 'Nem engedélyezett';
 
   @override
-  String get permission_button_grant_permission => 'Grant Permission';
+  String get permission_button_grant_permission => 'Engedély megadása';
 
   @override
-  String get permission_button_agree_and_continue => 'Agree & Continue';
+  String get permission_button_agree_and_continue => 'Egyetértek & Folytatás';
 
   @override
-  String get permission_button_not_now => 'Not Now';
+  String get permission_button_not_now => 'Most nem';
 
   @override
-  String get permission_button_help => 'Help?';
+  String get permission_button_help => 'Segítség?';
 
   @override
   String get permission_sheet_privacy_info =>
-      'NLP digitox is 100% secure and works offline. We do not collect or store any personal data.';
+      'A NLP digitox 100%-ban biztonságos, és offline is működik. Nem gyűjtünk és nem tárolunk személyes adatokat.';
 
   @override
   String permission_grant_step_one(String button_label) {
-    return '1. Click on $button_label button.';
+    return '1. Kattintson a $button_label gombra.';
   }
 
   @override
   String get permission_grant_step_two =>
-      '2. Select NLP digitox in the next screen.';
+      '2. Válassza a NLP digitox lehetőséget a következő képernyőn.';
 
   @override
   String get permission_grant_step_three =>
-      '3. Click and turn on the switch like below.';
+      '3. Kattintson és kapcsolja be a kapcsolót az alábbiak szerint.';
 
   @override
-  String get permission_notification_title => 'Send Notifications';
+  String get permission_notification_title => 'Értesítések küldése';
 
   @override
-  String get permission_alarms_title => 'Alarms & Reminders';
+  String get permission_alarms_title => 'Riasztások és emlékeztetők';
 
   @override
   String get permission_alarms_info =>
-      'Please grant permission for setting alarms and reminders. This will allow NLP digitox to start your bedtime schedule on time and reset app timers daily at midnight and help you stay on track.';
+      'Kérjük, engedélyezze a riasztások és emlékeztetők beállítását. Ez lehetővé teszi a NLP digitox számára, hogy időben elindítsa lefekvésbeosztását, és minden nap éjfélkor alaphelyzetbe állítsa az alkalmazások időzítőit, és segít a pályán maradni.';
 
   @override
   String get permission_alarms_device_tile_label =>
-      'Allow setting alarms and reminders';
+      'Riasztások és emlékeztetők beállításának engedélyezése';
 
   @override
-  String get permission_usage_title => 'Usage Access';
+  String get permission_usage_title => 'Használati hozzáférés';
 
   @override
   String get permission_usage_info =>
-      'Please grant usage access permission. This will allow NLP digitox to monitor app usage and manage access to certain apps, ensuring a more focused and controlled digital environment.';
+      'Kérjük, adjon használati engedélyt. Ez lehetővé teszi a NLP digitox számára, hogy figyelemmel kísérje az alkalmazáshasználatot és kezelje a hozzáférést bizonyos alkalmazásokhoz, így fókuszáltabb és ellenőrzöttebb digitális környezetet biztosít.';
 
   @override
-  String get permission_usage_device_tile_label => 'Permit usage access';
+  String get permission_usage_device_tile_label =>
+      'Engedélyezze a használati hozzáférést';
 
   @override
   String get permission_overlay_title => 'Display Overlay';
 
   @override
   String get permission_overlay_info =>
-      'Please grant display overlay permission. This will allow NLP digitox to show an overlay when a paused app is opened, helping you stay focused and maintain your schedule.';
+      'Kérjük, adja meg a megjelenítési fedvény engedélyét. Ez lehetővé teszi a NLP digitox számára, hogy fedvényt jelenítsen meg, amikor egy szüneteltetett alkalmazást megnyitnak, így segít koncentrálni és fenntartani az ütemtervet.';
 
   @override
   String get permission_overlay_device_tile_label =>
-      'Allow display over other apps';
+      'Megjelenítés engedélyezése más alkalmazások felett';
 
   @override
-  String get permission_accessibility_title => 'Accessibility';
+  String get permission_accessibility_title => 'Hozzáférhetőség';
 
   @override
   String get permission_accessibility_info =>
-      'Please grant accessibility permission. This will allow NLP digitox to restrict access to short-form video content (e.g., Reels, Shorts) within social media apps and browsers, and filter inappropriate websites.';
+      'Kérjük, adjon hozzáférési engedélyt. Ez lehetővé teszi a NLP digitox számára, hogy korlátozza a hozzáférést a rövid formátumú videotartalmakhoz (pl. Reels, Shorts) a közösségimédia-alkalmazásokban és böngészőkben, és kiszűrje a nem megfelelő webhelyeket.';
 
   @override
   String get permission_accessibility_required =>
-      'NLP digitox requires accessibility permission to block short content and websites effectively.';
+      'A NLP digitox akadálymentesítési engedélyt igényel a rövid tartalmak és webhelyek hatékony blokkolásához.';
 
   @override
-  String get permission_accessibility_device_tile_label => 'Use NLP digitox';
+  String get permission_accessibility_device_tile_label =>
+      'Használja a NLP digitox-t';
 
   @override
-  String get permission_dnd_title => 'Do not disturb';
+  String get permission_dnd_title => 'Ne zavarjon';
 
   @override
   String get permission_dnd_info =>
-      'Please grant Do Not Disturb access. This will allow NLP digitox to start and stop Do Not Disturb mode during the bedtime schedule.';
+      'Kérjük, engedélyezze a Ne zavarjanak hozzáférést. Ez lehetővé teszi, hogy a NLP digitox elindítsa és leállítsa a Ne zavarjanak módot az alvásidő ütemezése alatt.';
 
   @override
-  String get permission_dnd_tile_title => 'Start DND';
+  String get permission_dnd_tile_title => 'Indítsa el a DND-t';
 
   @override
-  String get permission_dnd_tile_subtitle => 'Also enable Do Not Disturb mode.';
+  String get permission_dnd_tile_subtitle =>
+      'Engedélyezze a Ne zavarjanak módot is.';
 
   @override
   String get permission_battery_optimization_tile_title =>
-      'Ignore Battery Optimization';
+      'Az akkumulátoroptimalizálás figyelmen kívül hagyása';
 
   @override
   String get permission_battery_optimization_status_enabled =>
-      'Already unrestricted';
+      'Már korlátlanul';
 
   @override
   String get permission_battery_optimization_status_disabled =>
-      'Disable background restriction';
+      'A háttérkorlátozás letiltása';
 
   @override
   String get permission_battery_optimization_allow_info =>
-      'Allowing \'Ignore Battery Optimization\' will automatically grant the \'Alarms & Reminders\' permission on some devices.';
+      'Az „Akkumulátor-optimalizálás figyelmen kívül hagyása” engedélyezése bizonyos eszközökön automatikusan megadja a „Riasztások és emlékeztetők” engedélyt.';
 
   @override
-  String get permission_vpn_title => 'Create VPN';
+  String get permission_vpn_title => 'VPN létrehozása';
 
   @override
   String get permission_vpn_info =>
-      'Please grant permission to create virtual private network (VPN) connection. This will enable NLP digitox to restrict internet access for designated applications by creating local on device VPN.';
+      'Adjon engedélyt virtuális magánhálózati (VPN) kapcsolat létrehozására. Ez lehetővé teszi a NLP digitox számára, hogy az eszközön lévő helyi VPN létrehozásával korlátozza a kijelölt alkalmazások internet-hozzáférését.';
 
   @override
   String get permission_admin_title => 'Admin';
 
   @override
   String get permission_admin_info =>
-      'Administrative privileges are needed only for essential operations to ensure the app works properly and remains tamper-proof.';
+      'Adminisztrátori jogosultságok csak az alapvető műveletekhez szükségesek, hogy biztosítsák az alkalmazás megfelelő működését és a hamisítás elleni védelmet.';
 
   @override
   String get permission_admin_snack_alert =>
-      'Tamper protection can only be disabled during the selected time window.';
+      'A szabotázsvédelem csak a kiválasztott időintervallumban kapcsolható ki.';
 
   @override
-  String get permission_notification_access_title => 'Notification Access';
+  String get permission_notification_access_title => 'Értesítési hozzáférés';
 
   @override
   String get permission_notification_access_info =>
-      'Please grant notification access permission. This will allow NLP digitox to organize your notifications and deliver them on your schedule.';
+      'Kérjük, adjon hozzáférési engedélyt az értesítésekhez. Ez lehetővé teszi a NLP digitox számára, hogy rendszerezze az értesítéseket, és az Ön ütemezése szerint kézbesítse azokat.';
 
   @override
   String get permission_notification_access_required =>
-      'NLP digitox requires notification access to batch and schedule notifications.';
+      'A NLP digitox értesítési hozzáférést igényel a kötegelt és ütemezett értesítésekhez.';
 
   @override
   String get permission_notification_access_device_tile_label =>
-      'Allow notification access';
+      'Az értesítésekhez való hozzáférés engedélyezése';
 
   @override
-  String get day_today => 'Today';
+  String get day_today => 'Ma';
 
   @override
-  String get day_yesterday => 'Yesterday';
+  String get day_yesterday => 'tegnap';
 
   @override
   String nDays(num count) {
@@ -179,9 +182,9 @@ class AppLocalizationsHu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString days',
-      one: '1 day',
-      zero: '0 day',
+      other: '$countString nap',
+      one: '1 napon',
+      zero: '0 nap',
     );
     return '$_temp0';
   }
@@ -196,9 +199,9 @@ class AppLocalizationsHu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString hours',
-      one: '1 hour',
-      zero: '0 hour',
+      other: '$countString óra',
+      one: '1 óra',
+      zero: '0 óra',
     );
     return '$_temp0';
   }
@@ -213,9 +216,9 @@ class AppLocalizationsHu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString minutes',
-      one: '1 minute',
-      zero: '0 minute',
+      other: '$countString perc',
+      one: '1 perc',
+      zero: '0 perc',
     );
     return '$_temp0';
   }
@@ -230,231 +233,232 @@ class AppLocalizationsHu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString seconds',
-      one: '1 second',
-      zero: '0 second',
+      other: '$countString másodperc',
+      one: '1 másodperc',
+      zero: '0 másodperc',
     );
     return '$_temp0';
   }
 
   @override
-  String get time_separator_and => 'and';
+  String get time_separator_and => 'és';
 
   @override
-  String get timer_status_active => 'Active';
+  String get timer_status_active => 'Aktív';
 
   @override
-  String get timer_status_paused => 'Paused';
+  String get timer_status_paused => 'Szüneteltetve';
 
   @override
-  String get create_button => 'Create';
+  String get create_button => 'Létrehozása';
 
   @override
-  String get update_button => 'Update';
+  String get update_button => 'Frissítés';
 
   @override
-  String get dialog_button_cancel => 'Cancel';
+  String get dialog_button_cancel => 'Mégse';
 
   @override
-  String get dialog_button_remove => 'Remove';
+  String get dialog_button_remove => 'Távolítsa el';
 
   @override
-  String get dialog_button_set => 'Set';
+  String get dialog_button_set => 'Állítsa be';
 
   @override
   String get dialog_button_reset => 'Reset';
 
   @override
-  String get dialog_button_infinite => 'Infinite';
+  String get dialog_button_infinite => 'Végtelen';
 
   @override
-  String get schedule_start_label => 'Start';
+  String get schedule_start_label => 'Indítsa el';
 
   @override
-  String get schedule_end_label => 'End';
+  String get schedule_end_label => 'Vége';
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Biztos, hogy mentés nélkül szeretne kilépni?';
 
   @override
   String get development_dialog_info =>
-      'NLP digitox is currently under development and may have bugs or incomplete features. If you encounter any issues, please report them to help us improve.\n\nThank you for your feedback!';
+      'A NLP digitox jelenleg fejlesztés alatt áll, és hibákat vagy hiányos funkciókat tartalmazhat. Ha bármilyen problémába ütközik, kérjük, jelentse azokat, hogy segítsen nekünk a fejlesztésben.\n\nKöszönjük visszajelzését!';
 
   @override
-  String get development_dialog_button_report_issue => 'Report Issue';
+  String get development_dialog_button_report_issue => 'Probléma bejelentése';
 
   @override
-  String get development_dialog_button_close => 'Close';
+  String get development_dialog_button_close => 'Bezárás';
 
   @override
-  String get dnd_settings_tile_title => 'Do not disturb settings';
+  String get dnd_settings_tile_title => 'Ne zavarjanak beállítások';
 
   @override
   String get dnd_settings_tile_subtitle =>
-      'Manage which apps and notifications can reach you in DND.';
+      'Kezelheti, hogy mely alkalmazások és értesítések érhetnek el Önt a DND-ben.';
 
   @override
-  String get quick_actions_heading => 'Quick actions';
+  String get quick_actions_heading => 'Gyors cselekvések';
 
   @override
-  String get select_distracting_apps_heading => 'Select distracting apps';
+  String get select_distracting_apps_heading =>
+      'Válasszon zavaró alkalmazásokat';
 
   @override
-  String get your_distracting_apps_heading => 'Your distracting apps';
+  String get your_distracting_apps_heading => 'Az Ön zavaró alkalmazásai';
 
   @override
-  String get select_more_apps_heading => 'Select more apps';
+  String get select_more_apps_heading => 'Válasszon több alkalmazást';
 
   @override
   String get imp_distracting_apps_snack_alert =>
-      'Adding important system apps to the list of distracting apps is not permitted.';
+      'Fontos rendszeralkalmazások hozzáadása a zavaró alkalmazások listájához nem megengedett.';
 
   @override
   String get custom_apps_quick_actions_unavailable_warning =>
-      'Screen usage and restrictions are unavailable for this application. At present, only network usage is accessible';
+      'A képernyőhasználat és a korlátozások nem érhetők el ehhez az alkalmazáshoz. Jelenleg csak a hálózati használat érhető el';
 
   @override
-  String get create_group_fab_button => 'Create Group';
+  String get create_group_fab_button => 'Csoport létrehozása';
 
   @override
   String get active_period_info =>
-      'Set a time period during which access will be allowed. Outside of this time frame, access will be restricted.';
+      'Állítson be egy időtartamot, amely alatt a hozzáférés engedélyezett. Ezen az időn kívül a hozzáférés korlátozott lesz.';
 
   @override
   String get minimum_distracting_apps_snack_alert =>
-      'Select at least one distracting app.';
+      'Válasszon ki legalább egy zavaró alkalmazást.';
 
   @override
-  String get donation_card_title => 'Support us';
+  String get donation_card_title => 'Támogass minket';
 
   @override
   String get donation_card_info =>
-      'NLP digitox is free and open-source, developed with months of dedication. If it has helped you, your donation would mean the world to us. Every contribution helps us continue improving and maintaining it for everyone.';
+      'A NLP digitox ingyenes és nyílt forráskódú, amelyet hónapokig tartó odaadással fejlesztettek ki. Ha segített neked, adományod a világot jelentené számunkra. Minden hozzájárulás segít abban, hogy továbbra is javítsuk és fenntartsuk azt mindenki számára.';
 
   @override
   String get operation_failed_snack_alert =>
-      'Operation failed, something went wrong!';
+      'A művelet nem sikerült, valami elromlott!';
 
   @override
-  String get donation_card_button_donate => 'Donate';
+  String get donation_card_button_donate => 'Adományozni';
 
   @override
-  String get app_restart_dialog_title => 'Need restart';
+  String get app_restart_dialog_title => 'Újraindítás szükséges';
 
   @override
   String get app_restart_dialog_info =>
-      'NLP digitox will automatically restart once the countdown finishes. Please be patient as changes are applied.';
+      'A NLP digitox automatikusan újraindul, amint a visszaszámlálás véget ért. Kérjük, legyen türelemmel, mivel a változások hatályba lépnek.';
 
   @override
   String get accessibility_tip =>
-      'Want smarter, more battery-friendly blocking? Enable Accessibility permission for NLP digitox.';
+      'Intelligensebb, akkumulátorbarátabb blokkolást szeretne? Kisegítő lehetőségek engedélyezése a NLP digitox számára.';
 
   @override
   String get battery_optimization_tip =>
-      'NLP digitox not working? Allow \'Ignore Battery Optimization\' in Settings to keep it running smoothly.';
+      'A NLP digitox nem működik? A zökkenőmentes működés érdekében engedélyezze az „Akkumulátor-optimalizálás figyelmen kívül hagyása” lehetőséget a Beállításokban.';
 
   @override
   String get invincible_mode_tip =>
-      'Accidentally removed restrictions? Use Invincible Mode to lock them until the next day or adjustment window.';
+      'Véletlenül megszüntették a korlátozásokat? Az Invincible Mode használatával zárolhatja őket a következő napig vagy a beállítási ablakig.';
 
   @override
   String get glance_usage_tip =>
-      'Want insights? Check the Glance section to view your usage patterns and screen time.';
+      'Betekintést szeretne? Tekintse meg a Pillantás részt a használati szokások és a képernyő előtt töltött idő megtekintéséhez.';
 
   @override
   String get tamper_protection_tip =>
-      'Uninstalling NLP digitox? Enable the Uninstall Window to safely disable tamper protection first.';
+      'Eltávolítja a NLP digitox-t? Engedélyezze az Eltávolítás ablakot a szabotázsvédelem biztonságos letiltásához.';
 
   @override
   String get notification_blocking_tip =>
-      'Want to reduce distractions? Use Notification Blocking to silence selected apps.';
+      'Szeretné csökkenteni a zavaró tényezőket? Használja az Értesítések blokkolását a kiválasztott alkalmazások elnémításához.';
 
   @override
   String get usage_history_tip =>
-      'Want to reflect on your habits? Check Usage History to see past patterns.';
+      'Szeretnél átgondolni a szokásaidat? A múltbeli minták megtekintéséhez ellenőrizze a Használati előzményeket.';
 
   @override
   String get focus_mode_tip =>
-      'Need deep focus? Turn on Focus Mode to block apps and notifications during tasks.';
+      'Mély összpontosításra van szüksége? Kapcsolja be a Fókusz módot az alkalmazások és értesítések blokkolásához feladatok közben.';
 
   @override
   String get bedtime_reminder_tip =>
-      'Want to improve your sleep? Set a Bedtime Reminder to wind down nightly.';
+      'Szeretné javítani az alvását? Állítson be éjszakai lefekvésidő-emlékeztetőt.';
 
   @override
   String get custom_blocking_tip =>
-      'Need a custom experience? Create app blocking rules that fit your needs.';
+      'Egyedi élményre van szüksége? Hozzon létre az Ön igényeinek megfelelő alkalmazásblokkolási szabályokat.';
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Szeretné nyomon követni a fókusz üléseket? Tekintse meg az idővonalat a fókuszút megtekintéséhez.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Elterelték a figyelmet a közösségi alkalmazások? Tiltsa le a rövid tartalmakat az Instagramon, a YouTube-on stb., hogy összpontosítson.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Szülői felügyeletre van szüksége? Állítson be korlátozásokat gyermeke eszközére a biztonságos élmény érdekében.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Szeretné csökkenteni a zavaró tényezőket? Az értesítések csoportosításával csoportosíthatja az értesítéseket, és egyszerre ellenőrizheti őket.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Értesítéseket kell kezelnie? Ütemezze be, amikor értesítéseket kap bizonyos alkalmazásokról.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Gyors hozzáférésre van szüksége a fókuszáláshoz? Adjon hozzá egy gyorsfókuszlapkát a fókusz mód azonnali aktiválásához.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Azonnali alkalmazás-hozzáférést szeretne? Parancsikonokat adhat hozzá az alkalmazás ikonjának hosszú megnyomásával a gyors műveletekhez.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Szeretné menteni az adatait? Készítsen biztonsági másolatot használati adatbázisáról, hogy adatai biztonságban legyenek.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Egyedi témát szeretne? Dinamikus anyag engedélyezése Az Ön színe az eszköz témájának megfelelően.';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'Szeretne kímélni az akkumulátort? Az AMOLED sötét témával csökkentheti az energiafogyasztást az OLED képernyőkön.';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      'Szeretné megőrizni a használati előzményeket? Testreszabhatja, hogy hány hét adatot tároljon a Használati előzményekben.';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Együtt szeretnél blokkolni az alkalmazásokat? A Korlátozási csoportok használatával csoportosíthatja az alkalmazáskorlátokat, és egyszerre több alkalmazást is blokkolhat.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Tisztább böngészési élményt szeretne? Blokkolja az egyéni vagy NSFW webhelyeket a koncentráltabb online idő érdekében.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Szeretné nyomon követni adatait? Kövesse nyomon mobil- és Wi-Fi-adathasználatát az internetfogyasztáshoz.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Le kell tiltania egy alkalmazás internetkapcsolatát? Az alkalmazás irányítópultjáról egy adott alkalmazáshoz kapcsolja ki az internetet.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Kell egy kis szünet? Használjon napi 3 vészhelyzeti bérletet az alkalmazások blokkolásának ideiglenes feloldásához 5 percre.';
 
   @override
-  String get onboarding_skip_btn_label => 'Skip';
+  String get onboarding_skip_btn_label => 'Kihagyás';
 
   @override
-  String get onboarding_finish_setup_btn_label => 'Finish Setup';
+  String get onboarding_finish_setup_btn_label => 'Beállítás befejezése';
 
   @override
   String get onboarding_page_welcome_title =>
@@ -472,1000 +476,1019 @@ class AppLocalizationsHu extends AppLocalizations {
       'Értsd meg digitális szokásmintáidat a képernyőidőről, az alkalmazáshasználatról és a fókusz-trendekről szóló részletes adatokkal. Kövesd a fejlődésed, és lásd, hogyan vezetnek a kis változások nagy javulásokhoz.';
 
   @override
-  String get onboarding_page_one_title => 'Master Focus.';
+  String get onboarding_page_one_title => 'Mester fókusz.';
 
   @override
   String get onboarding_page_one_info =>
-      'Pause distracting apps, block short content, and stay on track with customizable focus sessions. Whether you\'re working, studying, or relaxing, NLP digitox helps you stay in control.';
+      'Szüneteltesse a zavaró alkalmazásokat, blokkolja a rövid tartalmat, és maradjon a pályán a testreszabható fókuszmunkamenetekkel. Akár dolgozik, akár tanul, akár pihen, a NLP digitox segít kézben tartani az irányítást.';
 
   @override
-  String get onboarding_page_two_title => 'Block Distractions.';
+  String get onboarding_page_two_title => 'Blokkolja a zavaró tényezőket.';
 
   @override
   String get onboarding_page_two_info =>
-      'Set usage limits, automatically pause apps, and create healthier digital habits. Use Bedtime Mode to unwind and enjoy a distraction-free night.';
+      'Állítson be használati korlátokat, automatikusan szüneteltesse az alkalmazásokat, és alakítson ki egészségesebb digitális szokásokat. Használja a Lefekvés módot a kikapcsolódáshoz, és élvezze a zavaró éjszakai kikapcsolódást.';
 
   @override
-  String get onboarding_page_three_title => 'Privacy First.';
+  String get onboarding_page_three_title => 'Első az adatvédelem.';
 
   @override
   String get onboarding_page_three_info =>
-      'NLP digitox is 100% open-source and operates entirely offline. We don\'t collect or share your personal data — your privacy is guaranteed in every way.';
+      'A NLP digitox 100%-ban nyílt forráskódú, és teljesen offline módban működik. Nem gyűjtjük és nem osztjuk meg személyes adatait – az Ön adatainak védelme minden módon garantált.';
 
   @override
-  String get onboarding_page_permissions_title => 'Essential Permissions.';
+  String get onboarding_page_permissions_title => 'Alapvető engedélyek.';
 
   @override
   String get onboarding_page_permissions_info =>
-      'NLP digitox requires following essential permissions to track and manage your screen time, helping reduce distractions and improve focus.';
+      'A NLP digitox alapvető engedélyeket követel a képernyőidő nyomon követéséhez és kezeléséhez, ami segít csökkenteni a zavaró tényezőket és javítani a fókuszt.';
 
   @override
-  String get dashboard_tab_title => 'Dashboard';
+  String get dashboard_tab_title => 'Irányítópult';
 
   @override
-  String get focus_now_fab_button => 'Focus now';
+  String get focus_now_fab_button => 'Most koncentrálj';
 
   @override
-  String get welcome_greetings => 'Welcome back,';
+  String get welcome_greetings => 'Isten hozott vissza,';
 
   @override
-  String get username_snack_alert => 'Long press to edit username.';
+  String get username_snack_alert =>
+      'A felhasználónév szerkesztéséhez nyomja meg hosszan.';
 
   @override
-  String get username_dialog_title => 'Username';
+  String get username_dialog_title => 'Felhasználónév';
 
   @override
   String get username_dialog_info =>
-      'Enter your username which will be displayed on dashboard.';
+      'Adja meg felhasználónevét, amely megjelenik az irányítópulton.';
 
   @override
-  String get username_dialog_button_apply => 'Apply';
+  String get username_dialog_button_apply => 'Alkalmazni';
 
   @override
-  String get glance_tile_title => 'Glance';
+  String get glance_tile_title => 'Pillantás';
 
   @override
-  String get glance_tile_subtitle => 'Take a quick glance at your usage.';
+  String get glance_tile_subtitle =>
+      'Vessen egy gyors pillantást a használatára.';
 
   @override
   String get parental_controls_tile_subtitle =>
-      'Invincible mode and tamper protection.';
+      'Legyőzhetetlen üzemmód és szabotázsvédelem.';
 
   @override
-  String get restrictions_heading => 'Restrictions';
+  String get restrictions_heading => 'Korlátozások';
 
   @override
-  String get apps_blocking_tile_title => 'Apps blocking';
+  String get apps_blocking_tile_title => 'Alkalmazások blokkolása';
 
   @override
-  String get apps_blocking_tile_subtitle => 'Limit apps in multiple ways.';
+  String get apps_blocking_tile_subtitle =>
+      'Korlátozza az alkalmazásokat többféleképpen.';
 
   @override
-  String get grouped_apps_blocking_tile_title => 'Grouped apps blocking';
+  String get grouped_apps_blocking_tile_title =>
+      'Csoportosított alkalmazások blokkolása';
 
   @override
   String get grouped_apps_blocking_tile_subtitle =>
-      'Limit group of apps simultaneously.';
+      'Alkalmazások egyidejű korlátozása.';
 
   @override
   String get shorts_blocking_tile_subtitle =>
-      'Limit short content on multiple platforms.';
+      'Korlátozza a rövid tartalmat több platformon.';
 
   @override
   String get websites_blocking_tile_subtitle =>
-      'Limit adult and custom websites.';
+      'Korlátozza a felnőtteknek szóló és egyéni webhelyeket.';
 
   @override
-  String get screen_time_label => 'Screen time';
+  String get screen_time_label => 'Képernyőidő';
 
   @override
-  String get total_data_label => 'Total data';
+  String get total_data_label => 'Összes adat';
 
   @override
-  String get mobile_data_label => 'Mobile data';
+  String get mobile_data_label => 'Mobil adatok';
 
   @override
-  String get wifi_data_label => 'Wifi data';
+  String get wifi_data_label => 'Wifi adat';
 
   @override
-  String get focus_today_label => 'Focus today';
+  String get focus_today_label => 'Koncentrálj a mai napra';
 
   @override
-  String get focus_weekly_label => 'Focus weekly';
+  String get focus_weekly_label => 'Hetente fókuszálj';
 
   @override
-  String get focus_monthly_label => 'Focus monthly';
+  String get focus_monthly_label => 'Fókuszban havonta';
 
   @override
-  String get focus_lifetime_label => 'Focus lifetime';
+  String get focus_lifetime_label => 'Fókuszban az élettartam';
 
   @override
-  String get longest_streak_label => 'Longest streak';
+  String get longest_streak_label => 'Leghosszabb sorozat';
 
   @override
-  String get current_streak_label => 'Current streak';
+  String get current_streak_label => 'Aktuális sorozat';
 
   @override
-  String get successful_sessions_label => 'Successful sessions';
+  String get successful_sessions_label => 'Sikeres ülések';
 
   @override
-  String get failed_sessions_label => 'Failed sessions';
+  String get failed_sessions_label => 'Sikertelen munkamenetek';
 
   @override
-  String get statistics_tab_title => 'Statistics';
+  String get statistics_tab_title => 'Statisztika';
 
   @override
-  String get screen_segment_label => 'Screen';
+  String get screen_segment_label => 'Képernyő';
 
   @override
-  String get data_segment_label => 'Data';
+  String get data_segment_label => 'Adatok';
 
   @override
-  String get mobile_label => 'Mobile';
+  String get mobile_label => 'Mobil';
 
   @override
   String get wifi_label => 'Wifi';
 
   @override
-  String get most_used_apps_heading => 'Most used apps';
+  String get most_used_apps_heading => 'Leggyakrabban használt alkalmazások';
 
   @override
-  String get show_all_apps_tile_title => 'Show all apps';
+  String get show_all_apps_tile_title => 'Az összes alkalmazás megjelenítése';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'Alkalmazások keresése...';
 
   @override
-  String get notifications_tab_title => 'Notifications';
+  String get notifications_tab_title => 'Értesítések';
 
   @override
   String get notifications_tab_info =>
-      'Batch notification from apps and set schedules like morning, noon, evening and night. Stay updated without constant interruptions.';
+      'Kötegelt értesítések az alkalmazásokból, és beállíthat menetrendeket, például reggel, délben, este és éjszaka. Legyen naprakész folyamatos megszakítások nélkül.';
 
   @override
-  String get batched_apps_tile_title => 'Batched apps';
+  String get batched_apps_tile_title => 'Kötegelt alkalmazások';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Köteg-összefoglaló típus';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Válassza ki, hogy mit szeretne leküldeni egy ütemezés aktiválásakor – az összes értesítést vagy csak egy összefoglalót.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Csak összefoglaló';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Minden értesítés';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Értesítési előzmények';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'Tárolja az összes értesítést';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle =>
+      'Mentse el a nem kötegelt értesítéseket is.';
 
   @override
-  String get schedules_heading => 'Schedules';
+  String get schedules_heading => 'Menetrendek';
 
   @override
-  String get new_schedule_fab_button => 'New Schedule';
+  String get new_schedule_fab_button => 'Új ütemterv';
 
   @override
   String get new_schedule_dialog_info =>
-      'Enter a name for the notification schedule to help identify it easily.';
+      'Adjon meg egy nevet az értesítési ütemezésnek, hogy megkönnyítse az azonosítást.';
 
   @override
-  String get new_schedule_dialog_field_label => 'Schedule name';
+  String get new_schedule_dialog_field_label => 'Ütemezés neve';
 
   @override
-  String get bedtime_tab_title => 'Bedtime';
+  String get bedtime_tab_title => 'Lefekvés';
 
   @override
   String get bedtime_tab_info =>
-      'Set your bedtime schedule by selecting a time period and days of the week. Choose distracting apps to block and enable Do Not Disturb (DND) mode for a peaceful night.';
+      'Állítsa be az alvásidő ütemezését az időszak és a hét napjainak kiválasztásával. Válasszon zavaró alkalmazásokat a blokkoláshoz, és engedélyezze a Ne zavarjanak (DND) módot a békés éjszaka érdekében.';
 
   @override
-  String get schedule_tile_title => 'Schedule';
+  String get schedule_tile_title => 'Ütemezés';
 
   @override
-  String get schedule_tile_subtitle => 'Enable or disable daily schedule.';
+  String get schedule_tile_subtitle =>
+      'A napi ütemezés engedélyezése vagy letiltása.';
 
   @override
   String get bedtime_no_days_selected_snack_alert =>
-      'Select at least one day of the week.';
+      'Válasszon ki legalább egy napot a hétből.';
 
   @override
   String get bedtime_minimum_duration_snack_alert =>
-      'The total bedtime duration must be at least 30 minutes.';
+      'A lefekvés teljes időtartamának legalább 30 percnek kell lennie.';
 
   @override
-  String get distracting_apps_tile_title => 'Distracting apps';
+  String get distracting_apps_tile_title => 'Zavaró alkalmazások';
 
   @override
   String get distracting_apps_tile_subtitle =>
-      'Select which apps are distracting you from your bedtime routine.';
+      'Válassza ki, mely alkalmazások vonják el a figyelmét a lefekvés előtti rutinról.';
 
   @override
   String get bedtime_distracting_apps_modify_snack_alert =>
-      'Modifications to the list of distracting apps is not permitted while the bedtime schedule is active.';
+      'A figyelemelterelő alkalmazások listájának módosítása nem engedélyezett, amíg az alvásidő aktív.';
 
   @override
-  String get parental_controls_tab_title => 'Parental controls';
+  String get parental_controls_tab_title => 'Szülői felügyelet';
 
   @override
-  String get invincible_mode_heading => 'Invincible mode';
+  String get invincible_mode_heading => 'Legyőzhetetlen mód';
 
   @override
-  String get invincible_mode_tile_title => 'Activate invincible mode';
+  String get invincible_mode_tile_title => 'Aktiválja a legyőzhetetlen módot';
 
   @override
   String get invincible_mode_info =>
-      'When Invincible Mode is on, you won\'t be able to adjust selected limits after reaching your daily quota. However, you can make changes within a selected 10-minute invincible window.';
+      'Ha a Legyőzhetetlen mód be van kapcsolva, a napi kvóta elérése után nem tudja módosítani a kiválasztott korlátokat. A kiválasztott 10 perces legyőzhetetlen ablakon belül azonban módosíthat.';
 
   @override
   String get invincible_mode_snack_alert =>
-      'Due to invincible mode, modifications to restrictions is not allowed.';
+      'A legyőzhetetlen mód miatt a korlátozások módosítása nem megengedett.';
 
   @override
   String get invincible_mode_dialog_info =>
-      'Are you absolutely sure you want to enable Invincible Mode? This action is irreversible. Once Invincible Mode is turned on, you cannot turn it off as long as this app is installed on your device.';
+      'Teljesen biztos benne, hogy engedélyezi a Legyőzhetetlen módot? Ez a művelet visszafordíthatatlan. Az Invincible Mode bekapcsolása után nem kapcsolhatja ki mindaddig, amíg ez az alkalmazás telepítve van az eszközén.';
 
   @override
   String get invincible_mode_turn_off_snack_alert =>
-      'Invincible Mode cannot be turned off as long as this app remains installed on your device.';
+      'Az Invincible Mode nem kapcsolható ki mindaddig, amíg ez az alkalmazás telepítve marad az eszközén.';
 
   @override
-  String get invincible_mode_dialog_button_start_anyway => 'Start anyway';
+  String get invincible_mode_dialog_button_start_anyway =>
+      'Mindenképpen kezdje el';
 
   @override
-  String get invincible_mode_include_timer_tile_title => 'Include timer';
+  String get invincible_mode_include_timer_tile_title =>
+      'Tartalmazza az időzítőt';
 
   @override
   String get invincible_mode_include_launch_limit_tile_title =>
-      'Include launch limit';
+      'Tartalmazza az indítási korlátot';
 
   @override
   String get invincible_mode_include_active_period_tile_title =>
-      'Include active period';
+      'Aktív időszak szerepeltetése';
 
   @override
-  String get invincible_mode_app_restrictions_tile_title => 'App restrictions';
+  String get invincible_mode_app_restrictions_tile_title =>
+      'Alkalmazáskorlátozások';
 
   @override
   String get invincible_mode_app_restrictions_tile_subtitle =>
-      'Prevent changes to the app\'s selected restrictions once the daily limits are exceeded.';
+      'A napi korlátok túllépése után megakadályozza az alkalmazás kiválasztott korlátozásainak módosítását.';
 
   @override
   String get invincible_mode_group_restrictions_tile_title =>
-      'Group restrictions';
+      'Csoportkorlátozások';
 
   @override
   String get invincible_mode_group_restrictions_tile_subtitle =>
-      'Prevent changes to the group\'s selected restrictions once the daily limits are exceeded.';
+      'A napi limitek túllépése után megakadályozza a csoport kiválasztott korlátozásainak módosítását.';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_title =>
-      'Include shorts timer';
+      'Tartalmazza a rövidnadrág időzítőt';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_subtitle =>
-      'Prevents changes after reaching your daily shorts limit.';
+      'Megakadályozza a napi rövidnadrágok korlátjának elérése utáni változásokat.';
 
   @override
-  String get invincible_mode_include_bedtime_tile_title => 'Include bedtime';
+  String get invincible_mode_include_bedtime_tile_title =>
+      'Tartalmazza a lefekvés idejét';
 
   @override
   String get invincible_mode_include_bedtime_tile_subtitle =>
-      'Prevents changes during the active bedtime schedule.';
+      'Megakadályozza a változásokat az aktív lefekvés ütemezése közben.';
 
   @override
-  String get protected_access_tile_title => 'Protected access';
+  String get protected_access_tile_title => 'Védett hozzáférés';
 
   @override
   String get protected_access_tile_subtitle =>
-      'Protect NLP digitox with your device lock.';
+      'Védje a NLP digitox-t az eszközzárral.';
 
   @override
   String get protected_access_no_lock_snack_alert =>
-      'Please set up a biometric lock on your device first to enable this feature.';
+      'A funkció engedélyezéséhez először állítson be biometrikus zárat eszközén.';
 
   @override
   String get protected_access_removed_lock_snack_alert =>
-      'Your device lock has been removed. To continue, please set up a new lock.';
+      'Az eszköz zárolása eltávolítva. A folytatáshoz állítson be új zárat.';
 
   @override
   String get protected_access_failed_lock_snack_alert =>
-      'Authentication failed. You need to verify your device lock to proceed.';
+      'A hitelesítés nem sikerült. A folytatáshoz igazolnia kell az eszköz zárolását.';
 
   @override
-  String get tamper_protection_tile_title => 'Tamper protection';
+  String get tamper_protection_tile_title => 'Szabotázs elleni védelem';
 
   @override
   String get tamper_protection_tile_subtitle =>
-      'Prevent uninstalling and force stopping the app.';
+      'Akadályozza meg az eltávolítást, és kényszerítse le az alkalmazást.';
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'Ha engedélyezve van, nem tudja eltávolítani, kényszeríteni leállítani vagy törölni a NLP digitox adatait, kivéve a kiválasztott eltávolítási ablakban. Nincsenek megoldások.\n\nSaját felelősségére folytassa.';
 
   @override
-  String get uninstall_window_tile_title => 'Uninstall window';
+  String get uninstall_window_tile_title => 'Az ablak eltávolítása';
 
   @override
   String get uninstall_window_tile_subtitle =>
-      'Tamper protection can be disabled within 10 minutes from the selected time.';
+      'A szabotázs elleni védelem a kiválasztott időponttól számított 10 percen belül kikapcsolható.';
 
   @override
-  String get invincible_window_tile_title => 'Invincible window';
+  String get invincible_window_tile_title => 'Legyőzhetetlen ablak';
 
   @override
   String get invincible_window_tile_subtitle =>
-      'Selected limits can be modified within 10 minutes from the selected time.';
+      'A kiválasztott határértékek a kiválasztott időponttól számított 10 percen belül módosíthatók.';
 
   @override
-  String get shorts_blocking_tab_title => 'Shorts blocking';
+  String get shorts_blocking_tab_title => 'Rövidnadrág blokkolás';
 
   @override
   String get shorts_blocking_tab_info =>
-      'Control how much time you spend on short content across platforms like Instagram, YouTube, Snapchat, and Facebook, including their websites.';
+      'Szabályozhatja, hogy mennyi időt tölt rövid tartalmakkal olyan platformokon, mint az Instagram, a YouTube, a Snapchat és a Facebook, beleértve a webhelyeiket is.';
 
   @override
-  String get short_content_heading => 'Short content';
+  String get short_content_heading => 'Rövid tartalom';
 
   @override
   String shorts_time_left_from(String timeShortString) {
-    return 'Left from $timeShortString';
+    return 'Balra a $timeShortString-ból';
   }
 
   @override
   String get short_content_timer_picker_dialog_info =>
-      'Set a daily time limit for short content. Once your limit is reached, the short content will be paused until midnight.';
+      'Állítson be napi időkorlátot a rövid tartalomhoz. Ha eléri a korlátot, a rövid tartalom éjfélig szünetel.';
 
   @override
   String get instagram_features_tile_title => 'Instagram';
 
   @override
   String get instagram_features_tile_subtitle =>
-      'Restrict features on instagram.';
+      'Korlátozza a funkciókat az Instagramon.';
 
   @override
-  String get instagram_features_block_reels => 'Restrict reels section.';
+  String get instagram_features_block_reels =>
+      'A tekercsek szakasz korlátozása.';
 
   @override
-  String get instagram_features_block_explore => 'Restrict explore section.';
+  String get instagram_features_block_explore =>
+      'A felfedezés szakasz korlátozása.';
 
   @override
   String get snapchat_features_tile_title => 'Snapchat';
 
   @override
   String get snapchat_features_tile_subtitle =>
-      'Restrict features on snapchat.';
+      'Korlátozza a snapchat funkciókat.';
 
   @override
-  String get snapchat_features_block_spotlight => 'Restrict spotlight section.';
+  String get snapchat_features_block_spotlight =>
+      'A reflektorok szakaszának korlátozása.';
 
   @override
-  String get snapchat_features_block_discover => 'Restrict discover section.';
+  String get snapchat_features_block_discover =>
+      'Felfedezési szakasz korlátozása.';
 
   @override
   String get youtube_features_tile_title => 'Youtube';
 
   @override
-  String get youtube_features_tile_subtitle => 'Restrict shorts on youtube.';
+  String get youtube_features_tile_subtitle =>
+      'Korlátozza a rövidnadrágokat a youtube-on.';
 
   @override
   String get facebook_features_tile_title => 'Facebook';
 
   @override
-  String get facebook_features_tile_subtitle => 'Restrict reels on facebook.';
+  String get facebook_features_tile_subtitle =>
+      'Korlátozza a tekercseket a Facebookon.';
 
   @override
   String get reddit_features_tile_title => 'Reddit';
 
   @override
-  String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
+  String get reddit_features_tile_subtitle =>
+      'Korlátozza a rövidnadrágot a redditen.';
 
   @override
   String get x_features_tile_title => 'X';
 
   @override
-  String get x_features_tile_subtitle => 'Restrict video feed on X.';
+  String get x_features_tile_subtitle => 'Videofeed korlátozása X-en.';
 
   @override
-  String get threads_features_tile_title => 'Threads';
+  String get threads_features_tile_title => 'Szálak';
 
   @override
   String get threads_features_tile_subtitle =>
-      'Restrict video/reels on Threads.';
+      'Korlátozza a videókat/tekercseket a szálakon.';
 
   @override
-  String get websites_blocking_tab_title => 'Websites blocking';
+  String get websites_blocking_tab_title => 'Weboldalak blokkolása';
 
   @override
   String get websites_blocking_tab_info =>
-      'Block adult websites and any custom sites you choose to create a safer and more focused online experience. Take charge of your browsing and stay distraction-free.';
+      'Blokkolja a felnőtteknek szánt webhelyeket és az Ön által választott egyéni webhelyeket, hogy biztonságosabb és célzottabb online élményt teremtsen. Vedd kezedbe a böngészést, és ne tereld el a figyelmed.';
 
   @override
-  String get adult_content_heading => 'Adult content';
+  String get adult_content_heading => 'Felnőtt tartalom';
 
   @override
-  String get block_nsfw_title => 'Block Nsfw';
+  String get block_nsfw_title => 'Nsfw blokkolása';
 
   @override
   String get block_nsfw_subtitle =>
-      'Restrict browsers from opening adult and porn websites.';
+      'Korlátozza a böngészőket a felnőtteknek szóló és pornówebhelyek megnyitásában.';
 
   @override
   String get block_nsfw_dialog_info =>
-      'Are you sure? This action is irreversible. Once adult sites blocker is turned ON, you cannot turn it OFF as long as this app is installed on your device.';
+      'Biztos vagy benne? Ez a művelet visszafordíthatatlan. Ha a felnőtt webhelyek blokkolása be van kapcsolva, nem kapcsolhatja KI, amíg ez az alkalmazás telepítve van az eszközén.';
 
   @override
-  String get block_nsfw_dialog_button_block_anyway => 'Block anyway';
+  String get block_nsfw_dialog_button_block_anyway => 'Mindenképpen blokkolja';
 
   @override
-  String get blocked_websites_heading => 'Blocked websites';
+  String get blocked_websites_heading => 'Letiltott webhelyek';
 
   @override
   String get blocked_websites_empty_list_hint =>
-      'Click on \'+ Add Website\' button to add distracting websites which you wish to block.';
+      'Kattintson a „+ Webhely hozzáadása” gombra, ha olyan zavaró webhelyeket szeretne hozzáadni, amelyeket blokkolni szeretne.';
 
   @override
-  String get add_website_fab_button => 'Add Website';
+  String get add_website_fab_button => 'Webhely hozzáadása';
 
   @override
-  String get add_website_dialog_title => 'Distracting website';
+  String get add_website_dialog_title => 'Zavaró weboldal';
 
   @override
   String get add_website_dialog_info =>
-      'Enter url of a website which you want to block.';
+      'Adja meg a blokkolni kívánt webhely URL-jét.';
 
   @override
-  String get add_website_dialog_is_nsfw => 'Is nsfw site?';
+  String get add_website_dialog_is_nsfw => 'Az nsfw oldal?';
 
   @override
   String get add_website_dialog_nsfw_warning =>
-      'Warning: Nsfw sites cannot be removed once added.';
+      'Figyelmeztetés: Az Nsfw webhelyek hozzáadása után nem távolíthatók el.';
 
   @override
-  String get add_website_dialog_button_block => 'Block';
+  String get add_website_dialog_button_block => 'Blokk';
 
   @override
   String get add_website_already_exist_snack_alert =>
-      'The URL has already been added to the list of blocked websites.';
+      'Az URL már felkerült a blokkolt webhelyek listájára.';
 
   @override
   String get add_website_invalid_url_snack_alert =>
-      'Invalid URL! Unable to parse the host name.';
+      'Érvénytelen URL! Nem sikerült elemezni a gazdagép nevét.';
 
   @override
-  String get remove_website_dialog_title => 'Remove website';
+  String get remove_website_dialog_title => 'Webhely eltávolítása';
 
   @override
   String remove_website_dialog_info(String websitehost) {
-    return 'Are you sure? you want to remove \'$websitehost\' from blocked websites.';
+    return 'Biztos vagy benne? szeretné eltávolítani a „$websitehost” elemet a blokkolt webhelyekről.';
   }
 
   @override
-  String get focus_tab_title => 'Focus';
+  String get focus_tab_title => 'Fókusz';
 
   @override
   String get focus_tab_info =>
-      'When you need time to focus, start a new session by selecting the type, choosing distracting apps to pause, and enabling Do Not Disturb for uninterrupted concentration.';
+      'Ha időre van szüksége az összpontosításhoz, kezdjen új munkamenetet a típus kiválasztásával, a zavaró alkalmazások szüneteltetésével, és a Ne zavarjanak funkció engedélyezésével a zavartalan koncentráció érdekében.';
 
   @override
-  String get active_session_card_title => 'Active session';
+  String get active_session_card_title => 'Aktív munkamenet';
 
   @override
   String get active_session_card_info =>
-      'You have an active focus session running! Click \'View\' to check your progress and see how much time has elapsed.';
+      'Aktív fókuszmunka fut! Kattintson a \"Nézet\" gombra, hogy ellenőrizze a folyamatot, és megtudja, mennyi idő telt el.';
 
   @override
-  String get active_session_card_view_button => 'View';
+  String get active_session_card_view_button => 'Megtekintés';
 
   @override
   String get focus_distracting_apps_removal_snack_alert =>
-      'Removal of apps from the distracting apps list is not permitted while a Focus Session is active. However, you may still add additional apps to the list during this time.';
+      'Az alkalmazások eltávolítása a figyelemelterelő alkalmazások listájáról nem engedélyezett, amíg a Fókusz munkamenet aktív. Ez idő alatt azonban további alkalmazásokat is hozzáadhat a listához.';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'Fókusz profil';
 
   @override
-  String get focus_session_duration_tile_title => 'Session duration';
+  String get focus_session_duration_tile_title => 'A munkamenet időtartama';
 
   @override
   String get focus_session_duration_tile_subtitle =>
-      'Infinite (unless you stop)';
+      'Végtelen (hacsak meg nem állsz)';
 
   @override
   String get focus_session_duration_dialog_info =>
-      'Please select the desired duration for this focus session, determining how long you wish to remain focused and distraction-free.';
+      'Kérjük, válassza ki ennek a fókuszálásnak a kívánt időtartamát, és határozza meg, mennyi ideig szeretne koncentrálni és zavartalanul maradni.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'Profil testreszabása';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'A kiválasztott profil beállításainak testreszabása.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Munkamenet végrehajtása';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Megakadályozza a munkamenet befejezését az idő lejárta előtt.';
 
   @override
   String get focus_session_start_button => 'Csúsztass az ülés indításához';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
-      'Select at least one distracting app to start focus session';
+      'Válasszon ki legalább egy zavaró alkalmazást a fókuszálás elindításához';
 
   @override
   String get focus_session_already_active_snack_alert =>
-      'You already have an active focus session running. Please complete or stop your current session before starting a new one.';
+      'Már fut egy aktív fókuszálási munkamenet. Kérjük, fejezze be vagy állítsa le a jelenlegi munkamenetet, mielőtt újat kezdene.';
 
   @override
-  String get focus_session_type_study => 'Study';
+  String get focus_session_type_study => 'Tanulmány';
 
   @override
-  String get focus_session_type_work => 'Work';
+  String get focus_session_type_work => 'Munka';
 
   @override
-  String get focus_session_type_exercise => 'Exercise';
+  String get focus_session_type_exercise => 'Gyakorlat';
 
   @override
-  String get focus_session_type_meditation => 'Meditation';
+  String get focus_session_type_meditation => 'Meditáció';
 
   @override
-  String get focus_session_type_creativeWriting => 'Creative Writing';
+  String get focus_session_type_creativeWriting => 'Kreatív írás';
 
   @override
-  String get focus_session_type_reading => 'Reading';
+  String get focus_session_type_reading => 'Olvasás';
 
   @override
-  String get focus_session_type_programming => 'Programming';
+  String get focus_session_type_programming => 'Programozás';
 
   @override
-  String get focus_session_type_chores => 'Chores';
+  String get focus_session_type_chores => 'Házimunkák';
 
   @override
-  String get focus_session_type_projectPlanning => 'Project Planning';
+  String get focus_session_type_projectPlanning => 'Projekt tervezés';
 
   @override
-  String get focus_session_type_artAndDesign => 'Art and Design';
+  String get focus_session_type_artAndDesign => 'Művészet és Design';
 
   @override
-  String get focus_session_type_languageLearning => 'Language Learning';
+  String get focus_session_type_languageLearning => 'Nyelvtanulás';
 
   @override
-  String get focus_session_type_musicPractice => 'Music Practice';
+  String get focus_session_type_musicPractice => 'Zenei gyakorlat';
 
   @override
-  String get focus_session_type_selfCare => 'Self Care';
+  String get focus_session_type_selfCare => 'Öngondoskodás';
 
   @override
-  String get focus_session_type_brainstorming => 'Brainstorming';
+  String get focus_session_type_brainstorming => 'Ötletbörze';
 
   @override
-  String get focus_session_type_skillDevelopment => 'Skill Development';
+  String get focus_session_type_skillDevelopment => 'Képességfejlesztés';
 
   @override
-  String get focus_session_type_research => 'Research';
+  String get focus_session_type_research => 'Kutatás';
 
   @override
-  String get focus_session_type_networking => 'Networking';
+  String get focus_session_type_networking => 'Hálózatépítés';
 
   @override
-  String get focus_session_type_cooking => 'Cooking';
+  String get focus_session_type_cooking => 'Főzés';
 
   @override
-  String get focus_session_type_sportsTraining => 'Sports Training';
+  String get focus_session_type_sportsTraining => 'Sport Edzés';
 
   @override
-  String get focus_session_type_restAndRelaxation => 'Rest and Relaxation';
+  String get focus_session_type_restAndRelaxation => 'Pihenés és relaxáció';
 
   @override
-  String get focus_session_type_other => 'Other';
+  String get focus_session_type_other => 'Egyéb';
 
   @override
-  String get timeline_tab_title => 'Timeline';
+  String get timeline_tab_title => 'Idővonal';
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Fedezze fel a fókuszútját úgy, hogy kiválaszt egy dátumot a naptárból. Kövesse nyomon fejlődését, tekintse át újra a sikereit, és tanuljon a kihívásokból.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
-    return 'Your total productive time for the selected month is $timeString.';
+    return 'Az Ön teljes termelési ideje a kiválasztott hónapban $timeString.';
   }
 
   @override
-  String get selected_month_productive_days_label => 'Productive days';
+  String get selected_month_productive_days_label => 'Termékeny napok';
 
   @override
   String selected_month_productive_days_snack_alert(num daysCount) {
-    return 'You\'ve had a total of $daysCount productive days in the selected month.';
+    return 'Összesen $daysCount eredményes napja volt a kiválasztott hónapban.';
   }
 
   @override
-  String get selected_day_focused_time_label => 'Focused time';
+  String get selected_day_focused_time_label => 'Fókuszált idő';
 
   @override
   String selected_day_focused_time_snack_alert(String timeString) {
-    return 'Your total focused time for the selected day is $timeString.';
+    return 'Az Ön teljes fókuszálási ideje a kiválasztott napon $timeString.';
   }
 
   @override
-  String get calender_heading => 'Calender';
+  String get calender_heading => 'Naptár';
 
   @override
-  String get your_sessions_heading => 'Your sessions';
+  String get your_sessions_heading => 'Az üléseid';
 
   @override
   String get your_sessions_empty_list_hint =>
-      'No focus sessions recorded for the selected day.';
+      'A kiválasztott napon nem rögzítettek fókuszmunkameneteket.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Időbélyeg';
 
   @override
-  String get focus_session_tile_duration_label => 'Duration';
+  String get focus_session_tile_duration_label => 'Időtartam';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Reflexió';
 
   @override
-  String get focus_session_state_active => 'Active';
+  String get focus_session_state_active => 'Aktív';
 
   @override
-  String get focus_session_state_successful => 'Successful';
+  String get focus_session_state_successful => 'Sikeres';
 
   @override
-  String get focus_session_state_failed => 'Failed';
+  String get focus_session_state_failed => 'Sikertelen';
 
   @override
-  String get active_session_tab_title => 'Session';
+  String get active_session_tab_title => 'Munkamenet';
 
   @override
   String get active_session_none_warning =>
-      'No active session found. Returning to the home screen.';
+      'Nem található aktív munkamenet. Visszatérés a kezdőképernyőre.';
 
   @override
-  String get active_session_dialog_button_keep_pushing => 'Keep pushing';
+  String get active_session_dialog_button_keep_pushing => 'Nyomd tovább';
 
   @override
-  String get active_session_finish_dialog_title => 'Finish';
+  String get active_session_finish_dialog_title => 'Befejezés';
 
   @override
   String get active_session_finish_dialog_info =>
-      'Stay strong! You\'re building valuable focus. Are you sure you want to end this focus session? Every extra moment counts toward your goals.';
+      'Maradj erős! Értékes fókuszt építesz. Biztosan befejezi ezt a fókuszálási munkamenetet? Minden extra pillanat számít a céljaid elérésében.';
 
   @override
-  String get active_session_giveup_dialog_title => 'Give up';
+  String get active_session_giveup_dialog_title => 'Add fel';
 
   @override
   String get active_session_giveup_dialog_info =>
-      'Hold on! You\'re almost there don\'t give up now! Are you sure you want to end this focus session early? Progress will be lost.';
+      'Tarts ki! Már majdnem ott vagy, ne add fel! Biztos benne, hogy korábban szeretné befejezni ezt a fókuszmenetet? A haladás elveszik.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Session reflexió';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'Szánj egy percet, hogy elgondolkodj a fejlődéseden. Mi a célod ezzel az üléssel? Mit értél el ezen a foglalkozáson?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'Tipp: Ezt később bármikor szerkesztheti a munkamenet idővonalán.';
 
   @override
   String get active_session_giveup_snack_alert =>
-      'You gave up! Don\'t worry, you can do better next time. Every effort counts - just keep going';
+      'Feladtad! Ne aggódj, legközelebb jobban csinálod. Minden erőfeszítés számít – csak folytasd';
 
   @override
   String get active_session_quote_one =>
-      'Every step counts, stay strong and keep going';
+      'Minden lépés számít, maradj erős és menj tovább';
 
   @override
   String get active_session_quote_two =>
-      'Stay focused! you\'re making amazing progress';
+      'Maradj koncentrált! elképesztő fejlődést érsz el';
 
   @override
-  String get active_session_quote_three =>
-      'You\'re crushing it! Keep the momentum going';
+  String get active_session_quote_three => 'Összetöröd! Tartsd a lendületet';
 
   @override
   String get active_session_quote_four =>
-      'Just a little more to go, you\'re doing fantastic';
+      'Már csak egy kicsit van hátra, fantasztikusan csinálod';
 
   @override
   String active_session_quote_five(String durationString) {
-    return 'Congratulations 🎉 \n You\'ve completed your focus session of $durationString.\n\nGreat job, keep up the amazing work';
+    return 'Gratulálunk 🎉 \n Befejezte a $durationString.\n\n remek munka, csak így tovább';
   }
 
   @override
-  String get restriction_groups_tab_title => 'Restriction groups';
+  String get restriction_groups_tab_title => 'Korlátozó csoportok';
 
   @override
   String get restriction_groups_tab_info =>
-      'Set a combined screen time limit for a group of apps. Once the total usage reaches your limit, all apps in the group will be paused to help maintain focus and balance.';
+      'Állítson be kombinált képernyőidő-korlátot az alkalmazások egy csoportjához. Amint a teljes használat eléri a korlátot, a csoportban lévő összes alkalmazás szünetel, hogy segítsen fenntartani a fókuszt és az egyensúlyt.';
 
   @override
-  String get restriction_group_time_spent_label => 'Time spent today';
+  String get restriction_group_time_spent_label => 'Ma eltöltött idő';
 
   @override
-  String get restriction_group_time_left_label => 'Time left today';
+  String get restriction_group_time_left_label => 'Ma maradt idő';
 
   @override
-  String get restriction_group_name_tile_title => 'Group name';
+  String get restriction_group_name_tile_title => 'Csoport neve';
 
   @override
   String get restriction_group_name_picker_dialog_info =>
-      'Enter a name for the restriction group to help identify and manage it easily.';
+      'Adjon meg egy nevet a korlátozási csoportnak, hogy könnyebben azonosíthassa és kezelje.';
 
   @override
-  String get restriction_group_timer_tile_title => 'Group timer';
+  String get restriction_group_timer_tile_title => 'Csoport időzítő';
 
   @override
   String get restriction_group_timer_picker_dialog_info =>
-      'Set a daily time limit for this group. Once your limit is reached, all the apps in this group will be paused until midnight.';
+      'Állítson be napi időkorlátot ehhez a csoporthoz. Amint eléri a korlátot, a csoport összes alkalmazása éjfélig szünetel.';
 
   @override
   String get restriction_group_active_period_tile_title =>
-      'Group active period';
+      'Csoportos aktív időszak';
 
   @override
-  String get remove_restriction_group_dialog_title => 'Remove group';
+  String get remove_restriction_group_dialog_title => 'Csoport eltávolítása';
 
   @override
   String remove_restriction_group_dialog_info(String groupName) {
-    return 'Are you sure? you want to remove \'$groupName\' from restriction groups.';
+    return 'Biztos vagy benne? el szeretné távolítani a \'$groupName\'-t a korlátozási csoportokból.';
   }
 
   @override
   String get restriction_group_invalid_limits_snack_alert =>
-      'Set either a timer or an active period limit.';
+      'Állítson be időzítőt vagy aktív időszakkorlátot.';
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Aznap nem küldtek értesítéseket.';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => 'Beszélgetések';
 
   @override
-  String get last_24_hours_heading => 'Last 24 hours';
+  String get last_24_hours_heading => 'Az elmúlt 24 óra';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Böngésszen az értesítési előzmények között úgy, hogy kiválaszt egy dátumot a naptárból. Tekintse meg, mely alkalmazások ragadták meg a figyelmét, és gondolja át digitális szokásait.';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => 'Havonta';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => 'Naponta';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Könnyen megtalálhatja a korábbi értesítéseket, ha a címükben vagy tartalmukban keres. Segít gyorsan megtalálni a fontos figyelmeztetéseket.';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => 'Értesítések keresése...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Nem található a keresésnek megfelelő értesítés.';
 
   @override
   String get app_info_none_warning =>
-      'Couldn\'t find the app for the given package. Returning to the home screen.';
+      'Nem található az adott csomaghoz tartozó alkalmazás. Visszatérés a kezdőképernyőre.';
 
   @override
-  String get emergency_fab_button => 'Emergency';
+  String get emergency_fab_button => 'Vészhelyzet';
 
   @override
   String emergency_dialog_info(num leftPassesCount) {
-    return 'This action will pause the app blocker for next 5 minutes. You have $leftPassesCount passes left. After using all passes, the app will stay blocked until midnight, or the active focus session ends.\n\nDo you still wish to proceed?';
+    return 'Ez a művelet szünetelteti az alkalmazásblokkolót a következő 5 percre. Még $leftPassesCount bérletei vannak. Az összes bérlet felhasználása után az alkalmazás éjfélig blokkolva marad, vagy az aktív fókusz munkamenet véget ér.\n\nTovábbra is folytatja?';
   }
 
   @override
-  String get emergency_dialog_button_use_anyway => 'Use anyway';
+  String get emergency_dialog_button_use_anyway => 'Mindenképpen használd';
 
   @override
   String get emergency_started_snack_alert =>
-      'The app blocker is paused and will resume blocking in 5 minutes.';
+      'Az alkalmazásblokkoló szünetel, és 5 perc múlva folytatja a blokkolást.';
 
   @override
   String get emergency_already_active_snack_alert =>
-      'The app blocker is currently either paused or inactive. If notifications are enabled, you will receive updates regarding the remaining time.';
+      'Az alkalmazásblokkoló jelenleg szünetel, vagy inaktív. Ha az értesítések engedélyezve vannak, frissítéseket fog kapni a hátralévő időről.';
 
   @override
   String get emergency_no_pass_left_snack_alert =>
-      'You have used all your emergency passes. The blocked apps will stay blocked until midnight, or the active focus session ends.';
+      'Felhasználta az összes vészhelyzeti bérletét. A blokkolt alkalmazások blokkolva maradnak éjfélig, vagy az aktív fókusz munkamenet végéig.';
 
   @override
-  String get app_limit_status_not_set => 'Not set';
+  String get app_limit_status_not_set => 'Nincs beállítva';
 
   @override
-  String get app_timer_tile_title => 'App timer';
+  String get app_timer_tile_title => 'Alkalmazás időzítő';
 
   @override
   String get app_timer_picker_dialog_info =>
-      'Set a daily time limit for this app. Once your limit is reached, the app will be paused until midnight.';
+      'Állítson be napi időkorlátot ehhez az alkalmazáshoz. Ha eléri a korlátot, az alkalmazás éjfélig szünetel.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Használati emlékeztetők';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Gyengéd lökések időzített alkalmazások használatakor.';
 
   @override
-  String get app_launch_limit_tile_title => 'Launch limit';
+  String get app_launch_limit_tile_title => 'Indítási korlát';
 
   @override
   String app_launch_limit_tile_subtitle(num count) {
-    return 'Launched $count times today.';
+    return 'A mai napon megjelent $count alkalommal.';
   }
 
   @override
   String get app_launch_limit_picker_dialog_info =>
-      'Set how many times you can open this app each day. Once the limit is reached, it will be paused until midnight.';
+      'Állítsa be, hogy naponta hányszor nyithatja meg ezt az alkalmazást. A limit elérése után éjfélig szünetel.';
 
   @override
-  String get app_active_period_tile_title => 'Active period';
+  String get app_active_period_tile_title => 'Aktív időszak';
 
   @override
   String app_active_period_tile_subtitle(String startTime, String endTime) {
-    return 'From $startTime to $endTime';
+    return '$startTime-tól $endTime-ig';
   }
 
   @override
-  String get internet_access_tile_title => 'Internet access';
+  String get internet_access_tile_title => 'Internet hozzáférés';
 
   @override
   String get internet_access_tile_subtitle =>
-      'Switch off to block app\'s internet.';
+      'Kapcsolja ki az alkalmazás internetes blokkolásához.';
 
   @override
   String internet_access_blocked_snack_alert(String appName) {
-    return '$appName\'s internet is blocked.';
+    return 'A $appName internetje le van tiltva.';
   }
 
   @override
   String internet_access_unblocked_snack_alert(String appName) {
-    return '$appName\'s internet is unblocked.';
+    return 'A $appName internetje fel van oldva.';
   }
 
   @override
-  String get launch_app_tile_title => 'Launch app';
+  String get launch_app_tile_title => 'Indítsa el az alkalmazást';
 
   @override
   String launch_app_tile_subtitle(String appName) {
-    return 'Open $appName.';
+    return 'Nyissa meg a $appName-t.';
   }
 
   @override
-  String get go_to_app_settings_tile_title => 'Go to app settings';
+  String get go_to_app_settings_tile_title =>
+      'Nyissa meg az alkalmazás beállításait';
 
   @override
   String get go_to_app_settings_tile_subtitle =>
-      'Manage app settings like notifications, permissions, storage and more.';
+      'Kezelje az alkalmazásbeállításokat, például az értesítéseket, engedélyeket, tárhelyet és egyebeket.';
 
   @override
-  String get include_in_stats_tile_title => 'Include in screen usage';
+  String get include_in_stats_tile_title => 'Beleértve a képernyőhasználatba';
 
   @override
   String get include_in_stats_tile_subtitle =>
-      'Switch off to exclude this app from total screen usage.';
+      'Kapcsolja ki, hogy kizárja ezt az alkalmazást a teljes képernyőhasználatból.';
 
   @override
   String app_excluded_from_stats_snack_alert(String appName) {
-    return '$appName is excluded from total screen usage.';
+    return 'A $appName ki van zárva a teljes képernyőhasználatból.';
   }
 
   @override
   String app_include_to_stats_snack_alert(String appName) {
-    return '$appName is included to total screen usage.';
+    return 'A $appName a teljes képernyőhasználatba beletartozik.';
   }
 
   @override
-  String get general_tab_title => 'General';
+  String get general_tab_title => 'tábornok';
 
   @override
-  String get appearance_heading => 'Appearance';
+  String get appearance_heading => 'Megjelenés';
 
   @override
-  String get theme_mode_tile_title => 'Theme mode';
+  String get theme_mode_tile_title => 'Téma mód';
 
   @override
-  String get theme_mode_system_label => 'System';
+  String get theme_mode_system_label => 'Rendszer';
 
   @override
-  String get theme_mode_light_label => 'Light';
+  String get theme_mode_light_label => 'Fény';
 
   @override
-  String get theme_mode_dark_label => 'Dark';
+  String get theme_mode_dark_label => 'Sötét';
 
   @override
-  String get material_color_tile_title => 'Material color';
+  String get material_color_tile_title => 'Anyag színe';
 
   @override
-  String get amoled_dark_tile_title => 'AMOLED dark';
+  String get amoled_dark_tile_title => 'AMOLED sötét';
 
   @override
   String get amoled_dark_tile_subtitle =>
-      'Use pure black color for the dark theme.';
+      'Használjon tiszta fekete színt a sötét témához.';
 
   @override
-  String get dynamic_colors_tile_title => 'Dynamic colors';
+  String get dynamic_colors_tile_title => 'Dinamikus színek';
 
   @override
-  String get dynamic_colors_tile_subtitle => 'Use device colors if supported.';
+  String get dynamic_colors_tile_subtitle =>
+      'Ha támogatott, használja az eszköz színeit.';
 
   @override
-  String get defaults_heading => 'Defaults';
+  String get defaults_heading => 'Alapértelmezések';
 
   @override
-  String get app_language_tile_title => 'App language';
+  String get app_language_tile_title => 'Alkalmazás nyelve';
 
   @override
-  String get default_home_tab_tile_title => 'Home tab';
+  String get default_home_tab_tile_title => 'Kezdőlap lapon';
 
   @override
-  String get usage_history_tile_title => 'Usage history';
+  String get usage_history_tile_title => 'Használati előzmények';
 
   @override
-  String get usage_history_15_days => '15 days';
+  String get usage_history_15_days => '15 nap';
 
   @override
-  String get usage_history_1_month => '1 month';
+  String get usage_history_1_month => '1 hónap';
 
   @override
-  String get usage_history_3_month => '3 months';
+  String get usage_history_3_month => '3 hónap';
 
   @override
-  String get usage_history_6_month => '6 months';
+  String get usage_history_6_month => '6 hónap';
 
   @override
-  String get usage_history_1_year => '1 year';
+  String get usage_history_1_year => '1 év';
 
   @override
-  String get service_heading => 'Service';
+  String get service_heading => 'Szolgáltatás';
 
   @override
   String get service_stopping_warning =>
-      'If NLP digitox stops working unexpectedly, please grant the \'Ignore Battery Optimization\' permission to keep it running in the background. If the issue continues, try whitelisting NLP digitox for uninterrupted performance.';
+      'Ha a NLP digitox váratlanul leáll, adja meg az „Akkumulátoroptimalizálás figyelmen kívül hagyása” engedélyt, hogy a háttérben futhasson. Ha a probléma továbbra is fennáll, próbálkozzon a NLP digitox engedélyezési listával a megszakítás nélküli teljesítmény érdekében.';
 
   @override
-  String get whitelist_app_tile_title => 'Whitelist NLP digitox';
+  String get whitelist_app_tile_title => 'A NLP digitox engedélyezési listája';
 
   @override
-  String get whitelist_app_tile_subtitle => 'Allow NLP digitox to auto start.';
+  String get whitelist_app_tile_subtitle =>
+      'Engedélyezze a NLP digitox automatikus elindulását.';
 
   @override
   String get whitelist_app_unsupported_snack_alert =>
-      'This device does not support automatic startup management.';
+      'Ez az eszköz nem támogatja az automatikus indításkezelést.';
 
   @override
-  String get database_tab_title => 'Database';
+  String get database_tab_title => 'Adatbázis';
 
   @override
-  String get import_db_tile_title => 'Import database';
+  String get import_db_tile_title => 'Adatbázis importálása';
 
   @override
-  String get import_db_tile_subtitle => 'Import database from a file.';
+  String get import_db_tile_subtitle => 'Adatbázis importálása fájlból.';
 
   @override
-  String get export_db_tile_title => 'Export database';
+  String get export_db_tile_title => 'Adatbázis exportálása';
 
   @override
-  String get export_db_tile_subtitle => 'Export database to a file.';
+  String get export_db_tile_subtitle => 'Adatbázis exportálása fájlba.';
 
   @override
   String get analysis_tab_title => 'Elemzés';
@@ -1506,87 +1529,89 @@ class AppLocalizationsHu extends AppLocalizations {
   }
 
   @override
-  String get crash_logs_heading => 'Crash logs';
+  String get crash_logs_heading => 'Összeomlási naplók';
 
   @override
   String get crash_logs_info =>
-      'If you encounter any issue, you can report it on GitHub along with the log file. The file will include details such as your device\'s manufacturer, model, Android version, SDK version, and crash logs. This information will help us identify and resolve the problem more effectively.';
+      'Ha bármilyen problémát tapasztal, jelentheti azt a GitHubon a naplófájllal együtt. A fájl olyan részleteket tartalmaz, mint az eszköz gyártója, modellje, Android-verziója, SDK-verziója és összeomlási naplók. Ez az információ segít a probléma hatékonyabb azonosításában és megoldásában.';
 
   @override
-  String get crash_logs_export_tile_title => 'Export crash logs';
+  String get crash_logs_export_tile_title => 'Összeomlási naplók exportálása';
 
   @override
   String get crash_logs_export_tile_subtitle =>
-      'Export crash logs to a json file.';
+      'Az összeomlási naplók exportálása json-fájlba.';
 
   @override
-  String get crash_logs_view_tile_title => 'View logs';
+  String get crash_logs_view_tile_title => 'Naplók megtekintése';
 
   @override
-  String get crash_logs_view_tile_subtitle => 'Explore stored crash logs.';
+  String get crash_logs_view_tile_subtitle =>
+      'Fedezze fel a tárolt összeomlási naplókat.';
 
   @override
-  String get crash_logs_empty_list_hint => 'No crash logged till now.';
+  String get crash_logs_empty_list_hint => 'Eddig nem volt naplózott baleset.';
 
   @override
-  String get crash_logs_clear_tile_title => 'Clear logs';
+  String get crash_logs_clear_tile_title => 'Törölje a naplókat';
 
   @override
   String get crash_logs_clear_tile_subtitle =>
-      'Delete all crash logs from database.';
+      'Törölje az összes összeomlási naplót az adatbázisból.';
 
   @override
   String get crash_logs_clear_dialog_info =>
-      'Are you sure you wish to clear all crash logs from the database?';
+      'Biztosan törli az összes összeomlási naplót az adatbázisból?';
 
   @override
-  String get crash_logs_clear_dialog_button_clear_anyway => 'Clear anyway';
+  String get crash_logs_clear_dialog_button_clear_anyway =>
+      'Mindenesetre tiszta';
 
   @override
-  String get about_tab_title => 'About';
+  String get about_tab_title => 'Körülbelül';
 
   @override
-  String get changelog_tile_title => 'Changelog';
+  String get changelog_tile_title => 'Változásnapló';
 
   @override
-  String get changelog_tile_subtitle => 'Find out what\'s new.';
+  String get changelog_tile_subtitle => 'Ismerje meg az újdonságokat.';
 
   @override
-  String get full_changelog_tile_title => 'Full changelog';
+  String get full_changelog_tile_title => 'Teljes változásnapló';
 
   @override
   String get redirected_to_github_subtitle =>
-      'You will be redirected to GitHub.';
+      'A rendszer átirányítja a GitHub oldalára.';
 
   @override
-  String get contribute_heading => 'Contribute';
+  String get contribute_heading => 'Hozzájárulni';
 
   @override
   String get github_tile_title => 'GitHub';
 
   @override
-  String get github_tile_subtitle => 'View the source code.';
+  String get github_tile_subtitle => 'Tekintse meg a forráskódot.';
 
   @override
-  String get report_issue_tile_title => 'Report an issue';
+  String get report_issue_tile_title => 'Probléma bejelentése';
 
   @override
-  String get suggest_idea_tile_title => 'Suggest an idea';
+  String get suggest_idea_tile_title => 'Javasolj egy ötletet';
 
   @override
-  String get write_email_tile_title => 'Write to us via email';
+  String get write_email_tile_title => 'Írjon nekünk e-mailben';
 
   @override
   String get write_email_tile_subtitle =>
-      'You will be redirected to Email app.';
+      'A rendszer átirányítja az E-mail alkalmazásba.';
 
   @override
-  String get privacy_policy_heading => 'Privacy policy';
+  String get privacy_policy_heading => 'Adatvédelmi szabályzat';
 
   @override
   String get privacy_policy_info =>
-      'NLP digitox is committed to protecting your privacy. We do not collect, store, or transfer any type of user data. The app operates entirely offline and does not require an internet connection, ensuring that your personal information remains private and secure on your device. As a Free and Open Source Software (FOSS) application, NLP digitox guarantees complete transparency and user control over their data.';
+      'A NLP digitox elkötelezett az Ön adatainak védelme mellett. Nem gyűjtünk, nem tárolunk vagy továbbítunk semmilyen felhasználói adatot. Az alkalmazás teljesen offline módban működik, és nem igényel internetkapcsolatot, így biztosítva, hogy személyes adatai privátak és biztonságosak maradjanak az eszközön. Ingyenes és nyílt forráskódú szoftver (FOSS) alkalmazásként a NLP digitox teljes átláthatóságot és felhasználói ellenőrzést garantál adataik felett.';
 
   @override
-  String get more_details_button => 'More details';
+  String get more_details_button => 'További részletek';
 }
