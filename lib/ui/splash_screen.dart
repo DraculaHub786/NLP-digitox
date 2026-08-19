@@ -179,13 +179,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                         ),
                       ),
                       padding: const EdgeInsets.all(32),
-                      // Splash/animation uses the square "prev" icon artwork
-                      // (not the app icon / logo) so the full mark reads clearly
-                      // before it is ever cropped into a circle.
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
+                      child: ClipOval(
                         child: Image.asset(
-                          'assets/icon-prev.png',
+                          'assets/logo.png',
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
@@ -226,22 +222,34 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                         ).animate().fadeIn(duration: 300.ms, delay: 550.ms).slideY(begin: 0.1, end: 0)
                       : const SizedBox.shrink(),
 
-                  /// Presence Over Pixels
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AccentPalette.iconChip(isDark),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: AccentPalette.orange
-                            .withValues(alpha: isDark ? 0.5 : 0.35),
+                  /// Presence Over Pixels — light green glass pill
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: DesignPalette.sage.withValues(alpha: isDark ? 0.22 : 0.18),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: DesignPalette.fern
+                              .withValues(alpha: isDark ? 0.45 : 0.30),
+                          width: 1.2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: DesignPalette.sage.withValues(alpha: isDark ? 0.15 : 0.10),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                    ),
-                    child: const StyledText(
-                      "Presence Over Pixels",
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      child: StyledText(
+                        "Presence Over Pixels",
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: DesignPalette.fern,
+                      ),
                     ),
                   ).animate().fadeIn(duration: 300.ms, delay: 700.ms).slideY(begin: 0.1, end: 0),
                 ],
