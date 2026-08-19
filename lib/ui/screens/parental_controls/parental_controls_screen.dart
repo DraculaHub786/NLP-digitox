@@ -151,7 +151,7 @@ class ParentalControlsScreen extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                            borderRadius: BorderRadius.circular(Radii.pill),
                           ),
                           child: StyledText(
                             parentalControls.uninstallWindowTime.format(context),

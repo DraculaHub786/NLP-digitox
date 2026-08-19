@@ -5,7 +5,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
 import 'package:nlp_digitox/providers/ai_providers.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/chat_settings/chat_settings_screen.dart';
@@ -221,13 +221,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           ? colorScheme.primary
                           : colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(GlassTokens.radiusCard),
+                        topLeft: const Radius.circular(Radii.xl),
                         topRight:
-                            const Radius.circular(GlassTokens.radiusCard),
+                            const Radius.circular(Radii.xl),
                         bottomLeft: Radius.circular(
-                            isUser ? GlassTokens.radiusCard : 4),
+                            isUser ? Radii.xl : 4),
                         bottomRight: Radius.circular(
-                            isUser ? 4 : GlassTokens.radiusCard),
+                            isUser ? 4 : Radii.xl),
                       ),
                     ),
                     child: Column(
@@ -409,7 +409,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerHighest,
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusPill),
+                          BorderRadius.circular(Radii.pill),
                       border: Border.all(
                         color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
@@ -507,10 +507,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildInputBar(ColorScheme colorScheme, bool isLoading) {
-    return GlassCard(
+    return SurfaceCard(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       borderRadius: 0,
-      elevationLevel: 1,
+      elevation: 1,
       child: SafeArea(
         top: false,
         child: Row(
@@ -523,7 +523,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   hintText:
                       isLoading ? 'AI is typing...' : 'Type your message...',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                     borderSide: BorderSide.none,
                   ),
                   filled: true,

@@ -123,7 +123,7 @@ class _ForgotPasswordRequestScreenState
 
     OutlineInputBorder border(Color color, double width) =>
         OutlineInputBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -174,9 +174,9 @@ class _ForgotPasswordRequestScreenState
                       decoration: BoxDecoration(
                         color: colorScheme.primary.withValues(alpha: 0.15),
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         border: Border.all(
-                          color: GlassTokens.of(context).borderTop,
+                          color: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassBorder : DesignPalette.lightGlassBorder),
                         ),
                       ),
                       padding: const EdgeInsets.all(18),

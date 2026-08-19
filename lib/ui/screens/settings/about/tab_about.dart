@@ -36,7 +36,7 @@ class TabAbout extends ConsumerWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                borderRadius: BorderRadius.circular(Radii.xl),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -48,7 +48,7 @@ class TabAbout extends ConsumerWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                        borderRadius: BorderRadius.circular(Radii.pill),
                       ),
                       child: ClipOval(
                         child: Image.asset(
@@ -107,7 +107,7 @@ class TabAbout extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                    borderRadius: BorderRadius.circular(Radii.xl),
                     border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
                   ),
                   child: Column(
@@ -151,7 +151,7 @@ class TabAbout extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                    borderRadius: BorderRadius.circular(Radii.xl),
                     border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
                   ),
                   child: Column(
@@ -209,7 +209,7 @@ class TabAbout extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                borderRadius: BorderRadius.circular(Radii.xl),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -221,7 +221,7 @@ class TabAbout extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                          borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                         child: Icon(
                           FluentIcons.shield_keyhole_20_regular,
@@ -271,7 +271,7 @@ class TabAbout extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+        borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -297,7 +297,7 @@ class TabAbout extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -307,7 +307,7 @@ class TabAbout extends ConsumerWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Icon(FluentIcons.handshake_20_regular, color: colorScheme.primary, size: 20),
           ),

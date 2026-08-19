@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/wave_header_painter.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({
@@ -60,13 +61,22 @@ class OnboardingPage extends StatelessWidget {
             24.vBox,
           ],
 
-          /// Illustration
-          AspectRatio(
-            aspectRatio: 1,
-            child: Image.asset(
-              imgArtPath,
-              fit: BoxFit.contain,
-            ),
+          /// Illustration — sinuous botanical wave behind the artwork
+          /// (splash/onboarding-only fancy element, per design decisions).
+          Stack(
+            children: [
+              const WaveHeader(height: 350),
+              Padding(
+                padding: const EdgeInsets.only(top: 40),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset(
+                    imgArtPath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
           ),
 
           40.vBox,

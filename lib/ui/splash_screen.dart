@@ -16,10 +16,11 @@ import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/common/botanical_background.dart';
 import 'package:nlp_digitox/ui/common/breathing_widget.dart';
 import 'package:nlp_digitox/ui/common/pill_button.dart';
+import 'package:nlp_digitox/ui/common/splash_particles_painter.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -141,6 +142,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) => SystemNavigator.pop(),
@@ -152,88 +154,99 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
         ),
-        body: TreatedBackgroundImage(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              /// Breathing logo — glass-chip style, consistent with the app
-              BreathingWidget(
-                dimension: min(220, MediaQuery.of(context).size.width * 0.55),
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colorScheme.primary.withValues(alpha: 0.15),
-                    border: Border.all(
-                      color: GlassTokens.of(context).borderTop,
-                      width: 1.5,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(32),
-                  // Splash/animation uses the square "prev" icon artwork
-                  // (not the app icon / logo) so the full mark reads clearly
-                  // before it is ever cropped into a circle.
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      'assets/icon-prev.png',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.1, end: 0),
-
-              Column(
+        // Phase 3.1: full botanical background + drifting splash particles
+        // (fancy animation stays on splash/onboarding per design decisions).
+        body: BotanicalBackground(
+          child: SplashParticles(
+            child: SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  /// Title — serif display (Alice)
-                  StyledText(
-                    "NLP digitox",
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    isHeadline: true,
-                    color: colorScheme.onSurface,
-                  ).animate().fadeIn(duration: 300.ms, delay: 250.ms).slideY(begin: 0.1, end: 0),
+                  /// Breathing logo — glass-chip style, consistent with the app
+                  BreathingWidget(
+                    dimension:
+                        min(220, MediaQuery.of(context).size.width * 0.55),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorScheme.primary.withValues(alpha: 0.12),
+                        border: Border.all(
+                          color: (isDark
+                                  ? DesignPalette.darkGlassBorder
+                                  : DesignPalette.lightGlassBorder)
+                              .withValues(alpha: 0.6),
+                          width: 1.5,
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(32),
+                      // Splash/animation uses the square "prev" icon artwork
+                      // (not the app icon / logo) so the full mark reads clearly
+                      // before it is ever cropped into a circle.
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'assets/icon-prev.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.1, end: 0),
 
-                  const SizedBox(height: 10),
+                  Column(
+                    children: [
+                      /// Title — serif display (Alice)
+                      StyledText(
+                        "NLP digitox",
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        isHeadline: true,
+                        color: colorScheme.onSurface,
+                      ).animate().fadeIn(duration: 300.ms, delay: 250.ms).slideY(begin: 0.1, end: 0),
 
-                  /// Tag line
-                  StyledText(
-                    "Your digital detox companion",
-                    fontSize: 16,
-                    isSubtitle: true,
-                  ).animate().fadeIn(duration: 300.ms, delay: 400.ms).slideY(begin: 0.1, end: 0),
+                      const SizedBox(height: 10),
+
+                      /// Tag line
+                      StyledText(
+                        "Your digital detox companion",
+                        fontSize: 16,
+                        isSubtitle: true,
+                      ).animate().fadeIn(duration: 300.ms, delay: 400.ms).slideY(begin: 0.1, end: 0),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  _isAccessProtected
+                      ? PillButton(
+                          label: context.locale.unlock_button_label,
+                          icon: FluentIcons.fingerprint_20_regular,
+                          onPressed: _authenticate,
+                        ).animate().fadeIn(duration: 300.ms, delay: 550.ms).slideY(begin: 0.1, end: 0)
+                      : const SizedBox.shrink(),
+
+                  /// Presence Over Pixels
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AccentPalette.iconChip(isDark),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AccentPalette.orange
+                            .withValues(alpha: isDark ? 0.5 : 0.35),
+                      ),
+                    ),
+                    child: const StyledText(
+                      "Presence Over Pixels",
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ).animate().fadeIn(duration: 300.ms, delay: 700.ms).slideY(begin: 0.1, end: 0),
                 ],
               ),
-
-              const SizedBox(height: 12),
-
-              _isAccessProtected
-                  ? PillButton(
-                      label: context.locale.unlock_button_label,
-                      icon: FluentIcons.fingerprint_20_regular,
-                      onPressed: _authenticate,
-                    ).animate().fadeIn(duration: 300.ms, delay: 550.ms).slideY(begin: 0.1, end: 0)
-                  : const SizedBox.shrink(),
-
-              /// Presence Over Pixels
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color: GlassTokens.of(context).fillTop.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: GlassTokens.of(context).borderBottom,
-                  ),
-                ),
-                child: const StyledText(
-                  "Presence Over Pixels",
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ).animate().fadeIn(duration: 300.ms, delay: 700.ms).slideY(begin: 0.1, end: 0),
-            ],
+            ),
           ),
         ),
       ),

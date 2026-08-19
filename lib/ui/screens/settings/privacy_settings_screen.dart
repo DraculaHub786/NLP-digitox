@@ -1,6 +1,5 @@
 // Privacy Settings Screen — Task 10 — NLP-Digitox
 
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -388,85 +387,77 @@ class _PrivacyToggleCard extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  (isDark ? Colors.white : theme.colorScheme.primary)
-                      .withValues(alpha: effectiveEnabled ? 0.08 : 0.03),
-                  (isDark ? Colors.white : theme.colorScheme.primary)
-                      .withValues(alpha: effectiveEnabled ? 0.03 : 0.01),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              (isDark ? Colors.white : theme.colorScheme.primary)
+                  .withValues(alpha: effectiveEnabled ? 0.08 : 0.03),
+              (isDark ? Colors.white : theme.colorScheme.primary)
+                  .withValues(alpha: effectiveEnabled ? 0.03 : 0.01),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: (effectiveEnabled ? theme.colorScheme.primary : Colors.grey)
+                .withValues(alpha: 0.15),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
                 color: (effectiveEnabled
                         ? theme.colorScheme.primary
                         : Colors.grey)
-                    .withValues(alpha: 0.15),
-                width: 1.5,
+                    .withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: effectiveEnabled
+                    ? theme.colorScheme.primary
+                    : Colors.grey,
               ),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (effectiveEnabled
-                            ? theme.colorScheme.primary
-                            : Colors.grey)
-                        .withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: effectiveEnabled ? null : Colors.grey,
+                    ),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: effectiveEnabled
-                        ? theme.colorScheme.primary
-                        : Colors.grey,
+                  const SizedBox(height: 4),
+                  Text(
+                    effectiveEnabled
+                        ? subtitle
+                        : (disabledReason ?? subtitle),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: effectiveEnabled ? 0.6 : 0.4),
+                      height: 1.4,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: effectiveEnabled ? null : Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        effectiveEnabled
-                            ? subtitle
-                            : (disabledReason ?? subtitle),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: effectiveEnabled ? 0.6 : 0.4),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Switch(
-                  value: value && effectiveEnabled,
-                  onChanged: effectiveEnabled ? onChanged : null,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Switch(
+              value: value && effectiveEnabled,
+              onChanged: effectiveEnabled ? onChanged : null,
+            ),
+          ],
         ),
       ),
     ).animate(delay: delay).fadeIn(duration: 350.ms).slideY(begin: 0.05, end: 0);
@@ -508,77 +499,71 @@ class _ActionCard extends StatelessWidget {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color.withValues(alpha: 0.10),
-                    color.withValues(alpha: 0.04),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withValues(alpha: 0.10),
+                color.withValues(alpha: 0.04),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: color.withValues(alpha: 0.25),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: isLoading
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: color,
+                        ),
+                      )
+                    : Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: 0.6),
+                        height: 1.4,
+                      ),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: color.withValues(alpha: 0.25),
-                  width: 1.5,
-                ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: color,
-                            ),
-                          )
-                        : Icon(icon, size: 20, color: color),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: color,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: color.withValues(alpha: 0.6),
-                  ),
-                ],
+              Icon(
+                Icons.chevron_right_rounded,
+                color: color.withValues(alpha: 0.6),
               ),
-            ),
+            ],
           ),
         ),
       ),

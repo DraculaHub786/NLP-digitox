@@ -98,7 +98,7 @@ class GreetingsUsername extends ConsumerWidget {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                          borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                         child: Icon(
                           FluentIcons.edit_16_regular,

@@ -45,6 +45,18 @@ class MindfulApp extends ConsumerWidget {
 
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(
+                textScaler: mq.textScaler.clamp(
+                  minScaleFactor: 0.9,
+                  maxScaleFactor: 1.15,
+                ),
+              ),
+              child: child!,
+            );
+          },
 
           /// Themes
           themeAnimationCurve: Curves.ease,

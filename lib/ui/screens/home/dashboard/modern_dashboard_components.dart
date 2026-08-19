@@ -1,8 +1,8 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 
 class ModernSectionHeader extends StatelessWidget {
   final String title;
@@ -81,9 +81,9 @@ class ModernListTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final tileColor = iconColor ?? colorScheme.primary;
 
-    return GlassCard(
+    return SurfaceCard(
       padding: const EdgeInsets.all(16),
-      borderRadius: GlassTokens.radiusCard,
+      borderRadius: Radii.md,
       tint: tileColor,
       onTap: onTap,
       child: Row(
@@ -92,7 +92,7 @@ class ModernListTile extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: tileColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Icon(
               icon,
@@ -166,9 +166,9 @@ class ModernSettingsTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final tileColor = iconColor ?? colorScheme.primary;
 
-    return GlassCard(
+    return SurfaceCard(
       padding: const EdgeInsets.all(16),
-      borderRadius: GlassTokens.radiusCard,
+      borderRadius: Radii.md,
       tint: tileColor,
       child: Row(
         children: [
@@ -176,7 +176,7 @@ class ModernSettingsTile extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: tileColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Icon(
               icon,

@@ -182,13 +182,6 @@ class _ScaffoldShellState extends State<ScaffoldShell>
                 (widget.appBarExpandedHeight - kToolbarHeight))
             .clamp(0.0, 1.0);
 
-        // Interpolate the color for the AppBar (single-tab collapse path only)
-        final appBarColor = Color.lerp(
-          Theme.of(context).colorScheme.surface,
-          Theme.of(context).colorScheme.secondaryContainer,
-          percentage,
-        );
-
         // Interpolate left padding for the AppBar's title
         final leftPadding = widget.canGoBack ? 44 * percentage : 0.0;
 
@@ -198,12 +191,13 @@ class _ScaffoldShellState extends State<ScaffoldShell>
           pinned: !_haveMultiTabs,
           stretch: true,
           primary: true,
-          // Multi-tab shells: transparent so the single `TreatedBackgroundImage`
+          // Transparent for ALL shells so the single `TreatedBackgroundImage`
           // layer behind the whole Stack shows through the header region too —
-          // no more hard seam between the app bar and the body background.
-          backgroundColor:
-              _haveMultiTabs ? Colors.transparent : appBarColor,
-          surfaceTintColor: _haveMultiTabs ? Colors.transparent : null,
+          // no hard seam (flat color band) between the app bar and the body
+          // background, on the 5-tab shell AND on pushed single-tab detail
+          // routes (blocking / productivity / parental / focus / etc.).
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           automaticallyImplyLeading: false,
           actions: [
             ...navItem.actions ?? [],

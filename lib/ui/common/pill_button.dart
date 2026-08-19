@@ -13,6 +13,8 @@ class PillButton extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final double? minimumSize;
   final bool fullWidth;
+  final Color? iconColor;
+  final Color? iconChipColor;
 
   const PillButton({
     super.key,
@@ -25,6 +27,8 @@ class PillButton extends StatefulWidget {
     this.padding,
     this.minimumSize,
     this.fullWidth = false,
+    this.iconColor,
+    this.iconChipColor,
   });
 
   @override
@@ -36,27 +40,42 @@ class _PillButtonState extends State<PillButton> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final glass = GlassTokens.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final buttonColor = widget.color ?? scheme.primary;
+
+    final resolvedIconColor =
+        widget.iconColor ?? scheme.primary;
+    final resolvedChipColor =
+        widget.iconChipColor ?? resolvedIconColor.withValues(alpha: 0.12);
+    final labelColor = widget.outlined
+        ? (widget.color ?? scheme.primary)
+        : (ThemeData.estimateBrightnessForColor(buttonColor) == Brightness.dark
+            ? Colors.white
+            : Colors.black);
 
     final content = Row(
       mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (widget.icon != null) ...[
-          Icon(widget.icon, size: 18),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: resolvedChipColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(widget.icon, size: 18, color: resolvedIconColor),
+          ),
           if (widget.label != null || widget.child != null) const SizedBox(width: 10),
         ],
         if (widget.label != null)
           Text(
             widget.label!,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: widget.outlined
-                      ? (widget.color ?? scheme.primary)
-                      : scheme.onPrimary,
-                ),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: labelColor,
+            ),
           ),
         if (widget.child != null) widget.child!,
       ],
@@ -68,11 +87,11 @@ class _PillButtonState extends State<PillButton> {
       constraints: BoxConstraints(minHeight: widget.minimumSize ?? 52),
       decoration: BoxDecoration(
         color: widget.outlined
-            ? glass.fillTop.withValues(alpha: 0.35)
+            ? buttonColor.withValues(alpha: 0.10)
             : buttonColor,
-        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+        borderRadius: BorderRadius.circular(Radii.pill),
         border: widget.outlined
-            ? Border.all(color: (widget.color ?? scheme.primary).withValues(alpha: 0.45))
+            ? Border.all(color: buttonColor.withValues(alpha: 0.45))
             : null,
         boxShadow: widget.outlined
             ? null

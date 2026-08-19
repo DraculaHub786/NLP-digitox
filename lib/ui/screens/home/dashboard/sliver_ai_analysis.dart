@@ -6,7 +6,7 @@ import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 import 'package:nlp_digitox/providers/ai_providers.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:sliver_tools/sliver_tools.dart' as sliver show MultiSliver;
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -44,9 +44,9 @@ class SliverAIAnalysis extends ConsumerWidget {
                   children: [
                     // Left half - Sentiment Analysis
                     Expanded(
-                      child: GlassCard(
+                      child: SurfaceCard(
                         padding: EdgeInsets.zero,
-                        elevationLevel: 1,
+                        elevation: 1,
                         child: SizedBox(
                           height: 220,
                           child: Padding(
@@ -99,19 +99,19 @@ class SliverAIAnalysis extends ConsumerWidget {
                                       switch (entry.key) {
                                         case 'Positive':
                                           sentimentColor =
-                                              GlassTokens.of(context).statusGood;
+                                              AccentPalette.trendGood;
                                           sentimentIcon = FluentIcons
                                               .emoji_smile_slight_20_filled;
                                           break;
                                         case 'Neutral':
                                           sentimentColor =
-                                              GlassTokens.of(context).statusWarn;
+                                              DesignPalette.gold;
                                           sentimentIcon =
                                               FluentIcons.emoji_meh_20_filled;
                                           break;
                                         case 'Negative':
                                           sentimentColor =
-                                              GlassTokens.of(context).statusBad;
+                                              AccentPalette.trendBad;
                                           sentimentIcon =
                                               FluentIcons.emoji_sad_20_filled;
                                           break;
@@ -180,9 +180,9 @@ class SliverAIAnalysis extends ConsumerWidget {
 
                     // Right half - Recommendations
                     Expanded(
-                      child: GlassCard(
+                      child: SurfaceCard(
                         padding: EdgeInsets.zero,
-                        elevationLevel: 1,
+                        elevation: 1,
                         child: SizedBox(
                           height: 220,
                           child: Padding(
@@ -268,7 +268,7 @@ class SliverAIAnalysis extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: GlassCard(
+            child: SurfaceCard(
               padding: const EdgeInsets.all(16),
               onTap: () =>
                   Navigator.of(context).pushNamed(AppRoutes.chatPath),
@@ -278,7 +278,7 @@ class SliverAIAnalysis extends ConsumerWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                      borderRadius: BorderRadius.circular(Radii.pill),
                     ),
                     child: Icon(
                       FluentIcons.chat_sparkle_20_regular,
@@ -324,9 +324,9 @@ class SliverAIAnalysis extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: GlassCard(
+          child: SurfaceCard(
             padding: EdgeInsets.zero,
-            elevationLevel: 1,
+            elevation: 1,
             child: SizedBox(
               height: 220,
               child: Center(
@@ -340,9 +340,9 @@ class SliverAIAnalysis extends ConsumerWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: GlassCard(
+          child: SurfaceCard(
             padding: EdgeInsets.zero,
-            elevationLevel: 1,
+            elevation: 1,
             child: SizedBox(
               height: 220,
               child: Center(

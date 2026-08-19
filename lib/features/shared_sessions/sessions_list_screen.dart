@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -247,91 +246,88 @@ class _SessionCard extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    (isDark ? Colors.white : theme.colorScheme.primary)
-                        .withValues(alpha: 0.10),
-                    (isDark ? Colors.white : theme.colorScheme.primary)
-                        .withValues(alpha: 0.03),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: (isDark ? Colors.white : theme.colorScheme.primary)
-                      .withValues(alpha: 0.15),
-                  width: 1.5,
-                ),
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  (isDark ? Colors.white : theme.colorScheme.primary)
+                      .withValues(alpha: 0.10),
+                  (isDark ? Colors.white : theme.colorScheme.primary)
+                      .withValues(alpha: 0.03),
+                ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Avatar / member count
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary
-                              .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Center(
-                          child: Text(
-                            session.memberCount.toString(),
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: (isDark ? Colors.white : theme.colorScheme.primary)
+                    .withValues(alpha: 0.15),
+                width: 1.5,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Avatar / member count
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Center(
+                        child: Text(
+                          session.memberCount.toString(),
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              session.name,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 3),
-                            Row(
-                              children: [
-                                _StatusDot(isActive: session.activeMembers > 0),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '${session.activeMembers} focused now',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            session.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              _StatusDot(isActive: session.activeMembers > 0),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${session.activeMembers} focused now',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                      ),
-                    ],
-                  ),
-                  if (session.theme != null) ...[
-                    const SizedBox(height: 12),
-                    _ThemeChip(label: session.theme!),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                    ),
                   ],
+                ),
+                if (session.theme != null) ...[
+                  const SizedBox(height: 12),
+                  _ThemeChip(label: session.theme!),
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -403,65 +399,59 @@ class _PublicSessionCardState extends ConsumerState<_PublicSessionCard> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.secondary.withValues(alpha: 0.10),
-                  theme.colorScheme.secondary.withValues(alpha: 0.03),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              theme.colorScheme.secondary.withValues(alpha: 0.10),
+              theme.colorScheme.secondary.withValues(alpha: 0.03),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: theme.colorScheme.secondary.withValues(alpha: 0.15),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.public_rounded,
+                color: theme.colorScheme.secondary, size: 28),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name,
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 3),
+                  Text(
+                    '$memberCount member${memberCount == 1 ? '' : 's'}${theme2 != null ? ' · $theme2' : ''}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: 0.6),
+                    ),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: theme.colorScheme.secondary.withValues(alpha: 0.15),
-                width: 1.5,
-              ),
             ),
-            child: Row(
-              children: [
-                Icon(Icons.public_rounded,
-                    color: theme.colorScheme.secondary, size: 28),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name,
-                          style: theme.textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 3),
-                      Text(
-                        '$memberCount member${memberCount == 1 ? '' : 's'}${theme2 != null ? ' · $theme2' : ''}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
+            _joining
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : TextButton(
+                    onPressed: _join,
+                    style: TextButton.styleFrom(
+                      foregroundColor: theme.colorScheme.secondary,
+                    ),
+                    child: const Text('Join'),
                   ),
-                ),
-                _joining
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : TextButton(
-                        onPressed: _join,
-                        style: TextButton.styleFrom(
-                          foregroundColor: theme.colorScheme.secondary,
-                        ),
-                        child: const Text('Join'),
-                      ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );
@@ -893,32 +883,26 @@ class _GlassTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.12)),
-          ),
-          child: TabBar(
-            controller: controller,
-            tabs: const [Tab(text: 'My Sessions'), Tab(text: 'Discover')],
-            labelColor: theme.colorScheme.primary,
-            unselectedLabelColor:
-                theme.colorScheme.onSurface.withValues(alpha: 0.5),
-            indicator: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-          ),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: theme.colorScheme.primary.withValues(alpha: 0.12)),
+      ),
+      child: TabBar(
+        controller: controller,
+        tabs: const [Tab(text: 'My Sessions'), Tab(text: 'Discover')],
+        labelColor: theme.colorScheme.primary,
+        unselectedLabelColor:
+            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+        indicator: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
         ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
       ),
     );
   }
@@ -938,50 +922,44 @@ class _GlassFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                theme.colorScheme.primary,
-                theme.colorScheme.primary.withValues(alpha: 0.8),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.primary.withValues(alpha: 0.35),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onPressed,
-              borderRadius: BorderRadius.circular(28),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 22, vertical: 14),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, color: Colors.white, size: 20),
-                    const SizedBox(width: 10),
-                    Text(
-                      label,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(28),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -1172,37 +1150,35 @@ class _BottomSheetWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-              20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 24),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface.withValues(alpha: 0.92),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              child,
-            ],
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.15),
           ),
         ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

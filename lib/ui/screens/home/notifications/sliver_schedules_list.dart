@@ -1,13 +1,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/core/utils/widget_utils.dart';
 import 'package:nlp_digitox/models/notification_schedule.dart';
 import 'package:nlp_digitox/providers/notifications/notification_settings_provider.dart';
-import 'package:nlp_digitox/ui/common/clay_toggle.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/default_slide_to_remove.dart';
 import 'package:nlp_digitox/ui/common/sliver_implicitly_animated_list.dart';
@@ -96,12 +96,13 @@ class _ScheduleCard extends StatelessWidget {
         ),
 
         /// Switch
-        trailing: ClayToggle(
+        trailing: Switch(
           value: schedule.isActive,
-          activeColor: Theme.of(context).colorScheme.primary,
+          activeThumbColor: Colors.white,
+          activeTrackColor: AccentPalette.orange,
           onChanged: enabled
               ? (isActive) => onUpdate(schedule.copyWith(isActive: isActive))
-              : (_) {},
+              : null,
         ),
       ),
     );

@@ -132,9 +132,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       border: Border.all(
-                        color: GlassTokens.of(context).borderTop,
+                        color: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassBorder : DesignPalette.lightGlassBorder),
                       ),
                     ),
                     padding: const EdgeInsets.all(18),
@@ -190,21 +190,21 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                           .withValues(alpha: 0.3),
                       border: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.outline.withValues(alpha: 0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.outline.withValues(alpha: 0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.primary,
                           width: 1.5,

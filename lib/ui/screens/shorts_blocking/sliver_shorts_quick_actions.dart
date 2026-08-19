@@ -154,7 +154,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -213,7 +213,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -272,7 +272,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -331,7 +331,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -390,7 +390,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(

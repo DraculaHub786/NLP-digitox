@@ -7,7 +7,7 @@ import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/core/services/profile_service.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart' hide ModernListTile;
 import 'package:nlp_digitox/ui/common/profile_avatar.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
@@ -74,7 +74,7 @@ class ProfileScreen extends ConsumerWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
-                      child: GlassCard(
+                      child: SurfaceCard(
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [

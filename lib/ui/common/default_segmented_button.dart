@@ -35,7 +35,7 @@ class DefaultSegmentedButton<T> extends StatelessWidget {
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+            borderRadius: BorderRadius.circular(Radii.pill),
           ),
         ),
       ),

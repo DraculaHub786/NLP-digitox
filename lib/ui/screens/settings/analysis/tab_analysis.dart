@@ -126,7 +126,7 @@ class _RangeSelector extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+        borderRadius: BorderRadius.circular(Radii.pill),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
       ),
       child: Row(
@@ -143,7 +143,7 @@ class _RangeSelector extends StatelessWidget {
                   color: isSelected
                       ? colorScheme.primary
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                  borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Center(
                   child: StyledText(
@@ -190,26 +190,23 @@ class _HeroChartCard extends StatelessWidget {
 
     final trend = _computeTrend(entries);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill;
+    final borderColor = (isDark ? DesignPalette.darkGlassBorder : DesignPalette.lightGlassBorder).withValues(alpha: 0.4);
+    final ink = DesignPalette.ink(isDark);
+    final subInk = DesignPalette.subInk(isDark);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1F2E23), Color(0xFF28392C)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border(
-          top: BorderSide(
-            color: Colors.white.withValues(alpha: 0.18),
-            width: 1,
-          ),
-        ),
+        color: surface,
+        borderRadius: BorderRadius.circular(Radii.xl),
+        border: Border.all(color: borderColor, width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1F2E23).withValues(alpha: 0.4),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -222,12 +219,12 @@ class _HeroChartCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(12),
+                  color: subInk.withValues(alpha: isDark ? 0.18 : 0.12),
+                  borderRadius: BorderRadius.circular(Radii.sm),
                 ),
-                child: const Icon(
+                child: Icon(
                   FluentIcons.phone_screen_time_20_regular,
-                  color: Colors.white,
+                  color: ink,
                   size: 20,
                 ),
               ),
@@ -237,7 +234,7 @@ class _HeroChartCard extends StatelessWidget {
                   context.locale.analysis_screen_time_trend,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: ink,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -255,7 +252,7 @@ class _HeroChartCard extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: _buildLineChart(context),
+                  child: _buildLineChart(context, ink, subInk, isDark),
                 ),
                 if (!hasData)
                   Positioned.fill(
@@ -265,7 +262,7 @@ class _HeroChartCard extends StatelessWidget {
                         child: StyledText(
                           context.locale.analysis_no_data_info,
                           fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: subInk.withValues(alpha: 0.7),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -330,7 +327,7 @@ class _HeroChartCard extends StatelessWidget {
   // Chart
   // --------------------------------------------------------------------------
 
-  Widget _buildLineChart(BuildContext context) {
+  Widget _buildLineChart(BuildContext context, Color ink, Color subInk, bool isDark) {
     final maxMinutes = entries.fold<double>(
       0,
       (max, e) => math.max(max, e.value.screenTime / 60),
@@ -360,21 +357,21 @@ class _HeroChartCard extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: yInterval,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.white.withValues(alpha: 0.14),
+            color: subInk.withValues(alpha: 0.15),
             strokeWidth: 1,
             dashArray: [6, 6],
           ),
         ),
         borderData: FlBorderData(show: false),
-        titlesData: _buildTitles(context),
+        titlesData: _buildTitles(context, subInk),
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
             getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
               final secs = (spot.y * 60).round();
               return LineTooltipItem(
                 secs.seconds.toTimeShort(context),
-                const TextStyle(
-                  color: Colors.white,
+                TextStyle(
+                  color: ink,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
@@ -412,8 +409,8 @@ class _HeroChartCard extends StatelessWidget {
     );
   }
 
-  FlTitlesData _buildTitles(BuildContext context) {
-    final labelColor = Colors.white.withValues(alpha: 0.75);
+  FlTitlesData _buildTitles(BuildContext context, Color subInk) {
+    final labelColor = subInk.withValues(alpha: 0.85);
     final maxMinutes = entries.fold<double>(
       0,
       (max, e) => math.max(max, e.value.screenTime / 60),
@@ -507,6 +504,8 @@ class _TrendPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final subInk = DesignPalette.subInk(isDark);
     final percent = trend.percentChange.abs().toStringAsFixed(0);
     final sameAsLastWeek = trend.percentChange == 0;
 
@@ -514,15 +513,15 @@ class _TrendPill extends StatelessWidget {
     final IconData icon;
     final String label;
     if (sameAsLastWeek) {
-      color = Colors.white.withValues(alpha: 0.85);
+      color = subInk.withValues(alpha: 0.85);
       icon = FluentIcons.line_horizontal_1_24_regular;
       label = context.locale.analysis_no_change;
     } else if (trend.improvement) {
-      color = const Color(0xFFA5D6A7);
+      color = AccentPalette.trendGood;
       icon = FluentIcons.arrow_down_12_filled;
       label = context.locale.analysis_trend_less(percent);
     } else {
-      color = const Color(0xFFEF9A9A);
+      color = AccentPalette.trendBad;
       icon = FluentIcons.arrow_up_12_filled;
       label = context.locale.analysis_trend_more(percent);
     }
@@ -530,8 +529,8 @@ class _TrendPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(20),
+        color: subInk.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -569,6 +568,9 @@ class _SummaryStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final subInk = DesignPalette.subInk(isDark);
+    final ink = DesignPalette.ink(isDark);
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,7 +578,7 @@ class _SummaryStat extends StatelessWidget {
           StyledText(
             label,
             fontSize: 11,
-            color: Colors.white.withValues(alpha: 0.7),
+            color: subInk.withValues(alpha: 0.7),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -585,7 +587,7 @@ class _SummaryStat extends StatelessWidget {
             value,
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: ink,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -598,11 +600,13 @@ class _SummaryStat extends StatelessWidget {
 class _SummaryDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final subInk = DesignPalette.subInk(isDark);
     return Container(
       width: 1,
       height: 32,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      color: Colors.white.withValues(alpha: 0.16),
+      color: subInk.withValues(alpha: 0.16),
     );
   }
 }
@@ -650,7 +654,7 @@ class _AnalysisErrorCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: colorScheme.errorContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Row(

@@ -104,7 +104,7 @@ class TabBedtime extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                borderRadius: BorderRadius.circular(Radii.xl),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.18)),
                 boxShadow: ElevationTokens.of(context).level(1),
               ),
@@ -117,7 +117,7 @@ class TabBedtime extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                          borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                         child: Icon(
                           FluentIcons.calendar_clock_20_regular,
@@ -163,7 +163,7 @@ class TabBedtime extends ConsumerWidget {
         color: isScheduleOn
             ? Color.alphaBlend(colorScheme.primary.withValues(alpha: 0.12), cardColor)
             : cardColor,
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(
           color: isScheduleOn
               ? colorScheme.primary.withValues(alpha: 0.3)
@@ -181,7 +181,7 @@ class TabBedtime extends ConsumerWidget {
                 color: isScheduleOn
                     ? colorScheme.primary.withValues(alpha: 0.25)
                     : colorScheme.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: Icon(
                 FluentIcons.sleep_20_filled,

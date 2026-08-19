@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -181,33 +179,42 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
                           .animate(target: isLastPage ? 0 : 1)
                           .scale(duration: 100.ms),
 
-                      /// Bottom controls — glass treatment consistent with
-                      /// GlassNavBar (frosted blur + gradient fill) instead
-                      /// of the old flat solid rectangle that visually read
-                      /// as "screen cut in half".
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          GlassTokens.radiusPill,
-                        ),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: GlassTokens.of(context).blurSigma,
-                            sigmaY: GlassTokens.of(context).blurSigma,
+                      /// Bottom controls — tonal surface consistent with the
+                      /// app's flat-card system (no frosted blur), keeping the
+                      /// pill shape from the nav bar so controls read as a
+                      /// single floating unit.
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 32, top: 4),
+                        decoration: BoxDecoration(
+                          color: (Theme.of(context).brightness ==
+                                  Brightness.dark
+                              ? DesignPalette.darkGlassFill
+                              : DesignPalette.lightGlassFill)
+                              .withValues(alpha: 0.92),
+                          border: Border.all(
+                            color: (Theme.of(context).brightness ==
+                                    Brightness.dark
+                                ? DesignPalette.darkGlassBorder
+                                : DesignPalette.lightGlassBorder)
+                                .withValues(alpha: 0.5),
+                            width: 1,
                           ),
-                          child: Container(
-                            padding:
-                                const EdgeInsets.only(bottom: 32, top: 4),
-                            decoration: BoxDecoration(
-                              gradient: GlassTokens.of(context).fillGradient,
-                              border: Border.all(
-                                color: GlassTokens.of(context).borderBottom,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(
-                                GlassTokens.radiusPill,
-                              ),
+                          borderRadius:
+                              BorderRadius.circular(Radii.pill),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                  alpha:
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? 0.25
+                                          : 0.06),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
                             ),
-                            child: Row(
+                          ],
+                        ),
+                        child: Row(
                               children: [
                                 /// Page Dots
                                 SmoothPageIndicator(
@@ -273,8 +280,6 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
                                       ).animate(target: isLastPage ? 0 : 1)
                                         .scale(duration: 150.ms),
                               ],
-                            ),
-                          ),
                         ),
                       ),
                     ],

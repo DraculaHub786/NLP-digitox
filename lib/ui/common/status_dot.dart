@@ -16,11 +16,10 @@ class StatusDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glass = GlassTokens.of(context);
     final color = switch (kind) {
-      StatusDotKind.good => glass.statusGood,
-      StatusDotKind.warn => glass.statusWarn,
-      StatusDotKind.bad => glass.statusBad,
+      StatusDotKind.good => AccentPalette.trendGood,
+      StatusDotKind.warn => DesignPalette.gold,
+      StatusDotKind.bad => AccentPalette.trendBad,
     };
 
     return Container(
