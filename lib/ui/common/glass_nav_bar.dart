@@ -70,6 +70,46 @@ class GlassNavBar extends StatelessWidget {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final itemWidth = constraints.maxWidth / items.length;
+
+                  // The pill used to be a fixed fraction of the bar
+                  // (`itemWidth - 6`) — same width for every tab regardless
+                  // of label length. That's why it undershot longer words
+                  // ("Dashboard") and left extra slack around shorter ones.
+                  // Instead, measure the SELECTED label's actual rendered
+                  // width via TextPainter and size the pill to hug exactly
+                  // icon + gap + text, dynamically, per tab.
+                  final labelStyle = Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(fontWeight: FontWeight.w600);
+                  final textPainter = TextPainter(
+                    text: TextSpan(
+                      text: items[selectedIndex].label,
+                      style: labelStyle,
+                    ),
+                    maxLines: 1,
+                    textDirection: Directionality.of(context),
+                  )..layout();
+
+                  const iconSize = 20.0;
+                  const iconLabelGap = 6.0;
+                  const pillInnerPadding = 14.0; // breathing room L+R
+                  const cellMargin = 6.0; // matches old `- 6` gap
+
+                  final naturalPillWidth =
+                      iconSize + iconLabelGap + textPainter.width + pillInnerPadding;
+
+                  // Still cap at the cell width so the pill can never bleed
+                  // into a neighbouring tab on a cramped bar (5+ tabs) — if
+                  // the label doesn't fit even capped, FittedBox on the
+                  // label (in _PillNavButton) scales the text down to match.
+                  final maxPillWidth = itemWidth - cellMargin;
+                  final pillWidth = naturalPillWidth.clamp(0.0, maxPillWidth);
+
+                  // Center the (now variable-width) pill within its cell.
+                  final pillLeft =
+                      selectedIndex * itemWidth + (itemWidth - pillWidth) / 2;
+
                   return SizedBox(
                     height: 44,
                     child: Stack(
@@ -78,8 +118,8 @@ class GlassNavBar extends StatelessWidget {
                         /// AnimatedPositioned that glides between tabs
                         /// instead of each tab resizing itself.
                         AnimatedPositioned(
-                          left: selectedIndex * itemWidth + 3,
-                          width: itemWidth - 6,
+                          left: pillLeft,
+                          width: pillWidth,
                           top: 2,
                           bottom: 2,
                           duration: const Duration(milliseconds: 300),
@@ -102,7 +142,8 @@ class GlassNavBar extends StatelessWidget {
 
                         /// Nav buttons — every cell is Expanded (equal width),
                         /// so the row can never exceed the bar's width
-                        /// regardless of label length.
+                        /// regardless of label length. The pill above is
+                        /// independently sized/positioned to hug content.
                         Row(
                           children: [
                             for (var i = 0; i < items.length; i++)
