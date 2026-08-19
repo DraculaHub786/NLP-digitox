@@ -153,7 +153,10 @@ class _PillNavButton extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth),
+            // Match the highlight pill's width (see AnimatedPositioned's
+            // `width: itemWidth - 6` above) rather than the full cell width,
+            // so content can never render wider than the visible pill.
+            constraints: BoxConstraints(maxWidth: maxWidth - 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -176,27 +179,48 @@ class _PillNavButton extends StatelessWidget {
                   ),
                 ),
 
-                /// Label expands horizontally via widthFactor inside ClipRect,
-                /// so even mid-animation the growing text is clipped to the
-                /// cell — no RenderFlex overflow, no ParentDataWidget error.
-                ClipRect(
-                  child: AnimatedAlign(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    alignment:
-                        selected ? Alignment.center : Alignment.centerLeft,
-                    widthFactor: selected ? 1 : 0,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 6),
-                      child: Text(
-                        item.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                /// Label expands horizontally via widthFactor inside ClipRect.
+                ///
+                /// IMPORTANT: AnimatedAlign with widthFactor sizes itself to
+                /// the CHILD's natural (unconstrained) width — it does NOT
+                /// know how much space is actually left in the cell. With
+                /// enough tabs (5 on the home shell) and a longer label
+                /// ("Dashboard"), the text's intrinsic width can exceed what
+                /// remains after the icon, and since the parent Row has no
+                /// Flexible/Expanded child, Flutter doesn't shrink it — the
+                /// content just overflows and paints past the bar's bounds.
+                ///
+                /// Wrapping in Flexible gives the label a real max-width to
+                /// respect, and FittedBox is a safety net so it's physically
+                /// impossible for the label to render outside the pill, no
+                /// matter the tab count or label length.
+                Flexible(
+                  child: ClipRect(
+                    child: AnimatedAlign(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment:
+                          selected ? Alignment.center : Alignment.centerLeft,
+                      widthFactor: selected ? 1 : 0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
