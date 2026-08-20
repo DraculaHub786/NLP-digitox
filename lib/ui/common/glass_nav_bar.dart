@@ -48,7 +48,7 @@ class GlassNavBar extends StatelessWidget {
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOutCubic,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 16),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(Radii.xl),
           child: BackdropFilter(
@@ -62,7 +62,7 @@ class GlassNavBar extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
-                    blurRadius: 20,
+                    blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -89,12 +89,14 @@ class GlassNavBar extends StatelessWidget {
                     ),
                     maxLines: 1,
                     textDirection: Directionality.of(context),
+                    textScaler: MediaQuery.textScalerOf(context), // match the Text widget's actual rendered scale
+
                   )..layout();
 
                   const iconSize = 20.0;
                   const iconLabelGap = 6.0;
-                  const pillInnerPadding = 14.0; // breathing room L+R
-                  const cellMargin = 6.0; // matches old `- 6` gap
+                  const pillInnerPadding = 28.0; // breathing room L+R
+                  const cellMargin = -4; // allow pill to extend slightly beyond cell
 
                   final naturalPillWidth =
                       iconSize + iconLabelGap + textPainter.width + pillInnerPadding;
@@ -132,7 +134,7 @@ class GlassNavBar extends StatelessWidget {
                                 BoxShadow(
                                   color:
                                       AccentPalette.orange.withValues(alpha: 0.35),
-                                  blurRadius: 14,
+                                  blurRadius: 10,
                                   offset: const Offset(0, 6),
                                 ),
                               ],

@@ -613,6 +613,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 /// A `ModernMetricCard`-style card whose number animates (flip-counter)
 /// whenever its value changes — used for point totals so switching between
 /// Weekly/Monthly (or a live points update) feels alive instead of snapping.
+///
+/// Layout mirrors `ModernMetricCard` exactly (SurfaceCard, 20px padding,
+/// `Radii.lg`, tinted fill, icon chip top-left, big value, label below) so
+/// the point cards render identical in size/style to the rank/streak cards
+/// beside them.
 class _AnimatedMetricCard extends StatelessWidget {
   final String label;
   final int value;
@@ -628,42 +633,45 @@ class _AnimatedMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(Radii.xl),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.18)),
-        boxShadow: ElevationTokens.of(context).level(1),
-      ),
+    final theme = Theme.of(context);
+    final metricColor = color;
+
+    return SurfaceCard(
+      padding: const EdgeInsets.all(20),
+      borderRadius: Radii.lg,
+      tint: metricColor,
+      elevation: 1,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 18, color: color),
-              const SizedBox(width: 6),
-              Expanded(
-                child: StyledText(
-                  label,
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: metricColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: Icon(icon, color: metricColor, size: 20),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 16),
           AnimatedFlipCounter(
             value: value,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutCubic,
-            textStyle: TextStyle(
-              fontSize: 22,
+            textStyle: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: color,
+              color: metricColor,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],

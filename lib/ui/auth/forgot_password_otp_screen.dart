@@ -26,8 +26,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
   final _focusNode = FocusNode();
   bool _isLoading = false;
 
-  /// Update this when you deploy n8n to a public HTTPS server.
-  static const String _n8nBaseUrl = 'http://localhost:5678';
+  static const String _n8nBaseUrl = 'https://n8n.nlpdigitox.me';
 
   @override
   void initState() {
@@ -65,7 +64,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse('$_n8nBaseUrl/webhook-test/verify-otp'),
+            Uri.parse('$_n8nBaseUrl/webhook/verify-otp'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'email': _email, 'otp': otp}),
           )
@@ -92,13 +91,13 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     } on TimeoutException {
       if (!mounted) return;
       context.showSnackAlert(
-        'Request timed out. Make sure n8n is running.',
+        'Request timed out. Please try again.',
         icon: FluentIcons.error_circle_20_filled,
       );
     } catch (e) {
       if (!mounted) return;
       context.showSnackAlert(
-        'Connection error. Is n8n running on localhost:5678?',
+        'Connection error. Please check your connection and try again.',
         icon: FluentIcons.error_circle_20_filled,
       );
     } finally {
