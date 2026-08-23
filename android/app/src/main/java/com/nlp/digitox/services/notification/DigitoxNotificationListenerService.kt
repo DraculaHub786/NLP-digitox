@@ -1,4 +1,3 @@
-
 package com.nlp.digitox.services.notification
 
 import android.app.PendingIntent
@@ -19,12 +18,12 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class MindfulNotificationListenerService : NotificationListenerService() {
+class DigitoxNotificationListenerService : NotificationListenerService() {
     companion object {
-        private const val TAG = "Mindful.MindfulNotificationService"
+        private const val TAG = "Digitox.DigitoxNotificationService"
     }
 
-    private val binder = ServiceBinder(this@MindfulNotificationListenerService)
+    private val binder = ServiceBinder(this@DigitoxNotificationListenerService)
     private val executorService: ExecutorService = Executors.newFixedThreadPool(4)
 
     private val pendingNotifications: MutableList<Notification> = mutableListOf()
@@ -56,7 +55,7 @@ class MindfulNotificationListenerService : NotificationListenerService() {
         super.onListenerDisconnected()
         // Try to rebind again
         runCatching {
-            val listener = ComponentName(this, MindfulNotificationListenerService::class.java)
+            val listener = ComponentName(this, DigitoxNotificationListenerService::class.java)
             requestRebind(listener)
         }
     }
@@ -65,7 +64,7 @@ class MindfulNotificationListenerService : NotificationListenerService() {
         if (!isListenerActive) return
         val packageName = sbn.packageName
         try {
-            // If from mindful or not clearable or group summery
+            // If from this app or not clearable or group summery
             val isGroupSummary =
                 sbn.notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY != 0
             if (packageName == this.packageName || !sbn.isClearable || isGroupSummary || sbn.isOngoing) return
@@ -131,7 +130,7 @@ class MindfulNotificationListenerService : NotificationListenerService() {
 
 
     override fun onBind(intent: Intent): IBinder? {
-        return if (intent.action == ServiceBinder.ACTION_BIND_TO_MINDFUL) binder
+        return if (intent.action == ServiceBinder.ACTION_BIND_TO_DIGITOX) binder
         else super.onBind(intent)
     }
 

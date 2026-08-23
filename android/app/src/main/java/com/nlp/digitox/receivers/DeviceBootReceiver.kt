@@ -15,8 +15,8 @@ import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper
 import com.nlp.digitox.helpers.KeepAliveHelper
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
-import com.nlp.digitox.services.tracking.MindfulTrackerService
-import com.nlp.digitox.services.vpn.MindfulVpnService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
+import com.nlp.digitox.services.vpn.DigitoxVpnService
 import com.nlp.digitox.workers.FlutterBgExecutionWorker
 import com.nlp.digitox.workers.FlutterBgExecutionWorker.Companion.FLUTTER_TASK_ID
 
@@ -26,7 +26,7 @@ import com.nlp.digitox.workers.FlutterBgExecutionWorker.Companion.FLUTTER_TASK_I
  */
 class DeviceBootReceiver : BroadcastReceiver() {
     companion object {
-        private const val TAG = "Mindful.DeviceBootReceiver"
+        private const val TAG = "Digitox.DeviceBootReceiver"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -49,19 +49,19 @@ class DeviceBootReceiver : BroadcastReceiver() {
                     // *** DIRECTLY START FOREGROUND SERVICES ***
                     // Start tracker service immediately as a persistent foreground service
                     // This ensures app blocking and usage tracking resume right after boot
-                    val trackerIntent = Intent(context.applicationContext, MindfulTrackerService::class.java)
-                        .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                    val trackerIntent = Intent(context.applicationContext, DigitoxTrackerService::class.java)
+                        .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                     context.applicationContext.startService(trackerIntent)
-                    Log.d(TAG, "onReceive: MindfulTrackerService started on boot")
+                    Log.d(TAG, "onReceive: DigitoxTrackerService started on boot")
 
                     // Start VPN service immediately if internet blocking was enabled
                     // (the service will restore its config from SharedPrefs)
                     val blockedApps = SharedPrefsHelper.getSetInternetBlockedApps(context, null)
                     if (blockedApps.isNotEmpty()) {
-                        val vpnIntent = Intent(context.applicationContext, MindfulVpnService::class.java)
-                            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                        val vpnIntent = Intent(context.applicationContext, DigitoxVpnService::class.java)
+                            .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                         context.applicationContext.startService(vpnIntent)
-                        Log.d(TAG, "onReceive: MindfulVpnService started on boot")
+                        Log.d(TAG, "onReceive: DigitoxVpnService started on boot")
                     }
 
                     // Schedule periodic keep-alive alarm to restart services if killed

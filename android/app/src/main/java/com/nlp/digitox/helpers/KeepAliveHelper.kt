@@ -10,9 +10,9 @@ import android.util.Log
 import com.nlp.digitox.generics.ServiceBinder
 import com.nlp.digitox.helpers.device.PermissionsHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
-import com.nlp.digitox.services.tracking.MindfulTrackerService
-import com.nlp.digitox.services.vpn.MindfulVpnService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
+import com.nlp.digitox.services.vpn.DigitoxVpnService
 import com.nlp.digitox.utils.Utils
 
 /**
@@ -29,7 +29,7 @@ import com.nlp.digitox.utils.Utils
  * nudge instead of a full re-permission prompt.
  */
 object KeepAliveHelper {
-    private const val TAG = "Mindful.KeepAlive"
+    private const val TAG = "Digitox.KeepAlive"
     private const val KEEP_ALIVE_REQUEST_CODE = 201
     private const val KEEP_ALIVE_INTERVAL_MS = 10 * 60 * 1000L // 10 minutes
 
@@ -107,20 +107,20 @@ object KeepAliveHelper {
 
             try {
                 // ── Re-start tracker (screen-usage / app-blocker) service if dead ──
-                if (!Utils.isServiceRunning(context, MindfulTrackerService::class.java)) {
+                if (!Utils.isServiceRunning(context, DigitoxTrackerService::class.java)) {
                     Log.w(TAG, "Tracker service down - restarting")
                     context.startForegroundService(
-                        Intent(context, MindfulTrackerService::class.java)
-                            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                        Intent(context, DigitoxTrackerService::class.java)
+                            .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                     )
                 }
 
                 // ── Re-start VPN (internet-blocker) service if dead ──
-                if (!Utils.isServiceRunning(context, MindfulVpnService::class.java)) {
+                if (!Utils.isServiceRunning(context, DigitoxVpnService::class.java)) {
                     Log.w(TAG, "VPN service down - restarting")
                     context.startForegroundService(
-                        Intent(context, MindfulVpnService::class.java)
-                            .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                        Intent(context, DigitoxVpnService::class.java)
+                            .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                     )
                 }
 
@@ -130,7 +130,7 @@ object KeepAliveHelper {
                 val isAccessibilityPermitted =
                     PermissionsHelper.isAccessibilityServiceEnabled(context)
                 val isAccessibilityActive =
-                    Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)
+                    Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)
 
                 if (isAccessibilityPermitted && !isAccessibilityActive) {
                     // Permission granted but service process is dead (killed by OEM).

@@ -26,11 +26,11 @@ import com.nlp.digitox.models.FocusSession
 import com.nlp.digitox.models.Notification
 import com.nlp.digitox.models.NotificationSettings
 import com.nlp.digitox.models.RestrictionGroup
-import com.nlp.digitox.services.notification.MindfulNotificationListenerService
+import com.nlp.digitox.services.notification.DigitoxNotificationListenerService
 import com.nlp.digitox.services.timer.EmergencyPauseService
 import com.nlp.digitox.services.timer.FocusSessionService
-import com.nlp.digitox.services.tracking.MindfulTrackerService
-import com.nlp.digitox.services.vpn.MindfulVpnService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
+import com.nlp.digitox.services.vpn.DigitoxVpnService
 import android.util.Log
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.JsonUtils
@@ -55,19 +55,19 @@ class FgMethodCallHandler(
     private val trackerServiceConn =
         SafeServiceConnection(
             context = context,
-            serviceClass = MindfulTrackerService::class.java
+            serviceClass = DigitoxTrackerService::class.java
         )
 
     private val vpnServiceConn =
         SafeServiceConnection(
             context = context,
-            serviceClass = MindfulVpnService::class.java
+            serviceClass = DigitoxVpnService::class.java
         )
 
     private val notificationServiceConn =
         SafeServiceConnection(
             context = context,
-            serviceClass = MindfulNotificationListenerService::class.java
+            serviceClass = DigitoxNotificationListenerService::class.java
         )
 
 
@@ -93,14 +93,14 @@ class FgMethodCallHandler(
      */
     fun ensureAllServicesRunning() {
         // Start tracker service if not running - it will run as persistent foreground
-        if (!Utils.isServiceRunning(context, MindfulTrackerService::class.java)) {
+        if (!Utils.isServiceRunning(context, DigitoxTrackerService::class.java)) {
             trackerServiceConn.startAndBind()
         } else {
             trackerServiceConn.bindService()
         }
 
         // Start VPN service if not running - foreground persistent
-        if (!Utils.isServiceRunning(context, MindfulVpnService::class.java)) {
+        if (!Utils.isServiceRunning(context, DigitoxVpnService::class.java)) {
             vpnServiceConn.startAndBind()
         } else {
             vpnServiceConn.bindService()
@@ -117,7 +117,7 @@ class FgMethodCallHandler(
         // to reload shorts/feature blocking configuration from SharedPrefs
         restoreAllSettingsOnReconnect()
 
-        Log.d("Mindful.FgMethodCallHandler", "ensureAllServicesRunning: All services running, settings restored")
+        Log.d("Digitox.FgMethodCallHandler", "ensureAllServicesRunning: All services running, settings restored")
     }
 
     /**
@@ -129,7 +129,7 @@ class FgMethodCallHandler(
      * will reload its Wellbeing/shorts blocking configuration automatically.
      */
     fun restoreAllSettingsOnReconnect() {
-        // Re-push wellbeing settings - this triggers SharedPrefs listener in MindfulAccessibilityService
+        // Re-push wellbeing settings - this triggers SharedPrefs listener in DigitoxAccessibilityService
         // which will call refreshServiceConfig() and restore shorts/feature blocking
         SharedPrefsHelper.getSetWellBeingSettings(
             context,
@@ -149,7 +149,7 @@ class FgMethodCallHandler(
             vpnServiceConn.service?.updateBlockedApps(blockedApps)
         }
 
-        Log.d("Mindful.FgMethodCallHandler", "restoreAllSettingsOnReconnect: All settings restored to native services")
+        Log.d("Digitox.FgMethodCallHandler", "restoreAllSettingsOnReconnect: All settings restored to native services")
     }
 
     private fun updateLocale(languageCode: String) {
@@ -287,11 +287,11 @@ class FgMethodCallHandler(
 
             "activeEmergencyPause" -> {
                 if (!Utils.isServiceRunning(context, EmergencyPauseService::class.java)
-                    && Utils.isServiceRunning(context, MindfulTrackerService::class.java)
+                    && Utils.isServiceRunning(context, DigitoxTrackerService::class.java)
                 ) {
                     context.startService(
                         Intent(context, EmergencyPauseService::class.java).setAction(
-                            ServiceBinder.ACTION_START_MINDFUL_SERVICE
+                            ServiceBinder.ACTION_START_DIGITOX_SERVICE
                         )
                     )
                     result.success(true)
@@ -331,7 +331,7 @@ class FgMethodCallHandler(
                 if (notificationServiceConn.isActive) {
                     notificationServiceConn.service?.updateNotificationSettings(settings)
                 } else if (settings.batchedApps.isNotEmpty() || settings.storeNonBatchedToo) {
-                    notificationServiceConn.setOnConnectedCallback { service: MindfulNotificationListenerService ->
+                    notificationServiceConn.setOnConnectedCallback { service: DigitoxNotificationListenerService ->
                         service.updateNotificationSettings(settings)
                     }
                     notificationServiceConn.bindService()
@@ -536,7 +536,7 @@ class FgMethodCallHandler(
 
             "restartApp" -> {
                 activity?.let {
-                    NewActivitiesLaunchHelper.restartMindful(it)
+                    NewActivitiesLaunchHelper.restartDigitox(it)
                 }
                 result.success(true)
             }

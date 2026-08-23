@@ -1,6 +1,6 @@
 package com.nlp.digitox.utils
 
-object MindfulQuotes {
+object DigitoxQuotes {
 
     fun getRandomQuote(): Map.Entry<String, String> =
         quotes.entries.shuffled().random()

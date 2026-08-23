@@ -58,6 +58,7 @@ app.*.map.json
 # Environment variables and API keys
 .env
 .env.*
+!.env.example
 **/api_keys.dart
 **/secrets.dart
 
@@ -95,8 +96,11 @@ app.*.map.json
 /TASK8_REAL_SENTIMENT_ANALYZER.md
 /TASKS_12_13_14_COMPLETE.md
 todo.md
-# Assest refference
-Demo-light.png
-Demo-dark.png
-dark-mode-ref.png
-light-mode-ref.png
+# Assest refference and task files
+/Demo-light.png
+/Demo-dark.png
+/dark-mode-ref.png
+/light-mode-ref.png
+/Task.md
+/todo.md
+/prior.md

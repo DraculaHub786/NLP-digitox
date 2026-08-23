@@ -8,27 +8,27 @@ import 'package:nlp_digitox/config/app_themes.dart';
 import 'package:nlp_digitox/config/navigation/app_routes_observer.dart';
 import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 
-class MindfulApp extends ConsumerWidget {
-  const MindfulApp({super.key});
+class DigitoxApp extends ConsumerWidget {
+  const DigitoxApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode =
-        ref.watch(mindfulSettingsProvider.select((v) => v.themeMode));
+        ref.watch(digitoxSettingsProvider.select((v) => v.themeMode));
 
     final accentColor =
-        ref.watch(mindfulSettingsProvider.select((v) => v.accentColor));
+        ref.watch(digitoxSettingsProvider.select((v) => v.accentColor));
 
     final localeCode =
-        ref.watch(mindfulSettingsProvider.select((v) => v.localeCode));
+        ref.watch(digitoxSettingsProvider.select((v) => v.localeCode));
 
     final useAmoledDark =
-        ref.watch(mindfulSettingsProvider.select((v) => v.useAmoledDark));
+        ref.watch(digitoxSettingsProvider.select((v) => v.useAmoledDark));
 
     final useDynamicColors =
-        ref.watch(mindfulSettingsProvider.select((v) => v.useDynamicColors));
+        ref.watch(digitoxSettingsProvider.select((v) => v.useDynamicColors));
 
     return DynamicColorBuilder(
       builder: (light, dark) {

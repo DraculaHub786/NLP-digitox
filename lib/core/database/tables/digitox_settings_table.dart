@@ -1,11 +1,17 @@
-
 import 'package:drift/drift.dart';
 import 'package:nlp_digitox/core/enums/app_theme_mode.dart';
 import 'package:nlp_digitox/core/enums/default_home_tab.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
 
-@DataClassName("MindfulSettings")
-class MindfulSettingsTable extends Table {
+@DataClassName("DigitoxSettings")
+class DigitoxSettingsTable extends Table {
+  /// Pin the physical SQLite table name to its historical value so existing
+  /// installs keep their data without a migration. The Dart class was
+  /// rebranded from [MindfulSettingsTable], but the on-disk table must stay
+  /// `mindful_settings_table`.
+  @override
+  String get tableName => 'mindful_settings_table';
+
   /// Unique ID for app settings
   IntColumn get id => integer().withDefault(const Constant(0))();
 
@@ -55,7 +61,7 @@ class MindfulSettingsTable extends Table {
   BoolColumn get isOnboardingDone =>
       boolean().withDefault(const Constant(false))();
 
-  /// The currently installed version of Mindful.
+  /// The currently installed version of Digitox.
   /// Mainly used to show changelogs screen.
   TextColumn get appVersion => text().withDefault(const Constant(""))();
 }

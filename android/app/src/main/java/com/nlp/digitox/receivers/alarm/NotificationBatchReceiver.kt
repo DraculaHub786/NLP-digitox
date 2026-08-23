@@ -24,12 +24,12 @@ import com.nlp.digitox.helpers.storage.DriftDbHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.models.Notification
 import com.nlp.digitox.models.NotificationSettings
-import com.nlp.digitox.services.notification.MindfulNotificationListenerService
+import com.nlp.digitox.services.notification.DigitoxNotificationListenerService
 import com.nlp.digitox.utils.AppUtils
 
 class NotificationBatchReceiver : BroadcastReceiver() {
     companion object {
-        private const val TAG = "Mindful.NotificationBatchReceiver"
+        private const val TAG = "Digitox.NotificationBatchReceiver"
         const val ACTION_PUSH_BATCH: String = "com.mindful.android.action.PushBatch"
         const val EXTRA_NOTIFICATION_SETTINGS_JSON =
             "com.mindful.android.extra.notificationSettingsJson"
@@ -56,7 +56,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
     ) : Worker(context, params) {
         private val notificationServiceConn = SafeServiceConnection(
             context = context,
-            serviceClass = MindfulNotificationListenerService::class.java,
+            serviceClass = DigitoxNotificationListenerService::class.java,
         )
 
         override fun doWork(): Result {
@@ -91,7 +91,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
 
         private fun pushSummeryNotification(unreadNotificationsCount: Int) {
             // Create pending intent
-            val mindfulPendingIntent = AppUtils.getPendingIntentForMindfulUri(
+            val digitoxPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
                 context,
                 "com.mindful.android://open/notifications"
             )
@@ -108,7 +108,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.notification_schedule_batch_title))
-                .setContentIntent(mindfulPendingIntent)
+                .setContentIntent(digitoxPendingIntent)
                 .setContentText(msg)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
                 .build()
@@ -126,7 +126,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
         private fun pushAllUnreadNotifications(notifications: List<Notification>) {
             try {
                 notificationServiceConn.bindService()
-                val mindfulIntent = AppUtils.getPendingIntentForMindfulUri(
+                val digitoxIntent = AppUtils.getPendingIntentForDigitoxUri(
                     context,
                     "com.mindful.android://open/notifications"
                 )
@@ -169,7 +169,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
                         val pendingIntent =
                             notificationServiceConn.service?.getPendingIntentForKey(threadKey)
                                 ?: appIntent
-                                ?: mindfulIntent
+                                ?: digitoxIntent
 
                         val notification = NotificationCompat.Builder(
                             context,

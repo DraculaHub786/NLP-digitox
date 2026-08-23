@@ -8,7 +8,7 @@ import android.util.Log
 // If your are the owner or the curator of this domains list please let us know about it.
 object NsfwDomains {
     private var dict: MutableMap<String, Boolean> = HashMap()
-    var TAG: String = "Mindful.NsfwDomains"
+    var TAG: String = "Digitox.NsfwDomains"
 
     fun init(): Map<String, Boolean> {
         add0()

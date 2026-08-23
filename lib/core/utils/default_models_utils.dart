@@ -7,7 +7,7 @@ import 'package:nlp_digitox/core/enums/session_type.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/models/notification_schedule.dart';
 
-final defaultMindfulSettingsModel = MindfulSettings(
+final defaultDigitoxSettingsModel = DigitoxSettings(
   id: 0,
   defaultHomeTab: DefaultHomeTab.dashboard,
   themeMode: AppConstants.defaultThemeMode,

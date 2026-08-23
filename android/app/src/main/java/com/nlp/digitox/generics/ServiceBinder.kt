@@ -12,10 +12,10 @@ import android.os.Binder
 </T> */
 class ServiceBinder<T : Service?>(val service: T) : Binder() {
     companion object {
-        const val ACTION_START_MINDFUL_SERVICE: String =
-            "com.mindful.android.action.startMindfulService"
+        const val ACTION_START_DIGITOX_SERVICE: String =
+            "com.nlp.digitox.action.startDigitoxService"
 
-        const val ACTION_BIND_TO_MINDFUL: String =
-            "com.mindful.android.action.bindToMindful"
+        const val ACTION_BIND_TO_DIGITOX: String =
+            "com.nlp.digitox.action.bindToDigitox"
     }
 }

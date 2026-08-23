@@ -1,4 +1,3 @@
-
 package com.nlp.digitox.services.vpn
 
 import android.content.Intent
@@ -23,12 +22,12 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * A VPN service that manages internet access by blocking specified apps.
  */
-class MindfulVpnService : VpnService() {
+class DigitoxVpnService : VpnService() {
     companion object {
-        private const val TAG = "Mindful.VpnService"
+        private const val TAG = "Digitox.VpnService"
     }
 
-    private val mBinder = ServiceBinder(this@MindfulVpnService)
+    private val mBinder = ServiceBinder(this@DigitoxVpnService)
     private val mAtomicVpnThread = AtomicReference<Thread?>(null)
     private var mBlockedApps: Set<String> = HashSet(0)
     private var mVpnInterface: ParcelFileDescriptor? = null
@@ -113,12 +112,12 @@ class MindfulVpnService : VpnService() {
         get() = Runnable {
             try {
                 DatagramChannel.open().use { tunnel ->
-                    check(this@MindfulVpnService.protect(tunnel.socket())) { "Cannot protect the vpn socket tunnel" }
+                    check(this@DigitoxVpnService.protect(tunnel.socket())) { "Cannot protect the vpn socket tunnel" }
                     val serverAddress: SocketAddress = InetSocketAddress("localhost", 0)
                     tunnel.connect(serverAddress)
                     tunnel.configureBlocking(false)
 
-                    val builder = this@MindfulVpnService.Builder()
+                    val builder = this@DigitoxVpnService.Builder()
                     builder.addAddress("192.168.0.0", 24)
                     builder.addRoute("0.0.0.0", 0)
 
@@ -135,26 +134,26 @@ class MindfulVpnService : VpnService() {
                             }
                         }
                     }
-                    synchronized(this@MindfulVpnService) {
+                    synchronized(this@DigitoxVpnService) {
                         mVpnInterface = builder.establish()
                         Log.d(TAG, "getVpnThread: VPN connected successfully")
                     }
                 }
             } catch (e: SocketException) {
                 Log.e(TAG, "getVpnThread: Cannot use socket for VPN", e)
-                SharedPrefsHelper.insertCrashLogToPrefs(this@MindfulVpnService, e)
+                SharedPrefsHelper.insertCrashLogToPrefs(this@DigitoxVpnService, e)
             } catch (e: IOException) {
                 Log.e(TAG, "getVpnThread: VPN connection failed, reconnecting in 5s", e)
-                SharedPrefsHelper.insertCrashLogToPrefs(this@MindfulVpnService, e)
+                SharedPrefsHelper.insertCrashLogToPrefs(this@DigitoxVpnService, e)
                 // Wait and retry
                 Thread.sleep(5000)
                 connectVpn()
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, "getVpnThread: VPN connection failed", e)
-                SharedPrefsHelper.insertCrashLogToPrefs(this@MindfulVpnService, e)
+                SharedPrefsHelper.insertCrashLogToPrefs(this@DigitoxVpnService, e)
             } catch (e: Exception) {
                 Log.e(TAG, "getVpnThread: Something went wrong", e)
-                SharedPrefsHelper.insertCrashLogToPrefs(this@MindfulVpnService, e)
+                SharedPrefsHelper.insertCrashLogToPrefs(this@DigitoxVpnService, e)
             }
         }
 
@@ -185,15 +184,15 @@ class MindfulVpnService : VpnService() {
         disconnectVpn()
         Log.d(TAG, "onDestroy: VPN service destroyed - re-launching immediately")
         try {
-            val restartIntent = Intent(this, MindfulVpnService::class.java)
-                .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+            val restartIntent = Intent(this, DigitoxVpnService::class.java)
+                .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                 .putExtra("isRestart", true)
             startForegroundService(restartIntent)
         } catch (e: Exception) {
             Log.w(TAG, "onDestroy: startForegroundService failed, fallback to startService", e)
             try {
-                val restartIntent = Intent(this, MindfulVpnService::class.java)
-                    .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                val restartIntent = Intent(this, DigitoxVpnService::class.java)
+                    .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                 startService(restartIntent)
             } catch (e2: Exception) {
                 SharedPrefsHelper.insertCrashLogToPrefs(this, e2)
@@ -203,6 +202,6 @@ class MindfulVpnService : VpnService() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        return if (intent.action == ServiceBinder.ACTION_BIND_TO_MINDFUL) mBinder else null
+        return if (intent.action == ServiceBinder.ACTION_BIND_TO_DIGITOX) mBinder else null
     }
 }

@@ -21,7 +21,7 @@ class FlutterBgExecutionWorker(
     private val workerParams: WorkerParameters,
 ) : Worker(context, workerParams) {
     companion object {
-        private const val TAG = "Mindful.FlutterBgExecutionWorker";
+        private const val TAG = "Digitox.FlutterBgExecutionWorker";
         const val FLUTTER_TASK_ID = "com.nlp.digitox.flutterTaskId"
     }
 

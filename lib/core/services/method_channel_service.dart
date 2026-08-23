@@ -418,7 +418,7 @@ class MethodChannelService {
   Future<bool> openDeviceDndSettings() async =>
       await _methodChannel.invokeMethod('openDeviceDndSettings');
 
-  /// Opens the device specific settings to whitelist mindful.
+  /// Opens the device specific settings to whitelist the app.
   Future<bool> openAutoStartSettings() async =>
       await _methodChannel.invokeMethod('openAutoStartSettings');
 

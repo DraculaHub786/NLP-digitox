@@ -1,4 +1,3 @@
-
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/database/app_database.dart';
@@ -12,22 +11,22 @@ import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 
-/// A Riverpod state notifier provider that manages [MindfulSettings].
-final mindfulSettingsProvider =
-    StateNotifierProvider<MindfulSettingsNotifier, MindfulSettings>(
-  (ref) => MindfulSettingsNotifier(),
+/// A Riverpod state notifier provider that manages [DigitoxSettings].
+final digitoxSettingsProvider =
+    StateNotifierProvider<DigitoxSettingsNotifier, DigitoxSettings>(
+  (ref) => DigitoxSettingsNotifier(),
 );
 
-/// This class manages the state of mindful settings.
-class MindfulSettingsNotifier extends StateNotifier<MindfulSettings> {
-  MindfulSettingsNotifier() : super(defaultMindfulSettingsModel) {
+/// This class manages the state of digitox settings.
+class DigitoxSettingsNotifier extends StateNotifier<DigitoxSettings> {
+  DigitoxSettingsNotifier() : super(defaultDigitoxSettingsModel) {
     init(addListenerToo: true);
   }
 
   /// Initializes the settings state by loading from the database and setting up a listener for saving changes.
-  Future<MindfulSettings> init({bool addListenerToo = false}) async {
+  Future<DigitoxSettings> init({bool addListenerToo = false}) async {
     final dao = DriftDbService.instance.driftDb.uniqueRecordsDao;
-    state = await dao.loadMindfulSettings();
+    state = await dao.loadDigitoxSettings();
     await MethodChannelService.instance
         .updateLocale(languageCode: state.localeCode);
 
@@ -38,7 +37,7 @@ class MindfulSettingsNotifier extends StateNotifier<MindfulSettings> {
         1.seconds,
         () => addListener(
           fireImmediately: false,
-          (state) => dao.saveMindfulSettings(state),
+          (state) => dao.saveDigitoxSettings(state),
         ),
       );
     }
@@ -129,6 +128,6 @@ class MindfulSettingsNotifier extends StateNotifier<MindfulSettings> {
 
   /// Update app version
   void updateAppVersion() => state = state.copyWith(
-        appVersion: MethodChannelService.instance.deviceInfo.mindfulVersion,
+        appVersion: MethodChannelService.instance.deviceInfo.digitoxVersion,
       );
 }

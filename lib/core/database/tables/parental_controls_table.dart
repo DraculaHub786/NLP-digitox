@@ -10,7 +10,7 @@ class ParentalControlsTable extends Table {
   @override
   Set<Column<Object>>? get primaryKey => {id};
 
-  /// Flag indicating whether to authenticate before opening Mindful or not
+  /// Flag indicating whether to authenticate before opening Digitox or not
   BoolColumn get protectedAccess =>
       boolean().withDefault(const Constant(false))();
 

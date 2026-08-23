@@ -1,4 +1,3 @@
-
 package com.nlp.digitox.services.accessibility
 
 import android.accessibilityservice.AccessibilityService
@@ -36,9 +35,9 @@ import java.util.concurrent.Executors
 /**
  * An AccessibilityService that monitors app usage and blocks access to specified content based on user settings.
  */
-class MindfulAccessibilityService : AccessibilityService(), OnSharedPreferenceChangeListener {
+class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceChangeListener {
     companion object {
-        private const val TAG = "Mindful.MindfulAccessibilityService"
+        private const val TAG = "Digitox.DigitoxAccessibilityService"
 
         const val ACTION_PERFORM_HOME_PRESS = "com.mindful.android.action.performHomePress"
         const val ACTION_MIDNIGHT_ACCESSIBILITY_RESET =
@@ -215,7 +214,7 @@ class MindfulAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
                 // Post Toast to main thread
                 Toast.makeText(
-                    this@MindfulAccessibilityService,
+                    this@DigitoxAccessibilityService,
                     getString(R.string.toast_blocked_content),
                     Toast.LENGTH_LONG
                 ).show()
@@ -297,10 +296,10 @@ class MindfulAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
             Log.d(
                 TAG, "refreshServiceConfig: Accessibility service config updated successfully: " +
-                        "\n settings: $wellbeing" +
-                        "\n device platforms: $devicePlatformPackages" +
-                        "\n short platforms: $shortsPlatformPackages" +
-                        "\n browsers: $browserPackages"
+                        "settings: $wellbeing | " +
+                        "device platforms: $devicePlatformPackages | " +
+                        "short platforms: $shortsPlatformPackages | " +
+                        "browsers: $browserPackages"
             )
         } catch (e: Exception) {
             Log.e(TAG, "refreshServiceInfo: Failed to refresh service info", e)

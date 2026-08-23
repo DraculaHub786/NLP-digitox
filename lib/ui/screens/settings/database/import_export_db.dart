@@ -155,7 +155,7 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
     try {
       setState(() => _isExporting = true);
 
-      /// Get the database path: /data/user/0/com.mindful.android/app_flutter/Mindful.sqlite
+/// Get the database path: /data/user/0/com.nlp.digitox/app_flutter/NLP_digitox.sqlite
       final dbFile = File(await getSqliteDbPath());
       if (!await dbFile.exists()) {
         throw Exception('Database file not found at ${dbFile.path}');
@@ -165,14 +165,14 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
       final dbFileBytes = await dbFile.readAsBytes();
       final timeStamp = DateFormat('yyyy-MM-dThh-mm-ss').format(DateTime.now());
       final dbVersionCode = DriftDbService.instance.driftDb.schemaVersion;
-      final mindfulVersionCode = MethodChannelService
-          .instance.deviceInfo.mindfulVersion
+      final digitoxVersionCode = MethodChannelService
+          .instance.deviceInfo.digitoxVersion
           .split("+")
           .lastOrNull;
 
       final resultPath = await FilePicker.platform.saveFile(
         fileName:
-            "NLP_digitox_v${mindfulVersionCode}_dbv${dbVersionCode}_$timeStamp.sqlite",
+            "NLP_digitox_v${digitoxVersionCode}_dbv${dbVersionCode}_$timeStamp.sqlite",
         bytes: Uint8List.fromList(dbFileBytes),
       );
 

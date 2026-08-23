@@ -18,7 +18,7 @@ class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  // NOTE: To test  => adb shell am start -W -a android.intent.action.VIEW -d "com.mindful.android://open/settings?tab=1" com.mindful.android.debug
+  // NOTE: To test  => adb shell am start -W -a android.intent.action.VIEW -d "com.nlp.digitox://open/settings?tab=1" com.nlp.digitox.debug
   /// App links package instance
   final _appLinks = AppLinks();
 

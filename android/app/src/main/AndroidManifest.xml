@@ -132,7 +132,7 @@
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
                 android:name="android.app.device_admin"
-                android:resource="@xml/mindful_admin_config" />
+                android:resource="@xml/digitox_admin_config" />
 
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
@@ -185,7 +185,7 @@
                 android:value="true" />
         </service>
         <service
-            android:name=".services.accessibility.MindfulAccessibilityService"
+            android:name=".services.accessibility.DigitoxAccessibilityService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -195,10 +195,10 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/mindful_accessibility_config" />
+                android:resource="@xml/digitox_accessibility_config" />
         </service>
         <service
-            android:name=".services.notification.MindfulNotificationListenerService"
+            android:name=".services.notification.DigitoxNotificationListenerService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
@@ -210,7 +210,7 @@
         <!-- ______________________________ APP SERVICES _____________________________________ -->
         <!-- _________________________________________________________________________________ -->
         <service
-            android:name=".services.vpn.MindfulVpnService"
+            android:name=".services.vpn.DigitoxVpnService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse"
@@ -228,7 +228,7 @@
                 android:value="false" />
         </service>
         <service
-            android:name=".services.tracking.MindfulTrackerService"
+            android:name=".services.tracking.DigitoxTrackerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse" />

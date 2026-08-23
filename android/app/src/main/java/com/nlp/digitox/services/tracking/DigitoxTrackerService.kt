@@ -11,12 +11,12 @@ import com.nlp.digitox.generics.ServiceBinder
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 
-class MindfulTrackerService : Service() {
+class DigitoxTrackerService : Service() {
     companion object {
-        private const val TAG = "Mindful.MindfulTrackerService"
+        private const val TAG = "Digitox.DigitoxTrackerService"
     }
 
-    private val mBinder = ServiceBinder(this@MindfulTrackerService)
+    private val mBinder = ServiceBinder(this@DigitoxTrackerService)
     private var isFgRunning = false
 
     private lateinit var overlayManager: OverlayManager
@@ -121,15 +121,15 @@ class MindfulTrackerService : Service() {
         Log.d(TAG, "onDestroy: TRACKER service destroyed - re-launching immediately")
         // Use startForegroundService for Android 12+ compatibility (it's a foreground service)
         try {
-            val restartIntent = Intent(this, MindfulTrackerService::class.java)
-                .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+            val restartIntent = Intent(this, DigitoxTrackerService::class.java)
+                .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                 .putExtra("isRestart", true)
             startForegroundService(restartIntent)
         } catch (e: Exception) {
             Log.w(TAG, "onDestroy: startForegroundService failed, fallback to startService", e)
             try {
-                val restartIntent = Intent(this, MindfulTrackerService::class.java)
-                    .setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                val restartIntent = Intent(this, DigitoxTrackerService::class.java)
+                    .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
                 startService(restartIntent)
             } catch (e2: Exception) {
                 SharedPrefsHelper.insertCrashLogToPrefs(this, e2)
@@ -140,6 +140,6 @@ class MindfulTrackerService : Service() {
 
 
     override fun onBind(intent: Intent): IBinder? {
-        return if (intent.action == ServiceBinder.ACTION_BIND_TO_MINDFUL) mBinder else null
+        return if (intent.action == ServiceBinder.ACTION_BIND_TO_DIGITOX) mBinder else null
     }
 }

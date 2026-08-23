@@ -1,4 +1,3 @@
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,7 +137,7 @@ return DefaultRefreshIndicator(
                     value: settings.storeNonBatchedToo,
                     onChanged: (_) => ref
                         .read(notificationSettingsProvider.notifier)
-                        .toggleStoreNonBatched,
+                        .toggleStoreNonBatched(),
                   ),
                   const SizedBox(height: 12),
                 ],

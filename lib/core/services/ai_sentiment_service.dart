@@ -20,7 +20,7 @@ class AISentimentService {
 
   static final String _apiKey = ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _model = 'llama-3.1-8b-instant';
+  static const String _model = 'groq/compound-mini';
   static const Duration _requestTimeout = Duration(seconds: 15);
 
   Map<String, double>? _lastSentiment;
@@ -209,8 +209,9 @@ class AISentimentService {
     List<String>? recentChatThemes,
     String? moodContextBlock,
   }) async {
-    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-      throw Exception('Groq API key is not configured.');
+    if (_apiKey.isEmpty) {
+      throw Exception(
+          'Groq API key is not configured. Run with --dart-define-from-file=.env');
     }
 
     try {
@@ -349,8 +350,9 @@ Focused: XX
     required Map<String, double> currentSentiment,
     List<String>? recentChatMessages, // Include chat context for better recommendations
   }) async {
-    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-      throw Exception('Groq API key is not configured.');
+    if (_apiKey.isEmpty) {
+      throw Exception(
+          'Groq API key is not configured. Run with --dart-define-from-file=.env');
     }
 
     try {
@@ -436,8 +438,9 @@ Focus on:
     List<String>? recentChatTopics,
     String? usageContext,
   }) async {
-    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-      throw Exception('Groq API key is not configured.');
+    if (_apiKey.isEmpty) {
+      throw Exception(
+          'Groq API key is not configured. Run with --dart-define-from-file=.env');
     }
 
     try {
