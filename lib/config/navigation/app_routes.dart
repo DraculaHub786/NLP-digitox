@@ -22,6 +22,7 @@ import 'package:nlp_digitox/ui/screens/settings/settings_screen.dart';
 import 'package:nlp_digitox/ui/screens/shorts_blocking/shorts_blocking_screen.dart';
 import 'package:nlp_digitox/ui/screens/notifications/notifications_screen.dart';
 import 'package:nlp_digitox/ui/screens/websites_blocking/websites_blocking_screen.dart';
+import 'package:nlp_digitox/features/shared_sessions/sessions_list_screen.dart';
 import 'package:nlp_digitox/ui/splash_screen.dart';
 
 class AppRoutes {
@@ -50,6 +51,9 @@ class AppRoutes {
   static const String achievementsPath = '/achievements';
   static const String profilePath = '/profile';
   static const String chatPath = '/chat';
+
+  /// Shared focus sessions (create/join/browse)
+  static const String sharedSessionsPath = '/sharedSessions';
 
   static final Map<String, Widget Function(BuildContext)> routes = {
     /// Auth screens
@@ -107,6 +111,9 @@ class AppRoutes {
 
     /// Chat screen
     chatPath: (context) => const ChatScreen(),
+
+    /// Shared focus sessions screen
+    sharedSessionsPath: (context) => const SessionsListScreen(),
 
     /// Focus mode screen
     focusModePath: (context) => FocusScreen(

@@ -58,6 +58,15 @@ class NavigationService {
     }
   }
 
+  /// Public entry point for navigating from non-widget code (e.g., notification
+  /// tap handlers) where no BuildContext exists. Uses the same guarded,
+  /// duplicate-protected push/replace logic as deep links.
+  Future<void> goToRoute(
+    String routePath, {
+    Map<String, String>? parameters,
+  }) =>
+      _goToRoute(routePath, parameters: parameters);
+
   /// Forwards or push the new route with the arguments based on the [replaceCurrent].
   /// It checks the current route before pushing the new route and guarantee
   /// no duplicate routes on top of each other.

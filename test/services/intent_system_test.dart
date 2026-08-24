@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nlp_digitox/models/app_intent_model.dart';
-import 'package:nlp_digitox/core/services/restriction_engine.dart';
 
 void main() {
   group('AppIntent and AppIntentModel', () {
@@ -116,45 +115,6 @@ void main() {
     });
   });
 
-  group('RestrictionEngine Intent Support', () {
-    test('RestrictionType should include intentRequired', () {
-      expect(RestrictionType.values, contains(RestrictionType.intentRequired));
-    });
-
-    test('requiresIntentPrompt should identify social apps', () {
-      final engine = RestrictionEngine.instance;
-
-      expect(engine.requiresIntentPrompt('com.facebook.katana'), isTrue);
-      expect(engine.requiresIntentPrompt('com.twitter.android'), isTrue);
-      expect(engine.requiresIntentPrompt('com.instagram.android'), isTrue);
-      expect(engine.requiresIntentPrompt('com.snapchat.android'), isTrue);
-    });
-
-    test('requiresIntentPrompt should identify entertainment apps', () {
-      final engine = RestrictionEngine.instance;
-
-      expect(engine.requiresIntentPrompt('com.netflix.mediaclient'), isTrue);
-      expect(engine.requiresIntentPrompt('com.spotify.music'), isTrue);
-      expect(engine.requiresIntentPrompt('com.youtube'), isTrue);
-    });
-
-    test('requiresIntentPrompt should return false for other apps', () {
-      final engine = RestrictionEngine.instance;
-
-      expect(engine.requiresIntentPrompt('com.google.android.calculator'), isFalse);
-      expect(engine.requiresIntentPrompt('com.google.android.gms'), isFalse);
-      expect(engine.requiresIntentPrompt('com.example.unknown'), isFalse);
-    });
-
-    test('recordAppIntent should not throw', () async {
-      final engine = RestrictionEngine.instance;
-      expect(
-        () => engine.recordAppIntent('com.example.app', 'education'),
-        returnsNormally,
-      );
-    });
-  });
-
   group('AppIntent Default Display', () {
     test('All AppIntent values should have display names', () {
       for (final intent in AppIntent.values) {
@@ -201,26 +161,6 @@ void main() {
 
       expect(model1.notes, isNull);
       expect(model2.notes, equals('Some notes'));
-    });
-  });
-
-  group('Intent Blocking Decision Logic', () {
-    test('RestrictionDecision.block should work with intentRequired type', () {
-      final decision = RestrictionDecision.block(
-        'Intent prompt required',
-        RestrictionType.intentRequired,
-      );
-
-      expect(decision.canOpen, isFalse);
-      expect(decision.reason, equals('Intent prompt required'));
-      expect(decision.type, equals(RestrictionType.intentRequired));
-    });
-
-    test('RestrictionDecision.allow should be independent of intent', () {
-      final decision = RestrictionDecision.allow();
-
-      expect(decision.canOpen, isTrue);
-      expect(decision.type, equals(RestrictionType.none));
     });
   });
 

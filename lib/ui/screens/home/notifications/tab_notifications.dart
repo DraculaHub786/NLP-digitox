@@ -1,5 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
@@ -7,6 +9,8 @@ import 'package:nlp_digitox/core/enums/recap_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/core/services/notification_scheduler_service.dart';
+import 'package:nlp_digitox/models/notification_schedule.dart';
 import 'package:nlp_digitox/providers/notifications/dated_notifications_provider.dart';
 import 'package:nlp_digitox/providers/notifications/notification_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
@@ -14,6 +18,7 @@ import 'package:nlp_digitox/ui/common/default_dropdown_tile.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/dialogs/modal_bottom_sheet.dart';
 import 'package:nlp_digitox/ui/permissions/notification_access_permission_card.dart';
 import 'package:nlp_digitox/ui/screens/home/notifications/sliver_batched_apps_list.dart';
@@ -206,6 +211,18 @@ return DefaultRefreshIndicator(
             haveNotificationAccessPermission: havePermission,
           ),
 
+          /// Debug diagnostic (P0 todo 1.7) — surfaces exactly what's
+          /// registered with the OS right now, so "no notification" reports
+          /// can be answered with data instead of log re-reading.
+          /// Debug builds only; stripped from release by kDebugMode check.
+          if (kDebugMode)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: _PendingNotificationsDiagnosticTile(),
+              ),
+            ),
+
           const SliverTabsBottomPadding(),
         ],
       ),
@@ -282,6 +299,172 @@ return DefaultRefreshIndicator(
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// Debug-only tile cross-referencing the app's ACTIVE [NotificationSchedule]s
+/// against what the OS has ACTUALLY registered as pending. A mismatch means
+/// some enabled schedules were silently dropped between our zonedSchedule()
+/// call and the OS AlarmManager — pinpointing exactly where the pipeline
+/// broke, instead of guessing from logs.
+class _PendingNotificationsDiagnosticTile extends ConsumerStatefulWidget {
+  const _PendingNotificationsDiagnosticTile();
+
+  @override
+  ConsumerState<_PendingNotificationsDiagnosticTile> createState() =>
+      _PendingNotificationsDiagnosticTileState();
+}
+
+class _PendingNotificationsDiagnosticTileState
+    extends ConsumerState<_PendingNotificationsDiagnosticTile> {
+  List<PendingNotificationRequest>? _pending;
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    try {
+      await NotificationSchedulerService.instance.initialize();
+      final pending =
+          await NotificationSchedulerService.instance.getPendingNotifications();
+      // Only show the app's own scheduled reminders (IDs 1000-1099).
+      final scheduleIds =
+          pending.where((n) => n.id >= 1000 && n.id < 1100).toList();
+      if (!mounted) return;
+      setState(() {
+        _pending = scheduleIds;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
+  String _formatScheduleTime(NotificationSchedule s) =>
+      '${s.time.hour}:${s.time.minute.toString().padLeft(2, '0')}';
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    /// App-side source of truth: which schedules the user has switched ON.
+    /// Each active one SHOULD have a matching pending entry in the OS.
+    final List<NotificationSchedule> activeSchedules = ref.watch(
+      notificationSettingsProvider.select(
+        (v) => v.schedules.where((s) => s.isActive).toList(),
+      ),
+    );
+
+    final registered = _pending?.length ?? 0;
+    final hasLoaded = _pending != null;
+    // More active schedules than OS registrations = silent drops.
+    final hasMismatch = hasLoaded && registered < activeSchedules.length;
+    final statusColor = !hasLoaded
+        ? colorScheme.onSurface.withValues(alpha: 0.7)
+        : hasMismatch
+            ? Colors.orangeAccent
+            : (activeSchedules.isEmpty || registered > 0)
+                ? Colors.greenAccent.shade400
+                : colorScheme.onSurface.withValues(alpha: 0.7);
+    final statusLabel = !hasLoaded
+        ? (_loading ? '(refreshing…)' : '')
+        : hasMismatch
+            ? 'MISMATCH — ${activeSchedules.length - registered} active schedule(s) NOT registered with OS!'
+            : activeSchedules.isEmpty
+                ? 'No active schedules (expected)'
+                : 'All $registered active schedule(s) registered ✓';
+
+    return SurfaceCard(
+      padding: const EdgeInsets.all(16),
+      borderRadius: Radii.md,
+      onTap: _loading ? null : _load,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(FluentIcons.bug_20_regular, size: 18, color: statusColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: StyledText(
+                  'DEBUG: Active ${activeSchedules.length} · OS-pending $registered'
+                  '${_loading ? ' (refreshing…)' : ''} — tap to refresh',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  color: statusColor,
+                ),
+              ),
+            ],
+          ),
+
+          /// App-side: every schedule the user turned ON (label + time).
+          if (activeSchedules.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 26),
+              child: StyledText(
+                'Active in app:',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            ...activeSchedules.map(
+              (s) => Padding(
+                padding: const EdgeInsets.only(top: 2, left: 34),
+                child: StyledText(
+                  '• "${s.label}" @ ${_formatScheduleTime(s)}',
+                  fontSize: 11,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+          ],
+
+          /// OS-side: what AlarmManager actually holds.
+          if (_pending != null && _pending!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 26),
+              child: StyledText(
+                'Registered with OS:',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            ..._pending!.map(
+              (n) => Padding(
+                padding: const EdgeInsets.only(top: 2, left: 34),
+                child: StyledText(
+                  '• ID ${n.id}: ${n.title ?? '(no title)'}',
+                  fontSize: 11,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 26),
+            child: StyledText(statusLabel, fontSize: 11, color: statusColor),
+          ),
+        ],
       ),
     );
   }

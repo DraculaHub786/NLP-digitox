@@ -328,6 +328,17 @@ class TabDashboard extends ConsumerWidget {
               ),
             ),
 
+            /// Shared Focus Sessions
+            ModernListTile(
+              title: "Shared Focus Sessions",
+              subtitle: "Create or join group focus sessions.",
+              icon: FluentIcons.people_team_20_regular,
+              iconColor: colorScheme.secondary,
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.sharedSessionsPath,
+              ),
+            ),
+
             /// Parental Controls
             ModernListTile(
               title: context.locale.parental_controls_tab_title,

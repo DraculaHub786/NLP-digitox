@@ -163,6 +163,25 @@
             android:name=".receivers.alarm.NotificationBatchReceiver"
             android:enabled="true"
             android:exported="false" />
+
+        <!-- flutter_local_notifications (v18): scheduled-notification dispatch +
+             boot-recovery receivers. REQUIRED — since v17/v18 the plugin's own
+             manifest only ships permissions, so these must be declared here or
+             zonedSchedule() registers AlarmManager intents that nothing handles
+             (the classic "scheduled reminders never fire" root cause). -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <!-- _________________________________________________________________________________ -->
         <!-- ________________________ SYSTEM BOUND SERVICES __________________________________ -->
         <!-- _________________________________________________________________________________ -->
