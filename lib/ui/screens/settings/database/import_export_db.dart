@@ -108,11 +108,15 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
         type: FileType.any,
       );
 
-      if (result == null ||
-          result.count < 1 ||
-          result.files.first.extension != 'sqlite') {
+      /// user aborted — NOT an error, exit silently
+      if (result == null || result.count < 1) {
+        debugPrint("Import aborted by user");
+        return;
+      }
+
+      if (result.files.first.extension != 'sqlite') {
         throw Exception(
-          'Either selected file is null or invalid extension',
+          'Invalid file extension: ${result.files.first.extension}',
         );
       }
 
@@ -176,9 +180,10 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
         bytes: Uint8List.fromList(dbFileBytes),
       );
 
-      /// user aborted
+      /// user aborted — NOT an error, exit silently
       if (resultPath == null) {
-        throw Exception('User aborted the exporting operation');
+        debugPrint("Export aborted by user");
+        return;
       }
     } catch (e) {
       debugPrint("Error occurred while exporting database: $e");

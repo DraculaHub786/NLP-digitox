@@ -270,6 +270,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ).animate(effects: DefaultEffects.transitionIn),
 
+                    /// Forgot password link (Google-style — right aligned below
+                    /// the password field, referencing the reset flow).
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: _isLoading
+                            ? null
+                            : () {
+                                Navigator.of(context).pushNamed(
+                                  AppRoutes.forgotPasswordRequestPath,
+                                );
+                              },
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 6.0),
+                          child: StyledText(
+                            'Forgot password?',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ).animate(effects: DefaultEffects.transitionIn),
+
                     const SizedBox(height: 28.0),
 
                     /// Login button

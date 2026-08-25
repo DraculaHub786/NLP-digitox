@@ -32,6 +32,29 @@
         android:name="android.permission.BIND_QUICK_SETTINGS_TILE"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- ____________________________________________________________________________________ -->
+    <!-- ______________________ PACKAGE VISIBILITY (Android 11+) ____________________________ -->
+    <!-- ____________________________________________________________________________________ -->
+    <!-- file_picker resolves SAF activities via intent.resolveActivity(). Its own manifest
+         only declares GET_CONTENT, so EXPORT (CREATE_DOCUMENT) fails with
+         "invalid_format_type" on Android 11+ devices where the resolver is filtered.
+         Declare the SAF actions here so they merge into the final manifest. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.CREATE_DOCUMENT" />
+            <category android:name="android.intent.category.OPENABLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.OPEN_DOCUMENT" />
+            <category android:name="android.intent.category.OPENABLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
 
     <application
         android:name="${applicationName}"
