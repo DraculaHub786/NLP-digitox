@@ -71,7 +71,7 @@ class BgExecutorService {
   }
 
   /// This method will be invoked when the device boots or
-  /// if the Mindful app is updated or changed
+  /// if the Digitox app is updated or changed
   ///
   /// Initialize and start all necessary services here
   Future<void> _onBootOrAppUpdate() async {
@@ -108,7 +108,7 @@ class BgExecutorService {
 
     /// Remove usages before the specified history time
     final usageHistoryDays =
-        (await uniqueDao.loadMindfulSettings()).usageHistoryWeeks * 7;
+        (await uniqueDao.loadDigitoxSettings()).usageHistoryWeeks * 7;
     await dynamicDao.removeBatchAppUsagesBefore(
       dateYesterday.subtract(usageHistoryDays.days),
     );

@@ -1,10 +1,10 @@
 
 class HeroTags {
   /// Tag used to identify the beta warning container
-  static const betaWarningTag = "mindful.appbar.betaWarning";
+  static const betaWarningTag = "digitox.appbar.betaWarning";
 
   /// Tag used to identify the beta warning container
-  static const donationDialogTag = "mindful.appbar.donation";
+  static const donationDialogTag = "digitox.appbar.donation";
 
   /// Tag used to identify the FAB for adding a distracting website.
   static const editUsernameTag = "dashboard.editUsername";

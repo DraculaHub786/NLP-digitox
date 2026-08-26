@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-/// Get the SQLITE database file path: /data/user/0/com.mindful.android/app_flutter/Mindful.sqlite
+/// Get the SQLITE database file path: /data/user/0/com.nlp.digitox/app_flutter/NLP_digitox.sqlite
 Future<String> getSqliteDbPath() async => path.join(
       (await getApplicationDocumentsDirectory()).path,
       'NLP_digitox.sqlite',

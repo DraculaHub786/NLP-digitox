@@ -14,7 +14,7 @@ import com.nlp.digitox.utils.Utils
 
 
 class FocusQuickTileService : TileService() {
-    private val TAG = "Mindful.FocusQuickTileService"
+    private val TAG = "Digitox.FocusQuickTileService"
 
 
     override fun onTileAdded() {
@@ -40,7 +40,7 @@ class FocusQuickTileService : TileService() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 val uriString = if (isFocusActive) "com.mindful.android://open/activeSession"
                 else "com.mindful.android://open/focus"
-                tile?.activityLaunchForClick = AppUtils.getPendingIntentForMindfulUri(this, uriString)
+                tile?.activityLaunchForClick = AppUtils.getPendingIntentForDigitoxUri(this, uriString)
             }
 
             // Set subtitle on android 10 and above
@@ -74,11 +74,11 @@ class FocusQuickTileService : TileService() {
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 startActivityAndCollapse(
-                    AppUtils.getPendingIntentForMindfulUri(this, uriString)
+                    AppUtils.getPendingIntentForDigitoxUri(this, uriString)
                 )
             } else {
                 startActivityAndCollapse(
-                    AppUtils.getIntentForMindfulUri(this, uriString)
+                    AppUtils.getIntentForDigitoxUri(this, uriString)
                 )
             }
         } catch (e: Exception) {

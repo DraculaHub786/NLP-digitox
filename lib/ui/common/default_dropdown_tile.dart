@@ -44,8 +44,12 @@ class DefaultDropdownTile<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final heroTag = "DefaultDropdown.$titleText";
-    final selected =
-        items.isNotEmpty ? items.firstWhere((e) => e.value == value) : null;
+    final selected = items.isNotEmpty
+        ? items.firstWhere(
+            (e) => e.value == value,
+            orElse: () => items.first,
+          )
+        : null;
 
     return DefaultHero(
       tag: heroTag,

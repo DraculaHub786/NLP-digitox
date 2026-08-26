@@ -5,7 +5,7 @@ import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/profile_avatar.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/input_field_dialog.dart';
@@ -30,13 +30,13 @@ class GreetingsUsername extends ConsumerWidget {
     );
 
     if (userName == null) return;
-    ref.read(mindfulSettingsProvider.notifier).changeUsername(userName);
+    ref.read(digitoxSettingsProvider.notifier).changeUsername(userName);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final username =
-        ref.watch(mindfulSettingsProvider.select((v) => v.username));
+        ref.watch(digitoxSettingsProvider.select((v) => v.username));
     final colorScheme = Theme.of(context).colorScheme;
 
     return Row(

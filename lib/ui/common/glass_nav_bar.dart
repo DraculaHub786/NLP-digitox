@@ -109,8 +109,13 @@ class GlassNavBar extends StatelessWidget {
                   final pillWidth = naturalPillWidth.clamp(0.0, maxPillWidth);
 
                   // Center the (now variable-width) pill within its cell.
+                  // Clamped to the bar's real bounds so the intentional
+                  // 2px cell overflow (cellMargin = -4) can never push the
+                  // pill past the bar's rounded edges on the first/last tab
+                  // — where ClipRRect would visibly cut off its corners.
                   final pillLeft =
-                      selectedIndex * itemWidth + (itemWidth - pillWidth) / 2;
+                      (selectedIndex * itemWidth + (itemWidth - pillWidth) / 2)
+                          .clamp(0.0, constraints.maxWidth - pillWidth);
 
                   return SizedBox(
                     height: 44,

@@ -38,6 +38,22 @@
 - ### 8. Privacy-First & Open Source
     No ads. No tracking. NLP-Digitox works completely offline, keeping your data on your device and it's fully open-source, forever.
 
+# 🔑 API Key Setup (for development)
+
+AI features (chatbot, sentiment analysis) use the Groq API. Keys are **not** stored in source code — they are injected at build time from a `.env` file:
+
+1. Copy `.env.example` to `.env`
+2. Add your free Groq key from [console.groq.com/keys](https://console.groq.com/keys)
+3. Run/build with the env file:
+   ```bash
+   flutter run --dart-define-from-file=.env
+   flutter build apk --dart-define-from-file=.env
+   ```
+
+`.env` is gitignored — never commit it. Without it, AI features show a "not configured" message but the rest of the app works normally.
+
+---
+
 > [!IMPORTANT]
 > ## Why _internet_ permission in manifest?
 > 
@@ -52,4 +68,3 @@ Your feedback is invaluable to us! If you have suggestions, encounter issues, or
 * **[Email Support](mailto:afjalansari29162@gmail.com)** - Contact developer directly
 * **[Instagram](https://www.instagram.com/_afjal___ansari_?igsh=ZGlkZDU4eHF6NGM4)** - Follow for updates
 * **[LinkedIn](https://www.linkedin.com/in/afjal-ansari-999067299)** - Connect professionally
-

@@ -15,7 +15,7 @@ class RestrictionManager(
     private val context: Context,
     private val usageStatsManager: UsageStatsManager = context.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager,
 ) {
-    private val TAG = "Mindful.RestrictionManager"
+    private val TAG = "Digitox.RestrictionManager"
 
     // Restrictions
     private var appsRestrictions = HashMap<String, AppRestriction>()

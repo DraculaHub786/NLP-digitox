@@ -10,7 +10,7 @@ import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/config/locales.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
 import 'package:nlp_digitox/ui/common/default_dropdown_tile.dart';
 import 'package:nlp_digitox/ui/common/surface_card.dart';
@@ -34,7 +34,7 @@ class TabGeneral extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mindfulSettings = ref.watch(mindfulSettingsProvider);
+    final digitoxSettings = ref.watch(digitoxSettingsProvider);
     final colorScheme = Theme.of(context).colorScheme;
 
     return CustomScrollView(
@@ -59,11 +59,11 @@ class TabGeneral extends ConsumerWidget {
                 children: [
                   /// Theme mode
                   DefaultDropdownTile<AppThemeMode>(
-                    value: mindfulSettings.themeMode,
+                    value: digitoxSettings.themeMode,
                     dialogIcon: FluentIcons.dark_theme_20_filled,
                     titleText: context.locale.theme_mode_tile_title,
                     onSelected:
-                        ref.read(mindfulSettingsProvider.notifier).changeThemeMode,
+                        ref.read(digitoxSettingsProvider.notifier).changeThemeMode,
                     items: [
                       DefaultDropdownItem(
                         label: context.locale.theme_mode_system_label,
@@ -85,8 +85,8 @@ class TabGeneral extends ConsumerWidget {
                   DefaultDropdownTile<String>(
                     titleText: context.locale.material_color_tile_title,
                     dialogIcon: FluentIcons.color_20_filled,
-                    value: mindfulSettings.accentColor,
-                    onSelected: ref.read(mindfulSettingsProvider.notifier).changeColor,
+                    value: digitoxSettings.accentColor,
+                    onSelected: ref.read(digitoxSettingsProvider.notifier).changeColor,
                     trailingBuilder: (item) => Container(
                       height: 18,
                       width: 18,
@@ -110,9 +110,9 @@ class TabGeneral extends ConsumerWidget {
                     subtitle: context.locale.amoled_dark_tile_subtitle,
                     icon: FluentIcons.dark_theme_20_regular,
                     iconColor: colorScheme.primary,
-                    value: mindfulSettings.useAmoledDark,
+                    value: digitoxSettings.useAmoledDark,
                     onChanged: (_) =>
-                        ref.read(mindfulSettingsProvider.notifier).switchAmoledDark(),
+                        ref.read(digitoxSettingsProvider.notifier).switchAmoledDark(),
                   ),
                   8.vBox,
 
@@ -122,9 +122,9 @@ class TabGeneral extends ConsumerWidget {
                     subtitle: context.locale.dynamic_colors_tile_subtitle,
                     icon: FluentIcons.color_20_regular,
                     iconColor: colorScheme.tertiary,
-                    value: mindfulSettings.useDynamicColors,
+                    value: digitoxSettings.useDynamicColors,
                     onChanged: (_) =>
-                        ref.read(mindfulSettingsProvider.notifier).switchDynamicColor(),
+                        ref.read(digitoxSettingsProvider.notifier).switchDynamicColor(),
                   ),
                 ],
               ),
@@ -152,8 +152,8 @@ class TabGeneral extends ConsumerWidget {
                   DefaultDropdownTile<String>(
                     titleText: context.locale.app_language_tile_title,
                     dialogIcon: FluentIcons.color_20_filled,
-                    value: mindfulSettings.localeCode,
-                    onSelected: ref.read(mindfulSettingsProvider.notifier).changeLocale,
+                    value: digitoxSettings.localeCode,
+                    onSelected: ref.read(digitoxSettingsProvider.notifier).changeLocale,
                     items: AppLocalizations.supportedLocales
                         .map((e) => DefaultDropdownItem(
                               value: e.languageCode,
@@ -168,9 +168,9 @@ class TabGeneral extends ConsumerWidget {
                   DefaultDropdownTile<DefaultHomeTab>(
                     titleText: context.locale.default_home_tab_tile_title,
                     dialogIcon: FluentIcons.color_20_filled,
-                    value: mindfulSettings.defaultHomeTab,
+                    value: digitoxSettings.defaultHomeTab,
                     onSelected:
-                        ref.read(mindfulSettingsProvider.notifier).changeHomeTab,
+                        ref.read(digitoxSettingsProvider.notifier).changeHomeTab,
                     items: [
                       DefaultDropdownItem(
                         label: context.locale.dashboard_tab_title,
@@ -196,9 +196,9 @@ class TabGeneral extends ConsumerWidget {
                   DefaultDropdownTile<int>(
                     titleText: context.locale.usage_history_tile_title,
                     dialogIcon: FluentIcons.history_20_filled,
-                    value: mindfulSettings.usageHistoryWeeks,
+                    value: digitoxSettings.usageHistoryWeeks,
                     onSelected: ref
-                        .read(mindfulSettingsProvider.notifier)
+                        .read(digitoxSettingsProvider.notifier)
                         .changeUsageHistoryWeeks,
                     items: [
                       DefaultDropdownItem(

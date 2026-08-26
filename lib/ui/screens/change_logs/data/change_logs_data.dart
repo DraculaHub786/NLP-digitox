@@ -34,7 +34,7 @@ class ChangeLogsData {
 
   /// Map of all app versions and the list of[ChangeLog]
   late final Map<String, List<ChangeLog>> _allChangeLogs = {
-    MethodChannelService.instance.deviceInfo.mindfulVersion: _latest,
+    MethodChannelService.instance.deviceInfo.digitoxVersion: _latest,
     "v1.2.8": _v1_2_8,
     "v1.2.4": _v1_2_4,
     "v1.2.0": _v1_2_0,

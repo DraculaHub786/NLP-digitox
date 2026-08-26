@@ -46,7 +46,7 @@ data class NotificationSettings(
 
             } catch (e: Exception) {
                 schedules = emptyList()
-                Log.e("Mindful.NotificationSettings", "fromJson: Failed to parse schedules ", e)
+                Log.e("Digitox.NotificationSettings", "fromJson: Failed to parse schedules ", e)
             }
 
             return NotificationSettings(

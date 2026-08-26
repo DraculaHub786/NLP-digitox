@@ -6,7 +6,7 @@ import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/core/services/profile_service.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart' hide ModernListTile;
 import 'package:nlp_digitox/ui/common/profile_avatar.dart';
@@ -46,7 +46,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final username =
-        ref.watch(mindfulSettingsProvider.select((v) => v.username));
+        ref.watch(digitoxSettingsProvider.select((v) => v.username));
     final email = FirebaseAuthService.instance.userEmail;
 
     return ScaffoldShell(

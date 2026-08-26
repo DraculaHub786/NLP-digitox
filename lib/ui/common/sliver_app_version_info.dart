@@ -10,7 +10,7 @@ class SliverAppVersionInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appVersion = MethodChannelService.instance.deviceInfo.mindfulVersion;
+    final appVersion = MethodChannelService.instance.deviceInfo.digitoxVersion;
 
     return MultiSliver(
       children: [

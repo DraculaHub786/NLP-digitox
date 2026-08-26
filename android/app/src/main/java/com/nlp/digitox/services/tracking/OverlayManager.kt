@@ -22,8 +22,8 @@ import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.device.NotificationHelper.USAGE_REMINDERS_CHANNEL_ID
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.models.RestrictionState
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService.Companion.ACTION_PERFORM_HOME_PRESS
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService.Companion.ACTION_PERFORM_HOME_PRESS
 import com.nlp.digitox.services.tracking.OverlayBuilder.getAppLabelAndIcon
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.DateTimeUtils
@@ -200,7 +200,7 @@ class OverlayManager(
                 .setSound(null)
                 .setAutoCancel(true)
                 .setContentIntent(
-                    AppUtils.getPendingIntentForMindfulUri(
+                    AppUtils.getPendingIntentForDigitoxUri(
                         context,
                         "com.mindful.android://open/appDashboard?package=$packageName"
                     )
@@ -211,7 +211,7 @@ class OverlayManager(
     }
 
     companion object {
-        private const val TAG = "Mindful.OverlayManager"
+        private const val TAG = "Digitox.OverlayManager"
 
         private const val SLIDE_UP_START_Y = 640f
         private const val SLIDE_DOWN_END_Y = 1280f
@@ -255,10 +255,10 @@ class OverlayManager(
                 NotificationHelper.pushAskOverlayPermissionNotification(context)
 
                 // Go home if accessibility is running
-                if (Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)) {
+                if (Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)) {
                     val serviceIntent = Intent(
                         context.applicationContext,
-                        MindfulAccessibilityService::class.java
+                        DigitoxAccessibilityService::class.java
                     ).setAction(ACTION_PERFORM_HOME_PRESS)
 
                     context.startService(serviceIntent)

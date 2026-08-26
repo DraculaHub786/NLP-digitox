@@ -6,7 +6,7 @@ import 'package:nlp_digitox/core/database/tables/bedtime_schedule_table.dart';
 import 'package:nlp_digitox/core/database/tables/focus_mode_table.dart';
 import 'package:nlp_digitox/core/database/tables/notification_settings_table.dart';
 import 'package:nlp_digitox/core/database/tables/parental_controls_table.dart';
-import 'package:nlp_digitox/core/database/tables/mindful_settings_table.dart';
+import 'package:nlp_digitox/core/database/tables/digitox_settings_table.dart';
 import 'package:nlp_digitox/core/database/tables/shared_unique_data_table.dart';
 import 'package:nlp_digitox/core/database/tables/wellbeing_table.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
@@ -15,7 +15,7 @@ part 'unique_records_dao.g.dart';
 
 @DriftAccessor(
   tables: [
-    MindfulSettingsTable,
+    DigitoxSettingsTable,
     ParentalControlsTable,
     BedtimeScheduleTable,
     FocusModeTable,
@@ -39,16 +39,16 @@ class UniqueRecordsDao extends DatabaseAccessor<AppDatabase>
       await select(sharedUniqueDataTable).getSingleOrNull() ??
       defaultSharedUniqueDataModel;
 
-  /// Saves a single [MindfulSettings] object to the database.
-  Future<void> saveMindfulSettings(MindfulSettings settings) async =>
-      into(mindfulSettingsTable)
+  /// Saves a single [DigitoxSettings] object to the database.
+  Future<void> saveDigitoxSettings(DigitoxSettings settings) async =>
+      into(digitoxSettingsTable)
           .insert(settings, mode: InsertMode.insertOrReplace);
 
-  /// Loads the first (and likely only) [MindfulSettings] object
+  /// Loads the first (and likely only) [DigitoxSettings] object
   /// from the database. If none exists, returns default instance.
-  Future<MindfulSettings> loadMindfulSettings() async =>
-      await select(mindfulSettingsTable).getSingleOrNull() ??
-      defaultMindfulSettingsModel;
+  Future<DigitoxSettings> loadDigitoxSettings() async =>
+      await select(digitoxSettingsTable).getSingleOrNull() ??
+      defaultDigitoxSettingsModel;
 
   /// Saves a single [ParentalControls] object to the database.
   Future<void> saveParentalControls(
