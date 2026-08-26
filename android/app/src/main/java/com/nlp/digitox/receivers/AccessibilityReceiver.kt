@@ -18,7 +18,7 @@ class AccessibilityReceiver(
 
     ) : BroadcastReceiver() {
 
-    private val TAG = "Mindful.AccessibilityReceiver"
+    private val TAG = "Digitox.AccessibilityReceiver"
 
     fun register(context: Context) {
         try {

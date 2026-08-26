@@ -19,6 +19,7 @@ class AppTheme {
   );
 
   static final materialColors = <String, MaterialColor>{
+    'Forest Green': _createMaterialColor(const Color(0xFF1F2E23)),
     'Turquoise': _createMaterialColor(const Color(0xFF4DD6D9)),
     'Teal': Colors.teal,
     'Cyan': Colors.cyan,

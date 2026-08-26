@@ -108,11 +108,15 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
         type: FileType.any,
       );
 
-      if (result == null ||
-          result.count < 1 ||
-          result.files.first.extension != 'sqlite') {
+      /// user aborted — NOT an error, exit silently
+      if (result == null || result.count < 1) {
+        debugPrint("Import aborted by user");
+        return;
+      }
+
+      if (result.files.first.extension != 'sqlite') {
         throw Exception(
-          'Either selected file is null or invalid extension',
+          'Invalid file extension: ${result.files.first.extension}',
         );
       }
 
@@ -155,7 +159,7 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
     try {
       setState(() => _isExporting = true);
 
-      /// Get the database path: /data/user/0/com.mindful.android/app_flutter/Mindful.sqlite
+/// Get the database path: /data/user/0/com.nlp.digitox/app_flutter/NLP_digitox.sqlite
       final dbFile = File(await getSqliteDbPath());
       if (!await dbFile.exists()) {
         throw Exception('Database file not found at ${dbFile.path}');
@@ -165,20 +169,21 @@ class _ImportExportDbState extends ConsumerState<ImportExportDb> {
       final dbFileBytes = await dbFile.readAsBytes();
       final timeStamp = DateFormat('yyyy-MM-dThh-mm-ss').format(DateTime.now());
       final dbVersionCode = DriftDbService.instance.driftDb.schemaVersion;
-      final mindfulVersionCode = MethodChannelService
-          .instance.deviceInfo.mindfulVersion
+      final digitoxVersionCode = MethodChannelService
+          .instance.deviceInfo.digitoxVersion
           .split("+")
           .lastOrNull;
 
       final resultPath = await FilePicker.platform.saveFile(
         fileName:
-            "NLP_digitox_v${mindfulVersionCode}_dbv${dbVersionCode}_$timeStamp.sqlite",
+            "NLP_digitox_v${digitoxVersionCode}_dbv${dbVersionCode}_$timeStamp.sqlite",
         bytes: Uint8List.fromList(dbFileBytes),
       );
 
-      /// user aborted
+      /// user aborted — NOT an error, exit silently
       if (resultPath == null) {
-        throw Exception('User aborted the exporting operation');
+        debugPrint("Export aborted by user");
+        return;
       }
     } catch (e) {
       debugPrint("Error occurred while exporting database: $e");

@@ -101,7 +101,7 @@ class ModernListTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Flexible(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

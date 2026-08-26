@@ -2807,6 +2807,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More details'**
   String get more_details_button;
+
+  /// No description provided for @privacy_policy_coming_soon_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get privacy_policy_coming_soon_title;
+
+  /// No description provided for @privacy_policy_coming_soon_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Our full privacy policy page is on its way. In the meantime, know that NLP digitox works offline and does not collect or sell your personal data.'**
+  String get privacy_policy_coming_soon_info;
+
+  /// No description provided for @ok_button.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok_button;
 }
 
 class _AppLocalizationsDelegate

@@ -21,13 +21,13 @@ import kotlin.math.abs
  * checking if a service is running, encoding images, parsing JSON strings, and manipulating URLs.
  */
 object Utils {
-    private const val TAG = "Mindful.Utils"
+    private const val TAG = "Digitox.Utils"
 
     /**
      * Checks if a service with the given class name is currently running.
      *
      * @param context          The application context.
-     * @param serviceClass The class of the service  (e.g., MindfulAppsTrackerService.class)).
+     * @param serviceClass The class of the service  (e.g., DigitoxAppsTrackerService.class)).
      * @return True if the service is running, false otherwise.
      */
     fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {

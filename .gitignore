@@ -58,8 +58,10 @@ app.*.map.json
 # Environment variables and API keys
 .env
 .env.*
-**/api_keys.dart
-**/secrets.dart
+!.env.example
+# api_keys.dart is now secret-free (values come from .env at build time).
+# Keep it tracked so fresh clones can compile; never store real keys here.
+# **/secrets.dart
 
 # Large generated files
 /lib/l10n/generated/
@@ -95,8 +97,11 @@ app.*.map.json
 /TASK8_REAL_SENTIMENT_ANALYZER.md
 /TASKS_12_13_14_COMPLETE.md
 todo.md
-# Assest refference
-Demo-light.png
-Demo-dark.png
-dark-mode-ref.png
-light-mode-ref.png
+# Assest refference and task files
+/Demo-light.png
+/Demo-dark.png
+/dark-mode-ref.png
+/light-mode-ref.png
+/Task.md
+/todo.md
+/prior.md

@@ -144,7 +144,7 @@ class ShortsPlatformManager(
 
 
     companion object {
-        private const val TAG = "Mindful.ShortsPlatformManager"
+        private const val TAG = "Digitox.ShortsPlatformManager"
 
         // The minimum interval between saving short content's screen time in shared preferences
         private const val SAVING_INTERVAL_MS = (30 * 1000L)
@@ -294,7 +294,7 @@ class ShortsPlatformManager(
          *
          *   1. Enable the X toggle in Shorts Blocking.
          *   2. Open a video in X.
-         *   3. `adb logcat -s Mindful.ShortsPlatformManager` and look for
+         *   3. `adb logcat -s Digitox.ShortsPlatformManager` and look for
          *      "X video view candidates".
          *   4. Replace the placeholder below with the reported ID.
          */
@@ -317,7 +317,7 @@ class ShortsPlatformManager(
          * NOTE: Threads is built on Instagram's codebase, so it may reuse
          * Instagram's `clips_video_container` — or not. As with X, while
          * detection returns false the candidate-walker logs video-looking
-         * view IDs (tag `Mindful.ShortsPlatformManager`, "Threads video
+         * view IDs (tag `Digitox.ShortsPlatformManager`, "Threads video
          * view candidates") that can be pasted in below after a quick
          * on-device check.
          */

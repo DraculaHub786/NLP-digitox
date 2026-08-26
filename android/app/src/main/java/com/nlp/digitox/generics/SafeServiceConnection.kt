@@ -59,12 +59,12 @@ class SafeServiceConnection<T : Service>(
         if (!mIsBound && Utils.isServiceRunning(context, serviceClass)) {
             try {
                 val bindIntent = Intent(context, serviceClass)
-                bindIntent.setAction(ServiceBinder.ACTION_BIND_TO_MINDFUL)
+                bindIntent.setAction(ServiceBinder.ACTION_BIND_TO_DIGITOX)
                 context.bindService(bindIntent, this, Context.BIND_WAIVE_PRIORITY)
             } catch (e: Exception) {
                 SharedPrefsHelper.insertCrashLogToPrefs(context, e)
                 Log.e(
-                    "Mindful.SafeServiceConnection",
+                    "Digitox.SafeServiceConnection",
                     "bindService: Failed to bind " + serviceClass.name,
                     e
                 )
@@ -83,7 +83,7 @@ class SafeServiceConnection<T : Service>(
                 } catch (e: Exception) {
                     SharedPrefsHelper.insertCrashLogToPrefs(context, e)
                     Log.e(
-                        "Mindful.SafeServiceConnection",
+                        "Digitox.SafeServiceConnection",
                         "unBindService: Failed to unbind " + serviceClass.name,
                         e
                     )
@@ -104,7 +104,7 @@ class SafeServiceConnection<T : Service>(
                 Intent(
                     context,
                     serviceClass
-                ).setAction(ServiceBinder.ACTION_START_MINDFUL_SERVICE)
+                ).setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
             )
         }
         bindService()

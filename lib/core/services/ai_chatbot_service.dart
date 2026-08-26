@@ -148,7 +148,7 @@ class AIChatbotService {
 
   static final String _apiKey = ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _modelName = 'llama-3.1-8b-instant';
+  static const String _modelName = 'groq/compound-mini';
   
   final List<Map<String, String>> _conversationHistory = [];
   final List<ChatMessage> _chatHistory = [];
@@ -183,8 +183,8 @@ class AIChatbotService {
 
   Future<void> _initializeAI() async {
     try {
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AIChatbotService: Invalid API key! Please set up your Groq API key.');
+      if (_apiKey.isEmpty) {
+        debugPrint('⚠️ AIChatbotService: Groq API key not configured! Run with --dart-define-from-file=.env');
         return;
       }
 
@@ -387,9 +387,9 @@ Remember: You're a supportive friend helping them build better digital habits, n
     
     try {
       // Check if API is properly configured
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
+      if (_apiKey.isEmpty) {
         debugPrint('⚠️ AIChatbotService: API key not configured!');
-        return "Please configure your Groq API key to use the AI chat feature. Visit https://console.groq.com/keys for setup.";
+        return "Groq API key is not configured. Copy .env.example to .env, add your key, and run with --dart-define-from-file=.env";
       }
       
       // RATE LIMITING: Enforce minimum delay between requests

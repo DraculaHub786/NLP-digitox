@@ -18,7 +18,7 @@ class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  // NOTE: To test  => adb shell am start -W -a android.intent.action.VIEW -d "com.mindful.android://open/settings?tab=1" com.mindful.android.debug
+  // NOTE: To test  => adb shell am start -W -a android.intent.action.VIEW -d "com.nlp.digitox://open/settings?tab=1" com.nlp.digitox.debug
   /// App links package instance
   final _appLinks = AppLinks();
 
@@ -57,6 +57,15 @@ class NavigationService {
       await _goToRoute(AppRoutes.changeLogsPath);
     }
   }
+
+  /// Public entry point for navigating from non-widget code (e.g., notification
+  /// tap handlers) where no BuildContext exists. Uses the same guarded,
+  /// duplicate-protected push/replace logic as deep links.
+  Future<void> goToRoute(
+    String routePath, {
+    Map<String, String>? parameters,
+  }) =>
+      _goToRoute(routePath, parameters: parameters);
 
   /// Forwards or push the new route with the arguments based on the [replaceCurrent].
   /// It checks the current route before pushing the new route and guarantee

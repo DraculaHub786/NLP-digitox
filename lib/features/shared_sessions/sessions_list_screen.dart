@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
+    show digitoxSettingsProvider;
 import 'package:nlp_digitox/providers/session_provider.dart';
 
 /// Shared Focus Sessions screen with glassmorphic design.
@@ -355,9 +357,13 @@ class _PublicSessionCardState extends ConsumerState<_PublicSessionCard> {
   Future<void> _join() async {
     setState(() => _joining = true);
     try {
+      // Use the app's configured username as the in-session display name
+      // (falls back to 'Me' if somehow empty).
+      final username =
+          ref.read(digitoxSettingsProvider).username.trim();
       await ref.read(joinByIdProvider.notifier).joinById(
             sessionId: widget.data['id'] as String,
-            displayName: 'Me', // TODO: fetch from user profile
+            displayName: username.isNotEmpty ? username : 'Me',
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

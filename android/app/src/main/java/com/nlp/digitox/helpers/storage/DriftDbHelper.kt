@@ -10,13 +10,13 @@ import java.io.File
 
 
 object DriftDbHelper {
-    private const val TAG = "Mindful.DriftDbHelper"
+    private const val TAG = "Digitox.DriftDbHelper"
 
     // Open the database if it's not already open
     private fun openDatabase(context: Context): SQLiteDatabase? {
         try {
-            // /data/user/0/com.mindful.android/app_flutter/Mindful0.sqlite
-            val dbPath = "${context.dataDir.path}/app_flutter/Mindful.sqlite"
+// /data/user/0/com.nlp.digitox/app_flutter/NLP_digitox.sqlite
+            val dbPath = "${context.dataDir.path}/app_flutter/NLP_digitox.sqlite"
             val dbFile = File(dbPath)
 
             /// Will open only if it exists

@@ -27,7 +27,7 @@ import com.nlp.digitox.AppConstants
 import com.nlp.digitox.R
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.receivers.DeviceAdminReceiver
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
 import com.nlp.digitox.utils.Utils
 
 /**
@@ -36,7 +36,7 @@ import com.nlp.digitox.utils.Utils
  * usage access, and Do Not Disturb (DND) access.
  */
 object PermissionsHelper {
-    private const val TAG = "Mindful.PermissionsHelper"
+    private const val TAG = "Digitox.PermissionsHelper"
 
     /**
      * Checks if the device administration permission is granted and optionally asks for it if not granted.
@@ -76,13 +76,13 @@ object PermissionsHelper {
      *
      * This is NOT a process-liveness check — it reads
      * `Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES` and looks for our
-     * [MindfulAccessibilityService] component name. This correctly reports
+     * [DigitoxAccessibilityService] component name. This correctly reports
      * `true` even when the OS has killed the service process (which OEMs
      * routinely do to idle services).
      */
     fun isAccessibilityServiceEnabled(context: Context): Boolean {
         val expectedComponentName =
-            ComponentName(context, MindfulAccessibilityService::class.java)
+            ComponentName(context, DigitoxAccessibilityService::class.java)
         val enabledServicesSetting = Settings.Secure.getString(
             context.contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
@@ -109,7 +109,7 @@ object PermissionsHelper {
      * instead of asking the user to re-grant the permission.
      */
     fun isAccessibilityServiceActive(context: Context): Boolean =
-        Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)
+        Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)
 
     /**
      * Checks if the accessibility permission is granted and optionally asks for it if not granted.
@@ -284,7 +284,7 @@ object PermissionsHelper {
 
         if (askPermissionToo) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                NewActivitiesLaunchHelper.openMindfulNotificationSection(activity)
+                NewActivitiesLaunchHelper.openDigitoxNotificationSection(activity)
             } else {
                 val count = SharedPrefsHelper.getSetNotificationAskCount(activity, null)
                 if (count < 2) {
@@ -294,7 +294,7 @@ object PermissionsHelper {
                         0
                     )
                 } else {
-                    NewActivitiesLaunchHelper.openMindfulNotificationSection(activity)
+                    NewActivitiesLaunchHelper.openDigitoxNotificationSection(activity)
                 }
 
                 SharedPrefsHelper.getSetNotificationAskCount(activity, count + 1)

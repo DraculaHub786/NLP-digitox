@@ -11,7 +11,7 @@ import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
 import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/botanical_background.dart';
@@ -69,10 +69,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final perms =
         await ref.read(permissionProvider.notifier).fetchPermissionsStatus();
 
-    final settings = await ref.read(mindfulSettingsProvider.notifier).init();
+    final settings = await ref.read(digitoxSettingsProvider.notifier).init();
     _isOnboardingDone = settings.isOnboardingDone;
     _isAppUpdated = settings.appVersion !=
-        MethodChannelService.instance.deviceInfo.mindfulVersion;
+        MethodChannelService.instance.deviceInfo.digitoxVersion;
 
     _isAccessProtected =
         (await ref.read(parentalControlsProvider.notifier).init())
@@ -87,7 +87,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // returns false and the user is shown the onboarding/quiz again.
     final quizCompleted = await PersonaService.instance.isQuizCompleted();
     // Override _isOnboardingDone: only true if the quiz was actually completed
-    // AND the MindfulSettings flag is set.
+    // AND the DigitoxSettings flag is set.
     _isOnboardingDone = _isOnboardingDone && quizCompleted;
 
     if (mounted) setState(() {});

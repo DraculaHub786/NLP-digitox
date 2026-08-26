@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
@@ -25,8 +24,6 @@ class AppConstants {
   static const linkedInUrl = "https://www.linkedin.com/in/afjal-ansari-999067299";
   static const telegramUrl = "https://t.me/mdDracula";
   static const supportEmailUrl = "mailto:afjalansari29162@gmail.com";
-  static const privacyPolicyUrl = "https://bemindful.vercel.app/privacy";
-  static const faqsUrl = "https://bemindful.vercel.app/#faqs";
 
   static String githubChangeLogUrl(String appVersion) =>
       "https://github.com/DraculaHub786/NLP-digitox/releases/tag/$appVersion";

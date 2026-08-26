@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -22,7 +21,7 @@ class TabAbout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final appVersion = MethodChannelService.instance.deviceInfo.mindfulVersion;
+    final appVersion = MethodChannelService.instance.deviceInfo.digitoxVersion;
     final dbVersion = DriftDbService.instance.driftDb.schemaVersion;
 
     return CustomScrollView(
@@ -250,7 +249,7 @@ class TabAbout extends ConsumerWidget {
                     child: FilledButton.tonalIcon(
                       icon: const Icon(FluentIcons.info_20_regular, size: 18),
                       label: Text(context.locale.more_details_button),
-                      onPressed: null,
+                      onPressed: () => _showComingSoonDialog(context),
                     ),
                   ),
                 ],
@@ -263,6 +262,23 @@ class TabAbout extends ConsumerWidget {
 
         const SliverTabsBottomPadding(),
       ],
+    );
+  }
+
+  void _showComingSoonDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(FluentIcons.shield_keyhole_20_regular),
+        title: Text(context.locale.privacy_policy_coming_soon_title),
+        content: Text(context.locale.privacy_policy_coming_soon_info),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.locale.ok_button),
+          ),
+        ],
+      ),
     );
   }
 
@@ -349,5 +365,4 @@ class TabAbout extends ConsumerWidget {
       ),
     );
   }
-
 }

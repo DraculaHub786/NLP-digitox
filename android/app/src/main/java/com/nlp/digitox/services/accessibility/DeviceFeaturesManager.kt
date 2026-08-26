@@ -39,7 +39,7 @@ class DeviceFeaturesManager(
 
     companion object {
         /**
-         * Checks if Device Settings features (Admin or Accessibility) are open for mindful.
+         * Checks if Device Settings features (Admin or Accessibility) are open for the app.
          */
         private fun isSettingsTamperFeatureOpen(
             context: Context,

@@ -17,7 +17,7 @@ class OnboardingQuizPage extends ConsumerStatefulWidget {
   });
 
   /// Called when the user completes the quiz and taps "Get Started".
-  /// Should call [MindfulSettingsNotifier.markOnboardingDone] and navigate
+  /// Should call [DigitoxSettingsNotifier.markOnboardingDone] and navigate
   /// into the app (instead of the quiz navigating directly, which would
   /// bypass persisting the onboarding-done state).
   final VoidCallback? onComplete;

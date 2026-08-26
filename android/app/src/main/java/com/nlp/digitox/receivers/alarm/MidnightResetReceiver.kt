@@ -15,16 +15,16 @@ import androidx.work.WorkerParameters
 import com.nlp.digitox.generics.SafeServiceConnection
 import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.scheduleMidnightResetTask
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService.Companion.ACTION_MIDNIGHT_ACCESSIBILITY_RESET
-import com.nlp.digitox.services.tracking.MindfulTrackerService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService.Companion.ACTION_MIDNIGHT_ACCESSIBILITY_RESET
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
 import com.nlp.digitox.utils.Utils
 import com.nlp.digitox.workers.FlutterBgExecutionWorker
 import com.nlp.digitox.workers.FlutterBgExecutionWorker.Companion.FLUTTER_TASK_ID
 
 class MidnightResetReceiver : BroadcastReceiver() {
     companion object {
-        private const val TAG = "Mindful.MidnightResetReceiver"
+        private const val TAG = "Digitox.MidnightResetReceiver"
         const val ACTION_START_MIDNIGHT_RESET = "com.mindful.android.action.startMidnightReset"
     }
 
@@ -34,14 +34,14 @@ class MidnightResetReceiver : BroadcastReceiver() {
 
                 /// Enqueue midnight worker for services
                 it.enqueueUniqueWork(
-                    "Mindful.MidnightResetReceiver.Native",
+                    "Digitox.MidnightResetReceiver.Native",
                     ExistingWorkPolicy.KEEP,
                     OneTimeWorkRequest.Builder(MidnightResetWorker::class.java).build()
                 )
 
                 /// Enqueue flutter bg worker to backup apps usage
                 it.enqueueUniqueWork(
-                    "Mindful.MidnightResetReceiver.FlutterBg",
+                    "Digitox.MidnightResetReceiver.FlutterBg",
                     ExistingWorkPolicy.KEEP,
                     OneTimeWorkRequest
                         .Builder(FlutterBgExecutionWorker::class.java)
@@ -61,21 +61,21 @@ class MidnightResetReceiver : BroadcastReceiver() {
     ) : Worker(context, params) {
         private val mTrackerServiceConn = SafeServiceConnection(
             context = context,
-            serviceClass = MindfulTrackerService::class.java,
+            serviceClass = DigitoxTrackerService::class.java,
         )
 
 
         override fun doWork(): Result {
             try {
                 // Let tracking service know about midnight reset
-                mTrackerServiceConn.setOnConnectedCallback { service: MindfulTrackerService -> service.onMidnightReset() }
+                mTrackerServiceConn.setOnConnectedCallback { service: DigitoxTrackerService -> service.onMidnightReset() }
                 mTrackerServiceConn.bindService()
 
                 // Let accessibility service know about midnight reset
-                if (Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)) {
+                if (Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)) {
                     val serviceIntent = Intent(
                         context.applicationContext,
-                        MindfulAccessibilityService::class.java
+                        DigitoxAccessibilityService::class.java
                     ).setAction(ACTION_MIDNIGHT_ACCESSIBILITY_RESET)
                     context.startService(serviceIntent)
                 } else {

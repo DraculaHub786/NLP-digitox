@@ -23,7 +23,7 @@ class DeviceAppsChangedReceiver(
 ) : BroadcastReceiver() {
 
     companion object {
-        private const val TAG = "Mindful.DeviceAppsChangedReceiver"
+        private const val TAG = "Digitox.DeviceAppsChangedReceiver"
     }
 
     fun register(context: Context) {
@@ -57,7 +57,7 @@ class DeviceAppsChangedReceiver(
             Intent.ACTION_PACKAGE_ADDED, Intent.ACTION_PACKAGE_REMOVED -> {
                 val packageName = getPackageName(intent)
                 Log.d(
-                    "Mindful.PackagesChangedReceiver",
+                    "Digitox.PackagesChangedReceiver",
                     "onReceive: App install/uninstall event received with action : $action for package: $packageName"
                 )
 
