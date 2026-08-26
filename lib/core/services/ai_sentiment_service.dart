@@ -211,7 +211,7 @@ class AISentimentService {
   }) async {
     if (_apiKey.isEmpty) {
       throw Exception(
-          'Groq API key is not configured. Run with --dart-define-from-file=.env');
+          'Groq API key is not configured. Copy lib/config/api_keys_template.dart to lib/config/api_keys.dart and add your key.');
     }
 
     try {
@@ -352,7 +352,7 @@ Focused: XX
   }) async {
     if (_apiKey.isEmpty) {
       throw Exception(
-          'Groq API key is not configured. Run with --dart-define-from-file=.env');
+          'Groq API key is not configured. Copy lib/config/api_keys_template.dart to lib/config/api_keys.dart and add your key.');
     }
 
     try {
@@ -440,7 +440,7 @@ Focus on:
   }) async {
     if (_apiKey.isEmpty) {
       throw Exception(
-          'Groq API key is not configured. Run with --dart-define-from-file=.env');
+          'Groq API key is not configured. Copy lib/config/api_keys_template.dart to lib/config/api_keys.dart and add your key.');
     }
 
     try {

@@ -59,9 +59,12 @@ app.*.map.json
 .env
 .env.*
 !.env.example
-# api_keys.dart is now secret-free (values come from .env at build time).
-# Keep it tracked so fresh clones can compile; never store real keys here.
-# **/secrets.dart
+
+# Real API keys live here (copied from api_keys_template.dart).
+# NEVER commit this file - it holds actual secrets.
+lib/config/api_keys.dart
+/api_keys.dart
+**/api_keys_secret.dart
 
 # Large generated files
 /lib/l10n/generated/
@@ -105,3 +108,4 @@ todo.md
 /Task.md
 todo.md
 /prior.md
+lib/config/api_keys.dart

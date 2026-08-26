@@ -184,7 +184,7 @@ class AIChatbotService {
   Future<void> _initializeAI() async {
     try {
       if (_apiKey.isEmpty) {
-        debugPrint('⚠️ AIChatbotService: Groq API key not configured! Run with --dart-define-from-file=.env');
+        debugPrint('⚠️ AIChatbotService: Groq API key not configured! Add it to lib/config/api_keys.dart (copy from api_keys_template.dart)');
         return;
       }
 
@@ -389,7 +389,7 @@ Remember: You're a supportive friend helping them build better digital habits, n
       // Check if API is properly configured
       if (_apiKey.isEmpty) {
         debugPrint('⚠️ AIChatbotService: API key not configured!');
-        return "Groq API key is not configured. Copy .env.example to .env, add your key, and run with --dart-define-from-file=.env";
+        return "Groq API key is not configured. Copy lib/config/api_keys_template.dart to lib/config/api_keys.dart and add your key.";
       }
       
       // RATE LIMITING: Enforce minimum delay between requests
