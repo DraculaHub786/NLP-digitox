@@ -30,9 +30,9 @@ import com.nlp.digitox.utils.AppUtils
 class NotificationBatchReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "Digitox.NotificationBatchReceiver"
-        const val ACTION_PUSH_BATCH: String = "com.mindful.android.action.PushBatch"
+        const val ACTION_PUSH_BATCH: String = "com.nlp.digitox.action.PushBatch"
         const val EXTRA_NOTIFICATION_SETTINGS_JSON =
-            "com.mindful.android.extra.notificationSettingsJson"
+            "com.nlp.digitox.extra.notificationSettingsJson"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -93,7 +93,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
             // Create pending intent
             val digitoxPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
                 context,
-                "com.mindful.android://open/notifications"
+                "com.nlp.digitox://open/notifications"
             )
 
             // Build notification
@@ -128,7 +128,7 @@ class NotificationBatchReceiver : BroadcastReceiver() {
                 notificationServiceConn.bindService()
                 val digitoxIntent = AppUtils.getPendingIntentForDigitoxUri(
                     context,
-                    "com.mindful.android://open/notifications"
+                    "com.nlp.digitox://open/notifications"
                 )
                 val packageManager = context.packageManager
                 val notificationManager =

@@ -38,8 +38,8 @@ class FocusQuickTileService : TileService() {
 
             // Set on click on android 14 and above
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                val uriString = if (isFocusActive) "com.mindful.android://open/activeSession"
-                else "com.mindful.android://open/focus"
+                val uriString = if (isFocusActive) "com.nlp.digitox://open/activeSession"
+                else "com.nlp.digitox://open/focus"
                 tile?.activityLaunchForClick = AppUtils.getPendingIntentForDigitoxUri(this, uriString)
             }
 
@@ -69,8 +69,8 @@ class FocusQuickTileService : TileService() {
         try {
             // Check focus session status
             val isFocusActive = Utils.isServiceRunning(this, FocusSessionService::class.java)
-            val uriString = if (isFocusActive) "com.mindful.android://open/activeSession"
-            else "com.mindful.android://open/focus"
+            val uriString = if (isFocusActive) "com.nlp.digitox://open/activeSession"
+            else "com.nlp.digitox://open/focus"
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 startActivityAndCollapse(

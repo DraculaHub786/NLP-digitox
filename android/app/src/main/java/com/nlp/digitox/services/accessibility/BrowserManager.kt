@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import com.nlp.digitox.R
 import com.nlp.digitox.models.Wellbeing
+import com.nlp.digitox.utils.NsfwBlocklistStore
 import com.nlp.digitox.utils.NsfwDomains
 import com.nlp.digitox.utils.NsfwKeywords
 import com.nlp.digitox.utils.ThreadUtils
@@ -52,6 +53,7 @@ class BrowserManager(
             wellbeing.blockedWebsites.contains(host)
                     || wellbeing.nsfwWebsites.contains(host)
                     || nsfwDomains[host] ?: false
+                    || NsfwBlocklistStore.contains(host)
                 -> {
                 Log.d(TAG, "blockDistraction: Blocked website $host opened in $packageName")
                 blockedContentGoBack.invoke()
@@ -155,12 +157,20 @@ class BrowserManager(
         private const val TAG = "Digitox.BrowserEventsManager"
         private var nsfwDomains: Map<String, Boolean> = mapOf()
 
-        fun initializeNsfwDomains() {
+        fun initializeNsfwDomains(context: Context) {
             nsfwDomains = NsfwDomains.init()
+
+            // Load the generated 950k-domain hash blocklist (compact asset,
+            // ~7 MB RAM). Async + idempotent; lookups return false until ready.
+            NsfwBlocklistStore.loadAsync(context.applicationContext)
         }
 
         fun clearNsfwDomains() {
             nsfwDomains = mapOf()
+
+            // Also unload the hash blocklist, otherwise it would keep
+            // blocking sites even after the user toggles NSFW filtering off.
+            NsfwBlocklistStore.clear()
         }
 
         /**

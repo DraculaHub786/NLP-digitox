@@ -25,7 +25,7 @@ import com.nlp.digitox.workers.FlutterBgExecutionWorker.Companion.FLUTTER_TASK_I
 class MidnightResetReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "Digitox.MidnightResetReceiver"
-        const val ACTION_START_MIDNIGHT_RESET = "com.mindful.android.action.startMidnightReset"
+        const val ACTION_START_MIDNIGHT_RESET = "com.nlp.digitox.action.startMidnightReset"
     }
 
     override fun onReceive(context: Context, intent: Intent) {

@@ -39,11 +39,11 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
     companion object {
         private const val TAG = "Digitox.DigitoxAccessibilityService"
 
-        const val ACTION_PERFORM_HOME_PRESS = "com.mindful.android.action.performHomePress"
+        const val ACTION_PERFORM_HOME_PRESS = "com.nlp.digitox.action.performHomePress"
         const val ACTION_MIDNIGHT_ACCESSIBILITY_RESET =
-            "com.mindful.android.action.midnightAccessibilityReset"
+            "com.nlp.digitox.action.midnightAccessibilityReset"
         const val ACTION_TAMPER_PROTECTION_CHANGED =
-            "com.mindful.android.action.tamperProtectionChanged"
+            "com.nlp.digitox.action.tamperProtectionChanged"
 
         // Set of desired events which will be processed
         private val desiredEvents = setOf(
@@ -291,7 +291,7 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
 
             // Load nsfw website domains if needed
-            if (wellbeing.blockNsfwSites) BrowserManager.initializeNsfwDomains()
+            if (wellbeing.blockNsfwSites) BrowserManager.initializeNsfwDomains(this)
             else BrowserManager.clearNsfwDomains()
 
             Log.d(

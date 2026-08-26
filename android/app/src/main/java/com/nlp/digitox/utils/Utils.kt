@@ -131,6 +131,7 @@ object Utils {
             .onSuccess { host ->
                 host?.let { originalHost ->
                     return when {
+                        originalHost.startsWith("www.") -> originalHost.substring(4)
                         originalHost.startsWith("mobile.") -> originalHost.substring(7)
                         originalHost.startsWith("m.") -> originalHost.substring(2)
                         else -> originalHost

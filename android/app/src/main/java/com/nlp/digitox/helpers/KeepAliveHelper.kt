@@ -99,7 +99,7 @@ object KeepAliveHelper {
      */
     class KeepAliveReceiver : BroadcastReceiver() {
         companion object {
-            const val ACTION_KEEP_ALIVE = "com.mindful.android.action.KEEP_ALIVE"
+            const val ACTION_KEEP_ALIVE = "com.nlp.digitox.action.KEEP_ALIVE"
         }
 
         override fun onReceive(context: Context, intent: Intent) {
