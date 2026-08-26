@@ -1,6 +1,6 @@
 
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
@@ -42,15 +42,9 @@ class PermissionGrantingSteps extends StatelessWidget {
           ),
           6.vBox,
           DefaultListTile(
-            leading: RoundedContainer(
-              circularRadius: 14,
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              padding: EdgeInsets.all(4),
-              child: Icon(
-                FluentIcons.target_arrow_20_filled,
-                color: Theme.of(context).iconTheme.color,
-                size: 32,
-              ),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(Radii.sm),
+              child: Image.asset('assets/logo.png', width: 40, height: 40),
             ),
             titleText: "NLP digitox",
             subtitleText: isAccessibilityPerm

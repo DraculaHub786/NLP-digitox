@@ -276,7 +276,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Да ли сте сигурни да желите да изађете без чувања?';
 
   @override
   String get development_dialog_info =>
@@ -459,18 +459,18 @@ class AppLocalizationsSr extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Завршите подешавање';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Добродошли у NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Преузмите контролу над својим дигиталним животом и изградите здравије навике коришћења екрана. NLP digitox вам помаже да останете фокусирани, смањите ометања и свакодневно доносите свесне одлуке.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Упознајте своје навике.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Разумите своје дигиталне обрасце уз детаљне увиде у време пред екраном, коришћење апликација и трендове фокуса. Пратите свој напредак и видите како мале промене воде до великих побољшања.';
 
   @override
   String get onboarding_page_one_title => 'Мастер фокус.';
@@ -878,6 +878,19 @@ class AppLocalizationsSr extends AppLocalizations {
       'Ограничи кратке видео-садржаје на Reddit платформи.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Ограничи видео-фид на X платформи.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Ограничи видео/Reels садржај на Threads платформи.';
+
+  @override
   String get websites_blocking_tab_title => 'Блокирање сајтова';
 
   @override
@@ -996,7 +1009,7 @@ class AppLocalizationsSr extends AppLocalizations {
       'Онемогућава прекид сесије пре него што време истекне.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Превуците да започнете сесију';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1468,41 +1481,41 @@ class AppLocalizationsSr extends AppLocalizations {
   String get export_db_tile_subtitle => 'Извоз базе података у фајл.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Анализа';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 дана';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 дана';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 дана';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Тренд времена пред екраном';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Још нема забележених података о времену пред екраном за овај период.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Дневни просек';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Укупно';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Исто као прошле недеље';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% мање него прошле недеље';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% више него прошле недеље';
   }
 
   @override

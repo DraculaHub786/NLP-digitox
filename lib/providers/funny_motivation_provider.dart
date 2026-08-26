@@ -1,4 +1,4 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 //
 // Riverpod provider for the funny mood-based motivation feature.
 // Aggregates context, calls the Groq API, caches, and respects privacy gating.

@@ -1,12 +1,16 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
 import 'package:nlp_digitox/core/services/ai_chatbot_service.dart';
+import 'package:nlp_digitox/core/services/chat_context_extractor.dart';
 import 'package:nlp_digitox/core/services/productivity_service.dart';
+import 'package:nlp_digitox/core/services/sentiment_mood_bridge.dart';
+import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
 import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:nlp_digitox/models/app_intent_model.dart';
+import 'package:nlp_digitox/models/ai_analysis_models.dart';
 import 'package:nlp_digitox/core/utils/date_time_utils.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/providers/usage/weekly_device_usage_provider.dart';
@@ -15,14 +19,15 @@ import 'package:nlp_digitox/providers/system/intent_provider.dart';
 
 final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
   final todayUsage = ref.watch(
-    weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday] ?? const UsageModel()),
+    weeklyDeviceUsageProvider(dateToday.weekRange)
+        .select((v) => v[dateToday] ?? const UsageModel()),
   );
   final intentHistory = ref.watch(intentNotifierProvider);
 
   // Get wellbeing settings for screen time goal
   final screenTimeGoal = await _loadScreenTimeGoalSeconds();
   if (screenTimeGoal == null) {
-    return _fallbackSentiment();
+    return _usageDrivenFallback(todayUsage, 0, 0, 0);
   }
 
   final habitsCompleted = await _getCompletedHabitsToday();
@@ -32,6 +37,35 @@ final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
   final recentIntents = _getRecentIntentSignals(intentHistory);
 
   try {
+    // Hourly TTL cache — avoids re-calling the LLM on every provider
+    // rebuild / tab switch / chat message within the same hour.
+    final persistence = SentimentPersistenceService.instance;
+    if (await persistence.isCacheFresh()) {
+      final history = await persistence.loadHistory();
+      if (history.isNotEmpty) {
+        return history.last.sentiments;
+      }
+    }
+
+    // Richer context: recurring chat themes extracted locally across the
+    // full 30-day chat retention window, plus recent manual mood check-ins.
+    // Both are additive prompt context only — if either fails or returns
+    // nothing, sentiment analysis still proceeds on usage metrics + recent
+    // messages exactly as before.
+    List<String> chatThemes = const [];
+    String? moodBlock;
+    try {
+      await ChatContextExtractor.instance.ensureTodayExtracted();
+      chatThemes = await ChatContextExtractor.instance.getRecentThemes();
+    } catch (e) {
+      debugPrint('⚠️ ChatContextExtractor failed, continuing without it: $e');
+    }
+    try {
+      moodBlock = (await SentimentMoodBridge.instance.buildSignal()).promptBlock;
+    } catch (e) {
+      debugPrint('⚠️ SentimentMoodBridge failed, continuing without it: $e');
+    }
+
     final sentiment = await AISentimentService.instance.analyzeSentiment(
       todayUsage: todayUsage,
       screenTimeGoalSeconds: screenTimeGoal,
@@ -40,17 +74,35 @@ final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
       tasksCompleted: tasksCompleted,
       recentChatMessages: recentMessages.isNotEmpty ? recentMessages : null,
       recentIntentSignals: recentIntents.isNotEmpty ? recentIntents : null,
+      recentChatThemes: chatThemes.isNotEmpty ? chatThemes : null,
+      moodContextBlock: moodBlock,
     );
+
+    await persistence.stampAnalysisTime();
+    await persistence.saveDay(
+      dateToday,
+      SentimentResult(sentiments: sentiment),
+    );
+
     return sentiment;
   } catch (e) {
     debugPrint('⚠️ aiSentimentProvider fallback triggered: $e');
-    return _fallbackSentiment();
+    // Real, usage-driven fallback instead of a flat static map — the numbers
+    // track actual screen time / streak / habits / tasks that day.
+    return _usageDrivenFallback(
+      todayUsage,
+      streak,
+      habitsCompleted,
+      tasksCompleted,
+    );
   }
 });
 
-final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref) async {
+final aiRecommendationsProvider =
+    FutureProvider.autoDispose<List<String>>((ref) async {
   final todayUsage = ref.watch(
-    weeklyDeviceUsageProvider(dateToday.weekRange).select((v) => v[dateToday] ?? const UsageModel()),
+    weeklyDeviceUsageProvider(dateToday.weekRange)
+        .select((v) => v[dateToday] ?? const UsageModel()),
   );
 
   // Get wellbeing settings for screen time goal
@@ -64,7 +116,8 @@ final aiRecommendationsProvider = FutureProvider.autoDispose<List<String>>((ref)
   final recentMessages = AIChatbotService.instance.getRecentMessages(count: 3);
 
   try {
-    final recommendations = await AISentimentService.instance.getRecommendations(
+    final recommendations = await AISentimentService.instance
+        .getRecommendations(
       todayUsage: todayUsage,
       screenTimeGoalSeconds: screenTimeGoal,
       currentSentiment: sentiment,
@@ -84,7 +137,8 @@ final aiChatMessagesProvider = StateProvider<List<ChatMessage>>((ref) {
 final aiChatLoadingProvider = StateProvider<bool>((ref) => false);
 
 /// Provider for suggested chat prompts
-final aiSuggestedPromptsProvider = FutureProvider.autoDispose<List<String>>((ref) async {
+final aiSuggestedPromptsProvider =
+    FutureProvider.autoDispose<List<String>>((ref) async {
   final sentiment = await ref.watch(aiSentimentProvider.future);
   return AIChatbotService.instance.getSuggestedPrompts(sentiment);
 });
@@ -95,14 +149,14 @@ Future<int> _getCompletedHabitsToday() async {
   try {
     final habits = await ProductivityService.instance.getHabits();
     final today = dateToday;
-    
+
     int completed = 0;
     for (final habit in habits) {
       if (habit.completedToday) {
         final lastCompleted = habit.lastCompletedDate;
-        if (lastCompleted != null && 
-            lastCompleted.year == today.year && 
-            lastCompleted.month == today.month && 
+        if (lastCompleted != null &&
+            lastCompleted.year == today.year &&
+            lastCompleted.month == today.month &&
             lastCompleted.day == today.day) {
           completed++;
         }
@@ -118,14 +172,14 @@ Future<int> _getCompletedTasksToday() async {
   try {
     final tasks = await ProductivityService.instance.getTasks();
     final today = dateToday;
-    
+
     return tasks.where((task) {
       if (!task.completed) return false;
       final completedAt = task.completedAt;
-      return completedAt != null && 
-             completedAt.year == today.year && 
-             completedAt.month == today.month && 
-             completedAt.day == today.day;
+      return completedAt != null &&
+          completedAt.year == today.year &&
+          completedAt.month == today.month &&
+          completedAt.day == today.day;
     }).length;
   } catch (e) {
     return 0;
@@ -135,9 +189,9 @@ Future<int> _getCompletedTasksToday() async {
 Future<int> _getCurrentStreak() async {
   try {
     final habits = await ProductivityService.instance.getHabits();
-    
+
     if (habits.isEmpty) return 0;
-    
+
     // Get the highest streak from all habits
     int maxStreak = 0;
     for (final habit in habits) {
@@ -151,14 +205,16 @@ Future<int> _getCurrentStreak() async {
   }
 }
 
-List<String> _getRecentIntentSignals(Map<String, List<AppIntentModel>> history) {
+List<String> _getRecentIntentSignals(
+    Map<String, List<AppIntentModel>> history) {
   final signals = <String>[];
 
   history.forEach((package, intents) {
     if (intents.isEmpty) return;
     final recent = intents.last;
     final appLabel = package.split('.').last;
-    signals.add('$appLabel: ${recent.intent.displayName} (${recent.isAllowed ? "allowed" : "not-allowed"})');
+    signals.add(
+        '$appLabel: ${recent.intent.displayName} (${recent.isAllowed ? "allowed" : "not-allowed"})');
   });
 
   return signals.take(8).toList();
@@ -166,7 +222,11 @@ List<String> _getRecentIntentSignals(Map<String, List<AppIntentModel>> history) 
 
 Future<int?> _loadScreenTimeGoalSeconds() async {
   try {
-    final wellbeingSettings = await DriftDbService.instance.driftDb.uniqueRecordsDao.loadWellBeingSettings();
+    final wellbeingSettings = await DriftDbService
+        .instance
+        .driftDb
+        .uniqueRecordsDao
+        .loadWellBeingSettings();
     // Use the dedicated dailyScreenTimeGoalSec field instead of the
     // Shorts/Reels time limit (which was the wrong field to read).
     return wellbeingSettings.dailyScreenTimeGoalSec;
@@ -176,14 +236,23 @@ Future<int?> _loadScreenTimeGoalSeconds() async {
   }
 }
 
-Map<String, double> _fallbackSentiment() {
-  return {
-    'Positive': 30.0,
-    'Neutral': 45.0,
-    'Negative': 10.0,
-    'Anxious': 10.0,
-    'Focused': 5.0,
-  };
+/// Deterministic, usage-driven fallback — delegates to the real
+/// `computeBaseSentiment()` estimator (which mirrors the Groq prompt's
+/// scoring rules) so the numbers genuinely reflect the user's day instead of
+/// a static flat map.
+Map<String, double> _usageDrivenFallback(
+  UsageModel todayUsage,
+  int streak,
+  int habitsCompleted,
+  int tasksCompleted,
+) {
+  return AISentimentService.instance.computeBaseSentiment(
+    screenTimeHours: todayUsage.screenTime / 3600,
+    goalHours: 1.0, // Unknown goal — treat 1h as the reference baseline.
+    streakDays: streak,
+    habitsCompleted: habitsCompleted,
+    tasksCompleted: tasksCompleted,
+  );
 }
 
 List<String> _fallbackRecommendations() {

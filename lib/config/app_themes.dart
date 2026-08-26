@@ -79,47 +79,96 @@ class AppTheme {
       scaffoldBackgroundColor:
           isAmoled ? DesignPalette.darkBg0 : DesignPalette.darkBg1,
       extensions: [
-        GlassTokens.dark,
-        ElevationTokens.dark,
         SkeletonizerConfigData.dark(effect: _kShimmerEffect),
       ],
-      // Botanical card theme with soft edges
+      // Tonal surface card theme — soft shadow + thin border, no blur.
       cardTheme: CardThemeData(
+        color: AccentPalette.surface(true),
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        margin: const EdgeInsets.symmetric(
+          horizontal: Spacing.screenH,
+          vertical: Spacing.sm,
         ),
-        color: DesignPalette.darkGlassFill,
-      ),
-      // Modern elevated button theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.md),
+          side: BorderSide(
+            color:
+                DesignPalette.darkGlassBorder.withValues(alpha: 0.5),
+            width: 0.5,
           ),
         ),
       ),
-      // Modern input decoration
+      // Orange CTA theme app-wide.
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AccentPalette.orange,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.xl,
+            vertical: 14,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Radii.sm),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'Alice',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      // Input decoration with orange focus border.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor:
-            isAmoled ? DesignPalette.darkGlassFill : DesignPalette.darkBg2,
+        fillColor: (isAmoled ? DesignPalette.darkBg2 : DesignPalette.darkBg2)
+            .withValues(alpha: 0.6),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: Spacing.base,
+          vertical: Spacing.md,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(Radii.sm),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Radii.sm),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: seedColor ?? _kSeedColor,
-            width: 2,
+          borderRadius: BorderRadius.circular(Radii.sm),
+          borderSide: const BorderSide(
+            color: AccentPalette.orange,
+            width: 1.5,
           ),
+        ),
+        hintStyle: TextStyle(
+          fontFamily: 'Alice',
+          color: DesignPalette.subInk(true).withValues(alpha: 0.6),
+          fontSize: 14,
+        ),
+      ),
+      // Bottom sheet with rounded top + drag handle.
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: isAmoled
+            ? DesignPalette.darkBg1
+            : DesignPalette.darkBg1,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.xl)),
+        ),
+        dragHandleColor: DesignPalette.subInk(true).withValues(alpha: 0.3),
+        dragHandleSize: const Size(36, 4),
+      ),
+      // Orange selected switches.
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.white
+              : DesignPalette.subInk(true),
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AccentPalette.orange
+              : DesignPalette.darkGlassBorder,
         ),
       ),
       // Modern app bar theme
@@ -148,46 +197,93 @@ class AppTheme {
       primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Alice'),
       scaffoldBackgroundColor: DesignPalette.lightBg0,
       extensions: [
-        GlassTokens.light,
-        ElevationTokens.light,
         SkeletonizerConfigData(effect: _kShimmerEffect),
       ],
-      // Botanical card theme
+      // Tonal surface card theme — soft shadow + thin border, no blur.
       cardTheme: CardThemeData(
+        color: AccentPalette.surface(false),
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        margin: const EdgeInsets.symmetric(
+          horizontal: Spacing.screenH,
+          vertical: Spacing.sm,
         ),
-        color: DesignPalette.lightGlassFill,
-      ),
-      // Modern elevated button theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.md),
+          side: BorderSide(
+            color:
+                DesignPalette.lightGlassBorder.withValues(alpha: 0.5),
+            width: 0.5,
           ),
         ),
       ),
-      // Modern input decoration
+      // Orange CTA theme app-wide.
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AccentPalette.orange,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.xl,
+            vertical: 14,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Radii.sm),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'Alice',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      // Input decoration with orange focus border.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: DesignPalette.lightBg2,
+        fillColor: DesignPalette.lightBg2.withValues(alpha: 0.6),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: Spacing.base,
+          vertical: Spacing.md,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(Radii.sm),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Radii.sm),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: seedColor ?? _kSeedColor,
-            width: 2,
+          borderRadius: BorderRadius.circular(Radii.sm),
+          borderSide: const BorderSide(
+            color: AccentPalette.orange,
+            width: 1.5,
           ),
+        ),
+        hintStyle: TextStyle(
+          fontFamily: 'Alice',
+          color: DesignPalette.subInk(false).withValues(alpha: 0.6),
+          fontSize: 14,
+        ),
+      ),
+      // Bottom sheet with rounded top + drag handle.
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: DesignPalette.lightBg0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.xl)),
+        ),
+        dragHandleColor: DesignPalette.subInk(false).withValues(alpha: 0.3),
+        dragHandleSize: const Size(36, 4),
+      ),
+      // Orange selected switches.
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.white
+              : DesignPalette.subInk(false),
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AccentPalette.orange
+              : DesignPalette.lightGlassBorder,
         ),
       ),
       // Modern app bar theme

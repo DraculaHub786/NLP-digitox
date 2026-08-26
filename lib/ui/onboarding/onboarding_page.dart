@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/wave_header_painter.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({
@@ -9,41 +10,86 @@ class OnboardingPage extends StatelessWidget {
     required this.imgArtPath,
     required this.title,
     required this.description,
-    this.bottomPadding = 148,
+    this.showLogo = false,
+    this.bottomPadding = -1,
   });
 
   final String imgArtPath;
   final String title;
   final String description;
+
+  /// Show the square logo mark above the illustration (used on the
+  /// welcome page, which is the first thing seen after the splash).
+  final bool showLogo;
+
+  /// Bottom padding under the text block. Defaults to a responsive value
+  /// (~12% of screen height). The old flat 148px left a large dead gap on
+  /// tall screens, which read as "content only on half the screen".
   final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          0.vBox,
+    final responsiveBottomPadding = bottomPadding < 0
+        ? MediaQuery.sizeOf(context).height * 0.12
+        : bottomPadding;
 
-          /// Illustration
-          AspectRatio(
-            aspectRatio: 1,
-            child: Image.asset(
-              imgArtPath,
-              fit: BoxFit.contain,
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      padding: EdgeInsets.only(
+        bottom: responsiveBottomPadding,
+        top: 24,
+      ),
+      child: Column(
+        // `spaceBetween` with only two visual blocks stranded the
+        // illustration at the top and text at the bottom with a huge
+        // empty band between them. A top-aligned flow with explicit
+        // gaps fills the screen naturally on every device height.
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (showLogo) ...[
+            /// Logo mark — same square "prev" artwork used on the splash.
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                'assets/logo-prev.png',
+                width: 88,
+                height: 88,
+                fit: BoxFit.cover,
+              ),
             ),
+            24.vBox,
+          ],
+
+          /// Illustration — sinuous botanical wave behind the artwork
+          /// (splash/onboarding-only fancy element, per design decisions).
+          Stack(
+            children: [
+              const WaveHeader(height: 350),
+              Padding(
+                padding: const EdgeInsets.only(top: 40),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset(
+                    imgArtPath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
           ),
 
+          40.vBox,
+
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              /// Title
+              /// Title — serif display (Alice)
               StyledText(
                 title,
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
+                isHeadline: true,
                 textAlign: TextAlign.center,
                 color: Theme.of(context).colorScheme.primary,
               ),

@@ -13,6 +13,7 @@ import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
 import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
 import 'package:nlp_digitox/providers/restrictions/wellbeing_provider.dart';
 import 'package:nlp_digitox/ui/common/default_dropdown_tile.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/permissions/battery_permission_tile.dart';
@@ -52,13 +53,8 @@ class TabGeneral extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
+            child: SurfaceCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
               child: Column(
                 children: [
                   /// Theme mode
@@ -96,7 +92,7 @@ class TabGeneral extends ConsumerWidget {
                       width: 18,
                       decoration: BoxDecoration(
                         color: AppTheme.materialColors[item],
-                        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                        borderRadius: BorderRadius.circular(Radii.pill),
                       ),
                     ),
                     items: AppTheme.materialColors.entries
@@ -148,13 +144,8 @@ class TabGeneral extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
+            child: SurfaceCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
               child: Column(
                 children: [
                   /// App Language
@@ -250,13 +241,8 @@ class TabGeneral extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
+            child: SurfaceCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -266,7 +252,7 @@ class TabGeneral extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                          borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                         child: Icon(
                           FluentIcons.target_20_filled,
@@ -377,13 +363,8 @@ class TabGeneral extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
+            child: SurfaceCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
               child: Column(
                 children: [
                   StyledText(
@@ -452,14 +433,14 @@ class _AIStepper extends StatelessWidget {
             children: [
               InkWell(
                 onTap: value > min ? onDecrement : null,
-                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                borderRadius: BorderRadius.circular(Radii.pill),
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: value > min
                         ? colorScheme.primary.withValues(alpha: 0.1)
                         : colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Icon(
                     FluentIcons.subtract_20_regular,
@@ -478,14 +459,14 @@ class _AIStepper extends StatelessWidget {
               ),
               InkWell(
                 onTap: value < max ? onIncrement : null,
-                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                borderRadius: BorderRadius.circular(Radii.pill),
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: value < max
                         ? colorScheme.primary.withValues(alpha: 0.1)
                         : colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Icon(
                     FluentIcons.add_20_regular,

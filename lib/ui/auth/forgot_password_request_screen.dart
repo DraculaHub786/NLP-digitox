@@ -29,8 +29,7 @@ class _ForgotPasswordRequestScreenState
   int _cooldownSeconds = 0;
   Timer? _cooldownTimer;
 
-  /// Update this when you deploy n8n to a public HTTPS server.
-  static const String _n8nBaseUrl = 'http://localhost:5678';
+  static const String _n8nBaseUrl = 'https://n8n.nlpdigitox.me';
 
   @override
   void dispose() {
@@ -68,7 +67,7 @@ class _ForgotPasswordRequestScreenState
     try {
       final response = await http
           .post(
-            Uri.parse('$_n8nBaseUrl/webhook-test/request-otp'),
+            Uri.parse('$_n8nBaseUrl/webhook/request-otp'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'email': _emailController.text.trim()}),
           )
@@ -96,13 +95,13 @@ class _ForgotPasswordRequestScreenState
     } on TimeoutException {
       if (!mounted) return;
       context.showSnackAlert(
-        'Request timed out. Make sure n8n is running.',
+        'Request timed out. Please try again.',
         icon: FluentIcons.error_circle_20_filled,
       );
     } catch (e) {
       if (!mounted) return;
       context.showSnackAlert(
-        'Connection error. Is n8n running on localhost:5678?',
+        'Connection error. Please check your connection and try again.',
         icon: FluentIcons.error_circle_20_filled,
       );
     } finally {
@@ -123,7 +122,7 @@ class _ForgotPasswordRequestScreenState
 
     OutlineInputBorder border(Color color, double width) =>
         OutlineInputBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -174,9 +173,9 @@ class _ForgotPasswordRequestScreenState
                       decoration: BoxDecoration(
                         color: colorScheme.primary.withValues(alpha: 0.15),
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         border: Border.all(
-                          color: GlassTokens.of(context).borderTop,
+                          color: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassBorder : DesignPalette.lightGlassBorder),
                         ),
                       ),
                       padding: const EdgeInsets.all(18),
@@ -239,6 +238,9 @@ class _ForgotPasswordRequestScreenState
                           : _isCooldown
                               ? 'Resend in $_cooldownSeconds s'
                               : 'Send Code',
+                      onPressed:
+                          (_isLoading || _isCooldown) ? null : _sendOtpRequest,
+                      fullWidth: true,
                       child: _isLoading
                           ? SizedBox(
                               height: 20.0,
@@ -249,9 +251,6 @@ class _ForgotPasswordRequestScreenState
                               ),
                             )
                           : null,
-                      onPressed:
-                          (_isLoading || _isCooldown) ? null : _sendOtpRequest,
-                      fullWidth: true,
                     ).animate(effects: DefaultEffects.transitionIn),
 
                     const SizedBox(height: 24.0),

@@ -176,6 +176,56 @@ class LeaderboardService {
   // FETCH / READ
   // =========================================================================
 
+  /// The client-side fetch cap for the board. Kept well above the visible
+  /// list so a month/weekly reset (where everyone ties on 0 points) does
+  /// not silently truncate the board to the first arbitrary N docs —
+  /// Firestore resolves ties in an unspecified order.
+  static const _fetchLimit = 500;
+
+  /// Sorts a fetched list deterministically and assigns 1-based ranks.
+  ///
+  /// Firestore's `orderBy(field, descending: true)` returns an unspecified
+  /// order for equal scores. After a weekly/monthly reset the entire board
+  /// ties on 0, so without this tie-break the visible order (and the
+  /// "current user" position) would be arbitrary and could change between
+  /// snapshots. Ties are broken by most-recent activity first, then by
+  /// username for full determinism.
+  static List<LeaderboardUser> _sortAndRank(
+    List<LeaderboardUser> users,
+    LeaderboardPeriod period,
+  ) {
+    final sorted = [...users]..sort((a, b) {
+        final scoreDiff = b.scoreFor(period).compareTo(a.scoreFor(period));
+        if (scoreDiff != 0) return scoreDiff;
+
+        // More recently active ranks higher among tied scores.
+        final aActive = a.lastActiveAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bActive = b.lastActiveAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final activeDiff = bActive.compareTo(aActive);
+        if (activeDiff != 0) return activeDiff;
+
+        return a.username.toLowerCase().compareTo(b.username.toLowerCase());
+      });
+
+    for (var i = 0; i < sorted.length; i++) {
+      sorted[i] = LeaderboardUser(
+        userId: sorted[i].userId,
+        username: sorted[i].username,
+        points: sorted[i].points,
+        streak: sorted[i].streak,
+        avatarEmoji: sorted[i].avatarEmoji,
+        rank: i + 1,
+        isCurrentUser: sorted[i].isCurrentUser,
+        pointsBreakdown: sorted[i].pointsBreakdown,
+        lifetimePoints: sorted[i].lifetimePoints,
+        monthlyPoints: sorted[i].monthlyPoints,
+        lastActiveAt: sorted[i].lastActiveAt,
+        email: sorted[i].email,
+      );
+    }
+    return sorted;
+  }
+
   Future<List<LeaderboardUser>> getTopUsers({
     LeaderboardPeriod period = LeaderboardPeriod.weekly,
     int limit = 100,
@@ -192,23 +242,30 @@ class LeaderboardService {
 
       final currentUserId = FirebaseAuthService.instance.userId ?? '';
 
-      final querySnapshot = await _firestore
-          .collection('leaderboard')
-          .orderBy(period.field, descending: true)
-          .limit(limit)
-          .get();
+      // NOTE: we deliberately do NOT orderBy(period.field) here. Firestore
+      // queries on a field only return documents that HAVE that field — so
+      // legacy users whose docs predate `monthlyPoints` (or a weekly reset
+      // where the field is 0) would be silently invisible on that board.
+      // Fetching the raw collection and ranking client-side guarantees every
+      // user appears, with missing fields treated as 0.
+      final querySnapshot =
+          await _firestore.collection('leaderboard').limit(_fetchLimit).get();
 
-      final users = querySnapshot.docs.asMap().entries.map((entry) {
-        final rank = entry.key + 1;
-        final doc = entry.value;
-        return LeaderboardUser.fromFirestore(doc, rank, currentUserId);
+      final users = querySnapshot.docs.map((doc) {
+        return LeaderboardUser.fromFirestore(doc, 0, currentUserId);
       }).toList();
 
-      _cachedLeaderboard[period] = users;
+      final ranked = _sortAndRank(users, period);
+
+      final trimmed = limit > 0 && ranked.length > limit
+          ? ranked.sublist(0, limit)
+          : ranked;
+
+      _cachedLeaderboard[period] = trimmed;
       _lastFetchTime[period] = DateTime.now();
 
-      debugPrint('Fetched ${users.length} users (${period.label})');
-      return users;
+      debugPrint('Fetched ${trimmed.length} users (${period.label})');
+      return trimmed;
     } catch (e) {
       debugPrint('Get leaderboard error (${period.label}): $e');
       return [];
@@ -440,17 +497,42 @@ class LeaderboardService {
   }) {
     final currentUserId = FirebaseAuthService.instance.userId ?? '';
 
+    // Same policy as getTopUsers: fetch the raw collection (NOT ordered by
+    // the period field) so documents missing that field — e.g. legacy users
+    // created before `monthlyPoints` existed — are still included, then
+    // determine score order + ranks deterministically on the client.
     return _firestore
         .collection('leaderboard')
-        .orderBy(period.field, descending: true)
-        .limit(limit)
+        .limit(_fetchLimit)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.asMap().entries.map((entry) {
-        final rank = entry.key + 1;
-        final doc = entry.value;
-        return LeaderboardUser.fromFirestore(doc, rank, currentUserId);
+        .asyncMap((snapshot) async {
+      final users = snapshot.docs.map((doc) {
+        return LeaderboardUser.fromFirestore(doc, 0, currentUserId);
       }).toList();
+
+      var ranked = _sortAndRank(users, period);
+
+      // Always surface the signed-in user: if their doc fell outside the
+      // fetch cap (or doesn't exist in the collection yet), merge a fresh
+      // read so their rank + stats never silently disappear from the board.
+      final currentUserIndex = ranked.indexWhere(
+        (u) => u.userId == currentUserId,
+      );
+      if (currentUserId.isNotEmpty && currentUserIndex == -1) {
+        final currentDoc =
+            await _firestore.collection('leaderboard').doc(currentUserId).get();
+        if (currentDoc.exists) {
+          ranked.add(
+            LeaderboardUser.fromFirestore(currentDoc, 0, currentUserId),
+          );
+          ranked = _sortAndRank(ranked, period);
+        }
+      }
+
+      if (limit > 0 && ranked.length > limit) {
+        ranked = ranked.sublist(0, limit);
+      }
+      return ranked;
     });
   }
 

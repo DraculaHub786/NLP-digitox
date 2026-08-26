@@ -6,6 +6,7 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/ui/common/glass_nav_bar.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -103,54 +104,64 @@ class _ScaffoldShellState extends State<ScaffoldShell>
       extendBody: true,
       extendBodyBehindAppBar: true,
       bottomNavigationBar: _haveMultiTabs ? _bottomNavBar() : null,
-      body: TabBarView(
-        controller: _tabController,
-        physics: const BouncingScrollPhysics(),
-        children: List.generate(
-          widget.items.length,
-          (i) => NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification is ScrollUpdateNotification) {
-                /// Add app bar offset if current scroll offset is from body
-                final currentOffset = notification.metrics.pixels +
-                    (notification.depth == 1 ? _appBarScrollOffSet.value : 0);
+      // The blurred botanical photograph sits behind every tab so glass
+      // cards read against real texture (matches the Leafora reference).
+      body: Stack(
+        children: [
+          const TreatedBackgroundImage(child: SizedBox.expand()),
+          TabBarView(
+            controller: _tabController,
+            physics: const BouncingScrollPhysics(),
+            children: List.generate(
+              widget.items.length,
+              (i) => NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollUpdateNotification) {
+                    /// Add app bar offset if current scroll offset is from body
+                    final currentOffset = notification.metrics.pixels +
+                        (notification.depth == 1
+                            ? _appBarScrollOffSet.value
+                            : 0);
 
-                /// Show/Hide bottom bar
-                if (currentOffset >= widget.appBarExpandedHeight &&
-                    (currentOffset >= _wholeScreenScrollOffSet + 1)) {
-                  _isBottomNavVisible.value = false;
-                } else if (currentOffset <= _wholeScreenScrollOffSet - 1) {
-                  _isBottomNavVisible.value = true;
-                }
+                    /// Show/Hide bottom bar
+                    if (currentOffset >= widget.appBarExpandedHeight &&
+                        (currentOffset >= _wholeScreenScrollOffSet + 1)) {
+                      _isBottomNavVisible.value = false;
+                    } else if (currentOffset <=
+                        _wholeScreenScrollOffSet - 1) {
+                      _isBottomNavVisible.value = true;
+                    }
 
-                /// Cache offset for whole screen
-                _wholeScreenScrollOffSet = currentOffset == 0
-                    ? _wholeScreenScrollOffSet
-                    : currentOffset;
+                    /// Cache offset for whole screen
+                    _wholeScreenScrollOffSet = currentOffset == 0
+                        ? _wholeScreenScrollOffSet
+                        : currentOffset;
 
-                /// Cache offset for just the app bar only
-                if (notification.depth == 0) {
-                  _appBarScrollOffSet.value = currentOffset == 0
-                      ? _appBarScrollOffSet.value
-                      : currentOffset;
-                }
-              }
-              return false;
-            },
-            child: NestedScrollView(
-              physics: const BouncingScrollPhysics(),
-              headerSliverBuilder: (_, innerBoxIsScrolled) =>
-                  [_sliverAppBar(i, innerBoxIsScrolled)],
-              body: TabControllerProvider(
-                controller: _tabController,
-                child: Padding(
-                  padding: widget.bodyPadding,
-                  child: widget.items[i].sliverBody,
+                    /// Cache offset for just the app bar only
+                    if (notification.depth == 0) {
+                      _appBarScrollOffSet.value = currentOffset == 0
+                          ? _appBarScrollOffSet.value
+                          : currentOffset;
+                    }
+                  }
+                  return false;
+                },
+                child: NestedScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  headerSliverBuilder: (_, innerBoxIsScrolled) =>
+                      [_sliverAppBar(i, innerBoxIsScrolled)],
+                  body: TabControllerProvider(
+                    controller: _tabController,
+                    child: Padding(
+                      padding: widget.bodyPadding,
+                      child: widget.items[i].sliverBody,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -161,6 +172,7 @@ class _ScaffoldShellState extends State<ScaffoldShell>
   ) {
     final navItem = widget.items[tabIndex];
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnimatedBuilder(
       animation: _appBarScrollOffSet,
@@ -169,13 +181,6 @@ class _ScaffoldShellState extends State<ScaffoldShell>
         final percentage = (_appBarScrollOffSet.value /
                 (widget.appBarExpandedHeight - kToolbarHeight))
             .clamp(0.0, 1.0);
-
-        // Interpolate the color for the AppBar
-        final appBarColor = Color.lerp(
-          Theme.of(context).colorScheme.surface,
-          Theme.of(context).colorScheme.secondaryContainer,
-          percentage,
-        );
 
         // Interpolate left padding for the AppBar's title
         final leftPadding = widget.canGoBack ? 44 * percentage : 0.0;
@@ -186,11 +191,13 @@ class _ScaffoldShellState extends State<ScaffoldShell>
           pinned: !_haveMultiTabs,
           stretch: true,
           primary: true,
-          backgroundColor: _haveMultiTabs
-              ? Theme.of(context).colorScheme.surface
-              : appBarColor,
-          surfaceTintColor:
-              _haveMultiTabs ? Theme.of(context).colorScheme.surfaceTint : null,
+          // Transparent for ALL shells so the single `TreatedBackgroundImage`
+          // layer behind the whole Stack shows through the header region too —
+          // no hard seam (flat color band) between the app bar and the body
+          // background, on the 5-tab shell AND on pushed single-tab detail
+          // routes (blocking / productivity / parental / focus / etc.).
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           automaticallyImplyLeading: false,
           actions: [
             ...navItem.actions ?? [],
@@ -207,7 +214,12 @@ class _ScaffoldShellState extends State<ScaffoldShell>
               : null,
           flexibleSpace: FlexibleSpaceBar(
             expandedTitleScale: 1.75,
-            background: innerBoxIsScrolled ? null : navItem.appBarBg,
+            // Multi-tab shells get a soft gradient scrim only — it samples
+            // through to the single background image layer already painted
+            // behind the whole Stack (no second image decode, no double blur).
+            background: _haveMultiTabs
+                ? AmbientHeaderScrim(isDark: isDark)
+                : (innerBoxIsScrolled ? null : navItem.appBarBg),
             collapseMode: CollapseMode.parallax,
             titlePadding: EdgeInsets.only(
               bottom: 13,
@@ -246,6 +258,39 @@ class _ScaffoldShellState extends State<ScaffoldShell>
   }
 }
 
+/// Soft gradient scrim behind multi-tab app-bar titles. Keeps text legible
+/// against the botanical background without painting an opaque surface over
+/// the photo — the image + blur come from the single `TreatedBackgroundImage`
+/// layer behind the whole Stack.
+class AmbientHeaderScrim extends StatelessWidget {
+  final bool isDark;
+
+  const AmbientHeaderScrim({super.key, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? const [
+                  Color(0x8C121712),
+                  Color(0x4D121712),
+                  Colors.transparent,
+                ]
+              : const [
+                  Color(0x8CF6F3EA),
+                  Color(0x4DF6F3EA),
+                  Colors.transparent,
+                ],
+        ),
+      ),
+    );
+  }
+}
+
 class AppBarTitle extends StatelessWidget {
   const AppBarTitle({
     super.key,
@@ -262,6 +307,7 @@ class AppBarTitle extends StatelessWidget {
         fontSize: 24,
         maxLines: 2,
         fontWeight: FontWeight.w600,
+        isHeadline: true,
         overflow: TextOverflow.ellipsis,
       ),
     );

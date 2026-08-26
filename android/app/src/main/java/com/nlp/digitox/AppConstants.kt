@@ -32,6 +32,8 @@ object AppConstants {
     const val SNAPCHAT_PACKAGE: String = "com.snapchat.android"
     const val FACEBOOK_PACKAGE: String = "com.facebook.katana"
     const val REDDIT_PACKAGE: String = "com.reddit.frontpage"
+    const val X_PACKAGE: String = "com.twitter.android"
+    const val THREADS_PACKAGE: String = "com.instagram.barcelona"
 
     // Static const
     /**

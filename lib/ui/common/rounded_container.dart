@@ -3,9 +3,11 @@ import 'package:nlp_digitox/config/design_tokens.dart';
 
 /// A decorated container with the provided properties.
 ///
-/// Defaults to the botanical glass surface (radius = [GlassTokens.radiusCard],
-/// soft tinted fill + hairline border) so list tiles, time cards and other
-/// shared rows inherit the reference look without each caller passing styles.
+/// Phase-3 migration: the default surface is now a SOLID tonal fill
+/// (`DesignPalette.lightGlassFill`/`darkGlassFill`) instead of the old
+/// translucent `surfaceContainerHighest.withValues(alpha: 0.35)` glass fill.
+/// The public constructor is unchanged so every existing call-site compiles —
+/// only the surface behaves like the new tonal system.
 ///
 /// If [onPressed] is not null it builds an inkwell widget, otherwise a normal
 /// container with the decorations.
@@ -18,7 +20,7 @@ class RoundedContainer extends StatelessWidget {
     this.borderRadius,
     this.child,
     this.onPressed,
-    this.circularRadius = GlassTokens.radiusCard,
+    this.circularRadius = Radii.md,
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
     this.alignment = Alignment.center,
@@ -41,16 +43,19 @@ class RoundedContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
-    // Botanical glass surface: soft tinted fill + hairline outline instead of
-    // the old flat `surfaceContainer`. Callers can still pass an explicit
+
+    // Solid tonal surface (grey in light / deep-forest in dark) instead of
+    // the old translucent glass fill. Callers can still pass an explicit
     // `color` to override (e.g. primaryContainer badges).
-    final bgColor =
-        color ?? colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
+    final bgColor = color ??
+        (isDark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill);
     final radius = borderRadius ?? BorderRadius.circular(circularRadius);
-    final outline =
-        borderSide ?? BorderSide(color: colorScheme.outline.withValues(alpha: 0.18));
-    final boxBorder = outline == BorderSide.none ? null : Border.fromBorderSide(outline);
+    final outline = borderSide ??
+        BorderSide(color: colorScheme.outline.withValues(alpha: 0.18));
+    final boxBorder =
+        outline == BorderSide.none ? null : Border.fromBorderSide(outline);
 
     return onPressed == null
         /// Static container

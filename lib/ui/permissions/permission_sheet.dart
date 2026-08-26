@@ -16,6 +16,7 @@ class PermissionSheet extends StatelessWidget {
     required this.onTapGrantPermission,
     this.isAccessibilityPerm = false,
     this.deviceSwitchTileLabel,
+    this.onNotNow,
   });
 
   final IconData icon;
@@ -24,6 +25,10 @@ class PermissionSheet extends StatelessWidget {
   final VoidCallback onTapGrantPermission;
   final bool isAccessibilityPerm;
   final String? deviceSwitchTileLabel;
+
+  /// Invoked when the "Not Now" dismissal is tapped (accessibility flow
+  /// only). Used to persist that the one-time onboarding sheet was seen.
+  final VoidCallback? onNotNow;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +96,10 @@ class PermissionSheet extends StatelessWidget {
                 children: [
                   if (isAccessibilityPerm)
                     TextButton(
-                      onPressed: Navigator.of(context).maybePop,
+                      onPressed: () {
+                        Navigator.of(context).maybePop();
+                        onNotNow?.call();
+                      },
                       child: Text(context.locale.permission_button_not_now),
                     ),
                   const Spacer(),

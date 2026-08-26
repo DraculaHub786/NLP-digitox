@@ -9,4 +9,6 @@ enum PlatformFeatures {
   facebookReels,
   redditShorts,
   youtubeShorts,
+  xVideos,
+  threadsReels,
 }

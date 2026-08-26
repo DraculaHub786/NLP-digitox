@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
+import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/default_segmented_button.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
+import 'package:nlp_digitox/ui/screens/leaderboard/podium_card.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class LeaderboardScreen extends StatefulWidget {
@@ -206,7 +209,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   ),
                 ),
 
-                // Podium (top 3)
+                // Podium (top 3) — rank 2 | rank 1 | rank 3 on a shared
+                // bottom edge; #1 is taller and more elevated than #2/#3.
                 if (top3.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -357,37 +361,47 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     ),
                   )
                 else if (rest.isNotEmpty)
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final user = rest[index];
-                        final tile = Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _LeaderboardTile(
-                            user: user,
-                            period: _period,
-                            colorScheme: colorScheme,
-                          ),
-                        );
-                        // Stagger the first ~10 rows only — keeps long lists snappy.
-                        if (index < 10) {
-                          return tile
-                              .animate()
-                              .fadeIn(
-                                delay: (index * 40).ms,
-                                duration: 280.ms,
-                              )
-                              .slideY(
-                                begin: 0.06,
-                                end: 0,
-                                delay: (index * 40).ms,
-                                duration: 280.ms,
-                                curve: Curves.easeOutCubic,
-                              );
-                        }
-                        return tile;
-                      },
-                      childCount: rest.length,
+                  SliverToBoxAdapter(
+                    child: SurfaceCard(
+                      padding: EdgeInsets.zero,
+                      elevation: 0,
+                      child: Column(
+                        children: [
+                          for (final user in rest) ...[
+                            DefaultListTile(
+                              leading: CircleAvatar(
+                                radius: 16,
+                                backgroundColor:
+                                    colorScheme.primary.withValues(alpha: 0.12),
+                                child: Text(
+                                  '#${user.rank}',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              titleText: user.isCurrentUser ? 'You' : user.username,
+                              subtitleText: user.streak > 0
+                                  ? '${user.streak} '
+                                      '${user.streak == 1 ? 'day' : 'days'} 🔥'
+                                  : 'Start your streak!',
+                              trailing: Text(
+                                '${user.scoreFor(_period)} points',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: user.isCurrentUser
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface,
+                                ),
+                              ),
+                              accent: user.isCurrentUser
+                                  ? colorScheme.primary
+                                  : null,
+                              isPrimary: user.isCurrentUser,
+                            ),
+                            if (user != rest.last)
+                              const Divider(height: 0.5, indent: 56),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
 
@@ -444,7 +458,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: colorScheme.errorContainer,
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
         ),
         child: Row(
           children: [
@@ -480,7 +494,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: colorScheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: StyledText(
                 'Cycle ${info.cycleNumber}',
@@ -531,7 +545,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   height: 76,
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                    borderRadius: BorderRadius.circular(Radii.xl),
                   ),
                 ),
               ),
@@ -599,6 +613,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 /// A `ModernMetricCard`-style card whose number animates (flip-counter)
 /// whenever its value changes — used for point totals so switching between
 /// Weekly/Monthly (or a live points update) feels alive instead of snapping.
+///
+/// Layout mirrors `ModernMetricCard` exactly (SurfaceCard, 20px padding,
+/// `Radii.lg`, tinted fill, icon chip top-left, big value, label below) so
+/// the point cards render identical in size/style to the rank/streak cards
+/// beside them.
 class _AnimatedMetricCard extends StatelessWidget {
   final String label;
   final int value;
@@ -614,42 +633,45 @@ class _AnimatedMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.18)),
-        boxShadow: ElevationTokens.of(context).level(1),
-      ),
+    final theme = Theme.of(context);
+    final metricColor = color;
+
+    return SurfaceCard(
+      padding: const EdgeInsets.all(20),
+      borderRadius: Radii.lg,
+      tint: metricColor,
+      elevation: 1,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 18, color: color),
-              const SizedBox(width: 6),
-              Expanded(
-                child: StyledText(
-                  label,
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: metricColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: Icon(icon, color: metricColor, size: 20),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 16),
           AnimatedFlipCounter(
             value: value,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutCubic,
-            textStyle: TextStyle(
-              fontSize: 22,
+            textStyle: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: color,
+              color: metricColor,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -689,243 +711,37 @@ class _LeaderboardPodium extends StatelessWidget {
       children: [
         Expanded(
           child: second != null
-              ? _PodiumSlot(
-                  user: second,
-                  period: period,
-                  colorScheme: colorScheme,
-                  height: 108,
-                  gradient: const [DesignPalette.silverWarm, DesignPalette.silverDeep],
-                  emoji: '🥈',
+              ? PodiumCard(
+                  rank: 2,
+                  name: second.isCurrentUser ? 'You' : second.username,
+                  points: second.scoreFor(period),
+                  isCurrentUser: second.isCurrentUser,
                 )
-              : const SizedBox(),
+              : const SizedBox.shrink(),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: Spacing.sm),
         Expanded(
           child: first != null
-              ? _PodiumSlot(
-                  user: first,
-                  period: period,
-                  colorScheme: colorScheme,
-                  height: 132,
-                  gradient: const [DesignPalette.goldWarm, DesignPalette.goldDeep],
-                  emoji: '🥇',
-                  highlight: true,
+              ? PodiumCard(
+                  rank: 1,
+                  name: first.isCurrentUser ? 'You' : first.username,
+                  points: first.scoreFor(period),
+                  isCurrentUser: first.isCurrentUser,
                 )
-              : const SizedBox(),
+              : const SizedBox.shrink(),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: Spacing.sm),
         Expanded(
           child: third != null
-              ? _PodiumSlot(
-                  user: third,
-                  period: period,
-                  colorScheme: colorScheme,
-                  height: 92,
-                  gradient: const [DesignPalette.bronzeWarm, DesignPalette.bronzeDeep],
-                  emoji: '🥉',
+              ? PodiumCard(
+                  rank: 3,
+                  name: third.isCurrentUser ? 'You' : third.username,
+                  points: third.scoreFor(period),
+                  isCurrentUser: third.isCurrentUser,
                 )
-              : const SizedBox(),
+              : const SizedBox.shrink(),
         ),
       ],
-    );
-  }
-}
-
-class _PodiumSlot extends StatelessWidget {
-  final LeaderboardUser user;
-  final LeaderboardPeriod period;
-  final ColorScheme colorScheme;
-  final double height;
-  final List<Color> gradient;
-  final String emoji;
-  final bool highlight;
-
-  const _PodiumSlot({
-    required this.user,
-    required this.period,
-    required this.colorScheme,
-    required this.height,
-    required this.gradient,
-    required this.emoji,
-    this.highlight = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: highlight ? 56 : 48,
-          height: highlight ? 56 : 48,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(colors: gradient),
-            border: user.isCurrentUser
-                ? Border.all(color: colorScheme.primary, width: 3)
-                : null,
-            boxShadow: [
-              BoxShadow(
-                color: gradient[0].withValues(alpha: 0.35),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Center(
-            child: StyledText(emoji, fontSize: highlight ? 26 : 22),
-          ),
-        ),
-        const SizedBox(height: 8),
-        StyledText(
-          user.isCurrentUser ? 'You' : user.username,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: user.isCurrentUser
-              ? colorScheme.primary
-              : colorScheme.onSurface,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 2),
-        StyledText(
-          '${user.scoreFor(period)} pts',
-          fontSize: 12,
-          color: colorScheme.onSurfaceVariant,
-          maxLines: 1,
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          height: height,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                gradient[0].withValues(alpha: 0.25),
-                gradient[1].withValues(alpha: 0.08),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-            border: Border.all(color: gradient[0].withValues(alpha: 0.3)),
-          ),
-          alignment: Alignment.topCenter,
-          padding: const EdgeInsets.only(top: 10),
-          child: StyledText(
-            '#${user.rank}',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: gradient[0],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// A single rank-4+ row.
-class _LeaderboardTile extends StatelessWidget {
-  final LeaderboardUser user;
-  final LeaderboardPeriod period;
-  final ColorScheme colorScheme;
-
-  const _LeaderboardTile({
-    required this.user,
-    required this.period,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: user.isCurrentUser
-            ? Color.alphaBlend(
-                colorScheme.primary.withValues(alpha: 0.1),
-                colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-              )
-            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-        border: Border.all(
-          color: user.isCurrentUser
-              ? colorScheme.primary.withValues(alpha: 0.4)
-              : colorScheme.outline.withValues(alpha: 0.18),
-        ),
-        boxShadow: ElevationTokens.of(context).level(1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [colorScheme.primary, colorScheme.secondary],
-              ),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
-            ),
-            child: Center(
-              child: StyledText(
-                '#${user.rank}',
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                // Adaptive foreground: dark ink on light accents, white on
-                // dark accents — keeps the badge legible in both themes.
-                color: colorScheme.primary.computeLuminance() > 0.45
-                    ? const Color(0xFF14180F)
-                    : Colors.white,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StyledText(
-                  user.isCurrentUser ? 'You' : user.username,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: user.isCurrentUser
-                      ? colorScheme.primary
-                      : colorScheme.onSurface,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                StyledText(
-                  user.streak > 0
-                      ? '${user.streak} ${user.streak == 1 ? 'day' : 'days'} 🔥'
-                      : 'Start your streak!',
-                  fontSize: 12,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              AnimatedFlipCounter(
-                value: user.scoreFor(period),
-                duration: const Duration(milliseconds: 400),
-                textStyle: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: colorScheme.primary,
-                ),
-              ),
-              StyledText('points',
-                  fontSize: 11, color: colorScheme.onSurfaceVariant, maxLines: 1),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

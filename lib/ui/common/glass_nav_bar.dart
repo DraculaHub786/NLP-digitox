@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 
-/// Floating pill-shaped bottom navigation bar with layered glass surface.
+/// Floating pill-shaped bottom navigation bar with a tonal surface and
+/// orange selected state (no layered-glass gradient).
 class PillNavItem {
   final IconData icon;
   final IconData filledIcon;
@@ -32,42 +33,136 @@ class GlassNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glass = GlassTokens.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Tonal surface for the bar — near-black (#141414) in dark theme, light
+    // grey in light theme, per AccentPalette.
+    final barColor = AccentPalette.surface(isDark).withValues(alpha: 0.92);
+    final borderColor = (isDark
+            ? DesignPalette.darkGlassBorder
+            : DesignPalette.lightGlassBorder)
+        .withValues(alpha: 0.3);
 
     return AnimatedSlide(
       offset: isVisible ? Offset.zero : const Offset(0, 1.4),
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOutCubic,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 16),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+          borderRadius: BorderRadius.circular(Radii.xl),
           child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: glass.blurSigma,
-              sigmaY: glass.blurSigma,
-            ),
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
-                gradient: glass.fillGradient,
-                borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
-                boxShadow: ElevationTokens.of(context).level(3),
+                color: barColor,
+                borderRadius: BorderRadius.circular(Radii.xl),
+                border: Border.all(color: borderColor, width: 0.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: _GradientNavBorder(
-                radius: GlassTokens.radiusPill,
-                gradient: glass.borderGradient,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    for (var i = 0; i < items.length; i++)
-                      _PillNavButton(
-                        item: items[i],
-                        selected: i == selectedIndex,
-                        onTap: () => onDestinationSelected(i),
-                      ),
-                  ],
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final itemWidth = constraints.maxWidth / items.length;
+
+                  // The pill used to be a fixed fraction of the bar
+                  // (`itemWidth - 6`) — same width for every tab regardless
+                  // of label length. That's why it undershot longer words
+                  // ("Dashboard") and left extra slack around shorter ones.
+                  // Instead, measure the SELECTED label's actual rendered
+                  // width via TextPainter and size the pill to hug exactly
+                  // icon + gap + text, dynamically, per tab.
+                  final labelStyle = Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(fontWeight: FontWeight.w600);
+                  final textPainter = TextPainter(
+                    text: TextSpan(
+                      text: items[selectedIndex].label,
+                      style: labelStyle,
+                    ),
+                    maxLines: 1,
+                    textDirection: Directionality.of(context),
+                    textScaler: MediaQuery.textScalerOf(context), // match the Text widget's actual rendered scale
+
+                  )..layout();
+
+                  const iconSize = 20.0;
+                  const iconLabelGap = 6.0;
+                  const pillInnerPadding = 28.0; // breathing room L+R
+                  const cellMargin = -4; // allow pill to extend slightly beyond cell
+
+                  final naturalPillWidth =
+                      iconSize + iconLabelGap + textPainter.width + pillInnerPadding;
+
+                  // Still cap at the cell width so the pill can never bleed
+                  // into a neighbouring tab on a cramped bar (5+ tabs) — if
+                  // the label doesn't fit even capped, FittedBox on the
+                  // label (in _PillNavButton) scales the text down to match.
+                  final maxPillWidth = itemWidth - cellMargin;
+                  final pillWidth = naturalPillWidth.clamp(0.0, maxPillWidth);
+
+                  // Center the (now variable-width) pill within its cell.
+                  final pillLeft =
+                      selectedIndex * itemWidth + (itemWidth - pillWidth) / 2;
+
+                  return SizedBox(
+                    height: 44,
+                    child: Stack(
+                      children: [
+                        /// Single sliding highlight pill — one shared
+                        /// AnimatedPositioned that glides between tabs
+                        /// instead of each tab resizing itself.
+                        AnimatedPositioned(
+                          left: pillLeft,
+                          width: pillWidth,
+                          top: 2,
+                          bottom: 2,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AccentPalette.orange,
+                              borderRadius: BorderRadius.circular(Radii.pill),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      AccentPalette.orange.withValues(alpha: 0.35),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        /// Nav buttons — every cell is Expanded (equal width),
+                        /// so the row can never exceed the bar's width
+                        /// regardless of label length. The pill above is
+                        /// independently sized/positioned to hug content.
+                        Row(
+                          children: [
+                            for (var i = 0; i < items.length; i++)
+                              Expanded(
+                                child: _PillNavButton(
+                                  item: items[i],
+                                  selected: i == selectedIndex,
+                                  maxWidth: itemWidth,
+                                  onTap: () => onDestinationSelected(i),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -80,109 +175,104 @@ class GlassNavBar extends StatelessWidget {
 class _PillNavButton extends StatelessWidget {
   final PillNavItem item;
   final bool selected;
+  final double maxWidth;
   final VoidCallback onTap;
 
   const _PillNavButton({
     required this.item,
     required this.selected,
+    required this.maxWidth,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? scheme.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: scheme.primary.withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
+      child: Center(
+        child: AnimatedScale(
+          scale: selected ? 1.0 : 0.96,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: ConstrainedBox(
+            // Match the highlight pill's width (see AnimatedPositioned's
+            // `width: itemWidth - 6` above) rather than the full cell width,
+            // so content can never render wider than the visible pill.
+            constraints: BoxConstraints(maxWidth: maxWidth - 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// Icon swaps filled/outline with a subtle pop.
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  switchInCurve: Curves.easeOutBack,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
                   ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              selected ? item.filledIcon : item.icon,
-              size: 20,
-              color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 6),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOut,
-              child: selected
-                  ? Text(
-                      item.label,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: scheme.onPrimary,
-                            fontWeight: FontWeight.w600,
+                  child: Icon(
+                    selected ? item.filledIcon : item.icon,
+                    key: ValueKey(selected),
+                    size: 20,
+                    color: selected
+                        ? Colors.white
+                        : DesignPalette.subInk(
+                            Theme.of(context).brightness == Brightness.dark),
+                  ),
+                ),
+
+                /// Label expands horizontally via widthFactor inside ClipRect.
+                ///
+                /// IMPORTANT: AnimatedAlign with widthFactor sizes itself to
+                /// the CHILD's natural (unconstrained) width — it does NOT
+                /// know how much space is actually left in the cell. With
+                /// enough tabs (5 on the home shell) and a longer label
+                /// ("Dashboard"), the text's intrinsic width can exceed what
+                /// remains after the icon, and since the parent Row has no
+                /// Flexible/Expanded child, Flutter doesn't shrink it — the
+                /// content just overflows and paints past the bar's bounds.
+                ///
+                /// Wrapping in Flexible gives the label a real max-width to
+                /// respect, and FittedBox is a safety net so it's physically
+                /// impossible for the label to render outside the pill, no
+                /// matter the tab count or label length.
+                Flexible(
+                  child: ClipRect(
+                    child: AnimatedAlign(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment:
+                          selected ? Alignment.center : Alignment.centerLeft,
+                      widthFactor: selected ? 1 : 0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
-                    )
-                  : const SizedBox(width: 0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
-}
-
-class _GradientNavBorder extends StatelessWidget {
-  final double radius;
-  final Gradient gradient;
-  final Widget child;
-
-  const _GradientNavBorder({
-    required this.radius,
-    required this.gradient,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      foregroundPainter: _GradientNavBorderPainter(
-        radius: radius,
-        gradient: gradient,
-      ),
-      child: child,
-    );
-  }
-}
-
-class _GradientNavBorderPainter extends CustomPainter {
-  final double radius;
-  final Gradient gradient;
-
-  _GradientNavBorderPainter({required this.radius, required this.gradient});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final rrect =
-        RRect.fromRectAndRadius(rect.deflate(0.6), Radius.circular(radius));
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..shader = gradient.createShader(rect);
-    canvas.drawRRect(rrect, paint);
-  }
-
-  @override
-  bool shouldRepaint(_GradientNavBorderPainter oldDelegate) =>
-      oldDelegate.radius != radius || oldDelegate.gradient != gradient;
 }

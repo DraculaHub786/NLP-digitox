@@ -94,7 +94,9 @@ app.*.map.json
 /QUICK_START_NEW_FEATURES.md
 /TASK8_REAL_SENTIMENT_ANALYZER.md
 /TASKS_12_13_14_COMPLETE.md
-
+todo.md
 # Assest refference
 Demo-light.png
 Demo-dark.png
+dark-mode-ref.png
+light-mode-ref.png

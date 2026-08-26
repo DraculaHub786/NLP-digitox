@@ -9,165 +9,166 @@ class AppLocalizationsCs extends AppLocalizations {
   AppLocalizationsCs([String locale = 'cs']) : super(locale);
 
   @override
-  String get mindful_tagline => 'Focus on what truly Matters';
+  String get mindful_tagline => 'Zaměřte se na to, na čem skutečně záleží';
 
   @override
-  String get unlock_button_label => 'Unlock';
+  String get unlock_button_label => 'Odemknout';
 
   @override
-  String get permission_status_off => 'Off';
+  String get permission_status_off => 'Vypnuto';
 
   @override
-  String get permission_status_allowed => 'Allowed';
+  String get permission_status_allowed => 'Povoleno';
 
   @override
-  String get permission_status_not_allowed => 'Not allowed';
+  String get permission_status_not_allowed => 'Není povoleno';
 
   @override
-  String get permission_button_grant_permission => 'Grant Permission';
+  String get permission_button_grant_permission => 'Udělení povolení';
 
   @override
-  String get permission_button_agree_and_continue => 'Agree & Continue';
+  String get permission_button_agree_and_continue => 'Souhlasit a pokračovat';
 
   @override
-  String get permission_button_not_now => 'Not Now';
+  String get permission_button_not_now => 'Teď ne';
 
   @override
-  String get permission_button_help => 'Help?';
+  String get permission_button_help => 'pomoci?';
 
   @override
   String get permission_sheet_privacy_info =>
-      'NLP digitox is 100% secure and works offline. We do not collect or store any personal data.';
+      'NLP digitox je 100% bezpečný a funguje offline. Neshromažďujeme ani neuchováváme žádné osobní údaje.';
 
   @override
   String permission_grant_step_one(String button_label) {
-    return '1. Click on $button_label button.';
+    return '1. Klikněte na tlačítko $button_label.';
   }
 
   @override
   String get permission_grant_step_two =>
-      '2. Select NLP digitox in the next screen.';
+      '2. Na další obrazovce vyberte NLP digitox.';
 
   @override
   String get permission_grant_step_three =>
-      '3. Click and turn on the switch like below.';
+      '3. Klikněte a zapněte vypínač, jak je uvedeno níže.';
 
   @override
-  String get permission_notification_title => 'Send Notifications';
+  String get permission_notification_title => 'Odeslat oznámení';
 
   @override
-  String get permission_alarms_title => 'Alarms & Reminders';
+  String get permission_alarms_title => 'Alarmy a připomenutí';
 
   @override
   String get permission_alarms_info =>
-      'Please grant permission for setting alarms and reminders. This will allow NLP digitox to start your bedtime schedule on time and reset app timers daily at midnight and help you stay on track.';
+      'Udělte prosím oprávnění k nastavení budíků a připomenutí. To umožní NLP digitox zahájit váš plán před spaním včas a denně o půlnoci resetovat časovače aplikací a pomůže vám zůstat na správné cestě.';
 
   @override
   String get permission_alarms_device_tile_label =>
-      'Allow setting alarms and reminders';
+      'Povolit nastavení budíků a připomenutí';
 
   @override
-  String get permission_usage_title => 'Usage Access';
+  String get permission_usage_title => 'Přístup k použití';
 
   @override
   String get permission_usage_info =>
-      'Please grant usage access permission. This will allow NLP digitox to monitor app usage and manage access to certain apps, ensuring a more focused and controlled digital environment.';
+      'Udělte prosím přístupové oprávnění k použití. To umožní NLP digitox monitorovat používání aplikací a spravovat přístup k určitým aplikacím, což zajistí cílenější a kontrolovanější digitální prostředí.';
 
   @override
-  String get permission_usage_device_tile_label => 'Permit usage access';
+  String get permission_usage_device_tile_label => 'Povolit přístup k použití';
 
   @override
-  String get permission_overlay_title => 'Display Overlay';
+  String get permission_overlay_title => 'Překryvná obrazovka';
 
   @override
   String get permission_overlay_info =>
-      'Please grant display overlay permission. This will allow NLP digitox to show an overlay when a paused app is opened, helping you stay focused and maintain your schedule.';
+      'Udělte prosím oprávnění k zobrazení překryvné vrstvy. To umožní NLP digitox zobrazit překryvnou vrstvu při otevření pozastavené aplikace, což vám pomůže soustředit se a udržet si svůj plán.';
 
   @override
   String get permission_overlay_device_tile_label =>
-      'Allow display over other apps';
+      'Povolit zobrazení přes jiné aplikace';
 
   @override
-  String get permission_accessibility_title => 'Accessibility';
+  String get permission_accessibility_title => 'Přístupnost';
 
   @override
   String get permission_accessibility_info =>
-      'Please grant accessibility permission. This will allow NLP digitox to restrict access to short-form video content (e.g., Reels, Shorts) within social media apps and browsers, and filter inappropriate websites.';
+      'Udělte prosím oprávnění k usnadnění. To umožní NLP digitox omezit přístup ke krátkému videoobsahu (např. Reels, Shorts) v aplikacích a prohlížečích sociálních médií a filtrovat nevhodné webové stránky.';
 
   @override
   String get permission_accessibility_required =>
-      'NLP digitox requires accessibility permission to block short content and websites effectively.';
+      'NLP digitox vyžaduje oprávnění pro přístupnost k efektivnímu blokování krátkého obsahu a webových stránek.';
 
   @override
-  String get permission_accessibility_device_tile_label => 'Use NLP digitox';
+  String get permission_accessibility_device_tile_label =>
+      'Použijte NLP digitox';
 
   @override
-  String get permission_dnd_title => 'Do not disturb';
+  String get permission_dnd_title => 'Nerušit';
 
   @override
   String get permission_dnd_info =>
-      'Please grant Do Not Disturb access. This will allow NLP digitox to start and stop Do Not Disturb mode during the bedtime schedule.';
+      'Udělte prosím přístup k režimu Nerušit. To umožní NLP digitox spustit a zastavit režim Nerušit během plánu večerky.';
 
   @override
-  String get permission_dnd_tile_title => 'Start DND';
+  String get permission_dnd_tile_title => 'Začněte DND';
 
   @override
-  String get permission_dnd_tile_subtitle => 'Also enable Do Not Disturb mode.';
+  String get permission_dnd_tile_subtitle => 'Aktivujte také režim Nerušit.';
 
   @override
   String get permission_battery_optimization_tile_title =>
-      'Ignore Battery Optimization';
+      'Ignorujte optimalizaci baterie';
 
   @override
   String get permission_battery_optimization_status_enabled =>
-      'Already unrestricted';
+      'Již bez omezení';
 
   @override
   String get permission_battery_optimization_status_disabled =>
-      'Disable background restriction';
+      'Zakázat omezení na pozadí';
 
   @override
   String get permission_battery_optimization_allow_info =>
-      'Allowing \'Ignore Battery Optimization\' will automatically grant the \'Alarms & Reminders\' permission on some devices.';
+      'Povolením „Ignorovat optimalizaci baterie“ automaticky udělíte oprávnění „Alarmy a připomenutí“ na některých zařízeních.';
 
   @override
-  String get permission_vpn_title => 'Create VPN';
+  String get permission_vpn_title => 'Vytvořte VPN';
 
   @override
   String get permission_vpn_info =>
-      'Please grant permission to create virtual private network (VPN) connection. This will enable NLP digitox to restrict internet access for designated applications by creating local on device VPN.';
+      'Udělte prosím oprávnění k vytvoření připojení k virtuální privátní síti (VPN). To umožní NLP digitox omezit přístup k internetu pro určené aplikace vytvořením místní VPN na zařízení.';
 
   @override
   String get permission_admin_title => 'Admin';
 
   @override
   String get permission_admin_info =>
-      'Administrative privileges are needed only for essential operations to ensure the app works properly and remains tamper-proof.';
+      'Administrátorská oprávnění jsou potřebná pouze pro základní operace, aby aplikace fungovala správně a zůstala odolná proti neoprávněné manipulaci.';
 
   @override
   String get permission_admin_snack_alert =>
-      'Tamper protection can only be disabled during the selected time window.';
+      'Ochranu proti manipulaci lze deaktivovat pouze během zvoleného časového okna.';
 
   @override
-  String get permission_notification_access_title => 'Notification Access';
+  String get permission_notification_access_title => 'Přístup k oznámení';
 
   @override
   String get permission_notification_access_info =>
-      'Please grant notification access permission. This will allow NLP digitox to organize your notifications and deliver them on your schedule.';
+      'Udělte prosím oprávnění k přístupu k oznámení. To umožní NLP digitox organizovat vaše oznámení a doručovat je podle vašeho plánu.';
 
   @override
   String get permission_notification_access_required =>
-      'NLP digitox requires notification access to batch and schedule notifications.';
+      'NLP digitox vyžaduje přístup k oznámením pro dávková a plánovaná oznámení.';
 
   @override
   String get permission_notification_access_device_tile_label =>
-      'Allow notification access';
+      'Povolit přístup k oznámením';
 
   @override
-  String get day_today => 'Today';
+  String get day_today => 'dnes';
 
   @override
-  String get day_yesterday => 'Yesterday';
+  String get day_yesterday => 'včera';
 
   @override
   String nDays(num count) {
@@ -179,9 +180,9 @@ class AppLocalizationsCs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString days',
-      one: '1 day',
-      zero: '0 day',
+      other: '$countString dní',
+      one: '1 den',
+      zero: '0 dní',
     );
     return '$_temp0';
   }
@@ -196,9 +197,9 @@ class AppLocalizationsCs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString hours',
-      one: '1 hour',
-      zero: '0 hour',
+      other: '$countString hodin',
+      one: '1 hodina',
+      zero: '0 hodin',
     );
     return '$_temp0';
   }
@@ -213,9 +214,9 @@ class AppLocalizationsCs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString minutes',
-      one: '1 minute',
-      zero: '0 minute',
+      other: '$countString minut',
+      one: '1 minuta',
+      zero: '0 minut',
     );
     return '$_temp0';
   }
@@ -230,1349 +231,1364 @@ class AppLocalizationsCs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString seconds',
-      one: '1 second',
-      zero: '0 second',
+      other: '$countString sekund',
+      one: '1 sekunda',
+      zero: '0 sekund',
     );
     return '$_temp0';
   }
 
   @override
-  String get time_separator_and => 'and';
+  String get time_separator_and => 'a';
 
   @override
-  String get timer_status_active => 'Active';
+  String get timer_status_active => 'Aktivní';
 
   @override
-  String get timer_status_paused => 'Paused';
+  String get timer_status_paused => 'Pozastaveno';
 
   @override
-  String get create_button => 'Create';
+  String get create_button => 'Vytvořit';
 
   @override
-  String get update_button => 'Update';
+  String get update_button => 'Aktualizovat';
 
   @override
-  String get dialog_button_cancel => 'Cancel';
+  String get dialog_button_cancel => 'Zrušit';
 
   @override
-  String get dialog_button_remove => 'Remove';
+  String get dialog_button_remove => 'Odebrat';
 
   @override
   String get dialog_button_set => 'Set';
 
   @override
-  String get dialog_button_reset => 'Reset';
+  String get dialog_button_reset => 'Resetovat';
 
   @override
-  String get dialog_button_infinite => 'Infinite';
+  String get dialog_button_infinite => 'Nekonečné';
 
   @override
-  String get schedule_start_label => 'Start';
+  String get schedule_start_label => 'Začněte';
 
   @override
-  String get schedule_end_label => 'End';
+  String get schedule_end_label => 'Konec';
 
   @override
   String get exit_without_saving_dialog_info =>
-      'Are you sure you want to exit without saving?';
+      'Opravdu chcete skončit bez uložení?';
 
   @override
   String get development_dialog_info =>
-      'NLP digitox is currently under development and may have bugs or incomplete features. If you encounter any issues, please report them to help us improve.\n\nThank you for your feedback!';
+      'NLP digitox je v současné době ve vývoji a může obsahovat chyby nebo neúplné funkce. Pokud narazíte na nějaké problémy, nahlaste je, pomůžete nám to zlepšit.\n\nDěkujeme za vaši zpětnou vazbu!';
 
   @override
-  String get development_dialog_button_report_issue => 'Report Issue';
+  String get development_dialog_button_report_issue => 'Nahlásit problém';
 
   @override
-  String get development_dialog_button_close => 'Close';
+  String get development_dialog_button_close => 'Zavřít';
 
   @override
-  String get dnd_settings_tile_title => 'Do not disturb settings';
+  String get dnd_settings_tile_title => 'Nastavení Nerušit';
 
   @override
   String get dnd_settings_tile_subtitle =>
-      'Manage which apps and notifications can reach you in DND.';
+      'Spravujte, které aplikace a oznámení vás mohou dostávat v DND.';
 
   @override
-  String get quick_actions_heading => 'Quick actions';
+  String get quick_actions_heading => 'Rychlé akce';
 
   @override
-  String get select_distracting_apps_heading => 'Select distracting apps';
+  String get select_distracting_apps_heading => 'Vyberte rušivé aplikace';
 
   @override
-  String get your_distracting_apps_heading => 'Your distracting apps';
+  String get your_distracting_apps_heading => 'Vaše rušivé aplikace';
 
   @override
-  String get select_more_apps_heading => 'Select more apps';
+  String get select_more_apps_heading => 'Vyberte další aplikace';
 
   @override
   String get imp_distracting_apps_snack_alert =>
-      'Adding important system apps to the list of distracting apps is not permitted.';
+      'Přidávání důležitých systémových aplikací do seznamu rušivých aplikací není povoleno.';
 
   @override
   String get custom_apps_quick_actions_unavailable_warning =>
-      'Screen usage and restrictions are unavailable for this application. At present, only network usage is accessible';
+      'Použití obrazovky a omezení nejsou pro tuto aplikaci k dispozici. V současné době je přístupné pouze využití sítě';
 
   @override
-  String get create_group_fab_button => 'Create Group';
+  String get create_group_fab_button => 'Vytvořit skupinu';
 
   @override
   String get active_period_info =>
-      'Set a time period during which access will be allowed. Outside of this time frame, access will be restricted.';
+      'Nastavte časové období, během kterého bude přístup povolen. Mimo tento časový rámec bude přístup omezen.';
 
   @override
   String get minimum_distracting_apps_snack_alert =>
-      'Select at least one distracting app.';
+      'Vyberte alespoň jednu rušivou aplikaci.';
 
   @override
-  String get donation_card_title => 'Support us';
+  String get donation_card_title => 'Podpořte nás';
 
   @override
   String get donation_card_info =>
-      'NLP digitox is free and open-source, developed with months of dedication. If it has helped you, your donation would mean the world to us. Every contribution helps us continue improving and maintaining it for everyone.';
+      'NLP digitox je zdarma a s otevřeným zdrojovým kódem, vyvíjený s měsíčním nasazením. Pokud vám to pomohlo, váš dar by pro nás znamenal celý svět. Každý příspěvek nám pomáhá jej nadále zlepšovat a udržovat pro všechny.';
 
   @override
   String get operation_failed_snack_alert =>
-      'Operation failed, something went wrong!';
+      'Operace se nezdařila, něco se pokazilo!';
 
   @override
-  String get donation_card_button_donate => 'Donate';
+  String get donation_card_button_donate => 'Darovat';
 
   @override
-  String get app_restart_dialog_title => 'Need restart';
+  String get app_restart_dialog_title => 'Je třeba restartovat';
 
   @override
   String get app_restart_dialog_info =>
-      'NLP digitox will automatically restart once the countdown finishes. Please be patient as changes are applied.';
+      'Jakmile odpočítávání skončí, NLP digitox se automaticky restartuje. Buďte prosím trpěliví, protože změny se projeví.';
 
   @override
   String get accessibility_tip =>
-      'Want smarter, more battery-friendly blocking? Enable Accessibility permission for NLP digitox.';
+      'Chcete chytřejší blokování šetrnější k baterii? Povolte oprávnění k usnadnění pro NLP digitox.';
 
   @override
   String get battery_optimization_tip =>
-      'NLP digitox not working? Allow \'Ignore Battery Optimization\' in Settings to keep it running smoothly.';
+      'NLP digitox nefunguje? Chcete-li, aby fungovala hladce, povolte v Nastavení možnost Ignorovat optimalizaci baterie.';
 
   @override
   String get invincible_mode_tip =>
-      'Accidentally removed restrictions? Use Invincible Mode to lock them until the next day or adjustment window.';
+      'Náhodně odstraněná omezení? Použijte Invincible Mode k jejich uzamčení do dalšího dne nebo okna úprav.';
 
   @override
   String get glance_usage_tip =>
-      'Want insights? Check the Glance section to view your usage patterns and screen time.';
+      'Chcete statistiky? Chcete-li zobrazit vzorce používání a dobu strávenou na obrazovce, podívejte se do části Pohled.';
 
   @override
   String get tamper_protection_tip =>
-      'Uninstalling NLP digitox? Enable the Uninstall Window to safely disable tamper protection first.';
+      'Odinstalování NLP digitox? Chcete-li nejprve bezpečně deaktivovat ochranu proti neoprávněné manipulaci, povolte okno Uninstall Window.';
 
   @override
   String get notification_blocking_tip =>
-      'Want to reduce distractions? Use Notification Blocking to silence selected apps.';
+      'Chcete omezit rozptylování? Pomocí Blokování oznámení ztište vybrané aplikace.';
 
   @override
   String get usage_history_tip =>
-      'Want to reflect on your habits? Check Usage History to see past patterns.';
+      'Chcete se zamyslet nad svými zvyky? Zkontrolujte historii používání, abyste viděli minulé vzory.';
 
   @override
   String get focus_mode_tip =>
-      'Need deep focus? Turn on Focus Mode to block apps and notifications during tasks.';
+      'Potřebujete hluboké zaměření? Chcete-li během úkolů blokovat aplikace a oznámení, zapněte režim zaměření.';
 
   @override
   String get bedtime_reminder_tip =>
-      'Want to improve your sleep? Set a Bedtime Reminder to wind down nightly.';
+      'Chcete zlepšit svůj spánek? Nastavte si připomenutí před spaním, abyste večer utichli.';
 
   @override
   String get custom_blocking_tip =>
-      'Need a custom experience? Create app blocking rules that fit your needs.';
+      'Potřebujete vlastní zkušenost? Vytvořte pravidla blokování aplikací, která vyhovují vašim potřebám.';
 
   @override
   String get session_timeline_tip =>
-      'Want to track focus sessions? View timeline to see your focus journey.';
+      'Chcete sledovat soustředění? Zobrazte časovou osu, abyste viděli svou soustředěnou cestu.';
 
   @override
   String get short_content_blocking_tip =>
-      'Distracted by social apps? Block short content on Instagram, YouTube, etc., to stay focused.';
+      'Rozptylují vás sociální aplikace? Blokujte krátký obsah na Instagramu, YouTube atd., abyste se mohli soustředit.';
 
   @override
   String get parental_controls_tip =>
-      'Need parental control? Set restrictions for your child\'s device to ensure a safe experience.';
+      'Potřebujete rodičovskou kontrolu? Nastavte omezení pro zařízení vašeho dítěte, abyste zajistili bezpečný zážitek.';
 
   @override
   String get notification_batching_tip =>
-      'Want to reduce distractions? Use Notification Batching to group notifications and check them at once.';
+      'Chcete omezit rozptylování? Pomocí Dávkování oznámení můžete seskupit oznámení a zkontrolovat je najednou.';
 
   @override
   String get notification_scheduling_tip =>
-      'Need to manage notifications? Schedule when you receive notifications for specific apps.';
+      'Potřebujete spravovat oznámení? Naplánujte si, kdy obdržíte oznámení pro konkrétní aplikace.';
 
   @override
   String get quick_focus_tile_tip =>
-      'Need quick access to focus? Add a Quick Focus Tile to instantly activate Focus Mode.';
+      'Potřebujete rychlý přístup k zaostření? Přidejte dlaždici rychlého zaostření a okamžitě aktivujte režim zaostření.';
 
   @override
   String get app_shortcuts_tip =>
-      'Want instant app access? Add shortcuts by long-pressing the app icon for quick actions.';
+      'Chcete okamžitý přístup k aplikaci? Přidejte zkratky dlouhým stisknutím ikony aplikace pro rychlé akce.';
 
   @override
   String get backup_usage_db_tip =>
-      'Want to save your data? Backup your usage database to keep your records safe.';
+      'Chcete uložit svá data? Zálohujte si databázi využití, aby byly vaše záznamy v bezpečí.';
 
   @override
   String get dynamic_material_color_tip =>
-      'Want a custom theme? Enable Dynamic Material You color to match your device\'s theme.';
+      'Chcete vlastní motiv? Povolte barvu Dynamic Material You, aby odpovídala motivu vašeho zařízení.';
 
   @override
   String get amoled_dark_theme_tip =>
-      'Want to save battery? Use AMOLED Dark Theme to reduce power consumption on OLED screens.';
+      'Chcete šetřit baterii? Použijte tmavý motiv AMOLED ke snížení spotřeby energie na obrazovkách OLED.';
 
   @override
   String get customize_usage_history_tip =>
-      'Want to keep usage history? Customize how many weeks of data to store in Usage History.';
+      'Chcete uchovávat historii používání? Přizpůsobte si, kolik týdnů se mají data ukládat do Historie využití.';
 
   @override
   String get grouped_apps_blocking_tip =>
-      'Want to block apps together? Use Restriction Groups to group app limits and block multiple apps at once.';
+      'Chcete blokovat aplikace společně? Pomocí skupin omezení můžete seskupit limity aplikací a blokovat více aplikací najednou.';
 
   @override
   String get websites_blocking_tip =>
-      'Want a cleaner browsing experience? Block custom or NSFW websites for a more focused online time.';
+      'Chcete čistší zážitek z prohlížení? Zablokujte vlastní webové stránky nebo webové stránky NSFW pro soustředěnější online čas.';
 
   @override
   String get data_usage_tip =>
-      'Want to track your data? Monitor your mobile and Wi-Fi data usage for internet consumption.';
+      'Chcete sledovat svá data? Sledujte využití mobilních a Wi-Fi dat pro spotřebu internetu.';
 
   @override
   String get block_internet_tip =>
-      'Need to block an app\'s internet? Cut off internet for specific app from app\'s dashboard.';
+      'Potřebujete aplikaci zablokovat internet? Odřízněte internet pro konkrétní aplikaci z řídicího panelu aplikace.';
 
   @override
   String get emergency_passes_tip =>
-      'Need a break? Use 3 Emergency Passes daily to temporarily unblock apps for 5 minutes.';
+      'Potřebujete přestávku? Použijte 3 nouzové průchody denně k dočasnému odblokování aplikací na 5 minut.';
 
   @override
-  String get onboarding_skip_btn_label => 'Skip';
+  String get onboarding_skip_btn_label => 'Přeskočit';
 
   @override
-  String get onboarding_finish_setup_btn_label => 'Finish Setup';
+  String get onboarding_finish_setup_btn_label => 'Dokončete nastavení';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Vítejte v NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Převezměte kontrolu nad svým digitálním životem a budujte zdravější návyky při používání obrazovky. NLP digitox vám pomáhá zůstat soustředění, omezit rušivé vlivy a každý den se rozhodovat vědomě.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Poznejte své návyky.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Porozumějte svým digitálním vzorcům díky podrobným přehledům o čase stráveném na obrazovce, používání aplikací a trendech soustředění. Sledujte svůj pokrok a uvidíte, jak malé změny vedou k velkým zlepšením.';
 
   @override
   String get onboarding_page_one_title => 'Master Focus.';
 
   @override
   String get onboarding_page_one_info =>
-      'Pause distracting apps, block short content, and stay on track with customizable focus sessions. Whether you\'re working, studying, or relaxing, NLP digitox helps you stay in control.';
+      'Pozastavte rušivé aplikace, zablokujte krátký obsah a zůstaňte v obraze díky přizpůsobitelným relacím soustředění. Ať už pracujete, studujete nebo odpočíváte, NLP digitox vám pomůže zůstat pod kontrolou.';
 
   @override
-  String get onboarding_page_two_title => 'Block Distractions.';
+  String get onboarding_page_two_title => 'Blokovat rozptýlení.';
 
   @override
   String get onboarding_page_two_info =>
-      'Set usage limits, automatically pause apps, and create healthier digital habits. Use Bedtime Mode to unwind and enjoy a distraction-free night.';
+      'Nastavte limity využití, automaticky pozastavte aplikace a vytvořte si zdravější digitální návyky. Pomocí režimu před spaním si odpočiňte a užijte si noc bez rozptylování.';
 
   @override
-  String get onboarding_page_three_title => 'Privacy First.';
+  String get onboarding_page_three_title => 'Soukromí na prvním místě.';
 
   @override
   String get onboarding_page_three_info =>
-      'NLP digitox is 100% open-source and operates entirely offline. We don\'t collect or share your personal data — your privacy is guaranteed in every way.';
+      'NLP digitox je 100% open source a funguje zcela offline. Neshromažďujeme ani nesdílíme vaše osobní údaje – vaše soukromí je ve všech směrech zaručeno.';
 
   @override
-  String get onboarding_page_permissions_title => 'Essential Permissions.';
+  String get onboarding_page_permissions_title => 'Základní oprávnění.';
 
   @override
   String get onboarding_page_permissions_info =>
-      'NLP digitox requires following essential permissions to track and manage your screen time, helping reduce distractions and improve focus.';
+      'NLP digitox vyžaduje dodržování základních oprávnění ke sledování a správě času stráveného na obrazovce, což pomáhá omezit rušivé vlivy a zlepšit soustředění.';
 
   @override
   String get dashboard_tab_title => 'Dashboard';
 
   @override
-  String get focus_now_fab_button => 'Focus now';
+  String get focus_now_fab_button => 'Soustřeďte se nyní';
 
   @override
-  String get welcome_greetings => 'Welcome back,';
+  String get welcome_greetings => 'vítej zpět,';
 
   @override
-  String get username_snack_alert => 'Long press to edit username.';
+  String get username_snack_alert =>
+      'Dlouhým stisknutím upravíte uživatelské jméno.';
 
   @override
-  String get username_dialog_title => 'Username';
+  String get username_dialog_title => 'Uživatelské jméno';
 
   @override
   String get username_dialog_info =>
-      'Enter your username which will be displayed on dashboard.';
+      'Zadejte své uživatelské jméno, které se zobrazí na hlavním panelu.';
 
   @override
-  String get username_dialog_button_apply => 'Apply';
+  String get username_dialog_button_apply => 'Použít';
 
   @override
-  String get glance_tile_title => 'Glance';
+  String get glance_tile_title => 'Pohled';
 
   @override
-  String get glance_tile_subtitle => 'Take a quick glance at your usage.';
+  String get glance_tile_subtitle => 'Podívejte se rychle na své použití.';
 
   @override
   String get parental_controls_tile_subtitle =>
-      'Invincible mode and tamper protection.';
+      'Neporazitelný režim a ochrana proti neoprávněné manipulaci.';
 
   @override
-  String get restrictions_heading => 'Restrictions';
+  String get restrictions_heading => 'Omezení';
 
   @override
-  String get apps_blocking_tile_title => 'Apps blocking';
+  String get apps_blocking_tile_title => 'Blokování aplikací';
 
   @override
-  String get apps_blocking_tile_subtitle => 'Limit apps in multiple ways.';
+  String get apps_blocking_tile_subtitle => 'Omezte aplikace několika způsoby.';
 
   @override
-  String get grouped_apps_blocking_tile_title => 'Grouped apps blocking';
+  String get grouped_apps_blocking_tile_title =>
+      'Blokování seskupených aplikací';
 
   @override
   String get grouped_apps_blocking_tile_subtitle =>
-      'Limit group of apps simultaneously.';
+      'Omezte skupinu aplikací současně.';
 
   @override
   String get shorts_blocking_tile_subtitle =>
-      'Limit short content on multiple platforms.';
+      'Omezte krátký obsah na více platformách.';
 
   @override
   String get websites_blocking_tile_subtitle =>
-      'Limit adult and custom websites.';
+      'Omezte webové stránky pro dospělé a vlastní webové stránky.';
 
   @override
-  String get screen_time_label => 'Screen time';
+  String get screen_time_label => 'Čas na obrazovce';
 
   @override
-  String get total_data_label => 'Total data';
+  String get total_data_label => 'Celková data';
 
   @override
-  String get mobile_data_label => 'Mobile data';
+  String get mobile_data_label => 'Mobilní data';
 
   @override
   String get wifi_data_label => 'Wifi data';
 
   @override
-  String get focus_today_label => 'Focus today';
+  String get focus_today_label => 'Soustřeďte se dnes';
 
   @override
-  String get focus_weekly_label => 'Focus weekly';
+  String get focus_weekly_label => 'Zaměřte se každý týden';
 
   @override
-  String get focus_monthly_label => 'Focus monthly';
+  String get focus_monthly_label => 'Zaměřte se měsíčně';
 
   @override
-  String get focus_lifetime_label => 'Focus lifetime';
+  String get focus_lifetime_label => 'Životnost zaměření';
 
   @override
-  String get longest_streak_label => 'Longest streak';
+  String get longest_streak_label => 'Nejdelší série';
 
   @override
-  String get current_streak_label => 'Current streak';
+  String get current_streak_label => 'Aktuální série';
 
   @override
-  String get successful_sessions_label => 'Successful sessions';
+  String get successful_sessions_label => 'Úspěšné sezení';
 
   @override
-  String get failed_sessions_label => 'Failed sessions';
+  String get failed_sessions_label => 'Neúspěšné relace';
 
   @override
-  String get statistics_tab_title => 'Statistics';
+  String get statistics_tab_title => 'Statistiky';
 
   @override
-  String get screen_segment_label => 'Screen';
+  String get screen_segment_label => 'Obrazovka';
 
   @override
   String get data_segment_label => 'Data';
 
   @override
-  String get mobile_label => 'Mobile';
+  String get mobile_label => 'Mobilní';
 
   @override
   String get wifi_label => 'Wifi';
 
   @override
-  String get most_used_apps_heading => 'Most used apps';
+  String get most_used_apps_heading => 'Nejpoužívanější aplikace';
 
   @override
-  String get show_all_apps_tile_title => 'Show all apps';
+  String get show_all_apps_tile_title => 'Zobrazit všechny aplikace';
 
   @override
-  String get search_apps_hint => 'Search apps...';
+  String get search_apps_hint => 'Hledat aplikace...';
 
   @override
-  String get notifications_tab_title => 'Notifications';
+  String get notifications_tab_title => 'Oznámení';
 
   @override
   String get notifications_tab_info =>
-      'Batch notification from apps and set schedules like morning, noon, evening and night. Stay updated without constant interruptions.';
+      'Hromadné oznámení z aplikací a nastavení plánů, jako je ráno, poledne, večer a noc. Zůstaňte v obraze bez neustálých přerušení.';
 
   @override
-  String get batched_apps_tile_title => 'Batched apps';
+  String get batched_apps_tile_title => 'Dávkové aplikace';
 
   @override
-  String get batch_recap_dropdown_title => 'Batch recap type';
+  String get batch_recap_dropdown_title => 'Typ rekapitulace dávky';
 
   @override
   String get batch_recap_dropdown_info =>
-      'Choose what to push when a schedule triggers — all notifications or just a summary.';
+      'Vyberte, co se má odeslat, když se spustí plán – všechna oznámení nebo jen souhrn.';
 
   @override
-  String get batch_recap_option_summery_only => 'Summary only';
+  String get batch_recap_option_summery_only => 'Pouze shrnutí';
 
   @override
-  String get batch_recap_option_all_notifications => 'All notifications';
+  String get batch_recap_option_all_notifications => 'Všechna oznámení';
 
   @override
-  String get notification_history_tile_title => 'Notification history';
+  String get notification_history_tile_title => 'Historie oznámení';
 
   @override
-  String get store_all_tile_title => 'Store all notifications';
+  String get store_all_tile_title => 'Ukládat všechna oznámení';
 
   @override
-  String get store_all_tile_subtitle => 'Save non-batched notifications too.';
+  String get store_all_tile_subtitle => 'Ukládejte i nedávková oznámení.';
 
   @override
-  String get schedules_heading => 'Schedules';
+  String get schedules_heading => 'Jízdní řády';
 
   @override
-  String get new_schedule_fab_button => 'New Schedule';
+  String get new_schedule_fab_button => 'Nový rozvrh';
 
   @override
   String get new_schedule_dialog_info =>
-      'Enter a name for the notification schedule to help identify it easily.';
+      'Zadejte název plánu oznámení, abyste jej mohli snadno identifikovat.';
 
   @override
-  String get new_schedule_dialog_field_label => 'Schedule name';
+  String get new_schedule_dialog_field_label => 'Název rozvrhu';
 
   @override
-  String get bedtime_tab_title => 'Bedtime';
+  String get bedtime_tab_title => 'Před spaním';
 
   @override
   String get bedtime_tab_info =>
-      'Set your bedtime schedule by selecting a time period and days of the week. Choose distracting apps to block and enable Do Not Disturb (DND) mode for a peaceful night.';
+      'Nastavte si plán večerky výběrem časového období a dnů v týdnu. Vyberte si rušivé aplikace, které chcete blokovat, a aktivujte režim Nerušit (DND) pro klidnou noc.';
 
   @override
-  String get schedule_tile_title => 'Schedule';
+  String get schedule_tile_title => 'Rozvrh';
 
   @override
-  String get schedule_tile_subtitle => 'Enable or disable daily schedule.';
+  String get schedule_tile_subtitle => 'Povolit nebo zakázat denní plán.';
 
   @override
   String get bedtime_no_days_selected_snack_alert =>
-      'Select at least one day of the week.';
+      'Vyberte alespoň jeden den v týdnu.';
 
   @override
   String get bedtime_minimum_duration_snack_alert =>
-      'The total bedtime duration must be at least 30 minutes.';
+      'Celková doba před spaním musí být alespoň 30 minut.';
 
   @override
-  String get distracting_apps_tile_title => 'Distracting apps';
+  String get distracting_apps_tile_title => 'Rušivé aplikace';
 
   @override
   String get distracting_apps_tile_subtitle =>
-      'Select which apps are distracting you from your bedtime routine.';
+      'Vyberte, které aplikace vás vyrušují z vaší rutiny před spaním.';
 
   @override
   String get bedtime_distracting_apps_modify_snack_alert =>
-      'Modifications to the list of distracting apps is not permitted while the bedtime schedule is active.';
+      'Během aktivního rozvrhu večerky nejsou povoleny úpravy seznamu rušivých aplikací.';
 
   @override
-  String get parental_controls_tab_title => 'Parental controls';
+  String get parental_controls_tab_title => 'Rodičovská kontrola';
 
   @override
-  String get invincible_mode_heading => 'Invincible mode';
+  String get invincible_mode_heading => 'Neporazitelný režim';
 
   @override
-  String get invincible_mode_tile_title => 'Activate invincible mode';
+  String get invincible_mode_tile_title => 'Aktivujte nepřemožitelný režim';
 
   @override
   String get invincible_mode_info =>
-      'When Invincible Mode is on, you won\'t be able to adjust selected limits after reaching your daily quota. However, you can make changes within a selected 10-minute invincible window.';
+      'Když je nepřemožitelný režim zapnutý, po dosažení denní kvóty nebudete moci upravit vybrané limity. Změny však můžete provést během vybraného 10minutového neporazitelného okna.';
 
   @override
   String get invincible_mode_snack_alert =>
-      'Due to invincible mode, modifications to restrictions is not allowed.';
+      'Vzhledem k nepřemožitelnému režimu nejsou povoleny úpravy omezení.';
 
   @override
   String get invincible_mode_dialog_info =>
-      'Are you absolutely sure you want to enable Invincible Mode? This action is irreversible. Once Invincible Mode is turned on, you cannot turn it off as long as this app is installed on your device.';
+      'Jste si naprosto jisti, že chcete povolit Invincible Mode? Tato akce je nevratná. Jakmile je Invincible Mode zapnutý, nemůžete jej vypnout, dokud je tato aplikace nainstalována ve vašem zařízení.';
 
   @override
   String get invincible_mode_turn_off_snack_alert =>
-      'Invincible Mode cannot be turned off as long as this app remains installed on your device.';
+      'Invincible Mode nelze vypnout, pokud tato aplikace zůstane nainstalovaná ve vašem zařízení.';
 
   @override
-  String get invincible_mode_dialog_button_start_anyway => 'Start anyway';
+  String get invincible_mode_dialog_button_start_anyway => 'Přesto začněte';
 
   @override
-  String get invincible_mode_include_timer_tile_title => 'Include timer';
+  String get invincible_mode_include_timer_tile_title => 'Zahrnout časovač';
 
   @override
   String get invincible_mode_include_launch_limit_tile_title =>
-      'Include launch limit';
+      'Zahrnout limit spuštění';
 
   @override
   String get invincible_mode_include_active_period_tile_title =>
-      'Include active period';
+      'Zahrnout aktivní období';
 
   @override
-  String get invincible_mode_app_restrictions_tile_title => 'App restrictions';
+  String get invincible_mode_app_restrictions_tile_title => 'Omezení aplikací';
 
   @override
   String get invincible_mode_app_restrictions_tile_subtitle =>
-      'Prevent changes to the app\'s selected restrictions once the daily limits are exceeded.';
+      'Po překročení denních limitů zabraňte změnám ve vybraných omezeních aplikace.';
 
   @override
   String get invincible_mode_group_restrictions_tile_title =>
-      'Group restrictions';
+      'Skupinová omezení';
 
   @override
   String get invincible_mode_group_restrictions_tile_subtitle =>
-      'Prevent changes to the group\'s selected restrictions once the daily limits are exceeded.';
+      'Po překročení denních limitů zabraňte změnám ve vybraných omezeních skupiny.';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_title =>
-      'Include shorts timer';
+      'Zahrnout časovač šortek';
 
   @override
   String get invincible_mode_include_shorts_timer_tile_subtitle =>
-      'Prevents changes after reaching your daily shorts limit.';
+      'Zabraňuje změnám po dosažení denního limitu šortek.';
 
   @override
-  String get invincible_mode_include_bedtime_tile_title => 'Include bedtime';
+  String get invincible_mode_include_bedtime_tile_title =>
+      'Zahrňte před spaním';
 
   @override
   String get invincible_mode_include_bedtime_tile_subtitle =>
-      'Prevents changes during the active bedtime schedule.';
+      'Zabraňuje změnám během aktivního plánu večerky.';
 
   @override
-  String get protected_access_tile_title => 'Protected access';
+  String get protected_access_tile_title => 'Chráněný přístup';
 
   @override
   String get protected_access_tile_subtitle =>
-      'Protect NLP digitox with your device lock.';
+      'Chraňte NLP digitox pomocí zámku zařízení.';
 
   @override
   String get protected_access_no_lock_snack_alert =>
-      'Please set up a biometric lock on your device first to enable this feature.';
+      'Chcete-li tuto funkci aktivovat, nejprve na svém zařízení nastavte biometrický zámek.';
 
   @override
   String get protected_access_removed_lock_snack_alert =>
-      'Your device lock has been removed. To continue, please set up a new lock.';
+      'Zámek vašeho zařízení byl odstraněn. Chcete-li pokračovat, nastavte nový zámek.';
 
   @override
   String get protected_access_failed_lock_snack_alert =>
-      'Authentication failed. You need to verify your device lock to proceed.';
+      'Ověření se nezdařilo. Chcete-li pokračovat, musíte ověřit zámek zařízení.';
 
   @override
-  String get tamper_protection_tile_title => 'Tamper protection';
+  String get tamper_protection_tile_title =>
+      'Ochrana proti neoprávněné manipulaci';
 
   @override
   String get tamper_protection_tile_subtitle =>
-      'Prevent uninstalling and force stopping the app.';
+      'Zabránit odinstalaci a vynutit zastavení aplikace.';
 
   @override
   String get tamper_protection_confirmation_dialog_info =>
-      'Once enabled, you won\'t be able to uninstall, force stop, or clear NLP digitox\'s data, except during the selected uninstall window. There are no workarounds.\n\nProceed at your own risk.';
+      'Po aktivaci nebudete moci odinstalovat, vynutit zastavení nebo vymazat data NLP digitox, s výjimkou vybraného okna odinstalace. Neexistují žádná řešení.\n\nPokračujte na vlastní riziko.';
 
   @override
-  String get uninstall_window_tile_title => 'Uninstall window';
+  String get uninstall_window_tile_title => 'Odinstalovat okno';
 
   @override
   String get uninstall_window_tile_subtitle =>
-      'Tamper protection can be disabled within 10 minutes from the selected time.';
+      'Ochranu proti neoprávněné manipulaci lze deaktivovat do 10 minut od zvoleného času.';
 
   @override
-  String get invincible_window_tile_title => 'Invincible window';
+  String get invincible_window_tile_title => 'Nepřemožitelné okno';
 
   @override
   String get invincible_window_tile_subtitle =>
-      'Selected limits can be modified within 10 minutes from the selected time.';
+      'Vybrané limity lze upravit do 10 minut od zvoleného času.';
 
   @override
-  String get shorts_blocking_tab_title => 'Shorts blocking';
+  String get shorts_blocking_tab_title => 'Blokování šortek';
 
   @override
   String get shorts_blocking_tab_info =>
-      'Control how much time you spend on short content across platforms like Instagram, YouTube, Snapchat, and Facebook, including their websites.';
+      'Mějte pod kontrolou, kolik času strávíte krátkým obsahem na platformách jako Instagram, YouTube, Snapchat a Facebook, včetně jejich webových stránek.';
 
   @override
-  String get short_content_heading => 'Short content';
+  String get short_content_heading => 'Krátký obsah';
 
   @override
   String shorts_time_left_from(String timeShortString) {
-    return 'Left from $timeShortString';
+    return 'Vlevo od $timeShortString';
   }
 
   @override
   String get short_content_timer_picker_dialog_info =>
-      'Set a daily time limit for short content. Once your limit is reached, the short content will be paused until midnight.';
+      'Nastavte denní časový limit pro krátký obsah. Po dosažení limitu bude krátký obsah pozastaven do půlnoci.';
 
   @override
   String get instagram_features_tile_title => 'Instagram';
 
   @override
-  String get instagram_features_tile_subtitle =>
-      'Restrict features on instagram.';
+  String get instagram_features_tile_subtitle => 'Omezte funkce na instagramu.';
 
   @override
-  String get instagram_features_block_reels => 'Restrict reels section.';
+  String get instagram_features_block_reels => 'Omezit sekci válců.';
 
   @override
-  String get instagram_features_block_explore => 'Restrict explore section.';
+  String get instagram_features_block_explore => 'Omezit sekci prozkoumat.';
 
   @override
   String get snapchat_features_tile_title => 'Snapchat';
 
   @override
-  String get snapchat_features_tile_subtitle =>
-      'Restrict features on snapchat.';
+  String get snapchat_features_tile_subtitle => 'Omezte funkce na snapchatu.';
 
   @override
-  String get snapchat_features_block_spotlight => 'Restrict spotlight section.';
+  String get snapchat_features_block_spotlight => 'Omezit sekci reflektorů.';
 
   @override
-  String get snapchat_features_block_discover => 'Restrict discover section.';
+  String get snapchat_features_block_discover => 'Omezit sekci objevování.';
 
   @override
   String get youtube_features_tile_title => 'Youtube';
 
   @override
-  String get youtube_features_tile_subtitle => 'Restrict shorts on youtube.';
+  String get youtube_features_tile_subtitle => 'Omezit šortky na youtube.';
 
   @override
   String get facebook_features_tile_title => 'Facebook';
 
   @override
-  String get facebook_features_tile_subtitle => 'Restrict reels on facebook.';
+  String get facebook_features_tile_subtitle => 'Omezte kotouče na Facebooku.';
 
   @override
   String get reddit_features_tile_title => 'Reddit';
 
   @override
-  String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
+  String get reddit_features_tile_subtitle => 'Omezte šortky na redditu.';
 
   @override
-  String get websites_blocking_tab_title => 'Websites blocking';
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Omezit přenos videa na X.';
+
+  @override
+  String get threads_features_tile_title => 'Vlákna';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Omezit video/válce ve vláknech.';
+
+  @override
+  String get websites_blocking_tab_title => 'Blokování webových stránek';
 
   @override
   String get websites_blocking_tab_info =>
-      'Block adult websites and any custom sites you choose to create a safer and more focused online experience. Take charge of your browsing and stay distraction-free.';
+      'Blokujte webové stránky pro dospělé a jakékoli vlastní webové stránky, které si vyberete, abyste vytvořili bezpečnější a cílenější online zážitek. Převezměte kontrolu nad svým procházením a zůstaňte bez rušení.';
 
   @override
-  String get adult_content_heading => 'Adult content';
+  String get adult_content_heading => 'Obsah pro dospělé';
 
   @override
-  String get block_nsfw_title => 'Block Nsfw';
+  String get block_nsfw_title => 'Blokovat Nsfw';
 
   @override
   String get block_nsfw_subtitle =>
-      'Restrict browsers from opening adult and porn websites.';
+      'Omezte prohlížeče v otevírání webových stránek pro dospělé a pornografie.';
 
   @override
   String get block_nsfw_dialog_info =>
-      'Are you sure? This action is irreversible. Once adult sites blocker is turned ON, you cannot turn it OFF as long as this app is installed on your device.';
+      'jsi si jistý? Tato akce je nevratná. Jakmile je blokování webů pro dospělé ZAPNUTO, nelze jej vypnout, pokud je tato aplikace nainstalována ve vašem zařízení.';
 
   @override
-  String get block_nsfw_dialog_button_block_anyway => 'Block anyway';
+  String get block_nsfw_dialog_button_block_anyway => 'Každopádně blokovat';
 
   @override
-  String get blocked_websites_heading => 'Blocked websites';
+  String get blocked_websites_heading => 'Blokované webové stránky';
 
   @override
   String get blocked_websites_empty_list_hint =>
-      'Click on \'+ Add Website\' button to add distracting websites which you wish to block.';
+      'Kliknutím na tlačítko „+ Přidat web“ přidáte rušivé weby, které chcete zablokovat.';
 
   @override
-  String get add_website_fab_button => 'Add Website';
+  String get add_website_fab_button => 'Přidat web';
 
   @override
-  String get add_website_dialog_title => 'Distracting website';
+  String get add_website_dialog_title => 'Rušivý web';
 
   @override
   String get add_website_dialog_info =>
-      'Enter url of a website which you want to block.';
+      'Zadejte adresu URL webu, který chcete zablokovat.';
 
   @override
-  String get add_website_dialog_is_nsfw => 'Is nsfw site?';
+  String get add_website_dialog_is_nsfw => 'Je stránka nsfw?';
 
   @override
   String get add_website_dialog_nsfw_warning =>
-      'Warning: Nsfw sites cannot be removed once added.';
+      'Upozornění: Stránky Nsfw nelze po přidání odstranit.';
 
   @override
-  String get add_website_dialog_button_block => 'Block';
+  String get add_website_dialog_button_block => 'Blokovat';
 
   @override
   String get add_website_already_exist_snack_alert =>
-      'The URL has already been added to the list of blocked websites.';
+      'Adresa URL již byla přidána do seznamu blokovaných webových stránek.';
 
   @override
   String get add_website_invalid_url_snack_alert =>
-      'Invalid URL! Unable to parse the host name.';
+      'Neplatná adresa URL! Nelze analyzovat název hostitele.';
 
   @override
-  String get remove_website_dialog_title => 'Remove website';
+  String get remove_website_dialog_title => 'Odebrat web';
 
   @override
   String remove_website_dialog_info(String websitehost) {
-    return 'Are you sure? you want to remove \'$websitehost\' from blocked websites.';
+    return 'jsi si jistý? chcete odstranit \'$websitehost\' z blokovaných webových stránek.';
   }
 
   @override
-  String get focus_tab_title => 'Focus';
+  String get focus_tab_title => 'Zaměřte se';
 
   @override
   String get focus_tab_info =>
-      'When you need time to focus, start a new session by selecting the type, choosing distracting apps to pause, and enabling Do Not Disturb for uninterrupted concentration.';
+      'Když potřebujete čas na soustředění, začněte novou relaci výběrem typu, výběrem rušivých aplikací, které chcete pozastavit, a zapnutím funkce Nerušit pro nepřerušované soustředění.';
 
   @override
-  String get active_session_card_title => 'Active session';
+  String get active_session_card_title => 'Aktivní relace';
 
   @override
   String get active_session_card_info =>
-      'You have an active focus session running! Click \'View\' to check your progress and see how much time has elapsed.';
+      'Probíhá aktivní soustředění! Kliknutím na „Zobrazit“ můžete zkontrolovat svůj postup a zjistit, kolik času uplynulo.';
 
   @override
-  String get active_session_card_view_button => 'View';
+  String get active_session_card_view_button => 'Zobrazit';
 
   @override
   String get focus_distracting_apps_removal_snack_alert =>
-      'Removal of apps from the distracting apps list is not permitted while a Focus Session is active. However, you may still add additional apps to the list during this time.';
+      'Odebrání aplikací ze seznamu rušivých aplikací není povoleno, pokud je aktivní relace Focus Session. Během této doby však stále můžete do seznamu přidávat další aplikace.';
 
   @override
-  String get focus_profile_tile_title => 'Focus profile';
+  String get focus_profile_tile_title => 'Zaměření profilu';
 
   @override
-  String get focus_session_duration_tile_title => 'Session duration';
+  String get focus_session_duration_tile_title => 'Doba trvání relace';
 
   @override
   String get focus_session_duration_tile_subtitle =>
-      'Infinite (unless you stop)';
+      'Nekonečný (pokud se nezastavíš)';
 
   @override
   String get focus_session_duration_dialog_info =>
-      'Please select the desired duration for this focus session, determining how long you wish to remain focused and distraction-free.';
+      'Vyberte prosím požadovanou dobu trvání tohoto soustředění a určete, jak dlouho chcete zůstat soustředění a bez rozptylování.';
 
   @override
-  String get focus_profile_customization_tile_title => 'Profile customization';
+  String get focus_profile_customization_tile_title => 'Přizpůsobení profilu';
 
   @override
   String get focus_profile_customization_tile_subtitle =>
-      'Customize settings for the selected profile.';
+      'Přizpůsobte nastavení pro vybraný profil.';
 
   @override
-  String get focus_enforce_tile_title => 'Enforce session';
+  String get focus_enforce_tile_title => 'Vynutit relaci';
 
   @override
   String get focus_enforce_tile_subtitle =>
-      'Prevents ending a session before time ends.';
+      'Zabraňuje ukončení relace před uplynutím času.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Přejetím zahájíte relaci';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
-      'Select at least one distracting app to start focus session';
+      'Chcete-li zahájit relaci soustředění, vyberte alespoň jednu rušivou aplikaci';
 
   @override
   String get focus_session_already_active_snack_alert =>
-      'You already have an active focus session running. Please complete or stop your current session before starting a new one.';
+      'Již máte spuštěnou relaci aktivního soustředění. Před zahájením nové prosím dokončete nebo zastavte aktuální relaci.';
 
   @override
-  String get focus_session_type_study => 'Study';
+  String get focus_session_type_study => 'Studium';
 
   @override
-  String get focus_session_type_work => 'Work';
+  String get focus_session_type_work => 'Práce';
 
   @override
-  String get focus_session_type_exercise => 'Exercise';
+  String get focus_session_type_exercise => 'Cvičení';
 
   @override
-  String get focus_session_type_meditation => 'Meditation';
+  String get focus_session_type_meditation => 'Meditace';
 
   @override
-  String get focus_session_type_creativeWriting => 'Creative Writing';
+  String get focus_session_type_creativeWriting => 'Kreativní psaní';
 
   @override
-  String get focus_session_type_reading => 'Reading';
+  String get focus_session_type_reading => 'Čtení';
 
   @override
-  String get focus_session_type_programming => 'Programming';
+  String get focus_session_type_programming => 'Programování';
 
   @override
-  String get focus_session_type_chores => 'Chores';
+  String get focus_session_type_chores => 'Domácí práce';
 
   @override
-  String get focus_session_type_projectPlanning => 'Project Planning';
+  String get focus_session_type_projectPlanning => 'Plánování projektu';
 
   @override
-  String get focus_session_type_artAndDesign => 'Art and Design';
+  String get focus_session_type_artAndDesign => 'Umění a design';
 
   @override
-  String get focus_session_type_languageLearning => 'Language Learning';
+  String get focus_session_type_languageLearning => 'Výuka jazyků';
 
   @override
-  String get focus_session_type_musicPractice => 'Music Practice';
+  String get focus_session_type_musicPractice => 'Hudební praxe';
 
   @override
-  String get focus_session_type_selfCare => 'Self Care';
+  String get focus_session_type_selfCare => 'Péče o sebe';
 
   @override
   String get focus_session_type_brainstorming => 'Brainstorming';
 
   @override
-  String get focus_session_type_skillDevelopment => 'Skill Development';
+  String get focus_session_type_skillDevelopment => 'Rozvoj dovedností';
 
   @override
-  String get focus_session_type_research => 'Research';
+  String get focus_session_type_research => 'Výzkum';
 
   @override
-  String get focus_session_type_networking => 'Networking';
+  String get focus_session_type_networking => 'vytváření sítí';
 
   @override
-  String get focus_session_type_cooking => 'Cooking';
+  String get focus_session_type_cooking => 'Vaření';
 
   @override
-  String get focus_session_type_sportsTraining => 'Sports Training';
+  String get focus_session_type_sportsTraining => 'Sportovní trénink';
 
   @override
-  String get focus_session_type_restAndRelaxation => 'Rest and Relaxation';
+  String get focus_session_type_restAndRelaxation => 'Odpočinek a relaxace';
 
   @override
-  String get focus_session_type_other => 'Other';
+  String get focus_session_type_other => 'Jiné';
 
   @override
-  String get timeline_tab_title => 'Timeline';
+  String get timeline_tab_title => 'Časová osa';
 
   @override
   String get focus_timeline_tab_info =>
-      'Explore your focus journey by selecting a date from the calendar. Track your progress, revisit your successes, and learn from the challenges.';
+      'Prozkoumejte svou soustředěnou cestu výběrem data z kalendáře. Sledujte svůj pokrok, vraťte se ke svým úspěchům a poučte se z výzev.';
 
   @override
   String selected_month_productive_time_snack_alert(String timeString) {
-    return 'Your total productive time for the selected month is $timeString.';
+    return 'Váš celkový produktivní čas za vybraný měsíc je $timeString.';
   }
 
   @override
-  String get selected_month_productive_days_label => 'Productive days';
+  String get selected_month_productive_days_label => 'Produktivní dny';
 
   @override
   String selected_month_productive_days_snack_alert(num daysCount) {
-    return 'You\'ve had a total of $daysCount productive days in the selected month.';
+    return 'Ve vybraném měsíci jste měli celkem $daysCount produktivních dní.';
   }
 
   @override
-  String get selected_day_focused_time_label => 'Focused time';
+  String get selected_day_focused_time_label => 'Soustředěný čas';
 
   @override
   String selected_day_focused_time_snack_alert(String timeString) {
-    return 'Your total focused time for the selected day is $timeString.';
+    return 'Váš celkový čas soustředění pro vybraný den je $timeString.';
   }
 
   @override
-  String get calender_heading => 'Calender';
+  String get calender_heading => 'Kalendář';
 
   @override
-  String get your_sessions_heading => 'Your sessions';
+  String get your_sessions_heading => 'Vaše relace';
 
   @override
   String get your_sessions_empty_list_hint =>
-      'No focus sessions recorded for the selected day.';
+      'Pro vybraný den nebyly zaznamenány žádné soustředění.';
 
   @override
-  String get focus_session_tile_timestamp_label => 'Timestamp';
+  String get focus_session_tile_timestamp_label => 'Časové razítko';
 
   @override
-  String get focus_session_tile_duration_label => 'Duration';
+  String get focus_session_tile_duration_label => 'Doba trvání';
 
   @override
-  String get focus_session_tile_reflection_label => 'Reflection';
+  String get focus_session_tile_reflection_label => 'Reflexe';
 
   @override
-  String get focus_session_state_active => 'Active';
+  String get focus_session_state_active => 'Aktivní';
 
   @override
-  String get focus_session_state_successful => 'Successful';
+  String get focus_session_state_successful => 'Úspěšné';
 
   @override
-  String get focus_session_state_failed => 'Failed';
+  String get focus_session_state_failed => 'Nepodařilo se';
 
   @override
-  String get active_session_tab_title => 'Session';
+  String get active_session_tab_title => 'Relace';
 
   @override
   String get active_session_none_warning =>
-      'No active session found. Returning to the home screen.';
+      'Nebyla nalezena žádná aktivní relace. Návrat na domovskou obrazovku.';
 
   @override
-  String get active_session_dialog_button_keep_pushing => 'Keep pushing';
+  String get active_session_dialog_button_keep_pushing => 'Tlačte dál';
 
   @override
-  String get active_session_finish_dialog_title => 'Finish';
+  String get active_session_finish_dialog_title => 'Dokončit';
 
   @override
   String get active_session_finish_dialog_info =>
-      'Stay strong! You\'re building valuable focus. Are you sure you want to end this focus session? Every extra moment counts toward your goals.';
+      'Zůstaňte silní! Budujete cenné soustředění. Opravdu chcete ukončit toto soustředění? Každý okamžik navíc se počítá do vašich cílů.';
 
   @override
-  String get active_session_giveup_dialog_title => 'Give up';
+  String get active_session_giveup_dialog_title => 'vzdát se';
 
   @override
   String get active_session_giveup_dialog_info =>
-      'Hold on! You\'re almost there don\'t give up now! Are you sure you want to end this focus session early? Progress will be lost.';
+      'vydrž! Už jsi skoro tam, nevzdávej to! Opravdu chcete ukončit toto soustředění dříve? Pokrok bude ztracen.';
 
   @override
-  String get active_session_reflection_dialog_title => 'Session reflection';
+  String get active_session_reflection_dialog_title => 'Relace reflexe';
 
   @override
   String get active_session_reflection_dialog_info =>
-      'Take a moment to reflect on your progress. What\'s your goal for this session? What did you accomplish during this session?';
+      'Udělejte si chvilku na zamyšlení nad svým pokrokem. Jaký je váš cíl pro tuto relaci? Co jste během tohoto sezení dokázali?';
 
   @override
   String get active_session_reflection_dialog_tip =>
-      'Tip: You can always edit this later in the session timeline.';
+      'Tip: Toto můžete kdykoli upravit později na časové ose relace.';
 
   @override
   String get active_session_giveup_snack_alert =>
-      'You gave up! Don\'t worry, you can do better next time. Every effort counts - just keep going';
+      'Vzdal jsi to! Nebojte se, příště to zvládnete lépe. Každá snaha se počítá – jen tak dál';
 
   @override
   String get active_session_quote_one =>
-      'Every step counts, stay strong and keep going';
+      'Každý krok se počítá, zůstaňte silní a pokračujte';
 
   @override
-  String get active_session_quote_two =>
-      'Stay focused! you\'re making amazing progress';
+  String get active_session_quote_two => 'Soustřeďte se! děláš úžasné pokroky';
 
   @override
-  String get active_session_quote_three =>
-      'You\'re crushing it! Keep the momentum going';
+  String get active_session_quote_three => 'Ty to drtíš! Udržujte tempo';
 
   @override
   String get active_session_quote_four =>
-      'Just a little more to go, you\'re doing fantastic';
+      'Ještě kousek, jde vám to fantasticky';
 
   @override
   String active_session_quote_five(String durationString) {
-    return 'Congratulations 🎉 \n You\'ve completed your focus session of $durationString.\n\nGreat job, keep up the amazing work';
+    return 'Gratulujeme 🎉 \n Dokončili jste soustředění $durationString.\n\nSkvělá práce, pokračujte v úžasné práci';
   }
 
   @override
-  String get restriction_groups_tab_title => 'Restriction groups';
+  String get restriction_groups_tab_title => 'Omezovací skupiny';
 
   @override
   String get restriction_groups_tab_info =>
-      'Set a combined screen time limit for a group of apps. Once the total usage reaches your limit, all apps in the group will be paused to help maintain focus and balance.';
+      'Nastavte kombinovaný limit času na zařízení pro skupinu aplikací. Jakmile celkové využití dosáhne vašeho limitu, všechny aplikace ve skupině budou pozastaveny, aby bylo možné udržet pozornost a rovnováhu.';
 
   @override
-  String get restriction_group_time_spent_label => 'Time spent today';
+  String get restriction_group_time_spent_label => 'Dnes strávený čas';
 
   @override
-  String get restriction_group_time_left_label => 'Time left today';
+  String get restriction_group_time_left_label => 'Dnes zbývá čas';
 
   @override
-  String get restriction_group_name_tile_title => 'Group name';
+  String get restriction_group_name_tile_title => 'Název skupiny';
 
   @override
   String get restriction_group_name_picker_dialog_info =>
-      'Enter a name for the restriction group to help identify and manage it easily.';
+      'Zadejte název skupiny omezení, abyste ji mohli snadno identifikovat a spravovat.';
 
   @override
-  String get restriction_group_timer_tile_title => 'Group timer';
+  String get restriction_group_timer_tile_title => 'Skupinový časovač';
 
   @override
   String get restriction_group_timer_picker_dialog_info =>
-      'Set a daily time limit for this group. Once your limit is reached, all the apps in this group will be paused until midnight.';
+      'Nastavte pro tuto skupinu denní časový limit. Po dosažení limitu budou všechny aplikace v této skupině pozastaveny až do půlnoci.';
 
   @override
   String get restriction_group_active_period_tile_title =>
-      'Group active period';
+      'Aktivní období skupiny';
 
   @override
-  String get remove_restriction_group_dialog_title => 'Remove group';
+  String get remove_restriction_group_dialog_title => 'Odebrat skupinu';
 
   @override
   String remove_restriction_group_dialog_info(String groupName) {
-    return 'Are you sure? you want to remove \'$groupName\' from restriction groups.';
+    return 'jsi si jistý? chcete odstranit \'$groupName\' ze skupin omezení.';
   }
 
   @override
   String get restriction_group_invalid_limits_snack_alert =>
-      'Set either a timer or an active period limit.';
+      'Nastavte buď časovač nebo limit aktivního období.';
 
   @override
   String get notifications_empty_list_hint =>
-      'No notifications have been batched for the day.';
+      'Pro daný den nebyla přidána žádná oznámení.';
 
   @override
-  String get conversations_label => 'Conversations';
+  String get conversations_label => 'Konverzace';
 
   @override
-  String get last_24_hours_heading => 'Last 24 hours';
+  String get last_24_hours_heading => 'Posledních 24 hodin';
 
   @override
   String get notification_timeline_tab_info =>
-      'Browse your notification history by selecting a date from the calendar. See which apps grabbed your attention and reflect on your digital habits.';
+      'Procházejte svou historii oznámení výběrem data z kalendáře. Podívejte se, které aplikace zaujaly vaši pozornost, a zamyslete se nad svými digitálními návyky.';
 
   @override
-  String get monthly_label => 'Monthly';
+  String get monthly_label => 'Měsíční';
 
   @override
-  String get daily_label => 'Daily';
+  String get daily_label => 'denně';
 
   @override
   String get search_notifications_sheet_info =>
-      'Easily find past notifications by searching through their title or content. Helps you quickly locate important alerts.';
+      'Snadno najděte minulá oznámení prohledáním jejich názvu nebo obsahu. Pomůže vám rychle najít důležitá upozornění.';
 
   @override
-  String get search_notifications_hint => 'Search notifications...';
+  String get search_notifications_hint => 'Hledat oznámení...';
 
   @override
   String get search_notifications_empty_list_hint =>
-      'No notifications found matching your search.';
+      'Nebyla nalezena žádná oznámení odpovídající vašemu hledání.';
 
   @override
   String get app_info_none_warning =>
-      'Couldn\'t find the app for the given package. Returning to the home screen.';
+      'Aplikaci pro daný balíček se nepodařilo najít. Návrat na domovskou obrazovku.';
 
   @override
-  String get emergency_fab_button => 'Emergency';
+  String get emergency_fab_button => 'Pohotovost';
 
   @override
   String emergency_dialog_info(num leftPassesCount) {
-    return 'This action will pause the app blocker for next 5 minutes. You have $leftPassesCount passes left. After using all passes, the app will stay blocked until midnight, or the active focus session ends.\n\nDo you still wish to proceed?';
+    return 'Tato akce pozastaví blokování aplikací na dalších 5 minut. Zbývají vám průkazy $leftPassesCount. Po použití všech průchodů zůstane aplikace zablokována až do půlnoci nebo skončí relace aktivního soustředění.\n\nPřejete si přesto pokračovat?';
   }
 
   @override
-  String get emergency_dialog_button_use_anyway => 'Use anyway';
+  String get emergency_dialog_button_use_anyway => 'Přesto použít';
 
   @override
   String get emergency_started_snack_alert =>
-      'The app blocker is paused and will resume blocking in 5 minutes.';
+      'Blokování aplikací je pozastaveno a bude pokračovat v blokování za 5 minut.';
 
   @override
   String get emergency_already_active_snack_alert =>
-      'The app blocker is currently either paused or inactive. If notifications are enabled, you will receive updates regarding the remaining time.';
+      'Blokování aplikací je momentálně pozastaveno nebo neaktivní. Pokud jsou upozornění povolena, budete dostávat aktualizace týkající se zbývajícího času.';
 
   @override
   String get emergency_no_pass_left_snack_alert =>
-      'You have used all your emergency passes. The blocked apps will stay blocked until midnight, or the active focus session ends.';
+      'Využili jste všechny své nouzové průkazy. Zablokované aplikace zůstanou blokovány až do půlnoci, nebo skončí aktivní relace.';
 
   @override
-  String get app_limit_status_not_set => 'Not set';
+  String get app_limit_status_not_set => 'Nenastaveno';
 
   @override
-  String get app_timer_tile_title => 'App timer';
+  String get app_timer_tile_title => 'Časovač aplikace';
 
   @override
   String get app_timer_picker_dialog_info =>
-      'Set a daily time limit for this app. Once your limit is reached, the app will be paused until midnight.';
+      'Nastavte pro tuto aplikaci denní časový limit. Po dosažení limitu bude aplikace pozastavena do půlnoci.';
 
   @override
-  String get usage_reminders_tile_title => 'Usage reminders';
+  String get usage_reminders_tile_title => 'Připomenutí použití';
 
   @override
   String get usage_reminders_tile_subtitle =>
-      'Gentle nudges when using timed apps.';
+      'Jemné šťouchnutí při používání časovaných aplikací.';
 
   @override
-  String get app_launch_limit_tile_title => 'Launch limit';
+  String get app_launch_limit_tile_title => 'Limit spuštění';
 
   @override
   String app_launch_limit_tile_subtitle(num count) {
-    return 'Launched $count times today.';
+    return 'Dnes spuštěno $count krát.';
   }
 
   @override
   String get app_launch_limit_picker_dialog_info =>
-      'Set how many times you can open this app each day. Once the limit is reached, it will be paused until midnight.';
+      'Nastavte, kolikrát denně můžete tuto aplikaci otevřít. Po dosažení limitu se pozastaví do půlnoci.';
 
   @override
-  String get app_active_period_tile_title => 'Active period';
+  String get app_active_period_tile_title => 'Aktivní období';
 
   @override
   String app_active_period_tile_subtitle(String startTime, String endTime) {
-    return 'From $startTime to $endTime';
+    return 'Od $startTime do $endTime';
   }
 
   @override
-  String get internet_access_tile_title => 'Internet access';
+  String get internet_access_tile_title => 'Přístup k internetu';
 
   @override
   String get internet_access_tile_subtitle =>
-      'Switch off to block app\'s internet.';
+      'Chcete-li aplikaci zablokovat internet, vypněte ji.';
 
   @override
   String internet_access_blocked_snack_alert(String appName) {
-    return '$appName\'s internet is blocked.';
+    return 'Internet $appName je blokován.';
   }
 
   @override
   String internet_access_unblocked_snack_alert(String appName) {
-    return '$appName\'s internet is unblocked.';
+    return 'Internet $appName je odblokován.';
   }
 
   @override
-  String get launch_app_tile_title => 'Launch app';
+  String get launch_app_tile_title => 'Spusťte aplikaci';
 
   @override
   String launch_app_tile_subtitle(String appName) {
-    return 'Open $appName.';
+    return 'Otevřete $appName.';
   }
 
   @override
-  String get go_to_app_settings_tile_title => 'Go to app settings';
+  String get go_to_app_settings_tile_title => 'Přejděte do nastavení aplikace';
 
   @override
   String get go_to_app_settings_tile_subtitle =>
-      'Manage app settings like notifications, permissions, storage and more.';
+      'Spravujte nastavení aplikací, jako jsou oznámení, oprávnění, úložiště a další.';
 
   @override
-  String get include_in_stats_tile_title => 'Include in screen usage';
+  String get include_in_stats_tile_title => 'Zahrnout do použití obrazovky';
 
   @override
   String get include_in_stats_tile_subtitle =>
-      'Switch off to exclude this app from total screen usage.';
+      'Vypněte, chcete-li tuto aplikaci vyloučit z celkového využití obrazovky.';
 
   @override
   String app_excluded_from_stats_snack_alert(String appName) {
-    return '$appName is excluded from total screen usage.';
+    return '$appName je vyloučeno z celkového využití obrazovky.';
   }
 
   @override
   String app_include_to_stats_snack_alert(String appName) {
-    return '$appName is included to total screen usage.';
+    return '$appName je součástí celkového využití obrazovky.';
   }
 
   @override
-  String get general_tab_title => 'General';
+  String get general_tab_title => 'Generál';
 
   @override
-  String get appearance_heading => 'Appearance';
+  String get appearance_heading => 'Vzhled';
 
   @override
-  String get theme_mode_tile_title => 'Theme mode';
+  String get theme_mode_tile_title => 'Tématický režim';
 
   @override
-  String get theme_mode_system_label => 'System';
+  String get theme_mode_system_label => 'Systém';
 
   @override
-  String get theme_mode_light_label => 'Light';
+  String get theme_mode_light_label => 'Světlo';
 
   @override
-  String get theme_mode_dark_label => 'Dark';
+  String get theme_mode_dark_label => 'Tmavý';
 
   @override
-  String get material_color_tile_title => 'Material color';
+  String get material_color_tile_title => 'Barva materiálu';
 
   @override
-  String get amoled_dark_tile_title => 'AMOLED dark';
+  String get amoled_dark_tile_title => 'AMOLED tmavý';
 
   @override
   String get amoled_dark_tile_subtitle =>
-      'Use pure black color for the dark theme.';
+      'Pro tmavé téma použijte čistě černou barvu.';
 
   @override
-  String get dynamic_colors_tile_title => 'Dynamic colors';
+  String get dynamic_colors_tile_title => 'Dynamické barvy';
 
   @override
-  String get dynamic_colors_tile_subtitle => 'Use device colors if supported.';
+  String get dynamic_colors_tile_subtitle =>
+      'Použijte barvy zařízení, pokud jsou podporovány.';
 
   @override
-  String get defaults_heading => 'Defaults';
+  String get defaults_heading => 'Výchozí';
 
   @override
-  String get app_language_tile_title => 'App language';
+  String get app_language_tile_title => 'Jazyk aplikace';
 
   @override
-  String get default_home_tab_tile_title => 'Home tab';
+  String get default_home_tab_tile_title => 'Karta Domů';
 
   @override
-  String get usage_history_tile_title => 'Usage history';
+  String get usage_history_tile_title => 'Historie použití';
 
   @override
-  String get usage_history_15_days => '15 days';
+  String get usage_history_15_days => '15 dní';
 
   @override
-  String get usage_history_1_month => '1 month';
+  String get usage_history_1_month => '1 měsíc';
 
   @override
-  String get usage_history_3_month => '3 months';
+  String get usage_history_3_month => '3 měsíce';
 
   @override
-  String get usage_history_6_month => '6 months';
+  String get usage_history_6_month => '6 měsíců';
 
   @override
-  String get usage_history_1_year => '1 year';
+  String get usage_history_1_year => '1 rok';
 
   @override
-  String get service_heading => 'Service';
+  String get service_heading => 'Servis';
 
   @override
   String get service_stopping_warning =>
-      'If NLP digitox stops working unexpectedly, please grant the \'Ignore Battery Optimization\' permission to keep it running in the background. If the issue continues, try whitelisting NLP digitox for uninterrupted performance.';
+      'Pokud NLP digitox neočekávaně přestane fungovat, udělte prosím oprávnění \'Ignorovat optimalizaci baterie\', aby zůstala spuštěna na pozadí. Pokud problém přetrvává, zkuste NLP digitox přidat na seznam povolených, abyste zajistili nepřerušovaný výkon.';
 
   @override
   String get whitelist_app_tile_title => 'Whitelist NLP digitox';
 
   @override
-  String get whitelist_app_tile_subtitle => 'Allow NLP digitox to auto start.';
+  String get whitelist_app_tile_subtitle =>
+      'Povolte automatické spuštění NLP digitox.';
 
   @override
   String get whitelist_app_unsupported_snack_alert =>
-      'This device does not support automatic startup management.';
+      'Toto zařízení nepodporuje automatickou správu spouštění.';
 
   @override
-  String get database_tab_title => 'Database';
+  String get database_tab_title => 'databáze';
 
   @override
-  String get import_db_tile_title => 'Import database';
+  String get import_db_tile_title => 'Importovat databázi';
 
   @override
-  String get import_db_tile_subtitle => 'Import database from a file.';
+  String get import_db_tile_subtitle => 'Import databáze ze souboru.';
 
   @override
-  String get export_db_tile_title => 'Export database';
+  String get export_db_tile_title => 'Export databáze';
 
   @override
-  String get export_db_tile_subtitle => 'Export database to a file.';
+  String get export_db_tile_subtitle => 'Export databáze do souboru.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Analýza';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 dní';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 dní';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 dní';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Trend času na obrazovce';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Pro toto období zatím nejsou zaznamenána žádná data o čase na obrazovce.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Denní průměr';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Celkem';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Stejně jako minulý týden';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return 'o $percent% méně než minulý týden';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return 'o $percent% více než minulý týden';
   }
 
   @override
-  String get crash_logs_heading => 'Crash logs';
+  String get crash_logs_heading => 'Protokoly o haváriích';
 
   @override
   String get crash_logs_info =>
-      'If you encounter any issue, you can report it on GitHub along with the log file. The file will include details such as your device\'s manufacturer, model, Android version, SDK version, and crash logs. This information will help us identify and resolve the problem more effectively.';
+      'Pokud narazíte na nějaký problém, můžete jej nahlásit na GitHubu spolu se souborem protokolu. Soubor bude obsahovat podrobnosti, jako je výrobce vašeho zařízení, model, verze Androidu, verze SDK a protokoly selhání. Tyto informace nám pomohou efektivněji identifikovat a vyřešit problém.';
 
   @override
-  String get crash_logs_export_tile_title => 'Export crash logs';
+  String get crash_logs_export_tile_title => 'Exportujte protokoly o selhání';
 
   @override
   String get crash_logs_export_tile_subtitle =>
-      'Export crash logs to a json file.';
+      'Exportujte protokoly o selhání do souboru json.';
 
   @override
-  String get crash_logs_view_tile_title => 'View logs';
+  String get crash_logs_view_tile_title => 'Zobrazit protokoly';
 
   @override
-  String get crash_logs_view_tile_subtitle => 'Explore stored crash logs.';
+  String get crash_logs_view_tile_subtitle =>
+      'Prozkoumejte uložené protokoly o selhání.';
 
   @override
-  String get crash_logs_empty_list_hint => 'No crash logged till now.';
+  String get crash_logs_empty_list_hint => 'Dosud nebyl zaznamenán žádný pád.';
 
   @override
-  String get crash_logs_clear_tile_title => 'Clear logs';
+  String get crash_logs_clear_tile_title => 'Vymazat protokoly';
 
   @override
   String get crash_logs_clear_tile_subtitle =>
-      'Delete all crash logs from database.';
+      'Odstraňte všechny protokoly o selhání z databáze.';
 
   @override
   String get crash_logs_clear_dialog_info =>
-      'Are you sure you wish to clear all crash logs from the database?';
+      'Opravdu chcete vymazat všechny protokoly o selhání z databáze?';
 
   @override
-  String get crash_logs_clear_dialog_button_clear_anyway => 'Clear anyway';
+  String get crash_logs_clear_dialog_button_clear_anyway => 'Každopádně jasné';
 
   @override
-  String get about_tab_title => 'About';
+  String get about_tab_title => 'O';
 
   @override
-  String get changelog_tile_title => 'Changelog';
+  String get changelog_tile_title => 'Seznam změn';
 
   @override
-  String get changelog_tile_subtitle => 'Find out what\'s new.';
+  String get changelog_tile_subtitle => 'Zjistěte, co je nového.';
 
   @override
-  String get full_changelog_tile_title => 'Full changelog';
+  String get full_changelog_tile_title => 'Kompletní changelog';
 
   @override
-  String get redirected_to_github_subtitle =>
-      'You will be redirected to GitHub.';
+  String get redirected_to_github_subtitle => 'Budete přesměrováni na GitHub.';
 
   @override
-  String get contribute_heading => 'Contribute';
+  String get contribute_heading => 'Přispějte';
 
   @override
   String get github_tile_title => 'GitHub';
 
   @override
-  String get github_tile_subtitle => 'View the source code.';
+  String get github_tile_subtitle => 'Prohlédněte si zdrojový kód.';
 
   @override
-  String get report_issue_tile_title => 'Report an issue';
+  String get report_issue_tile_title => 'Nahlásit problém';
 
   @override
-  String get suggest_idea_tile_title => 'Suggest an idea';
+  String get suggest_idea_tile_title => 'Navrhněte nápad';
 
   @override
-  String get write_email_tile_title => 'Write to us via email';
+  String get write_email_tile_title => 'Napište nám na email';
 
   @override
   String get write_email_tile_subtitle =>
-      'You will be redirected to Email app.';
+      'Budete přesměrováni do aplikace E-mail.';
 
   @override
-  String get privacy_policy_heading => 'Privacy policy';
+  String get privacy_policy_heading => 'Zásady ochrany osobních údajů';
 
   @override
   String get privacy_policy_info =>
-      'NLP digitox is committed to protecting your privacy. We do not collect, store, or transfer any type of user data. The app operates entirely offline and does not require an internet connection, ensuring that your personal information remains private and secure on your device. As a Free and Open Source Software (FOSS) application, NLP digitox guarantees complete transparency and user control over their data.';
+      'NLP digitox se zavazuje chránit vaše soukromí. Neshromažďujeme, neukládáme ani nepřenášíme žádný typ uživatelských dat. Aplikace funguje zcela offline a nevyžaduje připojení k internetu, což zajišťuje, že vaše osobní údaje zůstanou na vašem zařízení soukromé a zabezpečené. Jako aplikace svobodného a otevřeného softwaru (FOSS) zaručuje NLP digitox úplnou transparentnost a uživatelskou kontrolu nad svými daty.';
 
   @override
-  String get more_details_button => 'More details';
+  String get more_details_button => 'Další podrobnosti';
 }

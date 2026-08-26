@@ -231,7 +231,7 @@ return DefaultRefreshIndicator(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
           border: Border.all(color: borderColor),
           boxShadow: ElevationTokens.of(context).level(1),
         ),
@@ -249,7 +249,7 @@ return DefaultRefreshIndicator(
                       padding: EdgeInsets.all(isCompact ? 8 : 10),
                       decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                      borderRadius: BorderRadius.circular(Radii.pill),
                       ),
                       child: Icon(
                         icon,

@@ -1548,6 +1548,30 @@ abstract class AppLocalizations {
   /// **'Restrict shorts on reddit.'**
   String get reddit_features_tile_subtitle;
 
+  /// No description provided for @x_features_tile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'X'**
+  String get x_features_tile_title;
+
+  /// No description provided for @x_features_tile_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restrict video feed on X.'**
+  String get x_features_tile_subtitle;
+
+  /// No description provided for @threads_features_tile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Threads'**
+  String get threads_features_tile_title;
+
+  /// No description provided for @threads_features_tile_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restrict video/reels on Threads.'**
+  String get threads_features_tile_subtitle;
+
   /// No description provided for @websites_blocking_tab_title.
   ///
   /// In en, this message translates to:

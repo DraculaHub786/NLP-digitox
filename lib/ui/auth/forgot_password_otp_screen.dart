@@ -26,8 +26,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
   final _focusNode = FocusNode();
   bool _isLoading = false;
 
-  /// Update this when you deploy n8n to a public HTTPS server.
-  static const String _n8nBaseUrl = 'http://localhost:5678';
+  static const String _n8nBaseUrl = 'https://n8n.nlpdigitox.me';
 
   @override
   void initState() {
@@ -65,7 +64,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse('$_n8nBaseUrl/webhook-test/verify-otp'),
+            Uri.parse('$_n8nBaseUrl/webhook/verify-otp'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'email': _email, 'otp': otp}),
           )
@@ -92,13 +91,13 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
     } on TimeoutException {
       if (!mounted) return;
       context.showSnackAlert(
-        'Request timed out. Make sure n8n is running.',
+        'Request timed out. Please try again.',
         icon: FluentIcons.error_circle_20_filled,
       );
     } catch (e) {
       if (!mounted) return;
       context.showSnackAlert(
-        'Connection error. Is n8n running on localhost:5678?',
+        'Connection error. Please check your connection and try again.',
         icon: FluentIcons.error_circle_20_filled,
       );
     } finally {
@@ -132,9 +131,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       border: Border.all(
-                        color: GlassTokens.of(context).borderTop,
+                        color: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassBorder : DesignPalette.lightGlassBorder),
                       ),
                     ),
                     padding: const EdgeInsets.all(18),
@@ -190,21 +189,21 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                           .withValues(alpha: 0.3),
                       border: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.outline.withValues(alpha: 0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.outline.withValues(alpha: 0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.primary,
                           width: 1.5,
@@ -227,6 +226,8 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                   /// Verify button
                   PillButton(
                     label: _isLoading ? null : 'Verify Code',
+                    onPressed: _isLoading ? null : _verifyOtp,
+                    fullWidth: true,
                     child: _isLoading
                         ? SizedBox(
                             height: 20.0,
@@ -237,8 +238,6 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                             ),
                           )
                         : null,
-                    onPressed: _isLoading ? null : _verifyOtp,
-                    fullWidth: true,
                   ).animate(effects: DefaultEffects.transitionIn),
 
                   const SizedBox(height: 24.0),

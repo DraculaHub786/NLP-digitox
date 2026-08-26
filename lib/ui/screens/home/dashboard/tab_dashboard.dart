@@ -114,7 +114,6 @@ class TabDashboard extends ConsumerWidget {
   }
 
   Widget _buildQuickActionsSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -136,7 +135,6 @@ class TabDashboard extends ConsumerWidget {
                         child: ModernQuickActionButton(
                           title: "Focus Now",
                           icon: FluentIcons.target_20_filled,
-                          color: colorScheme.primary,
                           onTap: () => Navigator.of(context).pushNamed(
                             AppRoutes.focusModePath,
                           ),
@@ -147,7 +145,6 @@ class TabDashboard extends ConsumerWidget {
                         child: ModernQuickActionButton(
                           title: "View Stats",
                           icon: FluentIcons.chart_multiple_20_regular,
-                          color: colorScheme.secondary,
                           onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
                             DefaultHomeTab.statistics.index,
                           ),
@@ -162,7 +159,6 @@ class TabDashboard extends ConsumerWidget {
                     ModernQuickActionButton(
                       title: "Focus Now",
                       icon: FluentIcons.target_20_filled,
-                      color: colorScheme.primary,
                       onTap: () => Navigator.of(context).pushNamed(
                         AppRoutes.focusModePath,
                       ),
@@ -170,7 +166,6 @@ class TabDashboard extends ConsumerWidget {
                     ModernQuickActionButton(
                       title: "View Stats",
                       icon: FluentIcons.chart_multiple_20_regular,
-                      color: colorScheme.secondary,
                       onTap: () => TabControllerProvider.maybeOf(context)?.animateToTab(
                         DefaultHomeTab.statistics.index,
                       ),

@@ -128,7 +128,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final borderColor = colorScheme.outline.withValues(alpha: 0.2);
 
     OutlineInputBorder border(Color color, double width) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.md),
           borderSide: BorderSide(color: color, width: width),
         );
 
@@ -164,22 +164,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// App icon — glass-chip style, matches the dashboard
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.15),
-                        borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
-                        border: Border.all(
-                          color: GlassTokens.of(context).borderTop,
+                    /// App icon — previous logo artwork shown on the first
+                    /// page (login) alongside the animated splash.
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(Radii.md),
+                          border: Border.all(
+                            color: (Theme.of(context).brightness == Brightness.dark
+                                    ? DesignPalette.darkGlassBorder
+                                    : DesignPalette.lightGlassBorder)
+                                .withValues(alpha: 0.4),
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        FluentIcons.brain_circuit_20_filled,
-                        size: 36.0,
-                        color: colorScheme.primary,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(Radii.md),
+                          child: Image.asset(
+                            'assets/icon-prev.png',
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ).animate(effects: DefaultEffects.transitionIn),
 
@@ -265,6 +275,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     /// Login button
                     PillButton(
                       label: _isLoading ? null : 'Login',
+                      onPressed: _isLoading ? null : _login,
+                      fullWidth: true,
                       child: _isLoading
                           ? SizedBox(
                               height: 20.0,
@@ -275,8 +287,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             )
                           : null,
-                      onPressed: _isLoading ? null : _login,
-                      fullWidth: true,
                     ).animate(effects: DefaultEffects.transitionIn),
 
                     const SizedBox(height: 20.0),

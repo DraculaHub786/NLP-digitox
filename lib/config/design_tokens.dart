@@ -60,6 +60,10 @@ abstract final class DesignPalette {
 
 /// Layered glass tokens: gradient fill + gradient border + soft tinted
 /// shadow, all theme aware. This is the Guide 6 layered version.
+///
+/// IMPORTANT: This is the ONLY glass system in the app. Do not hand-roll
+/// `BackdropFilter` + `Container` combos — use `GlassCard`
+/// (see `ui/common/glass_card.dart`).
 @immutable
 class GlassTokens extends ThemeExtension<GlassTokens> {
   final Color fillTop;
@@ -256,4 +260,77 @@ abstract final class DesignType {
             letterSpacing: 0.2,
             height: 1.2,
           );
+}
+
+/// 8dp-grid spacing system — use everywhere instead of magic numbers.
+abstract final class Spacing {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double base = 16;
+  static const double lg = 20;
+  static const double xl = 24;
+  static const double xxl = 32;
+  static const double section = 48;
+  static const double screenH = 20; // standard horizontal screen margin
+}
+
+abstract final class Radii {
+  static const double sm = 12;
+  static const double md = 16;
+  static const double lg = 20;
+  static const double xl = 24;
+  static const double pill = 100;
+}
+
+abstract final class Durations {
+  static const fast = Duration(milliseconds: 150);
+  static const normal = Duration(milliseconds: 300);
+  static const slow = Duration(milliseconds: 500);
+  static const entrance = Duration(milliseconds: 600);
+  static const stagger = Duration(milliseconds: 60);
+}
+
+abstract final class AppCurves {
+  static const standard = Curves.easeOutCubic;
+  static const entrance = Curves.easeOutQuart;
+  static const decelerate = Curves.decelerate;
+}
+
+/// Interactive accent system. This is the color used for icon chips, CTA
+/// buttons, active states, and highlights across Dashboard, Quick Actions,
+/// Auth CTAs, and Leaderboard — per the reference screenshots. This is
+/// SEPARATE from DesignPalette's botanical green, which stays reserved for
+/// the background gradient and splash/onboarding only.
+abstract final class AccentPalette {
+  /// Sampled with a color picker from `light-mode-ref.jpg` — the dominant
+  /// warm accent in the reference UI is RGB (225, 121, 60).
+  static const Color orange = Color(0xFFE1793C);
+
+  /// Card/element surface: light grey in light theme, near-black in dark theme.
+  static Color surface(bool isDark) =>
+      isDark ? const Color(0xFF141414) : const Color(0xFFF2F2F2);
+
+  /// Soft chip background sitting behind an orange icon.
+  static Color iconChip(bool isDark) => orange.withValues(alpha: isDark ? 0.18 : 0.14);
+
+  /// Semantic trend colors — kept separate from orange so up/down deltas
+  /// stay legible and aren't confused with the brand accent.
+  static const Color trendGood = Color(0xFF2ECC71);
+  static const Color trendBad = Color(0xFFE74C3C);
+}
+
+/// Responsive scaling helper — use sparingly on elements already identified
+/// as breaking at small widths (hero numbers, grid aspect ratios).
+/// Not a blanket replacement for all dimensions.
+abstract final class Responsive {
+  static const double _baseWidth = 390.0;
+
+  static double scale(BuildContext context, double base) {
+    final factor = (MediaQuery.of(context).size.width / _baseWidth).clamp(0.85, 1.25);
+    return base * factor;
+  }
+
+  static bool isCompact(BuildContext context) =>
+      MediaQuery.of(context).size.width < 360;
 }

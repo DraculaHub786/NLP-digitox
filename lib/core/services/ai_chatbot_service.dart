@@ -1,11 +1,13 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
+import 'package:nlp_digitox/core/services/chat_context_extractor.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
+import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
 import 'package:nlp_digitox/models/persona_model.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
 
@@ -964,6 +966,20 @@ Adjust your responses to be empathetic to their current emotional state.
       if (deletedCount > 0) {
         await _saveChatHistory();
         debugPrint('✅ Auto-deleted $deletedCount old chat session(s) (older than $_autoDeletionDays days)');
+      }
+
+      // Keep the derived sentiment data on the same 30-day clock as the
+      // chats it was computed from. ChatContextExtractor already
+      // self-prunes on every read (see getRecentThemes), but
+      // SentimentPersistenceService's snapshots were never actually
+      // pruned anywhere despite having a pruneBefore method — they would
+      // have accumulated indefinitely instead of respecting the same
+      // 30-day retention window as the chats themselves.
+      try {
+        await SentimentPersistenceService.instance.pruneBefore(cutoffDate);
+        await ChatContextExtractor.instance.pruneBefore(cutoffDate);
+      } catch (e) {
+        debugPrint('⚠️ Error pruning derived sentiment data: $e');
       }
     } catch (e) {
       debugPrint('❌ Error auto-deleting old chats: $e');

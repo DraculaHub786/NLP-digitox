@@ -73,7 +73,13 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
     final newSchedule = NotificationSchedule(
       label: scheduleName,
       time: time ?? TimeOfDayAdapter.now(),
-      isActive: isActive ?? false,
+      // Default to ON for schedules created through explicit user action
+      // (the "+" FAB). The 4 starter schedules seeded on first install
+      // (Morning/Afternoon/Evening/Night, see defaultNotificationSettingsModel)
+      // intentionally stay OFF until reviewed — but a schedule the user just
+      // took the extra step to name and create is expected to actually be
+      // armed, not silently inactive with no indication in the creation flow.
+      isActive: isActive ?? true,
     );
 
     /// Update state

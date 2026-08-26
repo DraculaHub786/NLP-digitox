@@ -42,7 +42,7 @@ class WebsiteTile extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: cardColor,
-            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+            borderRadius: BorderRadius.circular(Radii.xl),
             border: Border.all(color: borderColor),
           ),
           child: Row(

@@ -22,6 +22,7 @@ class ContentSectionHeader extends StatelessWidget {
       alignment: alignment,
       child: StyledText(
         title,
+        isHeadline: true,
         color: Theme.of(context).colorScheme.primary,
         fontWeight: FontWeight.bold,
       ),

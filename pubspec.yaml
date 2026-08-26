@@ -70,6 +70,9 @@ dependencies:
   just_audio: ^0.9.40  # White noise player for focus sessions
   image_picker: ^1.0.7  # Image selection for profile pics
 
+  #lottie
+  lottie: ^3.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -95,6 +98,12 @@ flutter:
   assets:
     # App Logo
     - assets/logo.png
+    - assets/logo-prev.png
+    - assets/icon-prev.png
+    
+    # Backgrounds
+    - assets/backgrounds/bg_light.jpg
+    - assets/backgrounds/bg_dark.jpg
     
     # Onboarding
     - assets/illustrations/onboarding_1.png
@@ -114,6 +123,8 @@ flutter:
     - assets/vectors/youtube.svg
     - assets/vectors/facebook.svg
     - assets/vectors/reddit.svg
+    - assets/vectors/x.svg
+    - assets/vectors/threads.svg
 
   fonts:
     - family: Alice
@@ -127,5 +138,5 @@ flutter_launcher_icons:
   image_path: "assets/logo.png"
   min_sdk_android: 21
   adaptive_icon_background: "#FBF6EC"
-  adaptive_icon_foreground: "assets/icon_foreground_transparent.png"
-  adaptive_icon_monochrome: "assets/icon_foreground_transparent.png"
+  adaptive_icon_foreground: "assets/logo.png"
+  adaptive_icon_monochrome: "assets/logo.png"

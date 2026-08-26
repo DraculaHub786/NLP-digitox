@@ -460,18 +460,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Finalizar';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Bienvenido/a a NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Toma el control de tu vida digital y construye hábitos de pantalla más saludables. NLP digitox te ayuda a mantenerte enfocado, minimizar distracciones y tomar decisiones conscientes cada día.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Conoce tus hábitos.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Entiende tus patrones digitales con información detallada sobre tiempo de pantalla, uso de aplicaciones y tendencias de concentración. Haz un seguimiento de tu progreso y observa cómo los pequeños cambios conducen a grandes mejoras.';
 
   @override
   String get onboarding_page_one_title => 'Domina el Enfoque';
@@ -882,6 +882,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reddit_features_tile_subtitle => 'Restringir Shorts en Reddit.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Restringir el feed de vídeo en X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Restringir vídeos/reels en Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'Bloqueo de webs';
 
   @override
@@ -999,7 +1012,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Evita terminar una sesión antes de que termine el tiempo.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button => 'Desliza para iniciar la sesión';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1473,41 +1486,41 @@ class AppLocalizationsEs extends AppLocalizations {
       'Exportar la base de datos a un archivo.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Análisis';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 días';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 días';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 días';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Tendencia del tiempo de pantalla';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Aún no hay datos de tiempo de pantalla registrados para este período.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Media diaria';
 
   @override
   String get analysis_total => 'Total';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Igual que la semana pasada';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return '$percent% menos que la semana pasada';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return '$percent% más que la semana pasada';
   }
 
   @override

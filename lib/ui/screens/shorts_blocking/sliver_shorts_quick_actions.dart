@@ -154,7 +154,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -196,7 +196,8 @@ class SliverShortsQuickActions extends ConsumerWidget {
                                 PlatformFeatures.youtubeShorts,
                               )
                           : null,
-                      activeColor: colorScheme.primary,
+                      activeThumbColor: colorScheme.primary,
+                      activeTrackColor: colorScheme.primary.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
@@ -212,7 +213,7 @@ class SliverShortsQuickActions extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -254,7 +255,8 @@ class SliverShortsQuickActions extends ConsumerWidget {
                                 PlatformFeatures.facebookReels,
                               )
                           : null,
-                      activeColor: colorScheme.primary,
+                      activeThumbColor: colorScheme.primary,
+                      activeTrackColor: colorScheme.primary.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
@@ -265,12 +267,12 @@ class SliverShortsQuickActions extends ConsumerWidget {
 
         /// Block reddit shorts
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Opacity(
@@ -312,7 +314,126 @@ class SliverShortsQuickActions extends ConsumerWidget {
                                 PlatformFeatures.redditShorts,
                               )
                           : null,
-                      activeColor: colorScheme.primary,
+                      activeThumbColor: colorScheme.primary,
+                      activeTrackColor: colorScheme.primary.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// Block X (Twitter) video feed
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(Radii.xl),
+              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+            ),
+            child: Opacity(
+              opacity: haveNecessaryPerms ? 1 : 0.5,
+              child: Row(
+                children: [
+                  _buildIcon(context, "assets/vectors/x.svg"),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StyledText(
+                          context.locale.x_features_tile_title,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        StyledText(
+                          context.locale.x_features_tile_subtitle,
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.75),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: 0.85,
+                    child: Switch.adaptive(
+                      value: blockedFeatures.contains(PlatformFeatures.xVideos),
+                      onChanged: haveNecessaryPerms
+                          ? (_) => _toggleFeature(
+                                context,
+                                ref,
+                                blockedFeatures,
+                                PlatformFeatures.xVideos,
+                              )
+                          : null,
+                      activeThumbColor: colorScheme.primary,
+                      activeTrackColor: colorScheme.primary.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// Block Threads video/reels
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(Radii.xl),
+              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+            ),
+            child: Opacity(
+              opacity: haveNecessaryPerms ? 1 : 0.5,
+              child: Row(
+                children: [
+                  _buildIcon(context, "assets/vectors/threads.svg"),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StyledText(
+                          context.locale.threads_features_tile_title,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        StyledText(
+                          context.locale.threads_features_tile_subtitle,
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.75),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: 0.85,
+                    child: Switch.adaptive(
+                      value: blockedFeatures.contains(PlatformFeatures.threadsReels),
+                      onChanged: haveNecessaryPerms
+                          ? (_) => _toggleFeature(
+                                context,
+                                ref,
+                                blockedFeatures,
+                                PlatformFeatures.threadsReels,
+                              )
+                          : null,
+                      activeThumbColor: colorScheme.primary,
+                      activeTrackColor: colorScheme.primary.withValues(alpha: 0.4),
                     ),
                   ),
                 ],

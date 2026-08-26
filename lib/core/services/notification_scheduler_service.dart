@@ -28,6 +28,37 @@ class NotificationSchedulerService {
 
   bool _initialized = false;
 
+  /// Re-checks the Android exact-alarm permission and, if the schedule mode
+  /// would change, re-registers every active schedule under the new mode.
+  ///
+  /// Needed because `initialize()` only computes `_androidScheduleMode` once
+  /// at cold start. If the user hadn't granted "Schedule exact alarms" yet
+  /// at that point, every schedule silently falls back to
+  /// `inexactAllowWhileIdle` for the rest of the app session — even after
+  /// the user grants the permission from Settings — because nothing else
+  /// ever re-evaluates it. That produces notifications that fire late (or
+  /// get deferred by the OS entirely under Doze), which reads as "the
+  /// schedule doesn't trigger when the time arrives."
+  Future<void> refreshScheduleMode(List<NotificationSchedule> schedules) async {
+    if (!_initialized) return;
+
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin == null) return;
+
+    final exactAlarmGranted = await androidPlugin.requestExactAlarmsPermission();
+    final newMode = (exactAlarmGranted ?? false)
+        ? AndroidScheduleMode.exactAllowWhileIdle
+        : AndroidScheduleMode.inexactAllowWhileIdle;
+
+    if (newMode == _androidScheduleMode) return;
+
+    debugPrint(
+        'Exact alarm permission changed — schedule mode: $_androidScheduleMode -> $newMode. Re-registering schedules.');
+    _androidScheduleMode = newMode;
+    await updateAllSchedules(schedules);
+  }
+
   /// Initialize the notification scheduler service
   Future<void> initialize() async {
     if (_initialized) return;

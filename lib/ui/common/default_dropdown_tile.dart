@@ -214,8 +214,13 @@ class _DropdownMenuDialogState<T> extends State<_DropdownMenuDialog<T>> {
                               trailing:
                                   widget.trailingBuilder?.call(item.value),
                               onPressed: () async {
-                                await Navigator.of(context).maybePop();
+                                // Update the provider BEFORE popping so the
+                                // tile's subtitle is already updated when the
+                                // Hero return-flight starts — prevents the
+                                // back-to-back rebuilds that could catch the
+                                // nav bar mid-overflow during theme changes.
                                 widget.onSelected(item.value);
+                                await Navigator.of(context).maybePop();
                               },
                             );
                           },

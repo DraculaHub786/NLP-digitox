@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/task_model.dart';
 import 'package:nlp_digitox/providers/productivity/tasks_provider.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class TasksScreen extends ConsumerWidget {
   const TasksScreen({super.key});
@@ -26,7 +26,7 @@ class TasksScreen extends ConsumerWidget {
           icon: FluentIcons.reading_list_20_regular,
           filledIcon: FluentIcons.reading_list_20_filled,
           titleText: 'Tasks & To-dos',
-          fab: GlassFAB(
+          fab: DefaultFabButton(
             icon: FluentIcons.add_20_filled,
             label: 'New Task',
             onPressed: () => _showAddTaskDialog(context, ref),
@@ -222,16 +222,16 @@ class TasksScreen extends ConsumerWidget {
       cs.secondary,
       cs.primaryContainer,
       cs.error,
-      GlassTokens.of(context).statusGood,
+      AccentPalette.trendGood,
     ];
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
       builder: (context, setState) => AlertDialog(
-          backgroundColor: GlassTokens.of(context).fillTop,
+          backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+            borderRadius: BorderRadius.circular(Radii.xl),
           ),
           title: const Text('New Task'),
           content: SingleChildScrollView(
@@ -247,19 +247,19 @@ class TasksScreen extends ConsumerWidget {
                     fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                     border: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide: BorderSide(color: cs.primary, width: 1.5),
                     ),
                   ),
@@ -274,19 +274,19 @@ class TasksScreen extends ConsumerWidget {
                     fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                     border: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide: BorderSide(color: cs.primary, width: 1.5),
                     ),
                   ),
@@ -404,9 +404,9 @@ class TasksScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: GlassTokens.of(context).fillTop,
+        backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
         ),
         title: const Text('Delete Task'),
         content: Text('Are you sure you want to delete "${task.title}"?'),

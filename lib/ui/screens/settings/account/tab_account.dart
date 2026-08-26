@@ -201,7 +201,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 decoration: BoxDecoration(
                   border:
                       Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                  borderRadius: BorderRadius.circular(Radii.xl),
                 ),
                 child: Column(
                   children: [
@@ -259,7 +259,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -358,14 +358,13 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   }
 
   Widget _buildEmailVerificationBanner(ColorScheme colorScheme) {
-    final glass = GlassTokens.of(context);
-    final warn = glass.statusWarn;
+    final warn = DesignPalette.gold;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: warn.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: warn.withValues(alpha: 0.35)),
       ),
       child: Row(
@@ -406,7 +405,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 backgroundColor: warn.withValues(alpha: 0.2),
                 foregroundColor: warn,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                  borderRadius: BorderRadius.circular(Radii.pill),
                 ),
               ),
               child: _isSendingVerification
@@ -433,7 +432,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -445,7 +444,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: colorScheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                  borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Icon(
                   FluentIcons.image_20_regular,
@@ -587,7 +586,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -600,7 +599,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Icon(
                     icon,
@@ -659,7 +658,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                  borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Icon(
                   FluentIcons.image_add_20_regular,
@@ -679,7 +678,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Icon(
                     FluentIcons.delete_20_regular,

@@ -155,7 +155,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                                  borderRadius: BorderRadius.circular(Radii.pill),
                                 ),
                                 child: StyledText(
                                   '${currentUser.lifetimePoints} pts',
@@ -197,7 +197,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: colorScheme.primary.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                                    borderRadius: BorderRadius.circular(Radii.xl),
                                     border: Border.all(
                                       color: colorScheme.primary.withValues(alpha: 0.25),
                                     ),
