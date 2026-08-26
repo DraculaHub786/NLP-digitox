@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import com.nlp.digitox.receivers.AccessibilityReceiver
 import com.nlp.digitox.receivers.DeviceLockUnlockReceiver
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
 import com.nlp.digitox.utils.Utils
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -23,7 +23,7 @@ class LaunchTrackingManager(
     private val cancelReminders: () -> Unit,
 ) {
     companion object {
-        private const val TAG = "Mindful.LaunchTrackingManager"
+        private const val TAG = "Digitox.LaunchTrackingManager"
 
         // Interval for tracking app launches in milliseconds
         private const val TIMER_RATE: Long = 750
@@ -64,7 +64,7 @@ class LaunchTrackingManager(
     private fun onDeviceUnlocked() {
         // Check if accessibility is already running
         isManualTrackingOn =
-            !Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)
+            !Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)
 
         // Start tracking manually only if accessibility is not running
         if (isManualTrackingOn) {

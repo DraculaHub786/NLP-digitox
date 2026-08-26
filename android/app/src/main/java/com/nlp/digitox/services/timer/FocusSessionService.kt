@@ -17,7 +17,7 @@ import com.nlp.digitox.helpers.device.NotificationHelper.FOCUS_CHANNEL_ID
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.models.FocusSession
 import com.nlp.digitox.services.quickTiles.FocusQuickTileService
-import com.nlp.digitox.services.tracking.MindfulTrackerService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.DateTimeUtils
 import java.util.Calendar
@@ -25,7 +25,7 @@ import kotlin.math.max
 
 class FocusSessionService : Service() {
     private val mBinder = ServiceBinder(this@FocusSessionService)
-    private lateinit var mTrackerServiceConn: SafeServiceConnection<MindfulTrackerService>
+    private lateinit var mTrackerServiceConn: SafeServiceConnection<DigitoxTrackerService>
     private lateinit var mNotificationTimer: NotificationTimer
 
 
@@ -34,13 +34,13 @@ class FocusSessionService : Service() {
     override fun onCreate() {
         mTrackerServiceConn = SafeServiceConnection(
             context = this,
-            serviceClass = MindfulTrackerService::class.java
+            serviceClass = DigitoxTrackerService::class.java
         )
         super.onCreate()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ServiceBinder.ACTION_START_MINDFUL_SERVICE) {
+        if (intent?.action == ServiceBinder.ACTION_START_DIGITOX_SERVICE) {
             return START_STICKY
         }
 
@@ -69,7 +69,7 @@ class FocusSessionService : Service() {
             )
 
             /// Start and bind tracking service
-            mTrackerServiceConn.setOnConnectedCallback { service: MindfulTrackerService ->
+            mTrackerServiceConn.setOnConnectedCallback { service: DigitoxTrackerService ->
                 service.getRestrictionManager.updateFocusedApps(
                     focusSession.distractingApps
                 )
@@ -113,11 +113,11 @@ class FocusSessionService : Service() {
 
         mNotificationTimer = NotificationTimer(
             context = this,
-            ongoingPendingIntent = AppUtils.getPendingIntentForMindfulUri(
+            ongoingPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
                 this,
                 "com.mindful.android://open/activeSession"
             ),
-            finishedPendingIntent = AppUtils.getPendingIntentForMindfulUri(
+            finishedPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
                 this,
                 "com.mindful.android://open/focus?tab=1"
             ),
@@ -179,11 +179,11 @@ class FocusSessionService : Service() {
 
 
     override fun onBind(intent: Intent): IBinder? {
-        return if (intent.action == ServiceBinder.ACTION_BIND_TO_MINDFUL) mBinder
+        return if (intent.action == ServiceBinder.ACTION_BIND_TO_DIGITOX) mBinder
         else null
     }
 
     companion object {
-        private const val TAG = "Mindful.FocusSessionService"
+        private const val TAG = "Digitox.FocusSessionService"
     }
 }

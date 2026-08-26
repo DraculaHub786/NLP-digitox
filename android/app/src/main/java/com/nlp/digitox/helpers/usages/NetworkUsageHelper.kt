@@ -13,7 +13,7 @@ import java.util.Calendar
  * connections over specified time intervals.
  */
 object NetworkUsageHelper {
-    private const val TAG = "Mindful.NetworkUsageHelper"
+    private const val TAG = "Digitox.NetworkUsageHelper"
 
     /**
      * Fetches Wi-Fi usage statistics for a specified time interval.

@@ -8,7 +8,7 @@ import 'package:nlp_digitox/core/services/crash_log_service.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/features/mood/mood_service.dart';
-import 'package:nlp_digitox/mindful_app.dart';
+import 'package:nlp_digitox/digitox_app.dart';
 
 /// Dart background
 @pragma('vm:entry-point')
@@ -66,7 +66,7 @@ Future<void> main() async {
   /// run main app
   runApp(
     const ProviderScope(
-      child: MindfulApp(),
+      child: DigitoxApp(),
     ),
   );
 }

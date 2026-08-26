@@ -5,6 +5,7 @@ import 'package:nlp_digitox/core/services/productivity_reset_service.dart';
 import 'package:nlp_digitox/core/services/productivity_notification_service.dart';
 import 'package:nlp_digitox/core/services/notification_scheduler_service.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
+import 'package:nlp_digitox/core/services/session_service.dart';
 
 /// Initializer to initialize necessary things.
 class Initializer {
@@ -57,6 +58,11 @@ class Initializer {
     final notificationSettings = await uniqueDao.loadNotificationSettings();
     await MethodChannelService.instance
         .updateNotificationSettings(notificationSettings);
+
+    /// Initialize shared-session service (Firebase RTDB backed; safe in stub
+    /// mode when Firebase/auth unavailable). Must be ready before any screen
+    /// can create/join a shared focus session.
+    await SessionService.instance.init();
 
     /// Initialize productivity notification service
     await ProductivityNotificationService.instance.initialize();

@@ -21,7 +21,7 @@ import 'package:nlp_digitox/core/database/tables/focus_sessions_table.dart';
 import 'package:nlp_digitox/core/database/tables/notification_settings_table.dart';
 import 'package:nlp_digitox/core/database/tables/notifications_table.dart';
 import 'package:nlp_digitox/core/database/tables/parental_controls_table.dart';
-import 'package:nlp_digitox/core/database/tables/mindful_settings_table.dart';
+import 'package:nlp_digitox/core/database/tables/digitox_settings_table.dart';
 import 'package:nlp_digitox/core/database/tables/restriction_groups_table.dart';
 import 'package:nlp_digitox/core/database/tables/shared_unique_data_table.dart';
 import 'package:nlp_digitox/core/database/tables/wellbeing_table.dart';
@@ -47,7 +47,7 @@ part 'app_database.g.dart';
     FocusModeTable,
     FocusProfileTable,
     FocusSessionsTable,
-    MindfulSettingsTable,
+    DigitoxSettingsTable,
     ParentalControlsTable,
     RestrictionGroupsTable,
     WellbeingTable,

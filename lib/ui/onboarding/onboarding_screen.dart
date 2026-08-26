@@ -10,7 +10,7 @@ import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/features/onboarding/quiz.dart';
 import 'package:nlp_digitox/models/permissions_model.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/onboarding/onboarding_page.dart';
 import 'package:nlp_digitox/ui/onboarding/permission_page.dart';
@@ -110,7 +110,7 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
 
   void _finishOnboarding() async {
     if (mounted) {
-      ref.read(mindfulSettingsProvider.notifier).markOnboardingDone();
+      ref.read(digitoxSettingsProvider.notifier).markOnboardingDone();
 
       Future.delayed(
         200.ms,

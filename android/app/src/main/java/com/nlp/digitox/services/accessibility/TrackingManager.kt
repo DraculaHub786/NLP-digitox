@@ -46,7 +46,7 @@ class TrackingManager(
             context.sendBroadcast(intent)
         } catch (e: Exception) {
             Log.e(
-                "Mindful.Accessibility.TrackingManager",
+                "Digitox.Accessibility.TrackingManager",
                 "broadcastEvent: Failed to send broadcast for action:$action",
                 e
             )

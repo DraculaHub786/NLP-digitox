@@ -10,12 +10,12 @@
 // test/services/ai_analysis_models_test.dart.
 
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'lib/config/api_keys.dart';
 
-const apiKey = ApiKeys.groqApiKey;
+final apiKey = Platform.environment['GROQ_API_KEY'] ?? '';
 const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-const modelName = 'llama-3.1-8b-instant';
+const modelName = 'groq/compound-mini';
 
 Future<Map<String, dynamic>> _post(Map<String, dynamic> body) async {
   final response = await http.post(
@@ -38,8 +38,9 @@ String _extractContent(Map<String, dynamic> data) =>
 void main() async {
   print('🧪 Testing JSON-only sentiment + recommendations (Part N)');
   print('Model: $modelName');
-  if (apiKey.isEmpty || apiKey.contains('YOUR_')) {
-    print('❌ API key not configured.');
+  if (apiKey.isEmpty) {
+    print('❌ GROQ_API_KEY environment variable is not set.');
+    print('   Copy .env.example to .env, add your key, and export it.');
     return;
   }
   print('');

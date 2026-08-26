@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:nlp_digitox/config/navigation/app_routes.dart';
+import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/models/notification_schedule.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,15 +125,30 @@ class NotificationSchedulerService {
   }
 
   /// Handle notification tap
+  ///
+  /// Two distinct tap sources:
+  /// - The "Complete" action button → marks the schedule done + awards points.
+  ///   `cancelNotification: true` means the OS already dismissed it; do NOT
+  ///   navigate, the user just wanted to check off a reminder.
+  /// - A plain tap on the notification body → opens the Notifications screen,
+  ///   which hosts both the timeline and the schedules management UI.
   void _onNotificationTapped(NotificationResponse response) async {
     debugPrint('Scheduled notification tapped: ${response.payload}');
-    
+
     // Check if the notification was marked as complete (via action)
     if (response.actionId == 'COMPLETE') {
       await _markScheduleCompleted(response.payload ?? '');
+      return;
     }
-    
-    // TODO: Navigate to notifications section
+
+    // Navigate to the notifications section. Uses the global navigator key so
+    // this works even when the tap cold-starts the app (no widget context).
+    // Guarded against double-pushes via NavigationService's current-route check.
+    try {
+      await NavigationService.instance.goToRoute(AppRoutes.notificationsPath);
+    } catch (e) {
+      debugPrint('Could not navigate to notifications after tap: $e');
+    }
   }
 
   /// Mark a schedule as completed and award points
@@ -189,14 +206,22 @@ class NotificationSchedulerService {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
 
+      // Channel ID bumped from 'scheduled_reminders' to 'scheduled_reminders_v2':
+      // Android notification channels are immutable after first creation, so
+      // existing installs would keep the old channel's (possibly silent)
+      // behavior no matter what we change here. A new ID forces the OS to
+      // create a fresh channel that inherits these explicit sound/vibration
+      // settings.
       const androidDetails = AndroidNotificationDetails(
-        'scheduled_reminders',
+        'scheduled_reminders_v2',
         'Scheduled Reminders',
         channelDescription:
             'Daily scheduled reminder notifications',
         importance: Importance.high,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
         actions: <AndroidNotificationAction>[
           AndroidNotificationAction(
             'COMPLETE',
@@ -221,7 +246,8 @@ class NotificationSchedulerService {
       await _notificationsPlugin.zonedSchedule(
         1000 + index, // Notification ID (offset by 1000 to avoid conflicts)
         '⏰ ${schedule.label}',
-        'This is your scheduled reminder',
+        'Time for "${schedule.label}" — tap Complete when done, or open '
+            'Notifications to review your schedules.',
         scheduledDate,
         notificationDetails,
         androidScheduleMode: _androidScheduleMode,

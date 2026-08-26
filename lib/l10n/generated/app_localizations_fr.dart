@@ -1620,4 +1620,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get more_details_button => 'Plus de détails';
+
+  @override
+  String get privacy_policy_coming_soon_title => 'Coming Soon';
+
+  @override
+  String get privacy_policy_coming_soon_info =>
+      'Our full privacy policy page is on its way. In the meantime, know that NLP digitox works offline and does not collect or sell your personal data.';
+
+  @override
+  String get ok_button => 'OK';
 }

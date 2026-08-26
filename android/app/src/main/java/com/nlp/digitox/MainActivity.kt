@@ -80,6 +80,6 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     companion object {
-        private const val TAG = "Mindful.MainActivity"
+        private const val TAG = "Digitox.MainActivity"
     }
 }

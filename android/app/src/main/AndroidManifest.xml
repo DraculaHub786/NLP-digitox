@@ -32,6 +32,29 @@
         android:name="android.permission.BIND_QUICK_SETTINGS_TILE"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- ____________________________________________________________________________________ -->
+    <!-- ______________________ PACKAGE VISIBILITY (Android 11+) ____________________________ -->
+    <!-- ____________________________________________________________________________________ -->
+    <!-- file_picker resolves SAF activities via intent.resolveActivity(). Its own manifest
+         only declares GET_CONTENT, so EXPORT (CREATE_DOCUMENT) fails with
+         "invalid_format_type" on Android 11+ devices where the resolver is filtered.
+         Declare the SAF actions here so they merge into the final manifest. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.CREATE_DOCUMENT" />
+            <category android:name="android.intent.category.OPENABLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.OPEN_DOCUMENT" />
+            <category android:name="android.intent.category.OPENABLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
 
     <application
         android:name="${applicationName}"
@@ -132,7 +155,7 @@
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
                 android:name="android.app.device_admin"
-                android:resource="@xml/mindful_admin_config" />
+                android:resource="@xml/digitox_admin_config" />
 
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
@@ -163,6 +186,25 @@
             android:name=".receivers.alarm.NotificationBatchReceiver"
             android:enabled="true"
             android:exported="false" />
+
+        <!-- flutter_local_notifications (v18): scheduled-notification dispatch +
+             boot-recovery receivers. REQUIRED — since v17/v18 the plugin's own
+             manifest only ships permissions, so these must be declared here or
+             zonedSchedule() registers AlarmManager intents that nothing handles
+             (the classic "scheduled reminders never fire" root cause). -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <!-- _________________________________________________________________________________ -->
         <!-- ________________________ SYSTEM BOUND SERVICES __________________________________ -->
         <!-- _________________________________________________________________________________ -->
@@ -185,7 +227,7 @@
                 android:value="true" />
         </service>
         <service
-            android:name=".services.accessibility.MindfulAccessibilityService"
+            android:name=".services.accessibility.DigitoxAccessibilityService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -195,10 +237,10 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/mindful_accessibility_config" />
+                android:resource="@xml/digitox_accessibility_config" />
         </service>
         <service
-            android:name=".services.notification.MindfulNotificationListenerService"
+            android:name=".services.notification.DigitoxNotificationListenerService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
@@ -210,7 +252,7 @@
         <!-- ______________________________ APP SERVICES _____________________________________ -->
         <!-- _________________________________________________________________________________ -->
         <service
-            android:name=".services.vpn.MindfulVpnService"
+            android:name=".services.vpn.DigitoxVpnService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse"
@@ -228,7 +270,7 @@
                 android:value="false" />
         </service>
         <service
-            android:name=".services.tracking.MindfulTrackerService"
+            android:name=".services.tracking.DigitoxTrackerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse" />

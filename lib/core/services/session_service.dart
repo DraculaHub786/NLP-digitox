@@ -7,7 +7,7 @@ import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 
 /// Service for managing shared sessions and group presence
-/// Integrates with SyncService for cross-device coordination
+/// Backed by Firebase Realtime Database; presence is coordinated per-session
 ///
 /// Firebase Schema:
 /// sessions/{sessionId}/
