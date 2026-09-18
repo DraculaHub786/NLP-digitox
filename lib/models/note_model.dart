@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:nlp_digitox/core/constants/app_icons.dart';
 
 @immutable
@@ -47,7 +48,7 @@ class NoteModel {
       'title': title,
       'content': content,
       'colorValue': color.toARGB32(),
-      'iconKey': iconKeyOf(icon) ?? 'note_note', // safe default key
+      'iconKey': AppIcons.keyForNoteIcon(icon),
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
@@ -59,26 +60,9 @@ class NoteModel {
       title: json['title'] as String,
       content: json['content'] as String,
       color: Color(json['colorValue'] as int),
-      // New format: 'iconKey' (String). Old format: 'iconCodePoint' (int) —
-      // migrated on first load, see Step 3. Once every install has re-saved
-      // at least once, the codePoint branch can be deleted.
-      icon: json['iconKey'] != null
-          ? iconFromKey(json['iconKey'] as String)
-          : _legacyIconFromCodePoint(json['iconCodePoint'] as int?),
+      icon: AppIcons.noteIcon(json['iconKey'] as String?),
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int),
     );
   }
-}
-
-/// Migration shim for notes saved before icons were stored by key. The
-/// stored value is the Fluent glyph codePoint, so it can be matched back to
-/// the exact icon the user picked (see [iconFromLegacyCodePoint]). Only if
-/// the glyph is no longer in the picker do we fall back to the picker's
-/// first option.
-IconData _legacyIconFromCodePoint(int? codePoint) {
-  return iconFromLegacyCodePoint(
-    codePoint,
-    fallback: iconFromKey('note_note'),
-  );
 }

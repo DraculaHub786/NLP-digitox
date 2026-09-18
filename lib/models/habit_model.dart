@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:nlp_digitox/core/constants/app_icons.dart';
 
 @immutable
@@ -57,7 +58,7 @@ class HabitModel {
     return {
       'id': id,
       'name': name,
-      'iconKey': iconKeyOf(icon) ?? 'habit_drink_coffee', // safe default key
+      'iconKey': AppIcons.keyForHabitIcon(icon),
       'colorValue': color.toARGB32(),
       'streak': streak,
       'completedToday': completedToday ? 1 : 0,
@@ -72,12 +73,7 @@ class HabitModel {
     return HabitModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      // New format: 'iconKey' (String). Old format: 'iconCodePoint' (int) —
-      // migrated on first load, see Step 3. Once every install has re-saved
-      // at least once, the codePoint branch can be deleted.
-      icon: json['iconKey'] != null
-          ? iconFromKey(json['iconKey'] as String)
-          : _legacyIconFromCodePoint(json['iconCodePoint'] as int?),
+      icon: AppIcons.habitIcon(json['iconKey'] as String?),
       color: Color(json['colorValue'] as int),
       streak: json['streak'] as int? ?? 0,
       completedToday: (json['completedToday'] as int? ?? 0) == 1,
@@ -94,16 +90,4 @@ class HabitModel {
           : null,
     );
   }
-}
-
-/// Migration shim for habits saved before icons were stored by key. The
-/// stored value is the Fluent glyph codePoint, so it can be matched back to
-/// the exact icon the user picked (see [iconFromLegacyCodePoint]). Only if
-/// the glyph is no longer in the picker do we fall back to the picker's
-/// first option.
-IconData _legacyIconFromCodePoint(int? codePoint) {
-  return iconFromLegacyCodePoint(
-    codePoint,
-    fallback: iconFromKey('habit_drink_coffee'),
-  );
 }

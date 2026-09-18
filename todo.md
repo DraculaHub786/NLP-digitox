@@ -1,349 +1,494 @@
-# Cloudinary Migration — AGENT (Coding) Tasks
+# TODO — Icon persistence & tree-shaking bugs
 
-File-by-file code changes for the NLP-Digitox repo. Values marked
-`<from human-todo.md>` depend on an item in `human-todo.md` being done
-first (Cloudinary cloud name, preset name, credentials) — everything
-else here is pure code.
-
----
-
-## 1. App configuration
-
-- [x] Add to the existing `.env` / `--dart-define-from-file` config
-      (same mechanism already used for the AI API keys):
-  ```
-  CLOUDINARY_CLOUD_NAME=<from human-todo.md §1>
-  CLOUDINARY_UPLOAD_PRESET=digitox_profile_unsigned
-  CLOUDINARY_CLEANUP_WEBHOOK_URL=<from human-todo.md §2a>
-  CLOUDINARY_CLEANUP_WEBHOOK_SECRET=<from human-todo.md §2a>
-  ```
-  The cloud name/preset aren't secrets (unsigned preset). The webhook
-  secret is a shared value your app sends as a header so the webhook
-  can't be abused if the URL leaks — treat it like any other app
-  secret in your existing `.env` handling.
+Status verified directly against `main` (cloned the repo fresh and read the
+actual source). Both bugs were still present exactly as described. Fixes for
+both are applied below and included as ready-to-commit files.
 
 ---
 
-## 2. `pubspec.yaml`
+## Bug 1: Icon changes after saving (habits + notes) — ✅ FIXED
 
-- [x] Remove:
-  ```yaml
-  firebase_storage: ^12.4.10
-  ```
-- [x] Keep `http: ^1.2.0` and `image_picker: ^1.0.7` — no new HTTP
-      package needed.
-- [x] Optional: add `cached_network_image` if you want disk caching on
-      the leaderboard avatars. Skippable for a minimal first pass.
-- [x] Run `flutter pub get`; the only file that should break on removing
-      `firebase_storage` is `profile_service.dart` (confirmed via grep —
-      nothing else in the repo imports it).
+**Confirmed still broken in `main`:**
+- `lib/models/habit_model.dart` — `toJson()` only saved `icon.codePoint`;
+  `fromJson()` rebuilt it as `IconData(code, fontFamily: 'MaterialIcons')`.
+- `lib/models/note_model.dart` — identical pattern.
+- Both pickers (`habits_screen.dart` lines 181–188, `notes_screen.dart`
+  lines 196–203) select from `FluentIcons.*` constants, not Material icons.
+- Render sites: `habits_screen.dart:129` (`Icon(habit.icon)`) and
+  `notes_screen.dart:120` / `notes_screen.dart:384` (`Icon(note.icon, ...)`).
+- (Checked `lib/models/task_model.dart` too — tasks have no icon field at
+  all, so this bug only ever affects habits and notes.)
+
+**Root cause:** `codePoint` is a bare integer that only means "cooking",
+"coffee", etc. *inside the FluentUI font*. Reloading it against
+`MaterialIcons` looks up an unrelated glyph in a different font — happens on
+every save → reload, not intermittently.
+
+**Fix applied** (the "better long-term fix" from your notes, actually
+implemented rather than just described):
+
+1. **New file `lib/models/app_icons.dart`** — a const registry mapping
+   string keys → `IconData`:
+   ```dart
+   class AppIcons {
+     static const Map<String, IconData> habitIcons = {
+       'coffee': FluentIcons.drink_coffee_20_filled,
+       'brain': FluentIcons.brain_circuit_20_filled,
+       'phone_dismiss': FluentIcons.phone_dismiss_20_filled,
+       'book': FluentIcons.book_20_filled,
+       'dumbbell': FluentIcons.dumbbell_20_filled,
+       'bed': FluentIcons.bed_20_filled,
+       'food': FluentIcons.food_20_filled,
+       'heart_pulse': FluentIcons.heart_pulse_20_filled,
+     };
+     static const Map<String, IconData> noteIcons = { /* 8 note icons */ };
+
+     static IconData habitIcon(String? key) => habitIcons[key] ?? habitIcons['coffee']!;
+     static IconData noteIcon(String? key) => noteIcons[key] ?? noteIcons['note']!;
+     static String keyForHabitIcon(IconData icon) => /* reverse lookup, falls back to default */;
+     static String keyForNoteIcon(IconData icon) => /* reverse lookup, falls back to default */;
+   }
+   ```
+   Every value is a `const FluentIcons.xxx` literal referenced directly in
+   source, so the tree-shaker can always prove it's used — this also fixes
+   Bug 2, see below. Full file: `app_icons.dart` (attached).
+
+2. **`lib/models/habit_model.dart`**
+   ```diff
+   +import 'app_icons.dart';
+   ...
+    Map<String, dynamic> toJson() => {
+   -  'iconCodePoint': icon.codePoint,
+   +  'iconKey': AppIcons.keyForHabitIcon(icon),
+      ...
+    };
+   ...
+    factory HabitModel.fromJson(Map<String, dynamic> json) => HabitModel(
+   -  icon: IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons'),
+   +  icon: AppIcons.habitIcon(json['iconKey'] as String?),
+      ...
+    );
+   ```
+   Full file: `habit_model.dart` (attached).
+
+3. **`lib/models/note_model.dart`** — identical change, using
+   `AppIcons.keyForNoteIcon` / `AppIcons.noteIcon`.
+   Full file: `note_model.dart` (attached).
+
+4. **No changes needed in `habits_screen.dart` / `notes_screen.dart`** — the
+   pickers already build `IconData` from `FluentIcons.*` constants and pass
+   it straight to the model constructor; only the model's serialization
+   layer was wrong, and that's now fixed at the source. (Also confirmed
+   habits/notes are persisted via `SharedPreferences` as JSON in
+   `lib/core/services/productivity_service.dart` — no other storage layer
+   to touch.)
+
+**⚠️ One-time data note:** existing installs that already have habits/notes
+saved under the old `iconCodePoint` key will read as `iconKey == null` once
+this ships, and `AppIcons.habitIcon(null)` / `AppIcons.noteIcon(null)` fall
+back to the default icon ('coffee' / 'note') instead of crashing. There's no
+way to recover the *originally intended* icon from the old broken data (it
+was already wrong on disk), so this is a one-time silent reset to default —
+not a crash or data loss. Worth a line in release notes if you want to warn
+users their custom icons will reset once.
 
 ---
 
-## 3. `lib/core/services/profile_service.dart`
+## Bug 2: "Shaking tree" issue on release build — ✅ FIXED (belt & suspenders)
 
-- [x] Remove `import 'package:firebase_storage/firebase_storage.dart';`
-      and the `final FirebaseStorage _storage` field.
-- [x] Add `import 'dart:convert';` and
-      `import 'package:http/http.dart' as http;` (keep existing
-      `import 'dart:io';`).
-- [x] Replace the body of `uploadProfilePicture()` — keep the
-      `ImagePicker` block identical, only the upload mechanics change.
-      Note: `public_id` uses a fresh timestamp on every upload (same
-      naming pattern the original Firebase code used) — an unsigned
-      preset can never overwrite an existing asset, so reusing a fixed
-      ID would just make Cloudinary silently ignore the new upload and
-      keep serving the old file. The previous asset is deleted
-      separately via the n8n webhook, fire-and-forget, after the new
-      one is confirmed live in Firestore:
+**Confirmed still broken in `main`:** `.github/workflows/build_and_deploy.yml`
+ran `flutter build appbundle --release` with no `--no-tree-shake-icons` flag.
 
-  ```dart
-  Future<String?> uploadProfilePicture() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception('User not authenticated');
+**Root cause:** Flutter's release-build icon tree-shaker only keeps glyphs
+it can statically prove are referenced as `const IconData(...)` in source.
+The dynamic `IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons')`
+call in the old `fromJson()` methods was invisible to that analysis, so any
+codepoint not *also* referenced elsewhere as a literal const risked being
+stripped from the packaged icon font in release builds — a blank glyph, on
+top of (and independent from) Bug 1.
+
+**Fix applied, two layers:**
+
+1. **Primary fix (structural):** icons are now only ever referenced through
+   `AppIcons.habitIcons` / `AppIcons.noteIcons` — `const Map` literals built
+   entirely from `FluentIcons.*` consts. The tree-shaker can prove every icon
+   is used, in *any* build type. This alone fixes Bug 2 for the habit/note
+   icons, no CI change required.
+
+2. **Safety net (CI), added anyway:** so any future dynamically-built
+   `IconData` elsewhere in the app doesn't silently reintroduce this class of
+   bug:
+   ```diff
+   - run: flutter build appbundle --release
+   + run: flutter build appbundle --release --no-tree-shake-icons
+   ```
+   in `.github/workflows/build_and_deploy.yml` (full file attached).
+
+   Trade-off: slightly larger app bundle (full icon font(s) bundled instead
+   of just the glyphs used). Negligible for a habit-tracking app; if bundle
+   size ever matters, this flag can be dropped once you've audited that no
+   other dynamic `IconData(...)` construction exists (`grep -rn "IconData(" lib/`).
+
+---
+
+## Regression checklist (do this before closing out)
+
+- [ ] `flutter pub get`
+- [ ] `flutter analyze` — confirm no errors from the new import/registry
+- [ ] Debug run: create a habit with each of the 8 habit icons, **force-close
+      the app** (not hot reload — hot reload won't reproduce the original
+      bug), reopen, confirm each icon is still correct
+- [ ] Same for notes, all 8 note icons
+- [ ] Edit an existing habit/note's icon, force-close, reopen, confirm the
+      *new* icon persisted (not the old one)
+- [ ] Real release build matching CI: `flutter build apk --release
+      --no-tree-shake-icons` (and, separately, without the flag, to confirm
+      the structural fix alone is enough) and repeat the icon checks
+      specifically on that release build — tree-shaking only runs in
+      release mode
+- [ ] Install the release APK on a device/emulator (not just `flutter run
+      --release`), closest to what CI actually ships to Play Store
+- [ ] Spot-check one existing (pre-fix) saved habit/note to confirm it
+      degrades gracefully to the default icon instead of crashing
+
+## Files changed
+- `lib/models/app_icons.dart` — **new**
+- `lib/models/habit_model.dart`
+- `lib/models/note_model.dart`
+- `.github/workflows/build_and_deploy.yml`
+
+
+HERE are files that need to be changed 
+App Icon
+import 'package:flutter/material.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+
+/// Central registry mapping stable string keys to [IconData].
+///
+/// WHY THIS EXISTS:
+/// `IconData.codePoint` is just an integer glyph index — it only means
+/// "coffee cup" (or whatever) inside the specific icon *font* it came from
+/// (here, FluentUI). The same integer looked up in a different font
+/// (e.g. MaterialIcons) resolves to an unrelated or blank glyph. Persisting
+/// only the codePoint and hardcoding a font on reload is what caused icons
+/// to change after saving.
+///
+/// On top of that, `IconData(json['x'] as int, ...)` built dynamically at
+/// runtime is invisible to Flutter's icon-font tree-shaker: the tree-shaker
+/// can only prove an icon is "used" when it sees a `const IconData(...)`
+/// literal (or a const from a package like `FluentIcons.xxx`) referenced
+/// directly in the source. A dynamically-reconstructed IconData can have its
+/// glyph stripped from the packaged font in release builds, producing a
+/// blank/missing icon — the "shaking tree" issue.
+///
+/// THE FIX: never persist a codePoint. Persist this small string key
+/// instead, and always look the icon up through this const map. Every value
+/// in [habitIcons] / [noteIcons] is a compile-time const reference to a
+/// `FluentIcons.*` constant, so the tree-shaker can always prove it's used —
+/// this is immune to tree-shaking regardless of whether `--no-tree-shake-icons`
+/// is passed in CI.
+class AppIcons {
+  AppIcons._();
+
+  // ---- Habit icons (used by habits_screen.dart picker) ----
+  static const Map<String, IconData> habitIcons = {
+    'coffee': FluentIcons.drink_coffee_20_filled,
+    'brain': FluentIcons.brain_circuit_20_filled,
+    'phone_dismiss': FluentIcons.phone_dismiss_20_filled,
+    'book': FluentIcons.book_20_filled,
+    'dumbbell': FluentIcons.dumbbell_20_filled,
+    'bed': FluentIcons.bed_20_filled,
+    'food': FluentIcons.food_20_filled,
+    'heart_pulse': FluentIcons.heart_pulse_20_filled,
+  };
+
+  // ---- Note icons (used by notes_screen.dart picker) ----
+  static const Map<String, IconData> noteIcons = {
+    'note': FluentIcons.note_20_filled,
+    'lightbulb': FluentIcons.lightbulb_20_filled,
+    'cart': FluentIcons.cart_20_filled,
+    'people': FluentIcons.people_20_filled,
+    'star': FluentIcons.star_20_filled,
+    'heart': FluentIcons.heart_20_filled,
+    'flag': FluentIcons.flag_20_filled,
+    'calendar': FluentIcons.calendar_20_filled,
+  };
+
+  static const String defaultHabitIconKey = 'coffee';
+  static const String defaultNoteIconKey = 'note';
+
+  /// Look up a habit icon by key. Falls back to the default if the key is
+  /// missing/unknown (e.g. old data, or a future app version removed an icon).
+  static IconData habitIcon(String? key) =>
+      habitIcons[key] ?? habitIcons[defaultHabitIconKey]!;
+
+  /// Look up a note icon by key. Falls back to the default if the key is
+  /// missing/unknown.
+  static IconData noteIcon(String? key) =>
+      noteIcons[key] ?? noteIcons[defaultNoteIconKey]!;
+
+  /// Reverse lookup used when a picker hands back raw IconData and it needs
+  /// to be turned into a key for persistence.
+  static String keyForHabitIcon(IconData icon) {
+    for (final entry in habitIcons.entries) {
+      if (entry.value == icon) return entry.key;
     }
+    return defaultHabitIconKey;
+  }
 
-    _isLoading = true;
-
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 80,
-      );
-
-      if (image == null) {
-        _isLoading = false;
-        return null;
-      }
-
-      // Read the previous public_id BEFORE overwriting the Firestore
-      // field, so we know what to ask n8n to delete afterward.
-      final existingDoc =
-          await _firestore.collection('users').doc(user.uid).get();
-      final previousPublicId =
-          existingDoc.data()?['profileImagePublicId'] as String?;
-
-      final file = File(image.path);
-      const cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME');
-      const uploadPreset =
-          String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET');
-      final newPublicId =
-          'profile_pics/${user.uid}_${DateTime.now().millisecondsSinceEpoch}';
-
-      final uri = Uri.parse(
-        'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
-      );
-
-      final request = http.MultipartRequest('POST', uri)
-        ..fields['upload_preset'] = uploadPreset
-        ..fields['public_id'] = newPublicId
-        ..files.add(await http.MultipartFile.fromPath('file', file.path));
-
-      final streamedResponse = await request.send();
-      final responseBody =
-          jsonDecode(await streamedResponse.stream.bytesToString());
-
-      if (streamedResponse.statusCode != 200) {
-        throw Exception(
-          'Cloudinary upload failed: ${responseBody['error']?['message'] ?? streamedResponse.statusCode}',
-        );
-      }
-
-      final downloadUrl = responseBody['secure_url'] as String;
-      final publicId = responseBody['public_id'] as String;
-
-      await _firestore.collection('users').doc(user.uid).set({
-        'profileImageUrl': downloadUrl,
-        'profileImagePublicId': publicId,
-        'profileImageUpdatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      // Mirror onto the leaderboard doc too, so podium/list avatars
-      // don't need a second Firestore read — see §5 below.
-      await _firestore.collection('leaderboard').doc(user.uid).set({
-        'profileImageUrl': downloadUrl,
-      }, SetOptions(merge: true));
-
-      _cachedProfileUrl = downloadUrl;
-      _isLoading = false;
-
-      // Fire-and-forget: ask n8n to delete the old asset. Never let a
-      // failure here surface to the user — the new picture already
-      // uploaded and saved successfully regardless of cleanup outcome.
-      if (previousPublicId != null && previousPublicId.isNotEmpty) {
-        _deleteOldCloudinaryAsset(previousPublicId);
-      }
-
-      debugPrint('ProfileService: Profile picture uploaded to Cloudinary');
-      return downloadUrl;
-    } catch (e) {
-      _isLoading = false;
-      debugPrint('ProfileService: Error uploading profile picture: $e');
-      rethrow;
+  static String keyForNoteIcon(IconData icon) {
+    for (final entry in noteIcons.entries) {
+      if (entry.value == icon) return entry.key;
     }
+    return defaultNoteIconKey;
+  }
+}
+
+
+Habit Model
+import 'package:flutter/material.dart';
+
+import 'app_icons.dart';
+
+@immutable
+class HabitModel {
+  final String id;
+  final String name;
+  final IconData icon;
+  final Color color;
+  final int streak;
+  final bool completedToday;
+  final DateTime createdAt;
+  final List<DateTime> completedDates;
+  final DateTime? lastCompletedDate;
+  final DateTime? lastResetDate;
+
+  const HabitModel({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.color,
+    this.streak = 0,
+    this.completedToday = false,
+    required this.createdAt,
+    this.completedDates = const [],
+    this.lastCompletedDate,
+    this.lastResetDate,
+  });
+
+  HabitModel copyWith({
+    String? id,
+    String? name,
+    IconData? icon,
+    Color? color,
+    int? streak,
+    bool? completedToday,
+    DateTime? createdAt,
+    List<DateTime>? completedDates,
+    DateTime? lastCompletedDate,
+    DateTime? lastResetDate,
+  }) {
+    return HabitModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      color: color ?? this.color,
+      streak: streak ?? this.streak,
+      completedToday: completedToday ?? this.completedToday,
+      createdAt: createdAt ?? this.createdAt,
+      completedDates: completedDates ?? this.completedDates,
+      lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
+      lastResetDate: lastResetDate ?? this.lastResetDate,
+    );
   }
 
-  /// Best-effort cleanup — asks n8n (which holds the Cloudinary API
-  /// secret) to delete a previous profile picture asset. Never throws;
-  /// a failure here just means one orphaned image, not a broken upload.
-  void _deleteOldCloudinaryAsset(String publicId) {
-    const webhookUrl =
-        String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_URL');
-    const webhookSecret =
-        String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
-    if (webhookUrl.isEmpty) return;
-
-    http
-        .post(
-          Uri.parse(webhookUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Webhook-Secret': webhookSecret,
-          },
-          body: jsonEncode({'publicId': publicId}),
-        )
-        .catchError((e) {
-      debugPrint('ProfileService: Cloudinary cleanup webhook failed: $e');
-    });
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'iconKey': AppIcons.keyForHabitIcon(icon),
+      'colorValue': color.toARGB32(),
+      'streak': streak,
+      'completedToday': completedToday ? 1 : 0,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'completedDates': completedDates.map((d) => d.millisecondsSinceEpoch).toList(),
+      'lastCompletedDate': lastCompletedDate?.millisecondsSinceEpoch,
+      'lastResetDate': lastResetDate?.millisecondsSinceEpoch,
+    };
   }
-  ```
-- [x] `getProfileUrl()` — **no changes**, already Firestore-only.
-- [x] `removeProfilePicture()` — read `profileImagePublicId` before
-      clearing it, delete both `profileImageUrl` and
-      `profileImagePublicId` from Firestore (and mirror the removal onto
-      `leaderboard/{uid}.profileImageUrl`), then call the same
-      `_deleteOldCloudinaryAsset(previousPublicId)` fire-and-forget
-      helper from §3's upload method so the asset is actually removed
-      from Cloudinary too, not just unlinked in Firestore.
 
----
-
-## 4. UI: profile avatar / profile screen
-
-- [x] `lib/ui/common/profile_avatar.dart` — still backend-agnostic
-      (`Image.network` off whatever URL `getProfileUrl()` returns), plus a
-      `ProfileService.profileUrlNotifier` listener so the Dashboard header /
-      Profile screen avatar refreshes the moment a picture is uploaded or
-      removed elsewhere instead of only when the widget is recreated
-      (human-todo §4 requires this to work "without restarting the app").
-- [x] `lib/ui/screens/profile/profile_screen.dart` — **no changes**.
-
----
-
-## 5. `lib/core/services/leaderboard_service.dart`
-
-- [x] Add `final String? profileImageUrl;` to `LeaderboardUser`, plus the
-      constructor parameter (optional, default `null`).
-- [x] In `LeaderboardUser.fromFirestore`, add:
-  ```dart
-  profileImageUrl: data['profileImageUrl'] as String?,
-  ```
-- [x] In `toMap()`, add:
-  ```dart
-  if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
-  ```
-- [x] Thread `profileImageUrl` through every place in this file that
-      constructs a `LeaderboardUser` — search for `LeaderboardUser(`
-      (three sites: `fromFirestore`, the rebuild loop inside
-      `_sortAndRank`, and the `leaderboardUser` local in
-      `updateUserData`) — same pattern already used for `email` /
-      `lifetimePoints`.
-- [x] In `updateUserData()`, read the current profile URL via
-      `ProfileService.instance.getProfileUrl()` and pass it through, so
-      the field survives an update even if it was set separately by §3.
-      Falls back to the URL already on the doc if the service has none.
-- [x] **Additional sites needed beyond the three listed above** (the board
-      is read from the *period* collections, not `leaderboard/`): parse
-      `profileImageUrl` in `fromPeriodDoc` and `fromLifetimeDoc`, carry it
-      through `mergeLifetime`, read it in `getCurrentUserData`, and seed it
-      in `addPoints` (together with §3's mirror) so a row shows the picture
-      as soon as the user has one on any board.
-
----
-
-## 6. UI: leaderboard avatars
-
-- [x] `lib/ui/screens/leaderboard/podium_card.dart` (~line 60) — the
-      `CircleAvatar` currently has no image. Thread `profileImageUrl`
-      into this widget's constructor (alongside `name`, `rank`, etc.)
-      and change:
-  ```dart
-  CircleAvatar(
-    radius: rank == 1 ? 26 : 20,
-    backgroundColor: medal.withValues(alpha: 0.25),
-    backgroundImage: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
-        ? NetworkImage(profileImageUrl!)
-        : null,
-    child: (profileImageUrl == null || profileImageUrl!.isEmpty)
-        ? Icon(FluentIcons.person_20_filled, color: medal)
-        : null,
-  )
-  ```
-- [x] `lib/ui/screens/leaderboard/leaderboard_screen.dart` (~line 372) —
-      same change to the `leading: CircleAvatar(...)` in
-      `DefaultListTile`: show `user.profileImageUrl` as an image when
-      present, fall back to the current rank-number avatar otherwise.
-- [x] `NetworkImage` has no built-in error fallback like
-      `Image.network`'s `errorBuilder` — if a broken/expired URL should
-      degrade gracefully here too, wrap with `Image.network(...,
-      errorBuilder: ...)` inside the `CircleAvatar`'s `child` instead of
-      `backgroundImage`, matching `profile_avatar.dart`'s pattern.
-- [x] Implemented as a shared `lib/ui/common/network_avatar.dart`
-      (`CachedNetworkImage`, with the fallback always rendered on missing /
-      loading / error) used by the podium, the "rest of the board" rows and
-      both badge avatars — `CircleAvatar.backgroundImage` cannot render a
-      fallback, and `cached_network_image` was already added in §2.
-
----
-
-## 7. `firestore.rules` — profile image validation
-
-- [x] Under `match /users/{userId}`, tighten the existing rule:
-  ```js
-  match /users/{userId} {
-    allow read: if request.auth != null && request.auth.uid == userId;
-    allow write: if request.auth != null && request.auth.uid == userId
-      && (!('profileImageUrl' in request.resource.data)
-          || request.resource.data.profileImageUrl == null
-          || request.resource.data.profileImageUrl
-               .matches('https://res\\.cloudinary\\.com/<from human-todo.md §1>/.*'));
-    // ...existing habits/tasks/chats/settings subcollection rules unchanged
+  factory HabitModel.fromJson(Map<String, dynamic> json) {
+    return HabitModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      icon: AppIcons.habitIcon(json['iconKey'] as String?),
+      color: Color(json['colorValue'] as int),
+      streak: json['streak'] as int? ?? 0,
+      completedToday: (json['completedToday'] as int? ?? 0) == 1,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
+      completedDates: (json['completedDates'] as List<dynamic>?)
+              ?.map((e) => DateTime.fromMillisecondsSinceEpoch(e as int))
+              .toList() ??
+          [],
+      lastCompletedDate: json['lastCompletedDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lastCompletedDate'] as int)
+          : null,
+      lastResetDate: json['lastResetDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lastResetDate'] as int)
+          : null,
+    );
   }
-  ```
-- [x] Under `match /leaderboard/{userId}`, add the same
-      `profileImageUrl` pattern check to the existing `allow write`
-      rule.
-- [ ] Leave the actual `firebase deploy` command to human-todo.md §3 —
-      it needs an authenticated CLI session.
+}
 
----
+Note Model
+import 'package:flutter/material.dart';
 
-## 8. Retire Firebase Storage references
+import 'app_icons.dart';
 
-- [x] Delete `storage.rules` (confirmed nothing else needs it — the
-      bucket was never provisioned on Spark anyway).
-- [x] Check `deploy_firebase.sh` / `deploy_firebase.ps1` for a
-      `storage:rules` deploy target and remove it, so scripted deploys
-      don't fail against a non-existent bucket.
+@immutable
+class NoteModel {
+  final String id;
+  final String title;
+  final String content;
+  final Color color;
+  final IconData icon;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
----
+  const NoteModel({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.color,
+    required this.icon,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
-## 9. Badges: Firestore rules + data model
-
-- [x] New Firestore subcollection (no schema migration needed — just
-      start writing docs of this shape once the n8n side, human-todo.md
-      §2b, starts producing them):
-      `leaderboard/{uid}/badges/{docId}` — no client schema change was
-      needed for this: `lib/models/badge_model.dart` already parses exactly
-      these fields and the subcollection rule below governs access.
-  - `docId` is the n8n-generated `weekId` (e.g. `2026-W37`) or `monthId`
-    (e.g. `2026-09`) — the two formats can't collide with each other.
-  - Fields: `title` (string), `imageUrl` (string, the Cloudinary
-    on-the-fly transformation URL), `period` (`"weekly"` | `"monthly"`),
-    `cycleLabel` (string — currently the same value as `docId`),
-    `verificationId` (string, e.g. `DTX-7K2N9P`), `earnedAt` (timestamp)
-- [x] Add to `firestore.rules`:
-  ```js
-  match /leaderboard/{userId} {
-    // ...existing rule...
-    match /badges/{badgeId} {
-      allow read: if request.auth != null;
-      allow write: if false; // only n8n (via REST + API key) writes this
-    }
+  NoteModel copyWith({
+    String? id,
+    String? title,
+    String? content,
+    Color? color,
+    IconData? icon,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return NoteModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      color: color ?? this.color,
+      icon: icon ?? this.icon,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
-  ```
 
----
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'colorValue': color.toARGB32(),
+      'iconKey': AppIcons.keyForNoteIcon(icon),
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'updatedAt': updatedAt.millisecondsSinceEpoch,
+    };
+  }
 
-## 10. `lib/ui/screens/achievements/achievements_screen.dart`
+  factory NoteModel.fromJson(Map<String, dynamic> json) {
+    return NoteModel(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      content: json['content'] as String,
+      color: Color(json['colorValue'] as int),
+      icon: AppIcons.noteIcon(json['iconKey'] as String?),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int),
+    );
+  }
+}
+Build and deploy
+name: Build and Deploy to Play Store
 
-- [x] Replace the hardcoded `itemCount: 3` / `labels` list in the badge
-      `PageView.builder` with a `StreamBuilder` over
-      `FirebaseFirestore.instance.collection('leaderboard').doc(uid).collection('badges').orderBy('earnedAt', descending: true).snapshots()`.
-- [x] Define a fixed set of display "slots" (e.g. last 3 weekly cycles)
-      and for each:
-  - Badge doc exists → render its `imageUrl` via `Image.network` inside
-    the existing card layout, plus `title` / `cycleLabel`.
-  - No matching doc → keep today's existing placeholder box exactly as
-    it renders now.
-- [x] Replace the static "Badges — Coming soon / No badges yet" card
-      (~lines 331–345) with the same data-backed list, or remove it if
-      the carousel above now covers the same information.
+on:
+  push:
+    tags:
+      - "v*"
 
----
+jobs:
+  build:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
 
-## Cross-references to human-todo.md
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-- §1 (env config) needs Cloudinary cloud name + preset name from
-  human-todo.md §1, and the cleanup webhook URL + secret from
-  human-todo.md §2a.
-- §7 and §9 (rules) need the cloud name from human-todo.md §1, and the
-  actual `firebase deploy` from human-todo.md §3.
-- §9/§10 (badges) only display real data once human-todo.md §2b (n8n
-  badge workflow) is actually writing badge docs — until then the code
-  will correctly show the empty-slot fallback, which is fine to ship
-  first.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+      - run: flutter --version
+
+      - name: Reconstruct Keystore File
+        run: |
+          echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > $HOME/keystore.jks
+          echo "KEYSTORE_FILE=$HOME/keystore.jks" >> $GITHUB_ENV
+
+      - name: Set up environment for signing
+        run: |
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
+          echo "STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Update pubspec.yaml
+        run: |
+          cd $GITHUB_WORKSPACE
+          sed -i "s/^version: .*/version: ${{ env.VERSION }}/" pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build AAB
+        # --no-tree-shake-icons is a safety net: habit/note icons are now
+        # looked up through AppIcons' const map (lib/models/app_icons.dart),
+        # which the tree-shaker can already resolve statically, but this
+        # flag protects against any *future* dynamically-built IconData
+        # elsewhere in the app silently losing its glyph in release builds.
+        run: flutter build appbundle --release --no-tree-shake-icons
+
+      - name: Upload AAB to Play Store
+        id: upload_google_play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          packageName: ${{ secrets.PACKAGE_NAME }}
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          inAppUpdatePriority: ${{ secrets.UPDATE_PRIORITY }} # Between 0-5 => Higher the number, higher the priority.
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: draft
+          changesNotSentForReview: ${{ secrets.DONT_SEND_CHANGES_FOR_REVIEW }}  # true or false
+          # mappingFile: build/app/outputs/mapping/release/mapping.txt
+          # debugSymbols: build\app\intermediates\merged_native_libs\release\mergeReleaseNativeLibs\out\lib
+
+      - name: Cleanup
+        run: |
+          echo "Cleaning up temporary files..."
+          rm -rf build
+          rm $HOME/keystore.jks
+          echo "Cleanup complete."
+          
+
