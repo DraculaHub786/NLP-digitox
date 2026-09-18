@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,22 +23,22 @@ Future<void> initBgExecutorService() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// Initialize Firebase
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Firebase initialization failed: $e');
-  }
+  /// Firebase and the native method channel don't depend on each other — run together.
+  /// This avoids a serialized startup where each await blocks the next.
+  await Future.wait([
+    Firebase.initializeApp().catchError((e) {
+      debugPrint('Firebase initialization failed: $e');
+      return Firebase.app(); // return a valid FirebaseApp on error
+    }),
+    MethodChannelService.instance.init(),
+  ]);
 
-  /// Initialize method channel and drift Database
-  await MethodChannelService.instance.init();
+  /// DB is needed before first frame, keep this blocking
   await DriftDbService.instance.init();
 
-  /// Load saved mood check-ins back from disk. Without this, MoodService's
-  /// in-memory history starts empty on every launch — even for a user with
-  /// weeks of saved check-ins — which silently breaks SentimentMoodBridge's
-  /// mood signal (it always reports "No mood check-ins yet").
-  await MoodService().init();
+  /// Mood history isn't needed for the very first frame — load it right after
+  /// runApp() instead of before, so the splash/launch screen clears sooner.
+  unawaited(MoodService().init());
 
   FlutterError.onError = (errorDetails) {
     CrashLogService.instance.recordCrashError(

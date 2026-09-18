@@ -360,15 +360,6 @@ class FgMethodCallHandler(
                 )
             }
 
-            "getAndAskAdminPermission" -> {
-                result.success(
-                    PermissionsHelper.getAndAskAdminPermission(
-                        context,
-                        call.arguments() ?: false
-                    )
-                )
-            }
-
             "getAndAskUsageAccessPermission" -> {
                 result.success(
                     PermissionsHelper.getAndAskUsageAccessPermission(
@@ -465,33 +456,9 @@ class FgMethodCallHandler(
                 result.success(true)
             }
 
-            "isDeviceAdminRevoked" -> {
-                result.success(
-                    SharedPrefsHelper.getBoolean(
-                        context,
-                        KeepAliveHelper.PREF_KEY_DEVICE_ADMIN_REVOKED,
-                        false
-                    )
-                )
-            }
-
-            "clearDeviceAdminRevokedFlag" -> {
-                SharedPrefsHelper.putBoolean(
-                    context,
-                    KeepAliveHelper.PREF_KEY_DEVICE_ADMIN_REVOKED,
-                    false
-                )
-                result.success(true)
-            }
-
             // ==============================================================================================================
             // ====================================== UTILS =================================================================
             // ==============================================================================================================
-
-            "disableDeviceAdmin" -> {
-                NewActivitiesLaunchHelper.disableDeviceAdmin(context)
-                result.success(true)
-            }
 
             "promptForQuickTile" -> {
                 NewActivitiesLaunchHelper.promptForQuickFocusTile(context, result)

@@ -14,7 +14,6 @@ void main() {
       expect(model.haveUsageAccessPermission, isFalse);
       expect(model.haveDisplayOverlayPermission, isFalse);
       expect(model.haveAccessibilityPermission, isFalse);
-      expect(model.haveAdminPermission, isFalse);
     });
 
     test('PermissionsModel should support copyWith for immutability', () {
@@ -35,12 +34,12 @@ void main() {
         haveUsageAccessPermission: true,
       );
       final model3 = model2.copyWith(
-        haveAdminPermission: true,
+        haveNotificationAccessPermission: true,
       );
 
       expect(model3.haveNotificationPermission, isTrue);
       expect(model3.haveUsageAccessPermission, isTrue);
-      expect(model3.haveAdminPermission, isTrue);
+      expect(model3.haveNotificationAccessPermission, isTrue);
     });
 
     test('PermissionNotifier should be constructible', () {
@@ -67,7 +66,6 @@ void main() {
       expect(PermissionType.values, contains(PermissionType.vpn));
       expect(PermissionType.values, contains(PermissionType.exactAlarm));
       expect(PermissionType.values, contains(PermissionType.ignoreOptimization));
-      expect(PermissionType.values, contains(PermissionType.admin));
       expect(PermissionType.values, contains(PermissionType.notificationAccess));
     });
   });
@@ -102,7 +100,6 @@ void main() {
           notifier.askNotificationPermission(),
           notifier.askUsageAccessPermission(),
           notifier.askAccessibilityPermission(),
-          notifier.askAdminPermission(),
         ]),
         returnsNormally,
       );
@@ -116,17 +113,6 @@ void main() {
 
       expect(
         () async => await notifier.requestAllCriticalPermissions(),
-        returnsNormally,
-      );
-
-      notifier.dispose();
-    });
-
-    test('disableAdminPermission should complete without throwing', () {
-      final notifier = PermissionNotifier();
-
-      expect(
-        () async => await notifier.disableAdminPermission(),
         returnsNormally,
       );
 
@@ -179,7 +165,6 @@ void main() {
         haveVpnPermission: true,
         haveAlarmsPermission: true,
         haveIgnoreOptimizationPermission: true,
-        haveAdminPermission: true,
         haveNotificationAccessPermission: true,
       );
 
@@ -191,7 +176,6 @@ void main() {
       expect(updated.haveVpnPermission, isTrue);
       expect(updated.haveAlarmsPermission, isTrue);
       expect(updated.haveIgnoreOptimizationPermission, isTrue);
-      expect(updated.haveAdminPermission, isTrue);
       expect(updated.haveNotificationAccessPermission, isTrue);
     });
   });

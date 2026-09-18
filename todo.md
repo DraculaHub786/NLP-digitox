@@ -1,315 +1,332 @@
-# Task
+# Cloudinary Migration — AGENT (Coding) Tasks
 
-# Coding Agent Tasks — Leaderboard Split
-
-Repo: `NLP-digitox`, branch `glitches`. Hand **this file only** to your local
-coding agent — everything in it is a change to a file in the repo. Nothing
-here needs a browser, a cloud console, or n8n; that's all in the separate
-`2_HUMAN_TASKS.md` file, which the agent should not attempt.
-
-Do the tasks in order. Each one is a self-contained file change.
+File-by-file code changes for the NLP-Digitox repo. Values marked
+`<from human-todo.md>` depend on an item in `human-todo.md` being done
+first (Cloudinary cloud name, preset name, credentials) — everything
+else here is pure code.
 
 ---
 
-## Context (for the agent to understand *why*, not to act on)
+## 1. App configuration
 
-I pulled the `glitches` branch and read `lib/core/services/leaderboard_service.dart`
-and `functions/index.js` directly before writing this.
-
-- `addPoints()` is the only place in the app that writes leaderboard points,
-  and it already increments weekly/monthly/lifetime together atomically — so
-  the point-tracking logic is sound. The visible bugs (weekly ≠ lifetime,
-  resets not firing) come from a data/infrastructure problem, not a logic
-  bug in this function.
-- `functions/index.js` (Firebase Cloud Functions) is **no longer part of the
-  plan** — the reset now runs from an external n8n workflow instead (that's
-  entirely a human/UI task, see the other file). The agent does not need to
-  touch `functions/index.js`. Leave it in the repo as-is (dead code, harmless)
-  unless asked to delete it.
-- Every task below keeps all public method names/signatures on
-  `LeaderboardService` unchanged, so `leaderboard_screen.dart`,
-  `profile_screen.dart`, and `achievements_screen.dart` need **zero changes**.
-- The human also shared their real n8n workflow exports. Two of them —
-  `[Digitox] Weekly Leaderboard Winner` and `[Digitox] Monthly Leaderboard
-  Winner` — are already live and already implement the "winners database"
-  (badges + verification codes + email) that was originally planned as a
-  new `winners` collection. That collection has been dropped from this plan
-  entirely — don't recreate it.
+- [ ] Add to the existing `.env` / `--dart-define-from-file` config
+      (same mechanism already used for the AI API keys):
+  ```
+  CLOUDINARY_CLOUD_NAME=<from human-todo.md §1>
+  CLOUDINARY_UPLOAD_PRESET=digitox_profile_unsigned
+  CLOUDINARY_CLEANUP_WEBHOOK_URL=<from human-todo.md §2a>
+  CLOUDINARY_CLEANUP_WEBHOOK_SECRET=<from human-todo.md §2a>
+  ```
+  The cloud name/preset aren't secrets (unsigned preset). The webhook
+  secret is a shared value your app sends as a header so the webhook
+  can't be abused if the URL leaks — treat it like any other app
+  secret in your existing `.env` handling.
 
 ---
 
-## Task 1 — Create the one-time reconciliation script
+## 2. `pubspec.yaml`
 
-Create `scripts/reconcile-once.js`:
-
-```js
-// One-time script. Run with: node reconcile-once.js
-// Needs a service account key with Firestore access (the human running this
-// will supply a service-account.json file in the same folder).
-const { initializeApp, cert } = require("firebase-admin/app");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
-
-initializeApp({ credential: cert(require("./service-account.json")) });
-const db = getFirestore();
-
-async function main() {
-  const snap = await db.collection("leaderboard").get();
-  const batchSize = 400;
-  let batch = db.batch();
-  let count = 0;
-
-  for (const doc of snap.docs) {
-    batch.update(doc.ref, {
-      points: 0,
-      monthlyPoints: 0,
-      pointsBreakdown: {},
-      lastUpdated: FieldValue.serverTimestamp(),
-    });
-    count++;
-    if (count % batchSize === 0) {
-      await batch.commit();
-      batch = db.batch();
-    }
-  }
-  await batch.commit();
-  console.log(`Reconciled ${count} users — points & monthlyPoints zeroed, lifetimePoints untouched.`);
-}
-
-main().catch(console.error);
-```
-
-This zeroes the corrupted `points`/`monthlyPoints` fields on the existing
-single `leaderboard` collection, without touching `lifetimePoints` (the
-trusted running total). It is **not** meant to be run by the agent — it
-needs a real service-account key and Firestore access, which is a human
-step. The agent's job here is just to create the file correctly.
+- [ ] Remove:
+  ```yaml
+  firebase_storage: ^12.4.10
+  ```
+- [ ] Keep `http: ^1.2.0` and `image_picker: ^1.0.7` — no new HTTP
+      package needed.
+- [ ] Optional: add `cached_network_image` if you want disk caching on
+      the leaderboard avatars. Skippable for a minimal first pass.
+- [ ] Run `flutter pub get`; the only file that should break on removing
+      `firebase_storage` is `profile_service.dart` (confirmed via grep —
+      nothing else in the repo imports it).
 
 ---
 
-## Task 2 — Update `firestore.rules`
+## 3. `lib/core/services/profile_service.dart`
 
-**Update from the first draft:** no `winners` collection is needed. The
-n8n side already has a working winners/badges system —
-`badges/{uid}_{period}_{periodId}` and `badge_verification/{verificationId}`
-— live in two active workflows (`[Digitox] Weekly/Monthly Leaderboard
-Winner`), complete with a `DTX-XXXXXX` verification ID format and email
-delivery. **Update:** the `badges` collection will start holding winners' email
-addresses (see `N8N_LEADERBOARD_WORKFLOWS_GUIDE.md` Part D — an n8n change,
-not a repo change, but it does mean `firestore.rules` needs to lock down
-who can read `badges`). If `firestore.rules` already has a `match
-/badges/{badgeId}` block that allows any authenticated user to read, tighten
-it to owner-only, since badge doc IDs already encode the owner
-(`{uid}_{period}_{periodId}`):
+- [ ] Remove `import 'package:firebase_storage/firebase_storage.dart';`
+      and the `final FirebaseStorage _storage` field.
+- [ ] Add `import 'dart:convert';` and
+      `import 'package:http/http.dart' as http;` (keep existing
+      `import 'dart:io';`).
+- [ ] Replace the body of `uploadProfilePicture()` — keep the
+      `ImagePicker` block identical, only the upload mechanics change.
+      Note: `public_id` uses a fresh timestamp on every upload (same
+      naming pattern the original Firebase code used) — an unsigned
+      preset can never overwrite an existing asset, so reusing a fixed
+      ID would just make Cloudinary silently ignore the new upload and
+      keep serving the old file. The previous asset is deleted
+      separately via the n8n webhook, fire-and-forget, after the new
+      one is confirmed live in Firestore:
 
-```
-match /badges/{badgeId} {
-  allow read: if request.auth != null &&
-    badgeId.matches(request.auth.uid + '_.*');
-  allow write: if false; // n8n service account only
-}
-```
-
-Leave `badge_verification` rules as-is (or, if absent, `allow read: if
-request.auth != null; allow write: if false;`) — that collection stays
-public-safe on purpose, since it never gets an email field.
-
-If `firestore.rules` doesn't already have rules for `badges` and
-`badge_verification`, check with the human before adding any — they may
-already exist (this codebase was pulled at one point in time and the rules
-file wasn't fully visible when this task was written). Don't add a
-duplicate `match` block for a collection that already has one.
-
-Add these two rule blocks (new collections — don't change the existing
-`leaderboard` or `leaderboard_config` rules, they're already correct):
-
-```
-// Weekly leaderboard - all authenticated users can read; each user writes only their own doc
-match /weekly_leaderboard/{userId} {
-  allow read: if request.auth != null;
-  allow write: if request.auth != null && request.auth.uid == userId;
-}
-
-// Monthly leaderboard - same pattern
-match /monthly_leaderboard/{userId} {
-  allow read: if request.auth != null;
-  allow write: if request.auth != null && request.auth.uid == userId;
-}
-```
-
-Target schema this supports:
-
-| Collection | Doc ID | Purpose | Resets |
-|---|---|---|---|
-| `leaderboard` | `{uid}` | **Lifetime** record. `username`, `avatarEmoji`, `email`, `streak`, `lifetimePoints`, `pointsBreakdown` (lifetime), `lastActiveAt`. | Never |
-| `weekly_leaderboard` | `{uid}` | This week's score only. `username`, `avatarEmoji`, `points`, `lastActiveAt`. | Weekly, via n8n |
-| `monthly_leaderboard` | `{uid}` | This month's score only. `username`, `avatarEmoji`, `points`. | Monthly, via n8n |
-| `badges` / `badge_verification` | `{uid}_{period}_{periodId}` / `{verificationId}` | Already exists — winner records, unchanged by this task. | Never |
-
----
-
-## Task 3 — Update `lib/core/services/leaderboard_service.dart`
-
-Keep every public method name/signature exactly as-is
-(`getTopUsers`, `streamTopUsers`, `getCurrentUserData`, `updateUserData`,
-`addPoints`, `updateStreak`, `getResetInfo`, `clearCache`, streak methods).
-Only change the bodies.
-
-### 3.1 — `addPoints()`
-
-Fan out the write to all three collections in one transaction instead of
-one doc with three fields:
-
-```dart
-Future<void> addPoints(int points, String category) async {
-  try {
-    final userId = FirebaseAuthService.instance.userId;
-    if (userId == null) return;
-
-    final lifetimeRef = _firestore.collection('leaderboard').doc(userId);
-    final weeklyRef = _firestore.collection('weekly_leaderboard').doc(userId);
-    final monthlyRef = _firestore.collection('monthly_leaderboard').doc(userId);
-
-    await _firestore.runTransaction((transaction) async {
-      final lifetimeSnap = await transaction.get(lifetimeRef);
-      final weeklySnap = await transaction.get(weeklyRef);
-      final monthlySnap = await transaction.get(monthlyRef);
-
-      final currentLifetime = lifetimeSnap.exists
-          ? (lifetimeSnap.data()?['lifetimePoints'] ?? 0) as int
-          : 0;
-      final currentBreakdown = lifetimeSnap.exists
-          ? Map<String, int>.from(lifetimeSnap.data()?['pointsBreakdown'] ?? {})
-          : <String, int>{};
-      final currentWeekly = weeklySnap.exists ? (weeklySnap.data()?['points'] ?? 0) as int : 0;
-      final currentMonthly = monthlySnap.exists ? (monthlySnap.data()?['points'] ?? 0) as int : 0;
-
-      currentBreakdown[category] = (currentBreakdown[category] ?? 0) + points;
-
-      final auth = FirebaseAuthService.instance;
-      final baseIdentity = <String, dynamic>{
-        'username': auth.userDisplayName ?? 'User',
-        'avatarEmoji': '👤',
-      };
-
-      transaction.set(lifetimeRef, {
-        if (!lifetimeSnap.exists) ...baseIdentity,
-        if (!lifetimeSnap.exists) 'email': auth.userEmail,
-        'lifetimePoints': currentLifetime + points,
-        'pointsBreakdown': currentBreakdown,
-        'lastUpdated': FieldValue.serverTimestamp(),
-        'lastActiveAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      transaction.set(weeklyRef, {
-        if (!weeklySnap.exists) ...baseIdentity,
-        'points': currentWeekly + points,
-        'lastUpdated': FieldValue.serverTimestamp(),
-        'lastActiveAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      transaction.set(monthlyRef, {
-        if (!monthlySnap.exists) ...baseIdentity,
-        'points': currentMonthly + points,
-        'lastUpdated': FieldValue.serverTimestamp(),
-        'lastActiveAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    });
-
-    clearCache();
-    debugPrint('Added $points points to $category (fanned out to 3 collections)');
-  } catch (e) {
-    debugPrint('Add points error: $e');
-  }
-}
-```
-
-### 3.2 — `_collectionFor(period)` helper
-
-Add near `LeaderboardPeriodX`:
-
-```dart
-extension LeaderboardPeriodCollectionX on LeaderboardPeriod {
-  String get collectionName =>
-      this == LeaderboardPeriod.weekly ? 'weekly_leaderboard' : 'monthly_leaderboard';
-}
-```
-
-### 3.3 — `getTopUsers()` / `streamTopUsers()`
-
-Query `period.collectionName` directly with a real `orderBy`, instead of
-pulling the whole `leaderboard` collection and sorting client-side:
-
-```dart
-Future<List<LeaderboardUser>> getTopUsers({
-  LeaderboardPeriod period = LeaderboardPeriod.weekly,
-  int limit = 100,
-}) async {
-  try {
-    final cached = _cachedLeaderboard[period];
-    final fetchedAt = _lastFetchTime[period];
-    if (cached != null && fetchedAt != null &&
-        DateTime.now().difference(fetchedAt) < _cacheDuration) {
-      return cached;
+  ```dart
+  Future<String?> uploadProfilePicture() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
     }
 
-    final currentUserId = FirebaseAuthService.instance.userId ?? '';
-    final querySnapshot = await _firestore
-        .collection(period.collectionName)
-        .orderBy('points', descending: true)
-        .limit(limit)
-        .get();
+    _isLoading = true;
 
-    final users = querySnapshot.docs.asMap().entries.map((e) {
-      return LeaderboardUser.fromFirestore(e.value, e.key + 1, currentUserId);
-    }).toList();
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
 
-    _cachedLeaderboard[period] = users;
-    _lastFetchTime[period] = DateTime.now();
-    return users;
-  } catch (e) {
-    debugPrint('Get leaderboard error (${period.label}): $e');
-    return [];
+      if (image == null) {
+        _isLoading = false;
+        return null;
+      }
+
+      // Read the previous public_id BEFORE overwriting the Firestore
+      // field, so we know what to ask n8n to delete afterward.
+      final existingDoc =
+          await _firestore.collection('users').doc(user.uid).get();
+      final previousPublicId =
+          existingDoc.data()?['profileImagePublicId'] as String?;
+
+      final file = File(image.path);
+      const cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME');
+      const uploadPreset =
+          String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET');
+      final newPublicId =
+          'profile_pics/${user.uid}_${DateTime.now().millisecondsSinceEpoch}';
+
+      final uri = Uri.parse(
+        'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
+      );
+
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = uploadPreset
+        ..fields['public_id'] = newPublicId
+        ..files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      final streamedResponse = await request.send();
+      final responseBody =
+          jsonDecode(await streamedResponse.stream.bytesToString());
+
+      if (streamedResponse.statusCode != 200) {
+        throw Exception(
+          'Cloudinary upload failed: ${responseBody['error']?['message'] ?? streamedResponse.statusCode}',
+        );
+      }
+
+      final downloadUrl = responseBody['secure_url'] as String;
+      final publicId = responseBody['public_id'] as String;
+
+      await _firestore.collection('users').doc(user.uid).set({
+        'profileImageUrl': downloadUrl,
+        'profileImagePublicId': publicId,
+        'profileImageUpdatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // Mirror onto the leaderboard doc too, so podium/list avatars
+      // don't need a second Firestore read — see §5 below.
+      await _firestore.collection('leaderboard').doc(user.uid).set({
+        'profileImageUrl': downloadUrl,
+      }, SetOptions(merge: true));
+
+      _cachedProfileUrl = downloadUrl;
+      _isLoading = false;
+
+      // Fire-and-forget: ask n8n to delete the old asset. Never let a
+      // failure here surface to the user — the new picture already
+      // uploaded and saved successfully regardless of cleanup outcome.
+      if (previousPublicId != null && previousPublicId.isNotEmpty) {
+        _deleteOldCloudinaryAsset(previousPublicId);
+      }
+
+      debugPrint('ProfileService: Profile picture uploaded to Cloudinary');
+      return downloadUrl;
+    } catch (e) {
+      _isLoading = false;
+      debugPrint('ProfileService: Error uploading profile picture: $e');
+      rethrow;
+    }
   }
-}
-```
 
-Do the equivalent for `streamTopUsers()` (same query, `.snapshots()` instead
-of `.get()`), keeping its "always surface the signed-in user even if they
-fell outside the fetch cap" fallback — just point that fallback read at
-`period.collectionName` instead of `leaderboard`.
+  /// Best-effort cleanup — asks n8n (which holds the Cloudinary API
+  /// secret) to delete a previous profile picture asset. Never throws;
+  /// a failure here just means one orphaned image, not a broken upload.
+  void _deleteOldCloudinaryAsset(String publicId) {
+    const webhookUrl =
+        String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_URL');
+    const webhookSecret =
+        String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
+    if (webhookUrl.isEmpty) return;
 
-### 3.4 — `LeaderboardUser.fromFirestore()`
-
-Weekly/monthly docs only have a `points` field; the lifetime doc only has
-`lifetimePoints`. Add a second factory or branch so the model reads the
-right field per source doc — e.g. `LeaderboardUser.fromPeriodDoc(doc, rank,
-currentUserId)` reading `points` generically, and
-`LeaderboardUser.fromLifetimeDoc(...)` for profile/achievements reading
-`lifetimePoints`. The UI already only ever calls `scoreFor()` or
-`.lifetimePoints` off one object at a time, never both, so this is safe.
-
-### 3.5 — `getCurrentUserData()`
-
-Read from `period.collectionName` for the score + rank
-(`.where('points', isGreaterThan: userScore).count()` as today), and
-separately read `leaderboard/{uid}` for `lifetimePoints` if the caller needs
-it — merge both into the returned `LeaderboardUser`.
-
-### 3.6 — `updateUserData()` / `updateStreak()` / `markActive()` / `checkAndResetStreakIfNeeded()`
-
-Streak lives on the lifetime doc (not a period concept) — keep these writing
-to `leaderboard/{uid}` exactly as today, no change needed.
+    http
+        .post(
+          Uri.parse(webhookUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Webhook-Secret': webhookSecret,
+          },
+          body: jsonEncode({'publicId': publicId}),
+        )
+        .catchError((e) {
+      debugPrint('ProfileService: Cloudinary cleanup webhook failed: $e');
+    });
+  }
+  ```
+- [ ] `getProfileUrl()` — **no changes**, already Firestore-only.
+- [ ] `removeProfilePicture()` — read `profileImagePublicId` before
+      clearing it, delete both `profileImageUrl` and
+      `profileImagePublicId` from Firestore (and mirror the removal onto
+      `leaderboard/{uid}.profileImageUrl`), then call the same
+      `_deleteOldCloudinaryAsset(previousPublicId)` fire-and-forget
+      helper from §3's upload method so the asset is actually removed
+      from Cloudinary too, not just unlinked in Firestore.
 
 ---
 
-## Task 4 — Nothing else in the repo needs to change
+## 4. UI: profile avatar / profile screen
 
-Do not touch `functions/index.js`, `leaderboard_screen.dart`,
-`profile_screen.dart`, or `achievements_screen.dart` — they either aren't
-part of this plan anymore (Cloud Functions) or don't need changes because
-`LeaderboardService`'s public API stayed the same.
+- [ ] `lib/ui/common/profile_avatar.dart` — **no changes**. Already
+      backend-agnostic (`Image.network` off whatever URL
+      `getProfileUrl()` returns).
+- [ ] `lib/ui/screens/profile/profile_screen.dart` — **no changes**.
 
-When these four tasks are done, hand the repo back for the human steps in
-`2_HUMAN_TASKS.md` (reconciliation run, rules deploy, n8n workflow, app
-release, testing).
-# Done
+---
+
+## 5. `lib/core/services/leaderboard_service.dart`
+
+- [ ] Add `final String? profileImageUrl;` to `LeaderboardUser`, plus the
+      constructor parameter (optional, default `null`).
+- [ ] In `LeaderboardUser.fromFirestore`, add:
+  ```dart
+  profileImageUrl: data['profileImageUrl'] as String?,
+  ```
+- [ ] In `toMap()`, add:
+  ```dart
+  if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
+  ```
+- [ ] Thread `profileImageUrl` through every place in this file that
+      constructs a `LeaderboardUser` — search for `LeaderboardUser(`
+      (three sites: `fromFirestore`, the rebuild loop inside
+      `_sortAndRank`, and the `leaderboardUser` local in
+      `updateUserData`) — same pattern already used for `email` /
+      `lifetimePoints`.
+- [ ] In `updateUserData()`, read the current profile URL via
+      `ProfileService.instance.getProfileUrl()` and pass it through, so
+      the field survives an update even if it was set separately by §3.
+
+---
+
+## 6. UI: leaderboard avatars
+
+- [ ] `lib/ui/screens/leaderboard/podium_card.dart` (~line 60) — the
+      `CircleAvatar` currently has no image. Thread `profileImageUrl`
+      into this widget's constructor (alongside `name`, `rank`, etc.)
+      and change:
+  ```dart
+  CircleAvatar(
+    radius: rank == 1 ? 26 : 20,
+    backgroundColor: medal.withValues(alpha: 0.25),
+    backgroundImage: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+        ? NetworkImage(profileImageUrl!)
+        : null,
+    child: (profileImageUrl == null || profileImageUrl!.isEmpty)
+        ? Icon(FluentIcons.person_20_filled, color: medal)
+        : null,
+  )
+  ```
+- [ ] `lib/ui/screens/leaderboard/leaderboard_screen.dart` (~line 372) —
+      same change to the `leading: CircleAvatar(...)` in
+      `DefaultListTile`: show `user.profileImageUrl` as an image when
+      present, fall back to the current rank-number avatar otherwise.
+- [ ] `NetworkImage` has no built-in error fallback like
+      `Image.network`'s `errorBuilder` — if a broken/expired URL should
+      degrade gracefully here too, wrap with `Image.network(...,
+      errorBuilder: ...)` inside the `CircleAvatar`'s `child` instead of
+      `backgroundImage`, matching `profile_avatar.dart`'s pattern.
+
+---
+
+## 7. `firestore.rules` — profile image validation
+
+- [ ] Under `match /users/{userId}`, tighten the existing rule:
+  ```js
+  match /users/{userId} {
+    allow read: if request.auth != null && request.auth.uid == userId;
+    allow write: if request.auth != null && request.auth.uid == userId
+      && (!('profileImageUrl' in request.resource.data)
+          || request.resource.data.profileImageUrl == null
+          || request.resource.data.profileImageUrl
+               .matches('https://res\\.cloudinary\\.com/<from human-todo.md §1>/.*'));
+    // ...existing habits/tasks/chats/settings subcollection rules unchanged
+  }
+  ```
+- [ ] Under `match /leaderboard/{userId}`, add the same
+      `profileImageUrl` pattern check to the existing `allow write`
+      rule.
+- [ ] Leave the actual `firebase deploy` command to human-todo.md §3 —
+      it needs an authenticated CLI session.
+
+---
+
+## 8. Retire Firebase Storage references
+
+- [ ] Delete `storage.rules` (confirmed nothing else needs it — the
+      bucket was never provisioned on Spark anyway).
+- [ ] Check `deploy_firebase.sh` / `deploy_firebase.ps1` for a
+      `storage:rules` deploy target and remove it, so scripted deploys
+      don't fail against a non-existent bucket.
+
+---
+
+## 9. Badges: Firestore rules + data model
+
+- [ ] New Firestore subcollection (no schema migration needed — just
+      start writing docs of this shape once the n8n side, human-todo.md
+      §2b, starts producing them):
+      `leaderboard/{uid}/badges/{docId}`
+  - `docId` is the n8n-generated `weekId` (e.g. `2026-W37`) or `monthId`
+    (e.g. `2026-09`) — the two formats can't collide with each other.
+  - Fields: `title` (string), `imageUrl` (string, the Cloudinary
+    on-the-fly transformation URL), `period` (`"weekly"` | `"monthly"`),
+    `cycleLabel` (string — currently the same value as `docId`),
+    `verificationId` (string, e.g. `DTX-7K2N9P`), `earnedAt` (timestamp)
+- [ ] Add to `firestore.rules`:
+  ```js
+  match /leaderboard/{userId} {
+    // ...existing rule...
+    match /badges/{badgeId} {
+      allow read: if request.auth != null;
+      allow write: if false; // only n8n (via REST + API key) writes this
+    }
+  }
+  ```
+
+---
+
+## 10. `lib/ui/screens/achievements/achievements_screen.dart`
+
+- [ ] Replace the hardcoded `itemCount: 3` / `labels` list in the badge
+      `PageView.builder` with a `StreamBuilder` over
+      `FirebaseFirestore.instance.collection('leaderboard').doc(uid).collection('badges').orderBy('earnedAt', descending: true).snapshots()`.
+- [ ] Define a fixed set of display "slots" (e.g. last 3 weekly cycles)
+      and for each:
+  - Badge doc exists → render its `imageUrl` via `Image.network` inside
+    the existing card layout, plus `title` / `cycleLabel`.
+  - No matching doc → keep today's existing placeholder box exactly as
+    it renders now.
+- [ ] Replace the static "Badges — Coming soon / No badges yet" card
+      (~lines 331–345) with the same data-backed list, or remove it if
+      the carousel above now covers the same information.
+
+---
+
+## Cross-references to human-todo.md
+
+- §1 (env config) needs Cloudinary cloud name + preset name from
+  human-todo.md §1, and the cleanup webhook URL + secret from
+  human-todo.md §2a.
+- §7 and §9 (rules) need the cloud name from human-todo.md §1, and the
+  actual `firebase deploy` from human-todo.md §3.
+- §9/§10 (badges) only display real data once human-todo.md §2b (n8n
+  badge workflow) is actually writing badge docs — until then the code
+  will correctly show the empty-slot fallback, which is fine to ship
+  first.

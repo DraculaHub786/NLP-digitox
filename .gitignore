@@ -114,3 +114,5 @@ fix.md
 todo.md
 scripts/reconcile-once.js
 scripts/service-account.json
+profile_avatar_implementation.md
+tree_shake_fix.md

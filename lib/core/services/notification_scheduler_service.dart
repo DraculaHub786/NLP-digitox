@@ -206,14 +206,14 @@ class NotificationSchedulerService {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
 
-      // Channel ID bumped from 'scheduled_reminders' to 'scheduled_reminders_v2':
+      // Channel ID bumped from 'scheduled_reminders_v2' to 'scheduled_reminders_v3':
       // Android notification channels are immutable after first creation, so
-      // existing installs would keep the old channel's (possibly silent)
-      // behavior no matter what we change here. A new ID forces the OS to
-      // create a fresh channel that inherits these explicit sound/vibration
-      // settings.
+      // existing installs would keep the old channel's (possibly silent, or
+      // default-sound) behavior no matter what we change here. A new ID
+      // forces the OS to create a fresh channel that inherits these explicit
+      // sound/vibration settings, including the custom reminder sound below.
       const androidDetails = AndroidNotificationDetails(
-        'scheduled_reminders_v2',
+        'scheduled_reminders_v3',
         'Scheduled Reminders',
         channelDescription:
             'Daily scheduled reminder notifications',
@@ -221,6 +221,10 @@ class NotificationSchedulerService {
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
         playSound: true,
+        // Custom sound for user-set schedules only. File lives at
+        // android/app/src/main/res/raw/schedule_reminder_sound.wav — resource
+        // name passed WITHOUT the file extension.
+        sound: RawResourceAndroidNotificationSound('schedule_reminder_sound'),
         enableVibration: true,
         actions: <AndroidNotificationAction>[
           AndroidNotificationAction(
@@ -236,6 +240,10 @@ class NotificationSchedulerService {
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
+        // Custom sound for user-set schedules only. File lives at
+        // ios/Runner/Resources/schedule_reminder_sound.wav — iOS bundles a
+        // resource by filename (WITH extension), unlike Android's raw res.
+        sound: 'schedule_reminder_sound.wav',
       );
 
       const notificationDetails = NotificationDetails(

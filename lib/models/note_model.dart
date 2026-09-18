@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/core/constants/app_icons.dart';
 
 @immutable
 class NoteModel {
@@ -48,7 +47,7 @@ class NoteModel {
       'title': title,
       'content': content,
       'colorValue': color.toARGB32(),
-      'iconCodePoint': icon.codePoint,
+      'iconKey': iconKeyOf(icon) ?? 'note_note', // safe default key
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
@@ -60,9 +59,27 @@ class NoteModel {
       title: json['title'] as String,
       content: json['content'] as String,
       color: Color(json['colorValue'] as int),
-      icon: IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons'),
+      // New format: 'iconKey' (String). Old format: 'iconCodePoint' (int) —
+      // migrated on first load, see Step 3. Once every install has re-saved
+      // at least once, the codePoint branch can be deleted.
+      icon: json['iconKey'] != null
+          ? iconFromKey(json['iconKey'] as String)
+          : _legacyIconFromCodePoint(json['iconCodePoint'] as int?),
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int),
     );
   }
+}
+
+/// TEMPORARY migration shim — remove once confident no installs still have
+/// pre-iconKey data (check analytics / a few app-versions out).
+/// Old data was saved with fontFamily hardcoded to 'MaterialIcons', which
+/// was WRONG (actual icons are FluentIcons) — so this can only approximate
+/// the original icon. That's acceptable for one-time migration only.
+IconData _legacyIconFromCodePoint(int? codePoint) {
+  if (codePoint == null) return iconFromKey('note_note');
+  // Best-effort: most existing notes were created with the default
+  // first option in their respective picker, so fall back to that rather
+  // than an unrelated Material glyph rendered in the wrong font.
+  return iconFromKey('note_note');
 }

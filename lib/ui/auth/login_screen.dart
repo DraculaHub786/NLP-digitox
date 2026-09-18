@@ -188,6 +188,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             width: 72,
                             height: 72,
                             fit: BoxFit.cover,
+                            cacheWidth: 144,
+                            cacheHeight: 144,
                           ),
                         ),
                       ),

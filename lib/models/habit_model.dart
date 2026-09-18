@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/core/constants/app_icons.dart';
 
 @immutable
 class HabitModel {
@@ -58,7 +57,7 @@ class HabitModel {
     return {
       'id': id,
       'name': name,
-      'iconCodePoint': icon.codePoint,
+      'iconKey': iconKeyOf(icon) ?? 'habit_drink_coffee', // safe default key
       'colorValue': color.toARGB32(),
       'streak': streak,
       'completedToday': completedToday ? 1 : 0,
@@ -73,7 +72,12 @@ class HabitModel {
     return HabitModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      icon: IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons'),
+      // New format: 'iconKey' (String). Old format: 'iconCodePoint' (int) —
+      // migrated on first load, see Step 3. Once every install has re-saved
+      // at least once, the codePoint branch can be deleted.
+      icon: json['iconKey'] != null
+          ? iconFromKey(json['iconKey'] as String)
+          : _legacyIconFromCodePoint(json['iconCodePoint'] as int?),
       color: Color(json['colorValue'] as int),
       streak: json['streak'] as int? ?? 0,
       completedToday: (json['completedToday'] as int? ?? 0) == 1,
@@ -90,4 +94,17 @@ class HabitModel {
           : null,
     );
   }
+}
+
+/// TEMPORARY migration shim — remove once confident no installs still have
+/// pre-iconKey data (check analytics / a few app-versions out).
+/// Old data was saved with fontFamily hardcoded to 'MaterialIcons', which
+/// was WRONG (actual icons are FluentIcons) — so this can only approximate
+/// the original icon. That's acceptable for one-time migration only.
+IconData _legacyIconFromCodePoint(int? codePoint) {
+  if (codePoint == null) return iconFromKey(null);
+  // Best-effort: most existing habits/notes were created with the default
+  // first option in their respective picker, so fall back to that rather
+  // than an unrelated Material glyph rendered in the wrong font.
+  return iconFromKey(null);
 }

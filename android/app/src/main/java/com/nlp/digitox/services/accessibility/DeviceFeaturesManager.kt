@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.accessibility.AccessibilityNodeInfo
 import com.nlp.digitox.AppConstants.SYSTEM_SETTINGS_PACKAGE
 import com.nlp.digitox.R
-import com.nlp.digitox.helpers.device.PermissionsHelper
 import com.nlp.digitox.models.Wellbeing
 
 class DeviceFeaturesManager(
@@ -47,12 +46,6 @@ class DeviceFeaturesManager(
         ): Boolean {
             val appName: String = context.getString(R.string.app_name)
 
-            // Check for Admin section
-            val isAdminSectionOpen =
-                node.findAccessibilityNodeInfosByViewId("com.android.settings:id/admin_name")
-                    .firstOrNull()?.text == appName
-
-
             // Check for Accessibility section
             val isAccessibilitySectionOpen =
                 node.findAccessibilityNodeInfosByText(context.getString(R.string.accessibility_description))
@@ -60,10 +53,7 @@ class DeviceFeaturesManager(
                         node.findAccessibilityNodeInfosByText(appName)
                             .any { it.text == appName }
 
-
-
-            return (isAdminSectionOpen || isAccessibilitySectionOpen) &&
-                    PermissionsHelper.getAndAskAdminPermission(context, false)
+            return isAccessibilitySectionOpen
         }
     }
 }

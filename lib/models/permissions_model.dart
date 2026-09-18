@@ -24,9 +24,6 @@ class PermissionsModel {
   /// Indicates whether the ignore battery optimization permission is granted.
   final bool haveIgnoreOptimizationPermission;
 
-  /// Indicates whether the Admin permission is granted.
-  final bool haveAdminPermission;
-
   /// Indicates whether the Notification Access permission is granted.
   final bool haveNotificationAccessPermission;
 
@@ -41,12 +38,6 @@ class PermissionsModel {
   /// nudge instead of a full re-permission prompt.
   final bool isAccessibilityServicePaused;
 
-  /// Indicates whether Device Admin permission was previously granted but has
-  /// been silently revoked by the OEM. Set by the keep-alive heartbeat on the
-  /// native side when it detects admin went from active to inactive.
-  /// When true, the UI should show a lightweight one-tap re-enable nudge.
-  final bool isDeviceAdminRevoked;
-
   const PermissionsModel({
     this.haveNotificationPermission = true,
     this.haveUsageAccessPermission = true,
@@ -56,11 +47,9 @@ class PermissionsModel {
     this.haveAccessibilityPermission = true,
     this.haveAlarmsPermission = true,
     this.haveIgnoreOptimizationPermission = true,
-    this.haveAdminPermission = true,
     this.haveNotificationAccessPermission = true,
     this.isAccessibilityServiceActive = true,
     this.isAccessibilityServicePaused = false,
-    this.isDeviceAdminRevoked = false,
   });
 
   /// Creates a copy of the `PermissionsModel` with potentially modified permissions.
@@ -73,11 +62,9 @@ class PermissionsModel {
     bool? haveAccessibilityPermission,
     bool? haveAlarmsPermission,
     bool? haveIgnoreOptimizationPermission,
-    bool? haveAdminPermission,
     bool? haveNotificationAccessPermission,
     bool? isAccessibilityServiceActive,
     bool? isAccessibilityServicePaused,
-    bool? isDeviceAdminRevoked,
   }) {
     return PermissionsModel(
       haveNotificationPermission:
@@ -93,7 +80,6 @@ class PermissionsModel {
       haveAlarmsPermission: haveAlarmsPermission ?? this.haveAlarmsPermission,
       haveIgnoreOptimizationPermission: haveIgnoreOptimizationPermission ??
           this.haveIgnoreOptimizationPermission,
-      haveAdminPermission: haveAdminPermission ?? this.haveAdminPermission,
       haveNotificationAccessPermission:
           haveNotificationAccessPermission ??
               this.haveNotificationAccessPermission,
@@ -101,8 +87,6 @@ class PermissionsModel {
           isAccessibilityServiceActive ?? this.isAccessibilityServiceActive,
       isAccessibilityServicePaused:
           isAccessibilityServicePaused ?? this.isAccessibilityServicePaused,
-      isDeviceAdminRevoked:
-          isDeviceAdminRevoked ?? this.isDeviceAdminRevoked,
     );
   }
 }

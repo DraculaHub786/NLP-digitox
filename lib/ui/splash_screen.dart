@@ -203,6 +203,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                         child: Image.asset(
                           'assets/logo-prev.png',
                           fit: BoxFit.cover,
+                          cacheWidth: 368,
+                          cacheHeight: 368,
                         ),
                       ),
                     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.12, end: 0),

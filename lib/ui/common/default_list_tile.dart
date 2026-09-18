@@ -59,10 +59,11 @@ class DefaultListTile extends StatelessWidget {
       elevation: 0,
       tint: isPrimary ? Theme.of(context).colorScheme.secondaryContainer : color,
       onTap: enabled ? onPressed : null,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+      child: ClipRect(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
           /// Leading widget
           leadingIcon != null
               ? Container(
@@ -111,12 +112,17 @@ class DefaultListTile extends StatelessWidget {
 
                 /// Subtitle widget
                 subtitleText != null
-                    ? StyledText(
-                        subtitleText!,
-                        fontSize: 14,
-                        isSubtitle: true,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    ? FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        clipBehavior: Clip.none,
+                        child: StyledText(
+                          subtitleText!,
+                          fontSize: 14,
+                          isSubtitle: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       )
                     : subtitle ?? 0.vBox,
               ],
@@ -149,7 +155,8 @@ class DefaultListTile extends StatelessWidget {
                       ),
                     )
                   : trailing ?? 0.hBox,
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -39,6 +39,8 @@ class ApplicationIcon extends StatelessWidget {
               width: size * 2,
               height: size * 2,
               fit: BoxFit.cover,
+              cacheWidth: (size * 4).round(),
+              cacheHeight: (size * 4).round(),
             ),
           ),
         );

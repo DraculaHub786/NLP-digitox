@@ -60,12 +60,9 @@ dependencies:
   device_info_plus: ^10.1.0
 
   # AI Integration
-  google_generative_ai: ^0.4.6
   http: ^1.2.0  # For Groq API calls
   
   # Additional Features
-  tflite_flutter: ^0.10.4  # On-device ML models
-  geolocator: ^13.0.2  # Location services
   connectivity_plus: ^6.1.2  # Network connectivity
   just_audio: ^0.9.40  # White noise player for focus sessions
   image_picker: ^1.0.7  # Image selection for profile pics
