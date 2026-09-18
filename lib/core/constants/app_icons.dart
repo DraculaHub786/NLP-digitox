@@ -52,4 +52,22 @@ IconData iconFromKey(String? key) {
   return kSelectableIcons[key] ?? _fallbackIcon;
 }
 
+/// Recovers an icon from legacy data that stored only a glyph codePoint.
+///
+/// That old serializer also hardcoded `fontFamily: 'MaterialIcons'` when
+/// reading the value back, even though the codePoint itself is a **Fluent**
+/// glyph — which is why a saved icon used to render as a completely
+/// different glyph. Matching the codePoint against this registry (ignoring
+/// the font) restores the icon the user actually picked.
+IconData iconFromLegacyCodePoint(int? codePoint, {IconData? fallback}) {
+  if (codePoint != null) {
+    for (final entry in kSelectableIcons.entries) {
+      if (entry.value.codePoint == codePoint) {
+        return entry.value;
+      }
+    }
+  }
+  return fallback ?? _fallbackIcon;
+}
+
 const IconData _fallbackIcon = FluentIcons.question_circle_20_filled;

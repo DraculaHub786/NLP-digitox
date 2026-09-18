@@ -96,15 +96,14 @@ class HabitModel {
   }
 }
 
-/// TEMPORARY migration shim — remove once confident no installs still have
-/// pre-iconKey data (check analytics / a few app-versions out).
-/// Old data was saved with fontFamily hardcoded to 'MaterialIcons', which
-/// was WRONG (actual icons are FluentIcons) — so this can only approximate
-/// the original icon. That's acceptable for one-time migration only.
+/// Migration shim for habits saved before icons were stored by key. The
+/// stored value is the Fluent glyph codePoint, so it can be matched back to
+/// the exact icon the user picked (see [iconFromLegacyCodePoint]). Only if
+/// the glyph is no longer in the picker do we fall back to the picker's
+/// first option.
 IconData _legacyIconFromCodePoint(int? codePoint) {
-  if (codePoint == null) return iconFromKey(null);
-  // Best-effort: most existing habits/notes were created with the default
-  // first option in their respective picker, so fall back to that rather
-  // than an unrelated Material glyph rendered in the wrong font.
-  return iconFromKey(null);
+  return iconFromLegacyCodePoint(
+    codePoint,
+    fallback: iconFromKey('habit_drink_coffee'),
+  );
 }
