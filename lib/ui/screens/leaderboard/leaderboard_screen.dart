@@ -8,6 +8,7 @@ import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
 import 'package:nlp_digitox/ui/common/default_segmented_button.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
+import 'package:nlp_digitox/ui/common/network_avatar.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/common/surface_card.dart';
@@ -369,11 +370,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                         children: [
                           for (final user in rest) ...[
                             DefaultListTile(
-                              leading: CircleAvatar(
+                              leading: NetworkAvatar(
                                 radius: 16,
                                 backgroundColor:
                                     colorScheme.primary.withValues(alpha: 0.12),
-                                child: Text(
+                                imageUrl: user.profileImageUrl,
+                                fallback: Text(
                                   '#${user.rank}',
                                   style: const TextStyle(fontSize: 12),
                                 ),
@@ -716,6 +718,7 @@ class _LeaderboardPodium extends StatelessWidget {
                   name: second.isCurrentUser ? 'You' : second.username,
                   points: second.scoreFor(period),
                   isCurrentUser: second.isCurrentUser,
+                  profileImageUrl: second.profileImageUrl,
                 )
               : const SizedBox.shrink(),
         ),
@@ -727,6 +730,7 @@ class _LeaderboardPodium extends StatelessWidget {
                   name: first.isCurrentUser ? 'You' : first.username,
                   points: first.scoreFor(period),
                   isCurrentUser: first.isCurrentUser,
+                  profileImageUrl: first.profileImageUrl,
                 )
               : const SizedBox.shrink(),
         ),
@@ -738,6 +742,7 @@ class _LeaderboardPodium extends StatelessWidget {
                   name: third.isCurrentUser ? 'You' : third.username,
                   points: third.scoreFor(period),
                   isCurrentUser: third.isCurrentUser,
+                  profileImageUrl: third.profileImageUrl,
                 )
               : const SizedBox.shrink(),
         ),

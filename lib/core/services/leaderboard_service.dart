@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
@@ -88,6 +89,7 @@ class LeaderboardUser {
   final int monthlyPoints;
   final DateTime? lastActiveAt;
   final String? email;
+  final String? profileImageUrl;
 
   LeaderboardUser({
     required this.userId,
@@ -102,6 +104,7 @@ class LeaderboardUser {
     this.monthlyPoints = 0,
     this.lastActiveAt,
     this.email,
+    this.profileImageUrl,
   });
 
   /// The score relevant to a given leaderboard view.
@@ -143,6 +146,7 @@ class LeaderboardUser {
       monthlyPoints: points,
       lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
       email: data['email'] as String?,
+      profileImageUrl: data['profileImageUrl'] as String?,
     );
   }
 
@@ -172,6 +176,7 @@ class LeaderboardUser {
       monthlyPoints: data['monthlyPoints'] ?? 0,
       lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
       email: data['email'] as String?,
+      profileImageUrl: data['profileImageUrl'] as String?,
     );
   }
 
@@ -196,6 +201,7 @@ class LeaderboardUser {
       monthlyPoints: data['monthlyPoints'] ?? 0,
       lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
       email: data['email'] as String?,
+      profileImageUrl: data['profileImageUrl'] as String?,
     );
   }
 
@@ -207,6 +213,7 @@ class LeaderboardUser {
     required int streak,
     Map<String, int>? pointsBreakdown,
     String? email,
+    String? profileImageUrl,
   }) {
     return LeaderboardUser(
       userId: userId,
@@ -221,6 +228,7 @@ class LeaderboardUser {
       monthlyPoints: monthlyPoints,
       lastActiveAt: lastActiveAt,
       email: email ?? this.email,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
     );
   }
 
@@ -234,6 +242,7 @@ class LeaderboardUser {
       'lifetimePoints': lifetimePoints,
       'monthlyPoints': monthlyPoints,
       if (email != null) 'email': email,
+      if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
       'lastUpdated': FieldValue.serverTimestamp(),
       'lastActiveAt': lastActiveAt != null
           ? Timestamp.fromDate(lastActiveAt!)
@@ -311,6 +320,7 @@ class LeaderboardService {
         monthlyPoints: sorted[i].monthlyPoints,
         lastActiveAt: sorted[i].lastActiveAt,
         email: sorted[i].email,
+        profileImageUrl: sorted[i].profileImageUrl,
       );
     }
     return sorted;
@@ -425,6 +435,8 @@ class LeaderboardService {
       final lastActiveAt =
           (periodData?['lastActiveAt'] ?? lifetimeData?['lastActiveAt'] as Timestamp?)
               ?.toDate();
+      final profileImageUrl = (periodData?['profileImageUrl'] ??
+          lifetimeData?['profileImageUrl']) as String?;
 
       return LeaderboardUser(
         userId: userId,
@@ -439,6 +451,7 @@ class LeaderboardService {
         monthlyPoints: userScore,
         lastActiveAt: lastActiveAt,
         email: lifetimeData?['email'] as String?,
+        profileImageUrl: profileImageUrl,
       );
     } catch (e) {
       debugPrint('Get current user data error (${period.label}): $e');
@@ -464,6 +477,10 @@ class LeaderboardService {
             ? Map<String, int>.from(data['pointsBreakdown'])
             : null,
         email: data['email'] as String?,
+        // The lifetime doc also carries the avatar copy written by
+        // ProfileService, so a row read before the period doc has one still
+        // shows the picture.
+        profileImageUrl: data['profileImageUrl'] as String?,
       );
     } catch (e) {
       debugPrint('Merge current user lifetime error: $e');
@@ -542,6 +559,13 @@ class LeaderboardService {
               existingDoc.data()?['pointsBreakdown'] ?? {})
           : <String, int>{};
 
+      // The avatar URL is written separately by ProfileService (which mirrors
+      // it onto this doc); read it back so this merge-write never drops it.
+      String? profileImageUrl = await ProfileService.instance.getProfileUrl();
+      if (profileImageUrl == null && existingDoc.exists) {
+        profileImageUrl = existingDoc.data()?['profileImageUrl'] as String?;
+      }
+
       final leaderboardUser = LeaderboardUser(
         userId: userId,
         username: username,
@@ -555,6 +579,7 @@ class LeaderboardService {
         monthlyPoints: existingMonthlyPoints,
         lastActiveAt: DateTime.now(),
         email: FirebaseAuthService.instance.userEmail,
+        profileImageUrl: profileImageUrl,
       );
 
       await _firestore
@@ -593,6 +618,10 @@ class LeaderboardService {
       final weeklyRef = _firestore.collection('weekly_leaderboard').doc(userId);
       final monthlyRef = _firestore.collection('monthly_leaderboard').doc(userId);
 
+      // Warm the profile-picture cache so a brand-new board doc is seeded with
+      // the user's avatar (no Firestore read after the first call per session).
+      final profileImageUrl = await ProfileService.instance.getProfileUrl();
+
       await _firestore.runTransaction((transaction) async {
         final lifetimeSnap = await transaction.get(lifetimeRef);
         final weeklySnap = await transaction.get(weeklyRef);
@@ -622,6 +651,8 @@ class LeaderboardService {
         transaction.set(lifetimeRef, {
           if (!lifetimeSnap.exists) ...baseIdentity,
           if (!lifetimeSnap.exists) 'email': auth.userEmail,
+          if (!lifetimeSnap.exists && profileImageUrl != null)
+            'profileImageUrl': profileImageUrl,
           'lifetimePoints': currentLifetime + points,
           'pointsBreakdown': currentBreakdown,
           'lastUpdated': FieldValue.serverTimestamp(),
@@ -630,6 +661,8 @@ class LeaderboardService {
 
         transaction.set(weeklyRef, {
           if (!weeklySnap.exists) ...baseIdentity,
+          if (!weeklySnap.exists && profileImageUrl != null)
+            'profileImageUrl': profileImageUrl,
           'points': currentWeekly + points,
           'lastUpdated': FieldValue.serverTimestamp(),
           'lastActiveAt': FieldValue.serverTimestamp(),
@@ -637,6 +670,8 @@ class LeaderboardService {
 
         transaction.set(monthlyRef, {
           if (!monthlySnap.exists) ...baseIdentity,
+          if (!monthlySnap.exists && profileImageUrl != null)
+            'profileImageUrl': profileImageUrl,
           'points': currentMonthly + points,
           'lastUpdated': FieldValue.serverTimestamp(),
           'lastActiveAt': FieldValue.serverTimestamp(),

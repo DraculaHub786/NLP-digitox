@@ -22,12 +22,6 @@ firebase deploy --only database:rules
 Write-Host "📦 Deploying Firestore security rules..." -ForegroundColor Cyan
 firebase deploy --only firestore:rules
 
-# Deploy Storage rules (if exists)
-if (Test-Path "storage.rules") {
-    Write-Host "📦 Deploying Storage rules..." -ForegroundColor Cyan
-    firebase deploy --only storage
-}
-
 # Deploy Cloud Functions (if exists)
 if (Test-Path "functions") {
     Write-Host "📦 Deploying Cloud Functions..." -ForegroundColor Cyan

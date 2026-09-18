@@ -9,7 +9,7 @@ else here is pure code.
 
 ## 1. App configuration
 
-- [ ] Add to the existing `.env` / `--dart-define-from-file` config
+- [x] Add to the existing `.env` / `--dart-define-from-file` config
       (same mechanism already used for the AI API keys):
   ```
   CLOUDINARY_CLOUD_NAME=<from human-todo.md §1>
@@ -26,15 +26,15 @@ else here is pure code.
 
 ## 2. `pubspec.yaml`
 
-- [ ] Remove:
+- [x] Remove:
   ```yaml
   firebase_storage: ^12.4.10
   ```
-- [ ] Keep `http: ^1.2.0` and `image_picker: ^1.0.7` — no new HTTP
+- [x] Keep `http: ^1.2.0` and `image_picker: ^1.0.7` — no new HTTP
       package needed.
-- [ ] Optional: add `cached_network_image` if you want disk caching on
+- [x] Optional: add `cached_network_image` if you want disk caching on
       the leaderboard avatars. Skippable for a minimal first pass.
-- [ ] Run `flutter pub get`; the only file that should break on removing
+- [x] Run `flutter pub get`; the only file that should break on removing
       `firebase_storage` is `profile_service.dart` (confirmed via grep —
       nothing else in the repo imports it).
 
@@ -42,12 +42,12 @@ else here is pure code.
 
 ## 3. `lib/core/services/profile_service.dart`
 
-- [ ] Remove `import 'package:firebase_storage/firebase_storage.dart';`
+- [x] Remove `import 'package:firebase_storage/firebase_storage.dart';`
       and the `final FirebaseStorage _storage` field.
-- [ ] Add `import 'dart:convert';` and
+- [x] Add `import 'dart:convert';` and
       `import 'package:http/http.dart' as http;` (keep existing
       `import 'dart:io';`).
-- [ ] Replace the body of `uploadProfilePicture()` — keep the
+- [x] Replace the body of `uploadProfilePicture()` — keep the
       `ImagePicker` block identical, only the upload mechanics change.
       Note: `public_id` uses a fresh timestamp on every upload (same
       naming pattern the original Firebase code used) — an unsigned
@@ -171,8 +171,8 @@ else here is pure code.
     });
   }
   ```
-- [ ] `getProfileUrl()` — **no changes**, already Firestore-only.
-- [ ] `removeProfilePicture()` — read `profileImagePublicId` before
+- [x] `getProfileUrl()` — **no changes**, already Firestore-only.
+- [x] `removeProfilePicture()` — read `profileImagePublicId` before
       clearing it, delete both `profileImageUrl` and
       `profileImagePublicId` from Firestore (and mirror the removal onto
       `leaderboard/{uid}.profileImageUrl`), then call the same
@@ -184,40 +184,50 @@ else here is pure code.
 
 ## 4. UI: profile avatar / profile screen
 
-- [ ] `lib/ui/common/profile_avatar.dart` — **no changes**. Already
-      backend-agnostic (`Image.network` off whatever URL
-      `getProfileUrl()` returns).
-- [ ] `lib/ui/screens/profile/profile_screen.dart` — **no changes**.
+- [x] `lib/ui/common/profile_avatar.dart` — still backend-agnostic
+      (`Image.network` off whatever URL `getProfileUrl()` returns), plus a
+      `ProfileService.profileUrlNotifier` listener so the Dashboard header /
+      Profile screen avatar refreshes the moment a picture is uploaded or
+      removed elsewhere instead of only when the widget is recreated
+      (human-todo §4 requires this to work "without restarting the app").
+- [x] `lib/ui/screens/profile/profile_screen.dart` — **no changes**.
 
 ---
 
 ## 5. `lib/core/services/leaderboard_service.dart`
 
-- [ ] Add `final String? profileImageUrl;` to `LeaderboardUser`, plus the
+- [x] Add `final String? profileImageUrl;` to `LeaderboardUser`, plus the
       constructor parameter (optional, default `null`).
-- [ ] In `LeaderboardUser.fromFirestore`, add:
+- [x] In `LeaderboardUser.fromFirestore`, add:
   ```dart
   profileImageUrl: data['profileImageUrl'] as String?,
   ```
-- [ ] In `toMap()`, add:
+- [x] In `toMap()`, add:
   ```dart
   if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
   ```
-- [ ] Thread `profileImageUrl` through every place in this file that
+- [x] Thread `profileImageUrl` through every place in this file that
       constructs a `LeaderboardUser` — search for `LeaderboardUser(`
       (three sites: `fromFirestore`, the rebuild loop inside
       `_sortAndRank`, and the `leaderboardUser` local in
       `updateUserData`) — same pattern already used for `email` /
       `lifetimePoints`.
-- [ ] In `updateUserData()`, read the current profile URL via
+- [x] In `updateUserData()`, read the current profile URL via
       `ProfileService.instance.getProfileUrl()` and pass it through, so
       the field survives an update even if it was set separately by §3.
+      Falls back to the URL already on the doc if the service has none.
+- [x] **Additional sites needed beyond the three listed above** (the board
+      is read from the *period* collections, not `leaderboard/`): parse
+      `profileImageUrl` in `fromPeriodDoc` and `fromLifetimeDoc`, carry it
+      through `mergeLifetime`, read it in `getCurrentUserData`, and seed it
+      in `addPoints` (together with §3's mirror) so a row shows the picture
+      as soon as the user has one on any board.
 
 ---
 
 ## 6. UI: leaderboard avatars
 
-- [ ] `lib/ui/screens/leaderboard/podium_card.dart` (~line 60) — the
+- [x] `lib/ui/screens/leaderboard/podium_card.dart` (~line 60) — the
       `CircleAvatar` currently has no image. Thread `profileImageUrl`
       into this widget's constructor (alongside `name`, `rank`, etc.)
       and change:
@@ -233,21 +243,26 @@ else here is pure code.
         : null,
   )
   ```
-- [ ] `lib/ui/screens/leaderboard/leaderboard_screen.dart` (~line 372) —
+- [x] `lib/ui/screens/leaderboard/leaderboard_screen.dart` (~line 372) —
       same change to the `leading: CircleAvatar(...)` in
       `DefaultListTile`: show `user.profileImageUrl` as an image when
       present, fall back to the current rank-number avatar otherwise.
-- [ ] `NetworkImage` has no built-in error fallback like
+- [x] `NetworkImage` has no built-in error fallback like
       `Image.network`'s `errorBuilder` — if a broken/expired URL should
       degrade gracefully here too, wrap with `Image.network(...,
       errorBuilder: ...)` inside the `CircleAvatar`'s `child` instead of
       `backgroundImage`, matching `profile_avatar.dart`'s pattern.
+- [x] Implemented as a shared `lib/ui/common/network_avatar.dart`
+      (`CachedNetworkImage`, with the fallback always rendered on missing /
+      loading / error) used by the podium, the "rest of the board" rows and
+      both badge avatars — `CircleAvatar.backgroundImage` cannot render a
+      fallback, and `cached_network_image` was already added in §2.
 
 ---
 
 ## 7. `firestore.rules` — profile image validation
 
-- [ ] Under `match /users/{userId}`, tighten the existing rule:
+- [x] Under `match /users/{userId}`, tighten the existing rule:
   ```js
   match /users/{userId} {
     allow read: if request.auth != null && request.auth.uid == userId;
@@ -259,7 +274,7 @@ else here is pure code.
     // ...existing habits/tasks/chats/settings subcollection rules unchanged
   }
   ```
-- [ ] Under `match /leaderboard/{userId}`, add the same
+- [x] Under `match /leaderboard/{userId}`, add the same
       `profileImageUrl` pattern check to the existing `allow write`
       rule.
 - [ ] Leave the actual `firebase deploy` command to human-todo.md §3 —
@@ -269,9 +284,9 @@ else here is pure code.
 
 ## 8. Retire Firebase Storage references
 
-- [ ] Delete `storage.rules` (confirmed nothing else needs it — the
+- [x] Delete `storage.rules` (confirmed nothing else needs it — the
       bucket was never provisioned on Spark anyway).
-- [ ] Check `deploy_firebase.sh` / `deploy_firebase.ps1` for a
+- [x] Check `deploy_firebase.sh` / `deploy_firebase.ps1` for a
       `storage:rules` deploy target and remove it, so scripted deploys
       don't fail against a non-existent bucket.
 
@@ -279,17 +294,19 @@ else here is pure code.
 
 ## 9. Badges: Firestore rules + data model
 
-- [ ] New Firestore subcollection (no schema migration needed — just
+- [x] New Firestore subcollection (no schema migration needed — just
       start writing docs of this shape once the n8n side, human-todo.md
       §2b, starts producing them):
-      `leaderboard/{uid}/badges/{docId}`
+      `leaderboard/{uid}/badges/{docId}` — no client schema change was
+      needed for this: `lib/models/badge_model.dart` already parses exactly
+      these fields and the subcollection rule below governs access.
   - `docId` is the n8n-generated `weekId` (e.g. `2026-W37`) or `monthId`
     (e.g. `2026-09`) — the two formats can't collide with each other.
   - Fields: `title` (string), `imageUrl` (string, the Cloudinary
     on-the-fly transformation URL), `period` (`"weekly"` | `"monthly"`),
     `cycleLabel` (string — currently the same value as `docId`),
     `verificationId` (string, e.g. `DTX-7K2N9P`), `earnedAt` (timestamp)
-- [ ] Add to `firestore.rules`:
+- [x] Add to `firestore.rules`:
   ```js
   match /leaderboard/{userId} {
     // ...existing rule...
@@ -304,16 +321,16 @@ else here is pure code.
 
 ## 10. `lib/ui/screens/achievements/achievements_screen.dart`
 
-- [ ] Replace the hardcoded `itemCount: 3` / `labels` list in the badge
+- [x] Replace the hardcoded `itemCount: 3` / `labels` list in the badge
       `PageView.builder` with a `StreamBuilder` over
       `FirebaseFirestore.instance.collection('leaderboard').doc(uid).collection('badges').orderBy('earnedAt', descending: true).snapshots()`.
-- [ ] Define a fixed set of display "slots" (e.g. last 3 weekly cycles)
+- [x] Define a fixed set of display "slots" (e.g. last 3 weekly cycles)
       and for each:
   - Badge doc exists → render its `imageUrl` via `Image.network` inside
     the existing card layout, plus `title` / `cycleLabel`.
   - No matching doc → keep today's existing placeholder box exactly as
     it renders now.
-- [ ] Replace the static "Badges — Coming soon / No badges yet" card
+- [x] Replace the static "Badges — Coming soon / No badges yet" card
       (~lines 331–345) with the same data-backed list, or remove it if
       the carousel above now covers the same information.
 

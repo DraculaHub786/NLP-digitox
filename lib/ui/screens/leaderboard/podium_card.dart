@@ -1,5 +1,7 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
+import 'package:nlp_digitox/ui/common/network_avatar.dart';
 import 'package:nlp_digitox/ui/common/surface_card.dart';
 
 /// Podium slot for the leaderboard top-3. Rank 1 is the tallest card in the
@@ -11,12 +13,16 @@ class PodiumCard extends StatelessWidget {
   final int points;
   final bool isCurrentUser;
 
+  /// Cloudinary URL of the user's profile picture, if they have one.
+  final String? profileImageUrl;
+
   const PodiumCard({
     super.key,
     required this.rank,
     required this.name,
     required this.points,
     this.isCurrentUser = false,
+    this.profileImageUrl,
   });
 
   static const _heights = {1: 150.0, 2: 120.0, 3: 100.0};
@@ -60,9 +66,15 @@ class PodiumCard extends StatelessWidget {
               fit: FlexFit.loose,
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                child: CircleAvatar(
+                child: NetworkAvatar(
                   radius: rank == 1 ? 26 : 20,
                   backgroundColor: medal.withValues(alpha: 0.25),
+                  imageUrl: profileImageUrl,
+                  fallback: Icon(
+                    FluentIcons.person_20_filled,
+                    color: medal,
+                    size: rank == 1 ? 26 : 20,
+                  ),
                 ),
               ),
             ),

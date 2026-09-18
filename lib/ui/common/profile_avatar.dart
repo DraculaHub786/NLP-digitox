@@ -21,7 +21,25 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   @override
   void initState() {
     super.initState();
+    // Refresh when the picture changes elsewhere (account tab / profile screen)
+    // instead of relying on this widget being recreated.
+    ProfileService.instance.profileUrlNotifier.addListener(_onProfileUrlChanged);
     _loadProfilePic();
+  }
+
+  @override
+  void dispose() {
+    ProfileService.instance.profileUrlNotifier
+        .removeListener(_onProfileUrlChanged);
+    super.dispose();
+  }
+
+  void _onProfileUrlChanged() {
+    if (!mounted) return;
+    setState(() {
+      _profileUrl = ProfileService.instance.profileUrlNotifier.value;
+      _isLoading = false;
+    });
   }
 
   Future<void> _loadProfilePic() async {

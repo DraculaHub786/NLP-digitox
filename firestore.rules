@@ -4,7 +4,11 @@ service cloud.firestore {
     
     // User data access rules
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.uid == userId
+        && (!('profileImageUrl' in request.resource.data)
+            || request.resource.data.profileImageUrl == null
+            || request.resource.data.profileImageUrl
+                 .matches('https://res\\.cloudinary\\.com/ucarrdxh/.*'));
       
       // Habits subcollection
       match /habits/{habitId} {
@@ -55,7 +59,17 @@ service cloud.firestore {
     // Leaderboard - all authenticated users can read; each user can write only their own doc
     match /leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && (!('profileImageUrl' in request.resource.data)
+            || request.resource.data.profileImageUrl == null
+            || request.resource.data.profileImageUrl
+                 .matches('https://res\\.cloudinary\\.com/ucarrdxh/.*'));
+      
+      // Badges subcollection - only n8n (service account) can write
+      match /badges/{badgeId} {
+        allow read: if request.auth != null;
+        allow write: if false; // only n8n (via REST + API key) writes this
+      }
     }
     
     // Leaderboard config - readable by all authenticated; only service accounts can write

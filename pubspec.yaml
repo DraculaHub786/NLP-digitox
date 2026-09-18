@@ -54,7 +54,6 @@ dependencies:
   firebase_auth: ^5.1.4
   cloud_firestore: ^5.2.1
   firebase_database: ^11.1.4
-  firebase_storage: ^12.4.10
   google_sign_in: ^6.2.1
   shared_preferences: ^2.2.2
   device_info_plus: ^10.1.0
@@ -66,6 +65,7 @@ dependencies:
   connectivity_plus: ^6.1.2  # Network connectivity
   just_audio: ^0.9.40  # White noise player for focus sessions
   image_picker: ^1.0.7  # Image selection for profile pics
+  cached_network_image: ^3.3.1  # Disk caching for leaderboard avatars
 
   #lottie
   lottie: ^3.3.1
