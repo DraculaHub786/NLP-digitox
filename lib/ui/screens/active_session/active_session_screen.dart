@@ -5,13 +5,11 @@ import 'dart:math';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/database/app_database.dart';
 import 'package:nlp_digitox/core/enums/session_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
-import 'package:nlp_digitox/core/extensions/ext_duration.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
@@ -23,6 +21,7 @@ import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
 import 'package:nlp_digitox/ui/dialogs/input_field_dialog.dart';
+import 'package:nlp_digitox/ui/screens/active_session/session_complete_screen.dart';
 import 'package:nlp_digitox/ui/screens/active_session/sine_wave.dart';
 import 'package:nlp_digitox/ui/screens/active_session/timer_progress_clock.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
@@ -39,7 +38,6 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   static const int _secondsInHour = 3600;
-  bool _isCompleted = false;
   bool _isPoppingTriggered = false;
 
   @override
@@ -48,10 +46,13 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
 
     /// Add a callback when the session will is completed successfully
     ref.read(focusModeProvider.notifier).setSessionSuccessCallback(
-      () {
+      (session) {
         if (!mounted) return;
-        setState(() => _isCompleted = true);
-        _launchConfetti();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => SessionCompleteScreen(session: session),
+          ),
+        );
       },
     );
   }
@@ -59,7 +60,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   /// This callback will be after a frame is rendered only when
   /// the active session provider is initialized and loaded successfully
   void _postFrameCallback(bool haveActiveSession) {
-    if (haveActiveSession || _isCompleted || _isPoppingTriggered) return;
+    if (haveActiveSession || _isPoppingTriggered) return;
     _isPoppingTriggered = true;
 
     /// maybe first frame is rendering so call it after completion
@@ -95,9 +96,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     if (activeSession == null) return 0;
 
     if (isFinite) {
-      return _isCompleted
-          ? 100
-          : 100 - ((elapsedSec / (activeSession.durationSecs)) * 100);
+      return 100 - ((elapsedSec / (activeSession.durationSecs)) * 100);
     } else {
       return ((elapsedSec % _secondsInHour) / _secondsInHour) * 100;
     }
@@ -120,9 +119,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
         _getProgress(activeSession.value, isFinite, elapsedSeconds);
 
     final totalDuration = (isFinite
-            ? _isCompleted
-                ? sessionDurationSec
-                : sessionDurationSec - elapsedSeconds
+            ? sessionDurationSec - elapsedSeconds
             : elapsedSeconds)
         .seconds;
 
@@ -148,7 +145,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             filledIcon: FluentIcons.brain_circuit_20_filled,
             actions: [
               /// Goal or reflection
-              _isCompleted || !activeSession.hasValue
+              !activeSession.hasValue
                   ? 0.vBox
                   : DefaultHero(
                       tag: HeroTags.sessionReflectionTag(-1),
@@ -160,8 +157,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             ],
             titleBuilder: (percentage) =>
                 _buildTitle(activeSession.value, percentage),
-            fab: _isCompleted ||
-                    !activeSession.hasValue ||
+            fab: !activeSession.hasValue ||
                     (enforceSession && isFinite)
                 ? const SizedBox.shrink()
                 : DefaultFabButton(
@@ -194,14 +190,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                   duration: AppConstants.defaultAnimDuration,
                   child: Skeleton.leaf(
                     child: StyledText(
-                      _isCompleted
-                          ? context.locale.active_session_quote_five(
-                              totalDuration.toTimeFull(
-                                context,
-                                replaceCommaWithAnd: true,
-                              ),
-                            )
-                          : quotes[max(quoteIndex, 0)],
+                      quotes[max(quoteIndex, 0)],
                       fontSize: 14,
                       textAlign: TextAlign.center,
                     ),
@@ -272,6 +261,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
           isFiniteSession: isFinite,
         );
 
+    /// For finite sessions where user gave up (not successful), show snackbar and pop.
+    /// For infinite sessions where user finished (successful), the success callback
+    /// already navigated to SessionCompleteScreen via pushReplacement.
     if (isFinite) {
       await Future.delayed(1.seconds);
 
@@ -279,50 +271,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
       if (!mounted) return;
       context.showSnackAlert(context.locale.active_session_giveup_snack_alert);
       Navigator.of(context).maybePop();
-    } else {
-      _launchConfetti();
     }
-  }
-
-  void _launchConfetti() {
-    if (!mounted) return;
-
-    final colors = [
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.onSecondaryContainer,
-    ];
-
-    Confetti.launch(
-      context,
-      options: ConfettiOptions(
-        particleCount: 100,
-        scalar: 1.5,
-        angle: 60,
-        spread: 55,
-        startVelocity: 60,
-        gravity: 0.5,
-        x: 0,
-        y: 1,
-        colors: colors,
-      ),
-      onFinished: (overlay) => overlay.remove(),
-    );
-
-    Confetti.launch(
-      context,
-      options: ConfettiOptions(
-        particleCount: 100,
-        scalar: 1.5,
-        angle: 120,
-        spread: 55,
-        startVelocity: 60,
-        gravity: 0.5,
-        x: 1,
-        y: 1,
-        colors: colors,
-      ),
-      onFinished: (overlay) => overlay.remove(),
-    );
   }
 
   void _askAboutFocusReflection() async {

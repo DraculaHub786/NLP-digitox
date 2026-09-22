@@ -12,6 +12,7 @@ import 'package:nlp_digitox/features/onboarding/quiz.dart';
 import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
+import 'package:nlp_digitox/ui/screens/settings/export/wellbeing_report_screen.dart';
 
 class TabAccount extends ConsumerStatefulWidget {
   const TabAccount({super.key});
@@ -182,8 +183,8 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 title: 'Data Management',
                 children: [
                   ModernListTile(
-                    title: 'Export My Data',
-                    subtitle: 'Download all your data (GDPR)',
+                    title: 'Wellbeing Report',
+                    subtitle: 'A detailed report on your usage, goals, and mood',
                     icon: FluentIcons.arrow_download_20_regular,
                     iconColor: colorScheme.secondary,
                     showChevron: true,
@@ -1035,14 +1036,9 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   }
 
   Future<void> _exportUserData() async {
-    try {
-      final data = await FirestoreService.instance.exportUserData();
-      if (mounted) {
-        context.showSnackAlert('Data exported: ${data.length} characters');
-      }
-    } catch (e) {
-      _showError(e.toString());
-    }
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const WellbeingReportScreen()),
+    );
   }
 
   Future<void> _signOut() async {

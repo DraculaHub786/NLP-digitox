@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_core
   flutter_timezone
   local_auth_windows
+  printing
   sqlite3_flutter_libs
   url_launcher_windows
 )

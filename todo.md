@@ -5,7 +5,7 @@ order, but numbered in recommended sequence (Part A is the biggest lift).
 
 ---
 
-# PART A — Replace broken "Export My Data" with a real Wellbeing Report (PDF)
+# ✅ PART A — Replace broken "Export My Data" with a real Wellbeing Report (PDF) — **COMPLETED**
 
 ## A0. Root cause of "downloads nothing"
 
@@ -850,7 +850,7 @@ ModernListTile(
 
 ---
 
-# PART B — Fix the stuck focus-completion confetti + redesign the completion screen
+# ✅ PART B — Fix the stuck focus-completion confetti + redesign the completion screen — **COMPLETED**
 
 ## B0. Root cause
 
@@ -1027,7 +1027,7 @@ state, or be removed, and apply the same fix either way (no bare
 
 ---
 
-# PART C — Enable Shared Focus Sessions
+# ✅ PART C — Enable Shared Focus Sessions — **COMPLETED**
 
 ## C0. What's already built (confirmed — no missing code)
 
@@ -1189,12 +1189,12 @@ dependencies:
 
 # Verification checklist (all parts)
 
-- [ ] Settings → Account → "Wellbeing Report" opens the new screen instead of a SnackBar.
-- [ ] Tapping "Download PDF Report" opens the native share/save sheet with a real PDF attached.
-- [ ] The PDF contains: stat cards, daily usage vs goal bars, days-under-goal
+- [x] Settings → Account → "Wellbeing Report" opens the new screen instead of a SnackBar.
+- [x] Tapping "Download PDF Report" opens the native share/save sheet with a real PDF attached.
+- [x] The PDF contains: stat cards, daily usage vs goal bars, days-under-goal
       percentage, top 5 apps by time, mood trend (if any history exists), and
       a written insights list.
-- [ ] Complete a focus session — the confetti plays for ~1–2 seconds total
+- [x] Complete a focus session — the confetti plays for ~1–2 seconds total
       and stops cleanly; navigating away mid-animation leaves nothing behind.
-- [ ] Shared Focus Sessions: create + join works across two accounts after
+- [x] Shared Focus Sessions: create + join works across two accounts after
       the rules deploy (see C3).

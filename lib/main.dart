@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/services/bg_executor_service.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
@@ -22,6 +23,15 @@ Future<void> initBgExecutorService() async {
 /// Flutter main app
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  /// Load .env before anything else (provides Cloudinary, API keys, etc.)
+  /// Non-blocking: in release builds we use --dart-define-from-file instead,
+  /// so .env won't be bundled. Ignore missing file errors.
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    debugPrint('dotenv not loaded (expected in release): $e');
+  }
 
   /// Firebase and the native method channel don't depend on each other — run together.
   /// This avoids a serialized startup where each await blocks the next.

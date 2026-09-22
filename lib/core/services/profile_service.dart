@@ -4,8 +4,17 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+
+/// Reads a config value from compile-time constant (production) with fallback
+/// to runtime .env (development).
+String _cfg(String key) {
+  const compileTime = String.fromEnvironment;
+  final v = compileTime(key);
+  return v.isNotEmpty ? v : (dotenv.env[key] ?? '');
+}
 
 /// Reads/writes the user's profile picture.
 ///
@@ -97,12 +106,13 @@ class ProfileService {
       final previousPublicId =
           existingDoc.data()?['profileImagePublicId'] as String?;
 
-      const cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME');
-      const uploadPreset = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET');
+      final cloudName = _cfg('CLOUDINARY_CLOUD_NAME');
+      final uploadPreset = _cfg('CLOUDINARY_UPLOAD_PRESET');
       if (cloudName.isEmpty || uploadPreset.isEmpty) {
         throw Exception(
-          'Cloudinary is not configured — build with '
-          '--dart-define-from-file=.env',
+          'Cloudinary is not configured — ensure .env file exists with '
+          'CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET, '
+          'or build with --dart-define-from-file=.env',
         );
       }
 
@@ -259,9 +269,8 @@ class ProfileService {
   /// delete a previous profile picture asset. Never throws; a failure here just
   /// means one orphaned image, not a broken upload.
   void _triggerCleanupWebhook(String publicId) {
-    const webhookUrl = String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_URL');
-    const webhookSecret =
-        String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
+    final webhookUrl = _cfg('CLOUDINARY_CLEANUP_WEBHOOK_URL');
+    final webhookSecret = _cfg('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
 
     if (webhookUrl.isEmpty || webhookSecret.isEmpty) {
       debugPrint(

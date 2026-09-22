@@ -109,7 +109,9 @@ No ads, no third-party analytics, no data sold, ever. The features that matter m
 git clone https://github.com/DraculaHub786/NLP-digitox.git
 cd NLP-digitox
 flutter pub get
-flutter run
+flutter build apk --release --dart-define-from-file=.env #(production build)
+flutter run / flutter build apk --debug #(Development debug)
+Flutter run #(Test on device)
 ```
 
 Requires **Android 8.0 (API 26)** or higher on the target device. iOS isn't currently supported (this app relies on Android-only APIs — usage stats, accessibility service, and a local VPN — for its core blocking features).

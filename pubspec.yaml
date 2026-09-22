@@ -18,7 +18,7 @@ dependencies:
   fluentui_system_icons: ^1.1.210
   fl_chart: ^1.0.0
   animated_flip_counter: ^0.3.4
-  flutter_confetti: ^0.5.1
+  confetti: ^0.7.0
   smooth_page_indicator: ^1.2.0+3
   flutter_slidable: ^4.0.0
   dynamic_color: ^1.7.0
@@ -37,6 +37,10 @@ dependencies:
   drift: ^2.18.0
   drift_flutter: ^0.2.0
 
+  # Reporting — PDF wellbeing report + native share/save sheet
+  pdf: ^3.11.1
+  printing: ^5.13.4
+
   # Util
   intl: any
   sliver_tools: ^0.2.12
@@ -48,6 +52,7 @@ dependencies:
   timezone: ^0.9.2
   flutter_timezone: ^4.1.1
   url_launcher: ^6.3.1
+  flutter_dotenv: ^5.1.0
 
   # Firebase
   firebase_core: ^3.3.0
@@ -93,6 +98,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Environment config (for debug builds without --dart-define-from-file)
+    - .env
     # App Logo
     - assets/logo.png
     - assets/logo-prev.png
