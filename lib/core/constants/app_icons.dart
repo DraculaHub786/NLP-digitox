@@ -80,4 +80,31 @@ class AppIcons {
     }
     return defaultNoteIconKey;
   }
+
+  /// Recovers an icon from pre-fix data that only stored a raw glyph
+  /// codePoint (see git history: the old serializer hardcoded the wrong
+  /// font on reload, which is the bug this whole class was written to fix).
+  /// Matching the codePoint against the registry — ignoring the font it
+  /// was wrongly reconstructed with — restores the icon the user actually
+  /// picked, instead of silently resetting it to the default.
+  /// TODO: remove this once no installs have pre-iconKey data left.
+  static IconData habitIconFromLegacyCodePoint(int? codePoint) {
+    if (codePoint != null) {
+      for (final entry in habitIcons.entries) {
+        if (entry.value.codePoint == codePoint) return entry.value;
+      }
+    }
+    return habitIcons[defaultHabitIconKey]!;
+  }
+
+  /// See [habitIconFromLegacyCodePoint].
+  /// TODO: remove this once no installs have pre-iconKey data left.
+  static IconData noteIconFromLegacyCodePoint(int? codePoint) {
+    if (codePoint != null) {
+      for (final entry in noteIcons.entries) {
+        if (entry.value.codePoint == codePoint) return entry.value;
+      }
+    }
+    return noteIcons[defaultNoteIconKey]!;
+  }
 }

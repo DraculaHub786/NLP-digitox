@@ -60,7 +60,9 @@ class NoteModel {
       title: json['title'] as String,
       content: json['content'] as String,
       color: Color(json['colorValue'] as int),
-      icon: AppIcons.noteIcon(json['iconKey'] as String?),
+      icon: json['iconKey'] != null
+          ? AppIcons.noteIcon(json['iconKey'] as String?)
+          : AppIcons.noteIconFromLegacyCodePoint(json['iconCodePoint'] as int?),
       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int),
     );

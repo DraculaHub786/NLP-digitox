@@ -196,6 +196,9 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
       await askDisplayOverlayPermission();
       await Future.delayed(500.ms);
 
+      await askExactAlarmPermission();
+      await Future.delayed(500.ms);
+
       await fetchPermissionsStatus();
       debugPrint('PermissionNotifier: All critical permissions requested');
     } catch (e) {

@@ -73,7 +73,9 @@ class HabitModel {
     return HabitModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      icon: AppIcons.habitIcon(json['iconKey'] as String?),
+      icon: json['iconKey'] != null
+          ? AppIcons.habitIcon(json['iconKey'] as String?)
+          : AppIcons.habitIconFromLegacyCodePoint(json['iconCodePoint'] as int?),
       color: Color(json['colorValue'] as int),
       streak: json['streak'] as int? ?? 0,
       completedToday: (json['completedToday'] as int? ?? 0) == 1,

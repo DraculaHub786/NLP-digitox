@@ -68,12 +68,19 @@ class SliverPrimaryActionContainer extends StatelessWidget {
 
                 12.vBox,
 
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                // A Row with a Spacer gave both buttons their full
+                // intrinsic width with nothing able to shrink, so on
+                // narrow screens the two together overflowed past the
+                // right edge. Wrap lets the second button drop to its
+                // own line instead of overflowing.
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.end,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    negativeBtn ?? 0.vBox,
-                    const Spacer(),
-                    positiveBtn ?? 0.vBox,
+                    if (negativeBtn != null) negativeBtn!,
+                    if (positiveBtn != null) positiveBtn!,
                   ],
                 ),
               ],

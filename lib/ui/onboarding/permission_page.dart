@@ -112,20 +112,58 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
                 'Display Overlay',
               ),
             ),
-            const SizedBox(height: 24),
-            if (_isRequesting)
-              const CircularProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: () => _requestAllPermissions(permissionsNotifier),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                ),
-                child: const Text(
-                  'Grant All Permissions',
-                  style: TextStyle(fontSize: 16),
-                ),
+            _buildPermissionItem(
+              context,
+              icon: Icons.alarm,
+              title: 'Exact Alarms',
+              description: 'Deliver scheduled reminders on time',
+              isGranted: permissions.haveAlarmsPermission,
+              onTap: () => _requestPermission(
+                permissionsNotifier.askExactAlarmPermission,
+                'Exact Alarms',
               ),
+            ),
+            const SizedBox(height: 24),
+            Builder(builder: (context) {
+              final allGranted = permissions.haveUsageAccessPermission &&
+                  permissions.haveDisplayOverlayPermission &&
+                  permissions.haveAlarmsPermission &&
+                  permissions.haveNotificationPermission;
+
+              if (_isRequesting) return const CircularProgressIndicator();
+
+              if (allGranted) {
+                return const StyledText(
+                  'All set — continuing…',
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                );
+              }
+
+              return Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _requestAllPermissions(permissionsNotifier),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
+                    ),
+                    child: const Text(
+                      'Grant All Permissions',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  8.vBox,
+                  StyledText(
+                    'All permissions above are required to continue.',
+                    fontSize: 12,
+                    color: Theme.of(context).hintColor,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              );
+            }),
           ],
         ),
       ),

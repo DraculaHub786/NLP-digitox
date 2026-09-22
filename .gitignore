@@ -9,7 +9,6 @@
 .history
 .svn/
 migrate_working_dir/
-.vscode
 temp/
 
 # IntelliJ related
@@ -18,10 +17,11 @@ temp/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# The .vscode folder is ignored except for launch.json (needed so
+# `flutter run` from the editor passes --dart-define-from-file=.env —
+# without it, Cloudinary/Groq/Gemini keys are silently empty at runtime).
+.vscode/*
+!.vscode/launch.json
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -99,21 +99,16 @@ lib/config/api_keys.dart
 /QUICK_START_NEW_FEATURES.md
 /TASK8_REAL_SENTIMENT_ANALYZER.md
 /TASKS_12_13_14_COMPLETE.md
-todo.md
-# Assest refference and task files
+# Assest reference and task files
 /Demo-light.png
 /Demo-dark.png
 /dark-mode-ref.png
 /light-mode-ref.png
 /Task.md
-todo.md
 /prior.md
-lib/config/api_keys.dart
 n8n-changes.md
 fix.md
-todo.md
 scripts/reconcile-once.js
 scripts/service-account.json
 profile_avatar_implementation.md
 tree_shake_fix.md
-todo.md

@@ -134,6 +134,11 @@ class FirebaseAuthService {
         throw Exception('Failed to sign in with Google');
       }
 
+      await _seedGoogleProfilePictureIfNeeded(
+        uid: userCredential.user!.uid,
+        googlePhotoUrl: googleUser.photoUrl,
+      );
+
       debugPrint('User signed in with Google: ${userCredential.user!.uid}');
       return userCredential.user!;
     } on FirebaseAuthException catch (e) {
@@ -144,6 +149,33 @@ class FirebaseAuthService {
       debugPrint('GOOGLE SIGN-IN ERROR: $e');
       debugPrint('Stack trace: $st');
       rethrow;
+    }
+  }
+
+  /// Populates `profileImageUrl` from the signed-in Google account's own
+  /// photo, but only if the user doesn't already have a custom picture set.
+  /// A later manual upload via ProfileService always overwrites this field
+  /// unconditionally, so it will still correctly take precedence — this is
+  /// a one-time fallback for first sign-in, not a permanent sync.
+  Future<void> _seedGoogleProfilePictureIfNeeded({
+    required String uid,
+    required String? googlePhotoUrl,
+  }) async {
+    if (googlePhotoUrl == null) return;
+    try {
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final hasCustomPic = doc.data()?['profileImageUrl'] != null;
+      if (hasCustomPic) return;
+
+      await FirebaseFirestore.instance.collection('users').doc(uid).set(
+        {'profileImageUrl': googlePhotoUrl},
+        SetOptions(merge: true),
+      );
+      debugPrint('Seeded profile picture from Google account for $uid');
+    } catch (e) {
+      // Non-fatal — sign-in should still succeed even if this fails.
+      debugPrint('Failed to seed Google profile picture: $e');
     }
   }
 

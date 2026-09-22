@@ -1,18 +1,20 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.nlp.nlp_digitox"
+    namespace = "com.nlp.digitox"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -20,20 +22,51 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.nlp.nlp_digitox"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        applicationId = "com.nlp.digitox"
+        minSdk = 26  // Required by tflite_flutter (Android 8.0+)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
+
+    // Release signing config - using local keystore
+    val releaseStoreFile = file("C:/Users/afjal/Documents/Final destination/NLP-digitox/android/upload-keystore.jks")
+
+    signingConfigs {
+        create("release") {
+            keyAlias = "upload"
+            keyPassword = "android"
+            storeFile = releaseStoreFile
+            storePassword = "android"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            ndk {
+                debugSymbolLevel = "full"
+            }
+            resValue("string", "app_name", "NLP digitox")
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
+        getByName("debug") {
+            resValue("string", "app_name", "NLP digitox")
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        getByName("profile") {
+            resValue("string", "app_name", "NLP digitox")
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -41,4 +74,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation("androidx.work:work-runtime:2.9.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
 }

@@ -96,33 +96,30 @@ class DefaultListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// Title widget
+                // Previously wrapped in a FittedBox(fit: scaleDown) — that
+                // combination with the tight mainAxisSize.min Column below
+                // is what caused the recurring sub-pixel ("0.122 pixels")
+                // overflow on this tile. maxLines + ellipsis alone already
+                // handles long text safely, so the FittedBox is unnecessary.
                 titleText != null
-                    ? FittedBox(
-                        fit: BoxFit.scaleDown,
-                        clipBehavior: Clip.none,
-                        child: StyledText(
-                          titleText!,
-                          fontSize: 16,
-                          maxLines: 1,
-                          fontWeight: isPrimary ? FontWeight.w500 : null,
-                          color: enabled ? accent : Theme.of(context).hintColor,
-                        ),
+                    ? StyledText(
+                        titleText!,
+                        fontSize: 16,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: isPrimary ? FontWeight.w500 : null,
+                        color: enabled ? accent : Theme.of(context).hintColor,
                       )
                     : title ?? 0.vBox,
 
                 /// Subtitle widget
                 subtitleText != null
-                    ? FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        clipBehavior: Clip.none,
-                        child: StyledText(
-                          subtitleText!,
-                          fontSize: 14,
-                          isSubtitle: true,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                    ? StyledText(
+                        subtitleText!,
+                        fontSize: 14,
+                        isSubtitle: true,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       )
                     : subtitle ?? 0.vBox,
               ],

@@ -570,42 +570,12 @@ $userMessage
     }
   }
 
-  /// Update chatbot with current sentiment analysis
-  /// ⚠️ DISABLED to save API quota - sentiment context is already included in sendMessage every 3rd message
-  /// This method was making EXTRA API calls that caused quota exhaustion
-  Future<void> updateWithSentiment({
-    required Map<String, double> sentiment,
-    required int screenTimeSeconds,
-    required int goalSeconds,
-  }) async {
-    // DISABLED: This was making hidden API calls that bypassed rate limiting
-    // Sentiment context is already included in chat messages (every 3rd message)
-    debugPrint('ℹ️ updateWithSentiment() called but DISABLED to save quota. Context already in messages.');
-    return; // Don't make API call
-    
-    /* ORIGINAL CODE - DISABLED
-    try {
-      final screenTimeHours = (screenTimeSeconds / 3600).toStringAsFixed(1);
-      final goalHours = (goalSeconds / 3600).toStringAsFixed(1);
-      final topSentiment = sentiment.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-
-      final contextMessage = '''
-[System Context Update - Acknowledge briefly and naturally]
-Current User State:
-- Primary Emotion: $topSentiment (${sentiment[topSentiment]!.toInt()}%)
-- Screen Time: $screenTimeHours hours / $goalHours hours goal
-- Other sentiments: ${sentiment.entries.where((e) => e.key != topSentiment).map((e) => '${e.key}: ${e.value.toInt()}%').join(', ')}
-
-Adjust your responses to be empathetic to their current emotional state.
-''';
-
-      await _chatSession.sendMessage(Content.text(contextMessage));
-      debugPrint('AIChatbotService: Updated with sentiment context');
-    } catch (e) {
-      debugPrint('AIChatbotService: Error updating with sentiment - $e');
-    }
-    */
-  }
+  // updateWithSentiment() was removed: it was already fully disabled (a
+  // no-op that returned immediately) with no call sites anywhere in the
+  // app — sentiment context is delivered through the regular chat messages
+  // instead (see sendMessage, every 3rd message). If sentiment-triggered
+  // proactive check-ins are wanted again in future, reintroduce this with
+  // the rate limiter from sendMessage applied, not bypassing it.
 
   Future<void> clearHistory() async {
     try {

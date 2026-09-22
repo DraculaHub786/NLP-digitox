@@ -11,6 +11,7 @@ import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
 import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/onboarding_sync_service.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
@@ -85,10 +86,27 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // Q-8: Use PersonaService as the authoritative quiz-completion check.
     // If the persona is corrupted (flag true but key missing), isQuizCompleted()
     // returns false and the user is shown the onboarding/quiz again.
-    final quizCompleted = await PersonaService.instance.isQuizCompleted();
+    var quizCompleted = await PersonaService.instance.isQuizCompleted();
+
+    // A real uninstall wipes local storage (SharedPreferences + the Drift
+    // settings table) even for a returning, already-onboarded user — Android
+    // does this regardless of what the app does. If either flag looks
+    // incomplete locally, try to restore the persona from Firestore before
+    // falling back to showing onboarding again from scratch.
+    var restoredFromCloud = false;
+    if (!_isOnboardingDone || !quizCompleted) {
+      restoredFromCloud =
+          await OnboardingSyncService.instance.restoreFromCloudIfNeeded();
+      if (restoredFromCloud) {
+        quizCompleted = true;
+        // Persist locally too, so this doesn't need re-restoring every launch.
+        ref.read(digitoxSettingsProvider.notifier).markOnboardingDone();
+      }
+    }
+
     // Override _isOnboardingDone: only true if the quiz was actually completed
-    // AND the DigitoxSettings flag is set.
-    _isOnboardingDone = _isOnboardingDone && quizCompleted;
+    // AND the DigitoxSettings flag is set (or a cloud restore just supplied both).
+    _isOnboardingDone = restoredFromCloud || (_isOnboardingDone && quizCompleted);
 
     if (mounted) setState(() {});
     _isAccessProtected ? _authenticate() : _goToNextScreen(true);
