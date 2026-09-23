@@ -86,6 +86,14 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
           () => MethodChannelService.instance.isAccessibilityServicePaused(),
           'accessibility service paused',
         ),
+        haveAdminPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAdminPermission(),
+          'admin',
+        ),
+        isDeviceAdminRevoked: await _safeGetPermission(
+          () => MethodChannelService.instance.isDeviceAdminRevoked(),
+          'device admin revoked',
+        ),
       );
 
       state = cache;
@@ -173,6 +181,14 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
           () => MethodChannelService.instance.isAccessibilityServicePaused(),
           'accessibility service paused',
         ),
+        haveAdminPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAdminPermission(),
+          'admin',
+        ),
+        isDeviceAdminRevoked: await _safeGetPermission(
+          () => MethodChannelService.instance.isDeviceAdminRevoked(),
+          'device admin revoked',
+        ),
       );
 
       debugPrint('PermissionNotifier: All permissions re-checked on app resume');
@@ -197,6 +213,9 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
       await Future.delayed(500.ms);
 
       await askExactAlarmPermission();
+      await Future.delayed(500.ms);
+
+      await askAdminPermission();
       await Future.delayed(500.ms);
 
       await fetchPermissionsStatus();
@@ -275,6 +294,45 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
   Future<void> askNotificationAccessPermission() async {
     await MethodChannelService.instance
         .getAndAskNotificationAccessPermission(askPermissionToo: true);
+  }
+
+  /// Requests the Admin permission and updates the internal state.
+  Future<void> askAdminPermission() async {
+    await MethodChannelService.instance
+        .getAndAskAdminPermission(askPermissionToo: true);
+  }
+
+  /// Request the device to disable admin if already enabled
+  Future<void> disableAdminPermission() async {
+    try {
+      await MethodChannelService.instance.disableDeviceAdmin();
+      await Future.delayed(500.ms);
+      state = state.copyWith(
+        haveAdminPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAdminPermission(),
+          'admin',
+        ),
+      );
+    } catch (e) {
+      debugPrint('PermissionNotifier: Error disabling admin permission: $e');
+    }
+  }
+
+  /// Clears the Device Admin revoked flag and updates state.
+  /// Called from the UI when user taps the re-enable nudge.
+  Future<void> clearDeviceAdminRevokedFlag() async {
+    try {
+      await MethodChannelService.instance.clearDeviceAdminRevokedFlag();
+      state = state.copyWith(
+        isDeviceAdminRevoked: false,
+        haveAdminPermission: await _safeGetPermission(
+          () => MethodChannelService.instance.getAndAskAdminPermission(),
+          'admin',
+        ),
+      );
+    } catch (e) {
+      debugPrint('PermissionNotifier: Error clearing admin revoked flag: $e');
+    }
   }
 
   /// Clears the "paused" flag and updates state to reflect the service is active.

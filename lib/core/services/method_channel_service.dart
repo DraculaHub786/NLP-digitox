@@ -361,6 +361,32 @@ class MethodChannelService {
         askPermissionToo,
       );
 
+  /// Checks if the admin permission is granted and optionally asks for it.
+  ///
+  /// Returns `true` if the permission is granted Otherwise, returns `false`.
+  Future<bool> getAndAskAdminPermission({bool askPermissionToo = false}) async =>
+      await _methodChannel.invokeMethod(
+        'getAndAskAdminPermission',
+        askPermissionToo,
+      );
+
+  /// Checks whether Device Admin permission was previously granted but has been
+  /// silently revoked by the OEM (detected by the keep-alive heartbeat on the
+  /// native side). When true, the UI should show a lightweight one-tap re-enable
+  /// nudge instead of requiring the user to discover it on their own.
+  Future<bool> isDeviceAdminRevoked() async =>
+      await _methodChannel.invokeMethod('isDeviceAdminRevoked') ?? false;
+
+  /// Clears the Device Admin revoked flag on the native side (called when user
+  /// taps the re-enable nudge and the permission check confirms it's active again,
+  /// or when the user explicitly dismisses the warning).
+  Future<void> clearDeviceAdminRevokedFlag() async =>
+      await _methodChannel.invokeMethod('clearDeviceAdminRevokedFlag');
+
+  /// Disable device Admin if active.
+  Future<bool> disableDeviceAdmin() async =>
+      await _methodChannel.invokeMethod('disableDeviceAdmin');
+
   // ===========================================================================================
   // ========================== ACCESSIBILITY SERVICE STATUS ===================================
   // ===========================================================================================

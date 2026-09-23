@@ -38,6 +38,15 @@ class PermissionsModel {
   /// nudge instead of a full re-permission prompt.
   final bool isAccessibilityServicePaused;
 
+  /// Indicates whether the Admin permission is granted.
+  final bool haveAdminPermission;
+
+  /// Indicates whether Device Admin permission was previously granted but has
+  /// been silently revoked by the OEM. Set by the keep-alive heartbeat on the
+  /// native side when it detects admin went from active to inactive.
+  /// When true, the UI should show a lightweight one-tap re-enable nudge.
+  final bool isDeviceAdminRevoked;
+
   const PermissionsModel({
     this.haveNotificationPermission = true,
     this.haveUsageAccessPermission = true,
@@ -50,6 +59,8 @@ class PermissionsModel {
     this.haveNotificationAccessPermission = true,
     this.isAccessibilityServiceActive = true,
     this.isAccessibilityServicePaused = false,
+    this.haveAdminPermission = true,
+    this.isDeviceAdminRevoked = false,
   });
 
   /// Creates a copy of the `PermissionsModel` with potentially modified permissions.
@@ -65,6 +76,8 @@ class PermissionsModel {
     bool? haveNotificationAccessPermission,
     bool? isAccessibilityServiceActive,
     bool? isAccessibilityServicePaused,
+    bool? haveAdminPermission,
+    bool? isDeviceAdminRevoked,
   }) {
     return PermissionsModel(
       haveNotificationPermission:
@@ -87,6 +100,8 @@ class PermissionsModel {
           isAccessibilityServiceActive ?? this.isAccessibilityServiceActive,
       isAccessibilityServicePaused:
           isAccessibilityServicePaused ?? this.isAccessibilityServicePaused,
+      haveAdminPermission: haveAdminPermission ?? this.haveAdminPermission,
+      isDeviceAdminRevoked: isDeviceAdminRevoked ?? this.isDeviceAdminRevoked,
     );
   }
 }

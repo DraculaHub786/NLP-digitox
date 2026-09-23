@@ -34,10 +34,14 @@ final activeMembersCountProvider = FutureProvider.family<int, String>((ref, sess
 });
 
 /// Create session notifier
-class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession>> {
+class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession?>> {
   final SessionService _sessionService;
 
-  CreateSessionNotifier(this._sessionService) : super(const AsyncValue.loading());
+  // Starts as idle data (null), not loading — loading should only begin
+  // once the user actually taps Create. Starting in .loading() disabled
+  // the Create button from the moment the sheet opened, since the button
+  // is gated on `createState.isLoading`.
+  CreateSessionNotifier(this._sessionService) : super(const AsyncValue.data(null));
 
   Future<void> createSession({
     required String name,
@@ -60,7 +64,9 @@ class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession>> {
 }
 
 /// Create session provider
-final createSessionProvider = StateNotifierProvider.autoDispose<CreateSessionNotifier, AsyncValue<SharedSession>>((ref) {
+final createSessionProvider =
+    StateNotifierProvider.autoDispose<CreateSessionNotifier,
+        AsyncValue<SharedSession?>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return CreateSessionNotifier(sessionService);
 });

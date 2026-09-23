@@ -108,6 +108,10 @@ flutter:
     # Backgrounds
     - assets/backgrounds/bg_light.jpg
     - assets/backgrounds/bg_dark.jpg
+    # Pre-blurred at build time (see lib/ui/common/treated_background_image.dart)
+    # so the static background never costs a per-frame SaveLayer + blur pass.
+    - assets/backgrounds/bg_light_blurred.jpg
+    - assets/backgrounds/bg_dark_blurred.jpg
     
     # Onboarding
     - assets/illustrations/onboarding_1.png

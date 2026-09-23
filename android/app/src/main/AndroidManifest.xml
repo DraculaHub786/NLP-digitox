@@ -147,6 +147,23 @@
         <!-- _________________________________________________________________________________ -->
         <!-- ________________________________ RECEIVERS ______________________________________ -->
         <!-- _________________________________________________________________________________ -->
+        <!-- Device Admin / tamper protection. Declares the admin policy config and
+             the DEVICE_ADMIN_ENABLED intent-filter so DevicePolicyManager can
+             activate this app as a device administrator. -->
+        <receiver
+            android:name=".receivers.DeviceAdminReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/digitox_admin_config" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".receivers.DeviceBootReceiver"
             android:enabled="true"

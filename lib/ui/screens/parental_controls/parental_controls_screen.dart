@@ -6,6 +6,8 @@ import 'package:nlp_digitox/config/hero_tags.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/auth_service.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -57,6 +59,8 @@ class ParentalControlsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final parentalControls = ref.watch(parentalControlsProvider);
+    final isAdminEnabled =
+        ref.watch(permissionProvider.select((v) => v.haveAdminPermission));
 
     return ScaffoldShell(
       items: [
@@ -118,6 +122,14 @@ class ParentalControlsScreen extends ConsumerWidget {
                 ),
               ),
 
+              /// Tamper protection (Android Device Admin)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                  child: const AdminPermissionTile(),
+                ),
+              ),
+
               /// Uninstall window
               SliverToBoxAdapter(
                 child: Padding(
@@ -150,6 +162,21 @@ class ParentalControlsScreen extends ConsumerWidget {
                         ),
                       ),
                       onTap: () async {
+                        // While tamper protection is active the uninstall
+                        // window can only be changed from inside the current
+                        // window — otherwise a user (or a child) could simply
+                        // move the window and then disable protection.
+                        if (isAdminEnabled &&
+                            !ref
+                                .read(parentalControlsProvider.notifier)
+                                .isBetweenUninstallWindow) {
+                          context.showSnackAlert(
+                            context.locale.permission_admin_snack_alert,
+                            icon: FluentIcons.shield_keyhole_20_filled,
+                          );
+                          return;
+                        }
+
                         final pickedTime = await showCustomTimePickerDialog(
                           context: context,
                           heroTag: HeroTags.uninstallWindowTileTag,

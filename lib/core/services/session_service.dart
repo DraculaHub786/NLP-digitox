@@ -331,16 +331,18 @@ class SessionService {
 
       final sessionIds =
           (snapshot.value as Map?)?.keys.cast<String>() ?? [];
-      final sessions = <SharedSession>[];
 
-      for (final sessionId in sessionIds) {
-        final session = await getSession(sessionId);
-        if (session != null && session.isActive) {
-          sessions.add(session);
-        }
-      }
+      // Fetch every session concurrently instead of awaiting them one by one
+      // (the previous N+1 sequential loop). `getSession` already swallows its
+      // own errors and returns null, so `whereType` is enough to drop misses.
+      final fetched = await Future.wait(
+        sessionIds.map((id) => getSession(id)),
+      );
 
-      return sessions;
+      return fetched
+          .whereType<SharedSession>()
+          .where((session) => session.isActive)
+          .toList();
     } catch (e) {
       debugPrint('SessionService: Error getting user sessions: $e');
       return [];

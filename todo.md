@@ -1,1200 +1,1251 @@
-# NLP-digitox — Build Plan: Wellbeing Report, Focus Completion Redesign, Shared Sessions
+# NLP-digitox — Master Fix Plan: Tamper Protection, Shared Sessions, Performance
 
-Branch: `profilepic`. Three independent features/fixes — can be built in any
-order, but numbered in recommended sequence (Part A is the biggest lift).
+Branch: `profilepic`. Every finding below was verified directly against the
+real repo — git history for the deletions (commit `a8e926d`), live source
+for the bugs. Nothing here is guessed.
 
 ---
 
-# ✅ PART A — Replace broken "Export My Data" with a real Wellbeing Report (PDF) — **COMPLETED**
+# PART 1 — Restore Tamper Protection (Device Admin)
 
-## A0. Root cause of "downloads nothing"
+## 1.0 Root cause
 
-**File:** `lib/ui/screens/settings/account/tab_account.dart`, `_exportUserData()`:
+Commit `a8e926d` ("New icong bugs and depreacted usage fixed") mixed the
+icon-tree-shaking fix with an unrelated, accidental deletion of the entire
+Device Admin / tamper-protection feature — both Dart and native Android.
+Confirmed by diffing that exact commit. Two things were **not** deleted and
+still exist today, which is what makes this a clean restore rather than a
+rebuild: the `admin_description` string resource, and every localization
+key the deleted UI used (`tamper_protection_tile_title`,
+`permission_admin_title`, etc.) — all still present in `app_en.arb`.
+
+## 1.1 Native — restore the two fully-deleted files
+
+**New file:** `android/app/src/main/res/xml/digitox_admin_config.xml`
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <force-lock />
+    </uses-policies>
+</device-admin>
+```
+
+**New file:** `android/app/src/main/java/com/nlp/digitox/receivers/DeviceAdminReceiver.kt`
+```kotlin
+
+package com.nlp.digitox.receivers
+
+import android.app.admin.DeviceAdminReceiver
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService.Companion.ACTION_TAMPER_PROTECTION_CHANGED
+import com.nlp.digitox.utils.Utils
+
+/**
+ * A DeviceAdminReceiver for handling device administration events for the Digitox app.
+ */
+class DeviceAdminReceiver : DeviceAdminReceiver() {
+    override fun onEnabled(context: Context, intent: Intent) {
+        Toast.makeText(context, "Tamper protection enabled", Toast.LENGTH_LONG).show()
+        refreshWellbeingSettings(context)
+        super.onEnabled(context, intent)
+    }
+
+    override fun onDisabled(context: Context, intent: Intent) {
+        Toast.makeText(context, "Tamper protection disabled", Toast.LENGTH_LONG).show()
+        refreshWellbeingSettings(context)
+        super.onDisabled(context, intent)
+    }
+
+    private fun refreshWellbeingSettings(context: Context) {
+        if (Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)) {
+            val serviceIntent = Intent(
+                context.applicationContext,
+                DigitoxAccessibilityService::class.java
+            ).setAction(ACTION_TAMPER_PROTECTION_CHANGED)
+
+            context.startService(serviceIntent)
+        }
+    }
+}
+```
+(`ACTION_TAMPER_PROTECTION_CHANGED` and its handler already exist in
+`DigitoxAccessibilityService.kt` today — confirmed, this was never deleted —
+so this file compiles against the current codebase as-is.)
+
+## 1.2 `AndroidManifest.xml` — restore the receiver declaration
+
+```xml
+<!-- ADD back, in the <application> block, among the other <receiver> entries -->
+<receiver
+    android:name=".receivers.DeviceAdminReceiver"
+    android:enabled="true"
+    android:exported="false"
+    android:label="@string/app_name"
+    android:permission="android.permission.BIND_DEVICE_ADMIN">
+    <meta-data
+        android:name="android.app.device_admin"
+        android:resource="@xml/digitox_admin_config" />
+
+    <intent-filter>
+        <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+    </intent-filter>
+</receiver>
+```
+Place it immediately before the existing `<receiver android:name=".receivers.DeviceBootReceiver" ...>` entry — that's exactly where it sat before deletion.
+
+## 1.3 `PermissionsHelper.kt` — restore the permission check/request
+
+```kotlin
+// ADD back the import
+import android.app.admin.DevicePolicyManager
+
+// ADD back, inside object PermissionsHelper, before getAndAskAccessibilityPermission (or wherever fits)
+/**
+ * Checks if the device administration permission is granted and optionally asks for it if not granted.
+ *
+ * @param context          The application context used to check permissions and start activities.
+ * @param askPermissionToo Whether to prompt the user to enable device administration permission if not granted.
+ * @return True if device administration permission is granted, false otherwise.
+ */
+fun getAndAskAdminPermission(context: Context, askPermissionToo: Boolean): Boolean {
+    val componentName = ComponentName(context, DeviceAdminReceiver::class.java)
+    val devicePolicyManager =
+        context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+
+    if (devicePolicyManager.isAdminActive(componentName)) {
+        return true
+    }
+
+    if (askPermissionToo) {
+        try {
+            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
+                .putExtra(
+                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                    R.string.admin_description
+                )
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.e(TAG, "getAndAskAdminPermission: Unable to open device ADMIN settings", e)
+        }
+    }
+    return false
+}
+```
+Also restore the import removed alongside it:
+```kotlin
+import com.nlp.digitox.receivers.DeviceAdminReceiver
+```
+
+## 1.4 `NewActivitiesLaunchHelper.kt` — restore the disable helper
+
+```kotlin
+// ADD back the imports
+import android.app.admin.DevicePolicyManager
+import com.nlp.digitox.receivers.DeviceAdminReceiver
+
+// ADD back, inside object NewActivitiesLaunchHelper
+/**
+ * Deactivate the admin privileges.
+ *
+ * @param context The context to use for launching the activity.
+ */
+fun disableDeviceAdmin(context: Context) {
+    try {
+        val componentName = ComponentName(context, DeviceAdminReceiver::class.java)
+        val devicePolicyManager =
+            context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+
+        if (devicePolicyManager.isAdminActive(componentName)) {
+            devicePolicyManager.removeActiveAdmin(componentName)
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "disableDeviceAdmin: Failed to deactivate admin", e)
+        SharedPrefsHelper.insertCrashLogToPrefs(context, e)
+    }
+}
+```
+
+## 1.5 `FgMethodCallHandler.kt` — restore the four channel cases
+
+```kotlin
+// ADD back, alongside the other permission cases
+"getAndAskAdminPermission" -> {
+    result.success(
+        PermissionsHelper.getAndAskAdminPermission(
+            context,
+            call.arguments() ?: false
+        )
+    )
+}
+```
+```kotlin
+// ADD back, alongside the other flag-read cases
+"isDeviceAdminRevoked" -> {
+    result.success(
+        SharedPrefsHelper.getBoolean(
+            context,
+            KeepAliveHelper.PREF_KEY_DEVICE_ADMIN_REVOKED,
+            false
+        )
+    )
+}
+
+"clearDeviceAdminRevokedFlag" -> {
+    SharedPrefsHelper.putBoolean(
+        context,
+        KeepAliveHelper.PREF_KEY_DEVICE_ADMIN_REVOKED,
+        false
+    )
+    result.success(true)
+}
+```
+```kotlin
+// ADD back, in the UTILS section
+"disableDeviceAdmin" -> {
+    NewActivitiesLaunchHelper.disableDeviceAdmin(context)
+    result.success(true)
+}
+```
+
+## 1.6 `KeepAliveHelper.kt` — restore the revocation-heartbeat monitoring
+
+```kotlin
+// ADD back, alongside the other PREF_KEY_* constants
+// SharedPrefs key: set to true when Device Admin permission was previously
+// granted but is now revoked (detected on keep-alive tick).
+const val PREF_KEY_DEVICE_ADMIN_REVOKED = "device_admin_revoked"
+
+// SharedPrefs key: tracks whether Device Admin was ever seen as active.
+// Set once when admin is first detected as active; never cleared.
+// Used to distinguish "never granted" from "was granted but revoked."
+const val PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE = "device_admin_was_seen_active"
+```
+```kotlin
+// ADD back, inside the keep-alive tick's try block, after the existing
+// accessibility-service-paused check (Task C)
+// ═══════════════════════════════════════════════════════════════════
+// Task D: Device Admin revocation monitoring
+// ═══════════════════════════════════════════════════════════════════
+// Check if admin was previously granted but is now revoked by OEM.
+// Uses two flags:
+//   _WAS_SEEN_ACTIVE  → set once when admin is first detected active, never cleared
+//   _REVOKED          → set when admin was active but no longer is
+val isAdminActive = PermissionsHelper.getAndAskAdminPermission(context, false)
+
+// If admin is active right now, note that we've seen it active at least once
+if (isAdminActive) {
+    if (!SharedPrefsHelper.getBoolean(context, PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE, false)) {
+        SharedPrefsHelper.putBoolean(context, PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE, true)
+    }
+    // Clear any revocation flag
+    if (SharedPrefsHelper.getBoolean(context, PREF_KEY_DEVICE_ADMIN_REVOKED, false)) {
+        SharedPrefsHelper.putBoolean(context, PREF_KEY_DEVICE_ADMIN_REVOKED, false)
+        Log.d(TAG, "Device Admin is active again — cleared revocation flag")
+    }
+} else {
+    // Admin is not active. Flag as revoked only if we've ever seen it active before.
+    val wasEverSeenActive = SharedPrefsHelper.getBoolean(
+        context, PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE, false
+    )
+    if (wasEverSeenActive) {
+        SharedPrefsHelper.putBoolean(context, PREF_KEY_DEVICE_ADMIN_REVOKED, true)
+        Log.w(TAG, "Device Admin was previously enabled but is now inactive — flagging revocation")
+    }
+}
+```
+
+## 1.7 Two more native deletions the original session's summary missed
+
+These two were also removed in the same commit but weren't mentioned in the
+prior investigation — both are part of what actually makes tamper protection
+*work* (blocking access to Settings while active), not just the toggle UI:
+
+**`DeviceFeaturesManager.kt`** — restore admin-section detection:
+```kotlin
+// ADD back the import
+import com.nlp.digitox.helpers.device.PermissionsHelper
+```
+```kotlin
+// OLD (current)
+            // Check for Accessibility section
+            val isAccessibilitySectionOpen =
+                node.findAccessibilityNodeInfosByText(context.getString(R.string.accessibility_description))
+                        .isNotEmpty() ||
+                        node.findAccessibilityNodeInfosByText(appName)
+                            .any { it.text == appName }
+
+            return isAccessibilitySectionOpen
+
+// NEW (restored)
+            // Check for Admin section
+            val isAdminSectionOpen =
+                node.findAccessibilityNodeInfosByViewId("com.android.settings:id/admin_name")
+                    .firstOrNull()?.text == appName
+
+            // Check for Accessibility section
+            val isAccessibilitySectionOpen =
+                node.findAccessibilityNodeInfosByText(context.getString(R.string.accessibility_description))
+                        .isNotEmpty() ||
+                        node.findAccessibilityNodeInfosByText(appName)
+                            .any { it.text == appName }
+
+            return (isAdminSectionOpen || isAccessibilitySectionOpen) &&
+                    PermissionsHelper.getAndAskAdminPermission(context, false)
+```
+
+**`DigitoxAccessibilityService.kt`** — restore blocking access to Settings
+while admin is active (this is the actual enforcement — without it, tamper
+protection's toggle exists but the user could still freely open Settings
+and revoke it):
+```kotlin
+// OLD (current)
+            shortsPlatformPackages.clear()
+            val pm = packageManager
+
+            // Fetch installed browser packages
+
+// NEW (restored)
+            shortsPlatformPackages.clear()
+            val pm = packageManager
+
+            // Check admin and add settings to blocked packages
+            if (PermissionsHelper.getAndAskAdminPermission(this, false)) {
+                devicePlatformPackages.add(SETTINGS_PACKAGE)
+            }
+
+            // Fetch installed browser packages
+```
+
+## 1.8 Dart — model, service, provider, UI
+
+**File:** `lib/models/permissions_model.dart`
 ```dart
-Future<void> _exportUserData() async {
+// ADD back, as a field
+/// Indicates whether the Admin permission is granted.
+final bool haveAdminPermission;
+
+// ADD back, in the const constructor
+this.haveAdminPermission = true,
+
+// ADD back, as a field
+/// Indicates whether Device Admin permission was previously granted but has
+/// been silently revoked by the OEM. Set by the keep-alive heartbeat on the
+/// native side when it detects admin went from active to inactive.
+/// When true, the UI should show a lightweight one-tap re-enable nudge.
+final bool isDeviceAdminRevoked;
+
+// ADD back, in the const constructor
+this.isDeviceAdminRevoked = false,
+
+// ADD back, in copyWith's parameter list
+bool? haveAdminPermission,
+bool? isDeviceAdminRevoked,
+
+// ADD back, in copyWith's return
+haveAdminPermission: haveAdminPermission ?? this.haveAdminPermission,
+isDeviceAdminRevoked: isDeviceAdminRevoked ?? this.isDeviceAdminRevoked,
+```
+
+**File:** `lib/core/services/method_channel_service.dart`
+```dart
+// ADD back, in the PERMISSIONS section
+/// Checks if the admin permission is granted and optionally asks for it.
+///
+/// Returns `true` if the permission is granted Otherwise, returns `false`.
+Future<bool> getAndAskAdminPermission(
+        {bool askPermissionToo = false}) async =>
+    await _methodChannel.invokeMethod(
+      'getAndAskAdminPermission',
+      askPermissionToo,
+    );
+
+/// Checks whether Device Admin permission was previously granted but has been
+/// silently revoked by the OEM (detected by the keep-alive heartbeat on the
+/// native side). When true, the UI should show a lightweight one-tap re-enable
+/// nudge instead of requiring the user to discover it on their own.
+Future<bool> isDeviceAdminRevoked() async =>
+    await _methodChannel.invokeMethod('isDeviceAdminRevoked') ?? false;
+
+/// Clears the Device Admin revoked flag on the native side (called when user
+/// taps the re-enable nudge and the permission check confirms it's active again,
+/// or when the user explicitly dismisses the warning).
+Future<void> clearDeviceAdminRevokedFlag() async =>
+    await _methodChannel.invokeMethod('clearDeviceAdminRevokedFlag');
+
+/// Disable device Admin if active.
+Future<bool> disableDeviceAdmin() async =>
+    await _methodChannel.invokeMethod('disableDeviceAdmin');
+```
+
+**File:** `lib/providers/system/permissions_provider.dart`
+
+Add `haveAdminPermission:` and `isDeviceAdminRevoked:` entries to **both**
+places `fetchPermissionsStatus()`-style state gets rebuilt (the initial
+fetch and the app-resume re-check — two near-identical blocks):
+```dart
+haveAdminPermission: await _safeGetPermission(
+  () => MethodChannelService.instance.getAndAskAdminPermission(),
+  'admin',
+),
+```
+```dart
+isDeviceAdminRevoked: await _safeGetPermission(
+  () => MethodChannelService.instance.isDeviceAdminRevoked(),
+  'device admin revoked',
+),
+```
+In `requestAllCriticalPermissions()`, add back (this repo already has a
+newer Exact Alarms step from an earlier fix — insert admin alongside it,
+order doesn't matter relative to that one):
+```dart
+await askAdminPermission();
+await Future.delayed(500.ms);
+```
+Add back the three methods:
+```dart
+/// Requests the Admin permission and updates the internal state.
+Future<void> askAdminPermission() async {
+  await MethodChannelService.instance
+      .getAndAskAdminPermission(askPermissionToo: true);
+}
+
+/// Request the device to disable admin if already enabled
+Future<void> disableAdminPermission() async {
   try {
-    final data = await FirestoreService.instance.exportUserData();
-    if (mounted) {
-      context.showSnackAlert('Data exported: ${data.length} characters');
-    }
+    await MethodChannelService.instance.disableDeviceAdmin();
+    await Future.delayed(500.ms);
+    state = state.copyWith(
+      haveAdminPermission: await _safeGetPermission(
+        () => MethodChannelService.instance.getAndAskAdminPermission(),
+        'admin',
+      ),
+    );
   } catch (e) {
-    _showError(e.toString());
+    debugPrint('PermissionNotifier: Error disabling admin permission: $e');
+  }
+}
+
+/// Clears the Device Admin revoked flag and updates state.
+/// Called from the UI when user taps the re-enable nudge.
+Future<void> clearDeviceAdminRevokedFlag() async {
+  try {
+    await MethodChannelService.instance.clearDeviceAdminRevokedFlag();
+    state = state.copyWith(
+      isDeviceAdminRevoked: false,
+      haveAdminPermission: await _safeGetPermission(
+        () => MethodChannelService.instance.getAndAskAdminPermission(),
+        'admin',
+      ),
+    );
+  } catch (e) {
+    debugPrint('PermissionNotifier: Error clearing admin revoked flag: $e');
   }
 }
 ```
-This fetches a `Map<String, dynamic>` from Firestore and just shows a
-SnackBar with the entry count — **it never writes or shares a file.** That's
-the entire bug. It also only pulls Firestore data (`appRestrictions`,
-`focusSessions`, `restrictionGroups`) — none of the actual local usage
-history, mood/sentiment history, or the screen-time goal live in Firestore,
-so even a fixed version of this method couldn't build the report you want
-without new data-gathering code.
 
-## A1. Data sources already available (confirmed in the codebase)
-
-| Data | Source | Method |
-|---|---|---|
-| Per-app daily screen time (local, historical) | `AppUsageTable` (Drift) | `DynamicRecordsDao` — new method added below |
-| Device-wide daily screen time | `AppUsageTable` (Drift) | `fetchWeeklyDeviceUsage()` (exists) |
-| Daily screen-time goal | `WellbeingTable.dailyScreenTimeGoalSec` | `UniqueRecordsDao.loadWellBeingSettings()` (exists) |
-| Focus sessions (count, duration, success/fail) | `FocusSessionsTable` (Drift) | new range-query method added below |
-| Mood/sentiment history + trend | `SentimentPersistenceService` (SharedPreferences) | `loadHistory()`, `computeTrend()` (exist) |
-| App names + icons | Native (`MethodChannelService`) | `fetchDeviceAppsInfo()` (exists) |
-
-Everything needed is already collected by the app — it's just never been
-assembled into one report.
-
-## A2. New dependencies
-
-**File:** `pubspec.yaml` — add under `dependencies:`
-```yaml
-  pdf: ^3.11.1
-  printing: ^5.13.4
-```
-(`fl_chart` is already present for the in-app preview charts.)
-
-## A3. New DAO methods for range-based totals
-
-**File:** `lib/core/database/daos/dynamic_records_dao.dart` — add inside the
-class, near the existing `fetchWeeklyAppUsage`:
-
+**New file:** `lib/ui/permissions/admin_permission_tile.dart`
 ```dart
-  /// Loads per-app TOTAL usage (summed across every day) for the given
-  /// range — used by the wellbeing report to rank "most time-consuming"
-  /// apps over an arbitrary period, not just a single week.
-  Future<Map<String, UsageModel>> fetchAppUsageTotalsForRange({
-    required m.DateTimeRange range,
-  }) async {
-    final results = await (select(appUsageTable)
-          ..where((e) => e.date.isBetweenValues(range.start, range.end)))
-        .get();
 
-    final totals = <String, UsageModel>{};
-    for (final appUsage in results) {
-      totals.update(
-        appUsage.packageName,
-        (v) => v + UsageModel.fromAppUsage(appUsage),
-        ifAbsent: () => UsageModel.fromAppUsage(appUsage),
-      );
-    }
-    return totals;
-  }
-
-  /// Loads all [FocusSession] records that started within the given range —
-  /// used by the wellbeing report for focus session counts/minutes.
-  Future<List<FocusSession>> fetchFocusSessionsBetween({
-    required m.DateTimeRange range,
-  }) async {
-    return (select(focusSessionsTable)
-          ..where((e) =>
-              e.startDateTime.isBetweenValues(range.start, range.end)))
-        .get();
-  }
-```
-
-## A4. New model — `WellbeingReportData`
-
-**New file:** `lib/models/wellbeing_report_data.dart`
-```dart
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
-import 'package:nlp_digitox/models/ai_analysis_models.dart';
-
-@immutable
-class AppUsageEntry {
-  final String packageName;
-  final String appName;
-  final Uint8List? icon;
-  final int totalScreenTimeSec;
-  final int daysUsed;
-
-  const AppUsageEntry({
-    required this.packageName,
-    required this.appName,
-    required this.icon,
-    required this.totalScreenTimeSec,
-    required this.daysUsed,
-  });
-}
-
-@immutable
-class WellbeingReportData {
-  final DateTime rangeStart;
-  final DateTime rangeEnd;
-
-  /// Device-wide screen time, one entry per day in the range, in seconds.
-  final Map<DateTime, int> dailyScreenTimeSec;
-
-  /// The user's daily screen-time goal, in seconds, at report time.
-  final int dailyGoalSec;
-
-  /// Days where actual screen time was UNDER the goal (the "wins").
-  final int daysUnderGoal;
-
-  /// Days where actual screen time was OVER the goal.
-  final int daysOverGoal;
-
-  /// Apps ranked by total time in the range, descending — index 0 is the
-  /// single most time-consuming ("most disturbing") app.
-  final List<AppUsageEntry> topApps;
-
-  final int focusSessionsCompleted;
-  final int focusSessionsFailed;
-  final int focusMinutesTotal;
-
-  final List<SentimentSnapshot> moodHistory;
-  final SentimentTrend? moodTrend;
-
-  /// Free-text, plain-language insight generated from the numbers above —
-  /// filled in by WellbeingReportService, e.g. "You beat your screen-time
-  /// goal 5 out of 7 days this week — up from 3 last week."
-  final List<String> insights;
-
-  const WellbeingReportData({
-    required this.rangeStart,
-    required this.rangeEnd,
-    required this.dailyScreenTimeSec,
-    required this.dailyGoalSec,
-    required this.daysUnderGoal,
-    required this.daysOverGoal,
-    required this.topApps,
-    required this.focusSessionsCompleted,
-    required this.focusSessionsFailed,
-    required this.focusMinutesTotal,
-    required this.moodHistory,
-    required this.moodTrend,
-    required this.insights,
-  });
-
-  int get totalScreenTimeSec =>
-      dailyScreenTimeSec.values.fold(0, (a, b) => a + b);
-
-  double get averageDailyScreenTimeSec =>
-      dailyScreenTimeSec.isEmpty
-          ? 0
-          : totalScreenTimeSec / dailyScreenTimeSec.length;
-}
-```
-
-## A5. New service — aggregates everything into `WellbeingReportData`
-
-**New file:** `lib/core/services/wellbeing_report_service.dart`
-```dart
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:nlp_digitox/core/database/app_database.dart';
-import 'package:nlp_digitox/core/services/method_channel_service.dart';
-import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
-import 'package:nlp_digitox/core/enums/session_state.dart';
-import 'package:nlp_digitox/models/wellbeing_report_data.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/hero_tags.dart';
+import 'package:nlp_digitox/core/database/adapters/time_of_day_adapter.dart';
+import 'package:nlp_digitox/core/enums/item_position.dart';
+import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
+import 'package:nlp_digitox/ui/permissions/accessibility_permission_card.dart';
+import 'package:nlp_digitox/ui/permissions/permission_sheet.dart';
+import 'package:nlp_digitox/ui/transitions/default_hero.dart';
 
-class WellbeingReportService {
-  WellbeingReportService._();
-  static final WellbeingReportService instance = WellbeingReportService._();
+class AdminPermissionTile extends ConsumerWidget {
+  const AdminPermissionTile({super.key});
 
-  Future<WellbeingReportData> buildReport({
-    required DateTimeRange range,
-  }) async {
-    final db = AppDatabase.instance;
+  void _toggleTamperProtection(
+    BuildContext context,
+    WidgetRef ref,
+    bool isAdminEnabled,
+    TimeOfDayAdapter uninstallWindowTime,
+  ) async {
+    /// Ask accessibility permission if not allowed
+    if (!ref.read(permissionProvider).haveAccessibilityPermission) {
+      const AccessibilityPermissionCard()
+          .showAccessibilityPermissionSheet(context, ref);
+      return;
+    }
 
-    // 1. Device-wide daily screen time
-    final (_, weeklyUsage) =
-        await db.dynamicRecordsDao.fetchWeeklyDeviceUsage(weekRange: range);
-    final dailyScreenTimeSec = weeklyUsage
-        .map((day, usage) => MapEntry(day, usage.screenTime));
-
-    // 2. Goal
-    final wellbeing = await db.uniqueRecordsDao.loadWellBeingSettings();
-    final goalSec = wellbeing.dailyScreenTimeGoalSec;
-
-    int daysUnderGoal = 0;
-    int daysOverGoal = 0;
-    for (final sec in dailyScreenTimeSec.values) {
-      if (sec == 0) continue; // no data that day — don't count either way
-      if (sec <= goalSec) {
-        daysUnderGoal++;
+    if (isAdminEnabled) {
+      /// User wants to Disable
+      if (ref
+          .read(parentalControlsProvider.notifier)
+          .isBetweenUninstallWindow) {
+        ref.read(permissionProvider.notifier).disableAdminPermission();
       } else {
-        daysOverGoal++;
-      }
-    }
-
-    // 3. Per-app totals + names/icons
-    final appTotals =
-        await db.dynamicRecordsDao.fetchAppUsageTotalsForRange(range: range);
-    final deviceApps = await MethodChannelService.instance.fetchDeviceAppsInfo();
-    final appsByPackage = {for (final a in deviceApps) a.packageName: a};
-
-    final topApps = appTotals.entries
-        .where((e) => e.value.screenTime > 0)
-        .map((e) {
-          final info = appsByPackage[e.key];
-          return AppUsageEntry(
-            packageName: e.key,
-            appName: info?.name ?? e.key,
-            icon: info?.icon,
-            totalScreenTimeSec: e.value.screenTime,
-            daysUsed: 0, // see NOTE below
-          );
-        })
-        .toList()
-      ..sort((a, b) => b.totalScreenTimeSec.compareTo(a.totalScreenTimeSec));
-    // NOTE: daysUsed left at 0 for simplicity — if you want it accurate,
-    // change fetchAppUsageTotalsForRange to also track a per-app day count
-    // while summing, the same way UsageModel.screenTime is summed.
-
-    // 4. Focus sessions
-    final sessions =
-        await db.dynamicRecordsDao.fetchFocusSessionsBetween(range: range);
-    final completed =
-        sessions.where((s) => s.state == SessionState.completed).toList();
-    final failed =
-        sessions.where((s) => s.state == SessionState.failed).toList();
-    final focusMinutes =
-        completed.fold<int>(0, (a, s) => a + s.durationSecs) ~/ 60;
-
-    // 5. Mood/sentiment
-    final moodHistory = await SentimentPersistenceService.instance.loadHistory();
-    final moodTrend = await SentimentPersistenceService.instance.computeTrend();
-
-    final insights = _buildInsights(
-      daysUnderGoal: daysUnderGoal,
-      daysOverGoal: daysOverGoal,
-      topApps: topApps,
-      focusSessionsCompleted: completed.length,
-      moodTrend: moodTrend,
-    );
-
-    return WellbeingReportData(
-      rangeStart: range.start,
-      rangeEnd: range.end,
-      dailyScreenTimeSec: dailyScreenTimeSec,
-      dailyGoalSec: goalSec,
-      daysUnderGoal: daysUnderGoal,
-      daysOverGoal: daysOverGoal,
-      topApps: topApps,
-      focusSessionsCompleted: completed.length,
-      focusSessionsFailed: failed.length,
-      focusMinutesTotal: focusMinutes,
-      moodHistory: moodHistory,
-      moodTrend: moodTrend,
-      insights: insights,
-    );
-  }
-
-  List<String> _buildInsights({
-    required int daysUnderGoal,
-    required int daysOverGoal,
-    required List<AppUsageEntry> topApps,
-    required int focusSessionsCompleted,
-    required moodTrend,
-  }) {
-    final insights = <String>[];
-
-    final totalDays = daysUnderGoal + daysOverGoal;
-    if (totalDays > 0) {
-      insights.add(
-        'You stayed under your screen-time goal on $daysUnderGoal of '
-        '$totalDays days this period.',
-      );
-    }
-
-    if (topApps.isNotEmpty) {
-      final top = topApps.first;
-      final hours = (top.totalScreenTimeSec / 3600).toStringAsFixed(1);
-      insights.add(
-        '${top.appName} was your most time-consuming app at ${hours}h — '
-        'consider a restriction if this is more than you intended.',
-      );
-    }
-
-    if (focusSessionsCompleted > 0) {
-      insights.add(
-        'You completed $focusSessionsCompleted focus session'
-        '${focusSessionsCompleted == 1 ? '' : 's'} this period.',
-      );
-    }
-
-    if (moodTrend != null && moodTrend.isAvailable && moodTrend.headline != null) {
-      insights.add(moodTrend.headline!);
-    }
-
-    return insights;
-  }
-}
-```
-
-*(`AppDatabase.instance`/`dynamicRecordsDao`/`uniqueRecordsDao` — confirm the
-exact accessor names match your `app_database.dart`; the DAOs are mixed into
-the main `AppDatabase` class in this codebase, so `db.dynamicRecordsDao` may
-instead just be inherited methods directly on `db` — adjust the two call
-sites if so, the DAO methods themselves in A3 don't change either way.)*
-
-## A6. PDF generator — styled like the reference dashboard
-
-The reference screenshot's language — bold stat cards, a circular percentage
-gauge, a heatmap grid, a line/bar chart, a "recent activity" list — maps
-directly onto sections of a single-page (or two-page) report. Rather than
-screenshotting live Flutter widgets (fragile timing, needs `RepaintBoundary`
-+ post-frame capture), draw the charts directly with the `pdf` package's own
-primitives — simpler and fully deterministic.
-
-**New file:** `lib/core/services/pdf_report_generator.dart`
-```dart
-import 'dart:typed_data';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:nlp_digitox/models/wellbeing_report_data.dart';
-
-class PdfReportGenerator {
-  PdfReportGenerator._();
-
-  static const _accent = PdfColor.fromInt(0xFFFF6B4A); // matches app accent
-  static const _dark = PdfColor.fromInt(0xFF1A1A1A);
-  static const _grey = PdfColor.fromInt(0xFF8A8A8A);
-
-  static Future<Uint8List> generate(WellbeingReportData data) async {
-    final doc = pw.Document();
-
-    doc.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(28),
-        header: (context) => _header(data),
-        footer: (context) => pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text(
-            'Page ${context.pageNumber} of ${context.pagesCount}',
-            style: const pw.TextStyle(fontSize: 8, color: _grey),
-          ),
-        ),
-        build: (context) => [
-          pw.SizedBox(height: 16),
-          _statCardsRow(data),
-          pw.SizedBox(height: 20),
-          _dailyUsageChart(data),
-          pw.SizedBox(height: 20),
-          _goalComparisonSection(data),
-          pw.SizedBox(height: 20),
-          _topAppsSection(data),
-          pw.SizedBox(height: 20),
-          if (data.moodHistory.isNotEmpty) _moodSection(data),
-          pw.SizedBox(height: 20),
-          _insightsSection(data),
-        ],
-      ),
-    );
-
-    return doc.save();
-  }
-
-  static pw.Widget _header(WellbeingReportData data) {
-    final fmt = (DateTime d) => '${d.day}/${d.month}/${d.year}';
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              'Digital Wellbeing Report',
-              style: pw.TextStyle(
-                fontSize: 22,
-                fontWeight: pw.FontWeight.bold,
-                color: _dark,
-              ),
-            ),
-            pw.Container(
-              padding:
-                  const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: pw.BoxDecoration(
-                color: _accent,
-                borderRadius: pw.BorderRadius.circular(20),
-              ),
-              child: pw.Text(
-                'NLP digitox',
-                style: const pw.TextStyle(fontSize: 9, color: PdfColors.white),
-              ),
-            ),
-          ],
-        ),
-        pw.SizedBox(height: 4),
-        pw.Text(
-          '${fmt(data.rangeStart)} — ${fmt(data.rangeEnd)}',
-          style: const pw.TextStyle(fontSize: 10, color: _grey),
-        ),
-        pw.Divider(color: PdfColors.grey300, thickness: 1),
-      ],
-    );
-  }
-
-  static pw.Widget _statCard(String label, String value, {String? badge}) {
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(12),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.grey100,
-        borderRadius: pw.BorderRadius.circular(12),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(label, style: const pw.TextStyle(fontSize: 9, color: _grey)),
-          pw.SizedBox(height: 6),
-          pw.Text(
-            value,
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-              color: _dark,
-            ),
-          ),
-          if (badge != null) ...[
-            pw.SizedBox(height: 4),
-            pw.Text(badge, style: const pw.TextStyle(fontSize: 8, color: _accent)),
-          ],
-        ],
-      ),
-    );
-  }
-
-  static pw.Widget _statCardsRow(WellbeingReportData data) {
-    final totalHours = (data.totalScreenTimeSec / 3600).toStringAsFixed(1);
-    final avgHours = (data.averageDailyScreenTimeSec / 3600).toStringAsFixed(1);
-    final goalHours = (data.dailyGoalSec / 3600).toStringAsFixed(1);
-
-    return pw.Row(
-      children: [
-        pw.Expanded(child: _statCard('Total Screen Time', '${totalHours}h')),
-        pw.SizedBox(width: 10),
-        pw.Expanded(child: _statCard('Daily Average', '${avgHours}h',
-            badge: 'Goal: ${goalHours}h')),
-        pw.SizedBox(width: 10),
-        pw.Expanded(child: _statCard(
-          'Days Under Goal',
-          '${data.daysUnderGoal}/${data.daysUnderGoal + data.daysOverGoal}',
-        )),
-        pw.SizedBox(width: 10),
-        pw.Expanded(
-            child: _statCard('Focus Sessions', '${data.focusSessionsCompleted}',
-                badge: '${data.focusMinutesTotal} min total')),
-      ],
-    );
-  }
-
-  /// Simple proportional bar chart, drawn manually — no image capture needed.
-  static pw.Widget _dailyUsageChart(WellbeingReportData data) {
-    final entries = data.dailyScreenTimeSec.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-    if (entries.isEmpty) return pw.SizedBox();
-
-    final maxSec = entries.map((e) => e.value).fold(1, (a, b) => a > b ? a : b);
-    const chartHeight = 90.0;
-    final goalRatio = data.dailyGoalSec / maxSec;
-
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text('Daily Screen Time vs Goal',
-            style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
-        pw.SizedBox(height: 10),
-        pw.Container(
-          height: chartHeight + 20,
-          child: pw.Stack(
-            children: [
-              // Goal line
-              pw.Positioned(
-                bottom: chartHeight * goalRatio.clamp(0, 1) + 18,
-                left: 0,
-                right: 0,
-                child: pw.Container(
-                  height: 1,
-                  color: PdfColors.grey400,
-                ),
-              ),
-              pw.Row(
-                crossAxisAlignment: pw.CrossAxisAlignment.end,
-                mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
-                children: entries.map((e) {
-                  final ratio = e.value / maxSec;
-                  final overGoal = e.value > data.dailyGoalSec;
-                  return pw.Column(
-                    mainAxisAlignment: pw.MainAxisAlignment.end,
-                    children: [
-                      pw.Container(
-                        width: 24,
-                        height: (chartHeight * ratio).clamp(2, chartHeight),
-                        decoration: pw.BoxDecoration(
-                          color: overGoal ? _accent : PdfColors.green300,
-                          borderRadius: const pw.BorderRadius.vertical(
-                              top: pw.Radius.circular(4)),
-                        ),
-                      ),
-                      pw.SizedBox(height: 4),
-                      pw.Text(
-                        '${e.key.day}/${e.key.month}',
-                        style: const pw.TextStyle(fontSize: 7, color: _grey),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  static pw.Widget _goalComparisonSection(WellbeingReportData data) {
-    final total = data.daysUnderGoal + data.daysOverGoal;
-    final pct = total == 0 ? 0 : (data.daysUnderGoal / total * 100).round();
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(14),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.orange50,
-        borderRadius: pw.BorderRadius.circular(12),
-      ),
-      child: pw.Row(
-        children: [
-          pw.Text('$pct%',
-              style: pw.TextStyle(
-                  fontSize: 26, fontWeight: pw.FontWeight.bold, color: _accent)),
-          pw.SizedBox(width: 12),
-          pw.Expanded(
-            child: pw.Text(
-              'of tracked days this period, you stayed within your '
-              '${(data.dailyGoalSec / 3600).toStringAsFixed(1)}h daily goal.',
-              style: const pw.TextStyle(fontSize: 10),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static pw.Widget _topAppsSection(WellbeingReportData data) {
-    final top = data.topApps.take(5).toList();
-    if (top.isEmpty) return pw.SizedBox();
-    final maxSec = top.first.totalScreenTimeSec;
-
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text('Most Time-Consuming Apps',
-            style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
-        pw.SizedBox(height: 10),
-        ...top.map((app) {
-          final hours = (app.totalScreenTimeSec / 3600).toStringAsFixed(1);
-          final ratio = app.totalScreenTimeSec / maxSec;
-          return pw.Padding(
-            padding: const pw.EdgeInsets.only(bottom: 8),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text(app.appName, style: const pw.TextStyle(fontSize: 10)),
-                    pw.Text('${hours}h',
-                        style: pw.TextStyle(
-                            fontSize: 10, fontWeight: pw.FontWeight.bold)),
-                  ],
-                ),
-                pw.SizedBox(height: 3),
-                pw.Stack(children: [
-                  pw.Container(
-                    height: 6,
-                    decoration: pw.BoxDecoration(
-                      color: PdfColors.grey200,
-                      borderRadius: pw.BorderRadius.circular(3),
-                    ),
-                  ),
-                  pw.Container(
-                    height: 6,
-                    width: 460 * ratio.clamp(0.02, 1.0),
-                    decoration: pw.BoxDecoration(
-                      color: _accent,
-                      borderRadius: pw.BorderRadius.circular(3),
-                    ),
-                  ),
-                ]),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  static pw.Widget _moodSection(WellbeingReportData data) {
-    final labels = <String>{};
-    for (final s in data.moodHistory) {
-      labels.addAll(s.sentiments.keys);
-    }
-    final trend = data.moodTrend;
-
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text('Mood Analysis',
-            style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
-        pw.SizedBox(height: 8),
-        if (trend != null && trend.isAvailable) ...[
-          pw.Text(
-            trend.headline ?? 'Mood has been stable this period.',
-            style: const pw.TextStyle(fontSize: 10),
-          ),
-          pw.SizedBox(height: 8),
-        ],
-        pw.Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: (trend?.recentAverage ?? {}).entries.map((e) {
-            return pw.Container(
-              padding:
-                  const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: pw.BoxDecoration(
-                color: PdfColors.grey100,
-                borderRadius: pw.BorderRadius.circular(20),
-              ),
-              child: pw.Text(
-                '${e.key}: ${e.value.round()}%',
-                style: const pw.TextStyle(fontSize: 9),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  static pw.Widget _insightsSection(WellbeingReportData data) {
-    if (data.insights.isEmpty) return pw.SizedBox();
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(14),
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: PdfColors.grey300),
-        borderRadius: pw.BorderRadius.circular(12),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text('Key Insights',
-              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 8),
-          ...data.insights.map((line) => pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 4),
-                child: pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text('•  ', style: const pw.TextStyle(color: _accent)),
-                    pw.Expanded(
-                        child: pw.Text(line,
-                            style: const pw.TextStyle(fontSize: 10))),
-                  ],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-}
-```
-
-## A7. Preview screen — mirrors the reference dashboard's look, then shares/downloads
-
-**New file:** `lib/ui/screens/settings/export/wellbeing_report_screen.dart`
-```dart
-import 'package:flutter/material.dart';
-import 'package:printing/printing.dart';
-import 'package:nlp_digitox/core/services/pdf_report_generator.dart';
-import 'package:nlp_digitox/core/services/wellbeing_report_service.dart';
-import 'package:nlp_digitox/models/wellbeing_report_data.dart';
-import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
-import 'package:nlp_digitox/ui/common/styled_text.dart';
-
-class WellbeingReportScreen extends StatefulWidget {
-  const WellbeingReportScreen({super.key});
-
-  @override
-  State<WellbeingReportScreen> createState() => _WellbeingReportScreenState();
-}
-
-class _WellbeingReportScreenState extends State<WellbeingReportScreen> {
-  WellbeingReportData? _data;
-  bool _loading = true;
-  bool _exporting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final range = DateTimeRange(
-      start: DateTime.now().subtract(const Duration(days: 6)),
-      end: DateTime.now(),
-    );
-    final data = await WellbeingReportService.instance.buildReport(range: range);
-    if (!mounted) return;
-    setState(() {
-      _data = data;
-      _loading = false;
-    });
-  }
-
-  Future<void> _downloadPdf() async {
-    if (_data == null) return;
-    setState(() => _exporting = true);
-    try {
-      final bytes = await PdfReportGenerator.generate(_data!);
-      // Printing.sharePdf triggers the OS share/save sheet — this is what
-      // actually makes the file "download" (save to Files/Drive, share,
-      // print, etc.), which the old SnackBar-only export never did.
-      await Printing.sharePdf(
-        bytes: bytes,
-        filename:
-            'wellbeing-report-${DateTime.now().toIso8601String().split('T').first}.pdf',
-      );
-    } finally {
-      if (mounted) setState(() => _exporting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaffoldShell(
-      title: 'Wellbeing Report',
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _data == null
-              ? const Center(child: Text('No data available yet.'))
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    StyledText(
-                      'Last 7 Days',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    8.vBox,
-                    // TODO: build the in-app preview cards here using
-                    // fl_chart, matching the reference dashboard image's
-                    // stat-card + radial-gauge + bar-chart layout. The PDF
-                    // (PdfReportGenerator) is the source of truth for the
-                    // exported file; this preview is a nice-to-have visual
-                    // summary before the user taps download and can reuse
-                    // the same WellbeingReportData.
-                    24.vBox,
-                    FilledButton.icon(
-                      onPressed: _exporting ? null : _downloadPdf,
-                      icon: _exporting
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.download),
-                      label: Text(_exporting ? 'Preparing…' : 'Download PDF Report'),
-                    ),
-                  ],
-                ),
-    );
-  }
-}
-```
-
-*(`8.vBox`/`24.vBox` and `ScaffoldShell`/`StyledText` are the existing app
-conventions seen throughout the codebase — adjust the constructor params to
-match whatever `ScaffoldShell` actually requires in your version.)*
-
-## A8. Wire the button
-
-**File:** `lib/ui/screens/settings/account/tab_account.dart`
-
-```dart
-// OLD
-  Future<void> _exportUserData() async {
-    try {
-      final data = await FirestoreService.instance.exportUserData();
-      if (mounted) {
-        context.showSnackAlert('Data exported: ${data.length} characters');
-      }
-    } catch (e) {
-      _showError(e.toString());
-    }
-  }
-
-// NEW
-  Future<void> _exportUserData() async {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const WellbeingReportScreen()),
-    );
-  }
-```
-Add the import:
-```dart
-import 'package:nlp_digitox/ui/screens/settings/export/wellbeing_report_screen.dart';
-```
-Also update the tile subtitle, since it's no longer a raw GDPR data dump:
-```dart
-// OLD
-ModernListTile(
-  title: 'Export My Data',
-  subtitle: 'Download all your data (GDPR)',
-
-// NEW
-ModernListTile(
-  title: 'Wellbeing Report',
-  subtitle: 'A detailed report on your usage, goals, and mood',
-```
-
----
-
-# ✅ PART B — Fix the stuck focus-completion confetti + redesign the completion screen — **COMPLETED**
-
-## B0. Root cause
-
-**File:** `lib/ui/screens/active_session/active_session_screen.dart`, `_launchConfetti()`:
-```dart
-Confetti.launch(
-  context,
-  options: ConfettiOptions(
-    particleCount: 100, scalar: 1.5, angle: 60, spread: 55,
-    startVelocity: 60, gravity: 0.5, x: 0, y: 1, colors: colors,
-  ),
-  onFinished: (overlay) => overlay.remove(),
-);
-Confetti.launch( /* mirrored burst, same settings */ );
-```
-Two problems, both structural:
-1. **`flutter_confetti`'s `Confetti.launch()` inserts a global `OverlayEntry`
-   at the app-level `Overlay`**, completely decoupled from
-   `ActiveSessionScreen`'s widget lifecycle. Nothing removes it when the
-   screen is popped/exited — only the confetti's own physics-driven
-   `onFinished` callback does, and that only fires once particles settle
-   naturally.
-2. **Low `gravity: 0.5` + high `startVelocity: 60` + `scalar: 1.5`, fired
-   twice simultaneously** (double the particles/overlay entries), means the
-   natural settle time is long and GPU-heavy — this is the "stuck / very
-   slow" symptom, and since nothing is tied to screen disposal, exiting
-   focus mode mid-animation leaves it running and visible regardless.
-
-## B1. Fix — swap to an in-tree confetti widget + a dedicated completion screen
-
-`confetti` (different package from `flutter_confetti`) exposes a
-`ConfettiController` + `ConfettiWidget` that live *inside* your widget tree,
-so they're disposed automatically with whatever screen owns them — this
-structurally prevents the "keeps running after I leave" bug, rather than
-patching around it.
-
-**File:** `pubspec.yaml`
-```yaml
-# OLD
-  flutter_confetti: ^0.5.1
-
-# NEW
-  confetti: ^0.7.0
-```
-
-**New file:** `lib/ui/screens/active_session/session_complete_screen.dart`
-```dart
-import 'dart:math';
-import 'package:confetti/confetti.dart';
-import 'package:flutter/material.dart';
-import 'package:nlp_digitox/core/database/app_database.dart';
-import 'package:nlp_digitox/ui/common/styled_text.dart';
-
-/// Dedicated completion screen for a finished focus session. Owns its own
-/// ConfettiController with a short, bounded blast — since the controller is
-/// created and disposed with THIS screen, the animation can never outlive
-/// the screen the way the old app-level overlay confetti could.
-class SessionCompleteScreen extends StatefulWidget {
-  const SessionCompleteScreen({super.key, required this.session});
-
-  final FocusSession session;
-
-  @override
-  State<SessionCompleteScreen> createState() => _SessionCompleteScreenState();
-}
-
-class _SessionCompleteScreenState extends State<SessionCompleteScreen> {
-  late final ConfettiController _confettiController;
-
-  @override
-  void initState() {
-    super.initState();
-    // Bounded blast duration — this alone caps how long particles can ever
-    // emit for, regardless of gravity/velocity tuning.
-    _confettiController =
-        ConfettiController(duration: const Duration(milliseconds: 700));
-    _confettiController.play();
-  }
-
-  @override
-  void dispose() {
-    // Disposing here is what makes exiting this screen immediately stop
-    // and clear the animation — there is no global overlay to leak.
-    _confettiController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final minutes = widget.session.durationSecs ~/ 60;
-    return Scaffold(
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirection: pi / 2, // downward
-              maxBlastForce: 12,
-              minBlastForce: 6,
-              emissionFrequency: 0.08,
-              numberOfParticles: 24,
-              gravity: 0.25, // finishes falling well within ~2.5s total
-              shouldLoop: false,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.check_circle, size: 72, color: Colors.green),
-                16.vBox,
-                StyledText('Session Complete!', fontSize: 24, fontWeight: FontWeight.bold),
-                8.vBox,
-                StyledText('You focused for $minutes minutes.', fontSize: 14),
-                32.vBox,
-                FilledButton(
-                  onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
-                  child: const Text('Done'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
-
-## B2. Wire it into `active_session_screen.dart`
-
-```dart
-// OLD (in the session-success callback, initState)
-    ref.read(focusModeProvider.notifier).setSessionSuccessCallback(
-      () {
-        if (!mounted) return;
-        setState(() => _isCompleted = true);
-        _launchConfetti();
-      },
-    );
-
-// NEW
-    ref.read(focusModeProvider.notifier).setSessionSuccessCallback(
-      (session) {
-        if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => SessionCompleteScreen(session: session),
-          ),
+        context.showSnackAlert(
+          context.locale.permission_admin_snack_alert,
         );
-      },
-    );
-```
-*(Adjust the callback signature to match whatever `setSessionSuccessCallback`
-actually passes — if it currently takes no arguments, either change its
-signature to pass the completed `FocusSession`, or fetch the just-completed
-session from `focusModeProvider`/the DAO right before navigating.)*
-
-Remove the now-unused `_launchConfetti()` method and the `flutter_confetti`
-import entirely, and remove the `_isCompleted` state var + its usages in
-`_getProgress()`/build() if they were only there to gate the old inline
-completion UI — the dedicated screen replaces that responsibility.
-
-Also review the second call site (`_launchConfetti()` inside the "give up"
-/ non-finite-session branch around line 283 of the original file) — giving
-up on an open-ended session launching a celebratory confetti burst looks
-like a pre-existing separate inconsistency; decide whether that path should
-navigate to `SessionCompleteScreen` too, show a plainer "session ended"
-state, or be removed, and apply the same fix either way (no bare
-`Confetti.launch` calls should remain anywhere in the file).
-
----
-
-# ✅ PART C — Enable Shared Focus Sessions — **COMPLETED**
-
-## C0. What's already built (confirmed — no missing code)
-
-- Route registered: `AppRoutes.sharedSessionsPath` → `SessionsListScreen` (`app_routes.dart`)
-- Dashboard entry point: "Shared Focus Sessions" tile in `tab_dashboard.dart`
-- Service started at app boot: `SessionService.instance.init()` in `initializer.dart`
-- Full UI: `lib/features/shared_sessions/sessions_list_screen.dart` (1272 lines, not a stub)
-- Full backend client: `lib/core/services/session_service.dart` (488 lines) —
-  real Firebase Realtime Database CRUD (create/join/leave session, presence
-  heartbeats, live listeners), with this documented schema:
-  ```
-  sessions/{sessionId}/
-    ├── name, description, ownerId, createdAt, isPublic, maxMembers, theme, isActive
-    ├── members/{userId}/ → userId, displayName, deviceId, joinedAt, isActive, lastActive
-    └── settings/ → sharedDailyLimit, focusApps, blockedApps
-  users/{userId}/sessions/{sessionId}: true
-  ```
-
-**So the code side is done.** The feature "not working" is a backend
-configuration gap, not missing code:
-
-## C1. The actual gap — Realtime Database has no deployed security rules
-
-- `android/app/google-services.json` confirms RTDB **is provisioned**
-  (`"firebase_url": "https://digital-detox-app-01-default-rtdb.firebaseio.com"`).
-- But `firebase.json` only configures `firestore` and `functions` — there is
-  **no `"database"` key at all**, and no `database.rules.json` file exists
-  anywhere in the repo.
-
-With no rules ever deployed, the database is running on whatever default
-Firebase applied when it was created — almost always a deny-all or
-expired-test-mode ruleset. Every `SessionService` read/write (create
-session, join, presence heartbeat) will fail with a permission-denied error
-that gets caught by the service's own try/catch and silently logged via
-`debugPrint`, which is exactly why it looks like the feature does nothing
-from the UI.
-
-## C2. Fix — rules file + firebase.json wiring + deploy
-
-**New file:** `database.rules.json` (repo root, next to `firestore.rules`)
-```json
-{
-  "rules": {
-    "sessions": {
-      "$sessionId": {
-        ".read": "auth != null",
-        ".write": "auth != null && (!data.exists() || data.child('ownerId').val() === auth.uid || data.child('members').child(auth.uid).exists())",
-
-        "ownerId": {
-          ".validate": "newData.val() === auth.uid || (data.exists() && data.val() === auth.uid)"
-        },
-
-        "members": {
-          "$memberId": {
-            ".write": "auth != null && $memberId === auth.uid",
-            ".validate": "newData.hasChildren(['userId', 'displayName', 'joinedAt', 'isActive', 'lastActive'])"
-          }
-        }
       }
-    },
+    } else {
+      /// Confirm
+      final isConfirm = await showConfirmationDialog(
+        context: context,
+        heroTag: HeroTags.tamperProtectionTileTag,
+        icon: FluentIcons.shield_keyhole_20_filled,
+        title: context.locale.tamper_protection_tile_title,
+        info: context.locale.tamper_protection_confirmation_dialog_info,
+        positiveLabel: context.locale.permission_button_grant_permission,
+      );
 
-    "users": {
-      "$uid": {
-        "sessions": {
-          ".read": "auth != null && auth.uid === $uid",
-          ".write": "auth != null && auth.uid === $uid"
-        }
-      }
+      await Future.delayed(400.ms);
+      if (!isConfirm || !context.mounted) return;
+
+      /// User wants to Enable
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (sheetContext) => PermissionSheet(
+          icon: FluentIcons.shield_keyhole_20_filled,
+          title: context.locale.permission_admin_title,
+          description: context.locale.permission_admin_info,
+          onTapGrantPermission: () {
+            Navigator.of(sheetContext).maybePop();
+            ref.read(permissionProvider.notifier).askAdminPermission();
+          },
+        ),
+      );
     }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final haveAdminPermission =
+        ref.watch(permissionProvider.select((v) => v.haveAdminPermission));
+    final haveAccessibilityPermission = ref
+        .watch(permissionProvider.select((v) => v.haveAccessibilityPermission));
+
+    final uninstallWindowTime = ref
+        .watch(parentalControlsProvider.select((v) => v.uninstallWindowTime));
+
+    return DefaultHero(
+      tag: HeroTags.tamperProtectionTileTag,
+      child: DefaultListTile(
+        position: ItemPosition.mid,
+        switchValue: haveAdminPermission && haveAccessibilityPermission,
+        leadingIcon: FluentIcons.shield_keyhole_20_regular,
+        titleText: context.locale.tamper_protection_tile_title,
+        subtitleText: context.locale.tamper_protection_tile_subtitle,
+        onPressed: () => _toggleTamperProtection(
+          context,
+          ref,
+          haveAdminPermission,
+          uninstallWindowTime,
+        ),
+      ),
+    );
   }
 }
 ```
-These rules let any signed-in user read/create sessions and write their own
-membership entry, but only the owner or an existing member can otherwise
-modify a session — matching the schema `session_service.dart` already
-documents. Review/tighten before shipping publicly (e.g. add
-`maxMembers`/`isPublic` validation, restrict who can delete a session) —
-this is a working starting point, not a final security audit.
 
-**File:** `firebase.json`
-```jsonc
-// OLD
-{
-  "firestore": {
-    "database": "(default)",
-    "location": "asia-south1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "functions": [ ... ]
-}
+**File:** `lib/ui/screens/parental_controls/parental_controls_screen.dart`
 
-// NEW
-{
-  "firestore": {
-    "database": "(default)",
-    "location": "asia-south1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "database": {
-    "rules": "database.rules.json"
-  },
-  "functions": [ ... ]
+Restore the two imports:
+```dart
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
+```
+Restore the local var in `build()`:
+```dart
+final isAdminEnabled =
+    ref.watch(permissionProvider.select((v) => v.haveAdminPermission));
+```
+Restore the tile, right before the "Uninstall window" `SliverToBoxAdapter`:
+```dart
+/// Tamper protection
+SliverToBoxAdapter(
+  child: Padding(
+    padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+    child: const AdminPermissionTile(),
+  ),
+),
+```
+Restore the guard inside the uninstall-window tile's `onTap`, right before
+the `showCustomTimePickerDialog(...)` call:
+```dart
+if (isAdminEnabled &&
+    !ref
+        .read(parentalControlsProvider.notifier)
+        .isBetweenUninstallWindow) {
+  context.showSnackAlert(
+    context.locale.permission_admin_snack_alert,
+  );
+  return;
 }
 ```
 
-**Deploy:**
-```bash
-firebase deploy --only database
-```
+## 1.9 Verification
 
-No Dart-side changes are needed for the URL itself — `main.dart` calls
-`Firebase.initializeApp()` with no explicit `FirebaseOptions`, so
-`FirebaseDatabase.instance` already picks up the `firebase_url` baked into
-`google-services.json` automatically on Android. (If shipping iOS too,
-double-check `GoogleService-Info.plist` has the equivalent `DATABASE_URL`
-key — it wasn't checked as part of this plan.)
-
-## C3. Verification
-
-- [ ] `firebase deploy --only database` completes without error.
-- [ ] In Firebase Console → Realtime Database → Rules, confirm the new rules are live.
-- [ ] From the app: Dashboard → "Shared Focus Sessions" → create a session —
-      should succeed instead of silently failing.
-- [ ] Join the same session from a second signed-in account/device — should
-      appear in `members`, and both devices should see each other via the
-      live listeners in `SessionService`.
+- [ ] `flutter analyze` — no errors from the restored files.
+- [ ] Parental Controls screen shows "Tamper protection" tile again.
+- [ ] Enabling it opens the real Android "Activate device admin app?" system
+      dialog, and once granted, the app cannot be uninstalled/force-stopped
+      outside the configured uninstall window.
+- [ ] Opening Settings → Apps while tamper protection is active is blocked
+      by the accessibility service (confirms 1.7's restoration, not just
+      the toggle).
+- [ ] Manually revoking admin from a device admin list (simulating OEM
+      revocation) shows the "revoked" nudge on next keep-alive tick.
 
 ---
 
-# Combined dependency changes (pubspec.yaml)
+# PART 2 — Shared Sessions: fix the Create button (never loads)
 
-```yaml
-dependencies:
-  pdf: ^3.11.1
-  printing: ^5.13.4
-  confetti: ^0.7.0        # replaces flutter_confetti
-# remove:
-  # flutter_confetti: ^0.5.1
+## 2.0 Root cause — confirmed
+
+**File:** `lib/providers/session_provider.dart`
+```dart
+class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession>> {
+  final SessionService _sessionService;
+
+  CreateSessionNotifier(this._sessionService) : super(const AsyncValue.loading());
+```
+The notifier starts in `AsyncValue.loading()` **before any action is ever
+taken**. The Create button:
+```dart
+onPressed: createState.isLoading ? null : _submit,
+```
+is therefore `null` (disabled) the instant the create-session sheet opens —
+`createState.isLoading` is already `true` with nothing running. This is
+exactly "the option to create never loaded" — it looks perpetually stuck,
+because it is.
+
+## 2.1 Fix
+
+```dart
+// OLD
+class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession>> {
+  final SessionService _sessionService;
+
+  CreateSessionNotifier(this._sessionService) : super(const AsyncValue.loading());
+
+// NEW
+class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession?>> {
+  final SessionService _sessionService;
+
+  // Starts as idle data (null), not loading — loading should only begin
+  // once the user actually taps Create. Starting in .loading() disabled
+  // the Create button from the moment the sheet opened, since the button
+  // is gated on `createState.isLoading`.
+  CreateSessionNotifier(this._sessionService) : super(const AsyncValue.data(null));
+```
+```dart
+// File: lib/providers/session_provider.dart — update the provider's generic too
+// OLD
+final createSessionProvider = StateNotifierProvider.autoDispose<CreateSessionNotifier, AsyncValue<SharedSession>>((ref) {
+
+// NEW
+final createSessionProvider = StateNotifierProvider.autoDispose<CreateSessionNotifier, AsyncValue<SharedSession?>>((ref) {
+```
+Everywhere else `createSessionProvider`'s data is consumed (e.g. to read the
+created session's ID after success), it already goes through
+`AsyncValue.guard`/`.value`, so the nullable type only requires a null check
+at the one or two places that unwrap the successful result — check
+`createState.value?.id` (or equivalent) rather than assuming non-null.
+
+## 2.2 Verification
+
+- [ ] Open the create-session sheet — the Create button should be enabled
+      immediately, not greyed out/spinning.
+- [ ] Submit — button shows a spinner only while the actual `createSession`
+      call is in flight, then either navigates on success or shows an error.
+
+---
+
+# PART 3 — Shared Sessions: wire `SessionSettings` into real enforcement
+
+*(This was designed in an earlier pass in this conversation and has not
+been applied yet — included here so this file is the single complete
+reference. Skip if already applied.)*
+
+## 3.0 What this connects
+
+`SessionSettings` (`sharedDailyLimit`, `focusApps`, `blockedApps`) is fully
+modeled and stored in Firebase RTDB, but nothing reads it back into the
+app's actual blocking mechanism. Real blocking is driven by
+`FocusProfile.distractingApps`, sent to native via
+`MethodChannelService.updateFocusSession()`.
+
+## 3.1 `FocusModeNotifier` — apply + restore
+
+**File:** `lib/providers/focus/focus_mode_provider.dart`
+```dart
+// ADD import
+import 'package:nlp_digitox/models/shared_session_model.dart';
+
+// ADD field
+FocusProfile? _previousProfileBeforeSharedSession;
+
+// ADD methods
+Future<void> startSessionFromSharedSettings(SessionSettings settings) async {
+  _previousProfileBeforeSharedSession = state.focusProfile;
+
+  state = state.copyWith(
+    focusProfile: state.focusProfile.copyWith(
+      distractingApps:
+          settings.blockedApps ?? state.focusProfile.distractingApps,
+      sessionDuration:
+          settings.sharedDailyLimit ?? state.focusProfile.sessionDuration,
+    ),
+  );
+  _updateFocusProfileInDb();
+
+  await startNewSession();
+}
+
+Future<void> endSharedSession() async {
+  if (state.activeSession.value != null) {
+    await giveUpOrFinishFocusSession(
+      isTheSessionSuccessful: true,
+      isFiniteSession: state.activeSession.value!.durationSecs > 0,
+    );
+  }
+
+  if (_previousProfileBeforeSharedSession != null) {
+    state = state.copyWith(
+      focusProfile: _previousProfileBeforeSharedSession!,
+    );
+    _updateFocusProfileInDb();
+    _previousProfileBeforeSharedSession = null;
+  }
+}
+
+bool get isInSharedSessionFocus => _previousProfileBeforeSharedSession != null;
 ```
 
-# Full file list
+## 3.2 UI hook
+
+**File:** `lib/features/shared_sessions/sessions_list_screen.dart`, inside
+`SessionDetailScreen`:
+```dart
+Consumer(
+  builder: (context, ref, _) {
+    final isInSharedFocus =
+        ref.watch(focusModeProvider.notifier).isInSharedSessionFocus;
+    final settings = session.settings;
+
+    if (isInSharedFocus) {
+      return OutlinedButton.icon(
+        onPressed: () => ref.read(focusModeProvider.notifier).endSharedSession(),
+        icon: const Icon(Icons.stop_circle_outlined),
+        label: const Text('Stop Focusing With This Group'),
+      );
+    }
+
+    return FilledButton.icon(
+      onPressed: settings == null
+          ? null
+          : () {
+              ref.read(focusModeProvider.notifier)
+                  .startSessionFromSharedSettings(settings);
+              Navigator.of(context).pushNamed(AppRoutes.activeSessionPath);
+            },
+      icon: const Icon(Icons.play_arrow),
+      label: const Text('Start Focusing With This Group'),
+    );
+  },
+),
+```
+
+## 3.3 Decide semantics before shipping
+
+`blockedApps` maps directly onto the existing blocklist mechanism above with
+zero native changes. `focusApps` as an allowlist ("only these apps are
+usable") has no native support today — that's separate scope if wanted.
+
+---
+
+# PART 4 — Performance: startup sequencing + resource leaks
+
+## 4.0 Root cause — confirmed: 16 sequential awaits at every app start
+
+**File:** `lib/initializer.dart`, `initializeServicesAndSchedules()` — every
+one of these currently runs one after another, even though most are
+independent of each other:
+```
+fetchAppsRestrictions → updateAppRestrictions → updateInternetBlockedApps
+→ fetchRestrictionGroups → updateRestrictionsGroups
+→ loadBedtimeSchedule → updateBedtimeSchedule
+→ loadWellBeingSettings → updateWellBeingSettings
+→ loadNotificationSettings → updateNotificationSettings
+→ SessionService.init()
+→ ProductivityNotificationService.initialize()
+→ NotificationSchedulerService.initialize() → updateAllSchedules
+→ ProductivityResetService.initialize()
+→ LeaderboardService: checkAndResetStreakIfNeeded → evaluateAndUpdateStreak → markActive
+```
+Real dependencies: each "fetch X then push X to native" pair is internally
+sequential (can't push what hasn't been fetched), and `notificationSettings`
+is used by two different calls. But the four fetch→push pairs are
+independent *of each other*, `SessionService.init()`/
+`ProductivityNotificationService.initialize()`/
+`ProductivityResetService.initialize()` don't depend on any DB read here,
+and the Leaderboard chain (which does have to stay internally sequential —
+check-and-reset must happen before evaluate, which must happen before
+mark-active) doesn't depend on any of the above either.
+
+## 4.1 Fix — group into `Future.wait` batches
+
+**File:** `lib/initializer.dart`
+```dart
+// OLD
+static Future<void> initializeServicesAndSchedules() async {
+  final startTimeStamp = DateTime.now();
+
+  final dynamicDao = DriftDbService.instance.driftDb.dynamicRecordsDao;
+  final uniqueDao = DriftDbService.instance.driftDb.uniqueRecordsDao;
+
+  /// fetch app restrictions
+  var appRestrictions = await dynamicDao.fetchAppsRestrictions();
+  final internetBlockedApps = appRestrictions
+      .where((e) => !e.canAccessInternet)
+      .map((e) => e.appPackage)
+      .toList();
+
+  /// filter out restrictions
+  appRestrictions.removeWhere(
+    (e) =>
+        e.timerSec <= 0 &&
+        e.periodDurationInMins <= 0 &&
+        e.launchLimit <= 0 &&
+        e.associatedGroupId == null,
+  );
+
+  /// update tracker service
+  await MethodChannelService.instance.updateAppRestrictions(appRestrictions);
+
+  /// update vpn service
+  await MethodChannelService.instance
+      .updateInternetBlockedApps(internetBlockedApps);
+
+  /// Update restriction groups
+  final restrictionGroups = await dynamicDao.fetchRestrictionGroups();
+  await MethodChannelService.instance
+      .updateRestrictionsGroups(restrictionGroups);
+
+  /// Fetch and update bedtime routine
+  final bedtime = await uniqueDao.loadBedtimeSchedule();
+  await MethodChannelService.instance.updateBedtimeSchedule(bedtime);
+
+  /// Fetch and update wellbeing
+  final wellbeing = await uniqueDao.loadWellBeingSettings();
+  await MethodChannelService.instance.updateWellBeingSettings(wellbeing);
+
+  /// Fetch and update notification settings
+  final notificationSettings = await uniqueDao.loadNotificationSettings();
+  await MethodChannelService.instance
+      .updateNotificationSettings(notificationSettings);
+
+  /// Initialize shared-session service (Firebase RTDB backed; safe in stub
+  /// mode when Firebase/auth unavailable). Must be ready before any screen
+  /// can create/join a shared focus session.
+  await SessionService.instance.init();
+
+  /// Initialize productivity notification service
+  await ProductivityNotificationService.instance.initialize();
+
+  /// Initialize notification scheduler service
+  await NotificationSchedulerService.instance.initialize();
+  await NotificationSchedulerService.instance.updateAllSchedules(notificationSettings.schedules);
+
+  /// Initialize productivity reset service for daily resets and notifications
+  await ProductivityResetService.instance.initialize();
+
+  /// Check and reset leaderboard streak if user was inactive
+  await LeaderboardService.instance.checkAndResetStreakIfNeeded();
+
+  /// Evaluate streak based on today's screen time (< 8hrs = +1, > 8hrs = reset)
+  await LeaderboardService.instance.evaluateAndUpdateStreak();
+
+  /// Stamp lastActiveAt so streak inactivity detection has a real user-activity signal
+  await LeaderboardService.instance.markActive();
+
+  /// Start periodic monitor for daily streak evaluation (runs every 6 hours)
+  LeaderboardService.instance.startDailyStreakEvaluation();
+
+  debugPrint(
+    "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",
+  );
+}
+
+// NEW
+static Future<void> initializeServicesAndSchedules() async {
+  final startTimeStamp = DateTime.now();
+
+  final dynamicDao = DriftDbService.instance.driftDb.dynamicRecordsDao;
+  final uniqueDao = DriftDbService.instance.driftDb.uniqueRecordsDao;
+
+  // The four "fetch settings, then push to native" pairs below are
+  // independent of each other — each pair has an internal fetch→push
+  // dependency, but nothing depends on another pair's result — so they run
+  // concurrently instead of one after another. Same for the three service
+  // .initialize() calls, and SessionService.init(), none of which touch
+  // the DAOs above at all.
+  await Future.wait([
+    _syncAppRestrictions(dynamicDao),
+    _syncRestrictionGroups(dynamicDao),
+    _syncBedtimeSchedule(uniqueDao),
+    _syncWellbeingSettings(uniqueDao),
+    _syncNotificationSettings(uniqueDao),
+    SessionService.instance.init(),
+    ProductivityNotificationService.instance.initialize(),
+    ProductivityResetService.instance.initialize(),
+  ]);
+
+  /// Leaderboard chain has a real internal ordering dependency (reset must
+  /// happen before evaluate, which must happen before mark-active), so it
+  /// stays sequential — but it doesn't depend on anything in the batch
+  /// above, so it could also just as validly run before/alongside it. It's
+  /// placed after here only so `startDailyStreakEvaluation()` reliably
+  /// starts from a freshly-evaluated state.
+  await LeaderboardService.instance.checkAndResetStreakIfNeeded();
+  await LeaderboardService.instance.evaluateAndUpdateStreak();
+  await LeaderboardService.instance.markActive();
+  LeaderboardService.instance.startDailyStreakEvaluation();
+
+  debugPrint(
+    "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",
+  );
+}
+
+static Future<void> _syncAppRestrictions(dynamic dynamicDao) async {
+  var appRestrictions = await dynamicDao.fetchAppsRestrictions();
+  final internetBlockedApps = appRestrictions
+      .where((e) => !e.canAccessInternet)
+      .map((e) => e.appPackage)
+      .toList();
+
+  appRestrictions.removeWhere(
+    (e) =>
+        e.timerSec <= 0 &&
+        e.periodDurationInMins <= 0 &&
+        e.launchLimit <= 0 &&
+        e.associatedGroupId == null,
+  );
+
+  await Future.wait([
+    MethodChannelService.instance.updateAppRestrictions(appRestrictions),
+    MethodChannelService.instance.updateInternetBlockedApps(internetBlockedApps),
+  ]);
+}
+
+static Future<void> _syncRestrictionGroups(dynamic dynamicDao) async {
+  final restrictionGroups = await dynamicDao.fetchRestrictionGroups();
+  await MethodChannelService.instance.updateRestrictionsGroups(restrictionGroups);
+}
+
+static Future<void> _syncBedtimeSchedule(dynamic uniqueDao) async {
+  final bedtime = await uniqueDao.loadBedtimeSchedule();
+  await MethodChannelService.instance.updateBedtimeSchedule(bedtime);
+}
+
+static Future<void> _syncWellbeingSettings(dynamic uniqueDao) async {
+  final wellbeing = await uniqueDao.loadWellBeingSettings();
+  await MethodChannelService.instance.updateWellBeingSettings(wellbeing);
+}
+
+static Future<void> _syncNotificationSettings(dynamic uniqueDao) async {
+  final notificationSettings = await uniqueDao.loadNotificationSettings();
+  await Future.wait([
+    MethodChannelService.instance.updateNotificationSettings(notificationSettings),
+    NotificationSchedulerService.instance.initialize().then(
+      (_) => NotificationSchedulerService.instance.updateAllSchedules(notificationSettings.schedules),
+    ),
+  ]);
+}
+```
+*(The `dynamic` DAO parameter types are a quick way to keep this snippet
+self-contained — replace with the actual `DynamicRecordsDao`/
+`UniqueRecordsDao` types from `app_database.dart` for a real PR; Dart's
+analyzer will tell you the exact names if they differ from what Part A of
+the wellbeing-report plan assumed.)*
+
+## 4.2 Root cause — `SessionService` leaks timers/listeners forever
+
+**File:** `lib/core/services/session_service.dart` — `release()` exists,
+cancels all presence heartbeat `Timer`s and RTDB listener subscriptions, and
+clears the session cache — but is **never called anywhere** in the app,
+confirmed by a repo-wide search. Every session a user has ever joined keeps
+its 30-second heartbeat timer and live listener running for the entire
+process lifetime, including after sign-out.
+
+## 4.3 Fix — call `release()` on sign-out
+
+**File:** `lib/core/services/firebase_auth_service.dart`
+```dart
+// OLD
+Future<void> signOut() async {
+  try {
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+    ]);
+    debugPrint('User signed out');
+  } catch (e) {
+    debugPrint('Sign out error: $e');
+    throw Exception('Failed to sign out. Please try again.');
+  }
+}
+
+// NEW
+Future<void> signOut() async {
+  try {
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut(),
+      // Cancels every shared-session presence heartbeat Timer and RTDB
+      // listener — without this, they leak for the rest of the process
+      // lifetime (including for whoever signs in next in the same app
+      // session), since nothing else ever calls SessionService.release().
+      SessionService.instance.release(),
+    ]);
+    debugPrint('User signed out');
+  } catch (e) {
+    debugPrint('Sign out error: $e');
+    throw Exception('Failed to sign out. Please try again.');
+  }
+}
+```
+Add the import if not already present:
+```dart
+import 'package:nlp_digitox/core/services/session_service.dart';
+```
+
+## 4.4 Root cause — `getUserSessions()` N+1 sequential fetch
+
+**File:** `lib/core/services/session_service.dart`
+```dart
+// OLD
+final sessions = <SharedSession>[];
+
+for (final sessionId in sessionIds) {
+  final session = await getSession(sessionId);
+  if (session != null && session.isActive) {
+    sessions.add(session);
+  }
+}
+
+// NEW
+final fetched = await Future.wait(
+  sessionIds.map((id) => getSession(id)),
+);
+final sessions = fetched
+    .whereType<SharedSession>()
+    .where((s) => s.isActive)
+    .toList();
+```
+For a user in a handful of sessions this is a small win; it becomes a real
+one if `getUserSessions()` is ever called for someone in dozens.
+
+## 4.5 Verification
+
+- [ ] Compare the `debugPrint` startup-time log before/after — should drop
+      meaningfully (exact amount depends on device/network, but the batched
+      version can't be slower, only faster or equal).
+- [ ] Sign out, then check (via a debug log or breakpoint) that
+      `SessionService`'s internal timer/listener maps are empty afterward.
+- [ ] Sign out and back in as a different account in the same app session —
+      confirms no leftover heartbeat timers from the previous account are
+      still firing.
+
+---
+
+# PART 5 — Performance: stacked `BackdropFilter` blur (touch lag)
+
+*(Also designed earlier in this conversation, included here for
+completeness — skip if already applied.)*
+
+## 5.0 Root cause
+
+Five `BackdropFilter` blur layers render simultaneously on most top-level
+screens: `TreatedBackgroundImage`'s background (sigma 16) + 3 decorative
+orbs (sigma 8 each), plus `GlassNavBar`'s persistent bottom-nav blur (sigma
+12) — and because `ScaffoldShell` sets `extendBody: true`, that last one is
+re-blurring live scrolling content every frame, not a static background.
+Each `BackdropFilter` forces a `SaveLayer` + real blur pass every frame —
+this is a well-documented, expensive pattern, and having 5 stacked on the
+most-visited screens is a credible, direct cause of dropped frames, which
+is what reads as "laggy, late to respond to touch."
+
+## 5.1 Remove the 3 orb blurs — free, zero visual loss
+
+**File:** `lib/ui/common/treated_background_image.dart`
+```dart
+// OLD
+class _Orb extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const _Orb({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withValues(alpha: 0)],
+        ),
+      ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+// NEW
+class _Orb extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const _Orb({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    // No BackdropFilter: the RadialGradient already fades to fully
+    // transparent at the edge, which reads as "soft" on its own. Three of
+    // these were stacking on every screen using TreatedBackgroundImage —
+    // removing them is a pure win with no visual difference.
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withValues(alpha: 0)],
+        ),
+      ),
+    );
+  }
+}
+```
+
+## 5.2 Pre-blur the background image instead of blurring it live
+
+**Offline, one-time:**
+```bash
+magick assets/backgrounds/bg_light.jpg -blur 0x16 assets/backgrounds/bg_light_blurred.jpg
+magick assets/backgrounds/bg_dark.jpg  -blur 0x16 assets/backgrounds/bg_dark_blurred.jpg
+```
+
+**File:** `lib/ui/common/treated_background_image.dart`
+```dart
+// OLD
+Image.asset(
+  isDark ? 'assets/backgrounds/bg_dark.jpg' : 'assets/backgrounds/bg_light.jpg',
+  key: ValueKey(isDark),
+  fit: BoxFit.cover,
+),
+
+BackdropFilter(
+  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+  child: const ColoredBox(color: Colors.transparent),
+),
+
+// NEW
+// Pre-blurred at build time instead of blurred live every frame — the
+// image never changes or moves, so there is no reason to pay a per-frame
+// SaveLayer + blur cost for it.
+Image.asset(
+  isDark ? 'assets/backgrounds/bg_dark_blurred.jpg' : 'assets/backgrounds/bg_light_blurred.jpg',
+  key: ValueKey(isDark),
+  fit: BoxFit.cover,
+),
+```
+(Delete the `BackdropFilter` block entirely; register the two new assets in
+`pubspec.yaml`.)
+
+## 5.3 Nav bar blur — cheaper + isolated
+
+**File:** `lib/ui/common/glass_nav_bar.dart`
+```dart
+// OLD
+child: ClipRRect(
+  borderRadius: BorderRadius.circular(Radii.xl),
+  child: BackdropFilter(
+    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+    child: Container(
+
+// NEW
+child: RepaintBoundary(
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(Radii.xl),
+    child: BackdropFilter(
+      // Lowered 12→8 (cost scales with sigma); RepaintBoundary isolates
+      // this layer's repaints from unrelated slide/animation work in the
+      // surrounding tree.
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      child: Container(
+```
+(Close the added `RepaintBoundary(` with a matching `)` at the same nesting
+level the old `BackdropFilter`'s wrapper closed at.)
+
+
+## 5.5 Verification
+
+- [ ] `flutter run --profile`, open the Performance Overlay, scroll a long
+      list (Notes/Habits) before and after — raster-thread time per frame
+      should drop noticeably after 5.1+5.2 alone.
+- [ ] Confirm background still looks correct in light/dark mode with the
+      pre-blurred assets.
+
+---
+
+# Full file list (all parts)
 
 **New files**
-- `lib/models/wellbeing_report_data.dart`
-- `lib/core/services/wellbeing_report_service.dart`
-- `lib/core/services/pdf_report_generator.dart`
-- `lib/ui/screens/settings/export/wellbeing_report_screen.dart`
-- `lib/ui/screens/active_session/session_complete_screen.dart`
-- `database.rules.json`
+- `android/app/src/main/res/xml/digitox_admin_config.xml`
+- `android/app/src/main/java/com/nlp/digitox/receivers/DeviceAdminReceiver.kt`
+- `lib/ui/permissions/admin_permission_tile.dart`
 
-**Edited files**
-- `pubspec.yaml` — add `pdf`, `printing`, `confetti`; remove `flutter_confetti`
-- `lib/core/database/daos/dynamic_records_dao.dart` — add `fetchAppUsageTotalsForRange`, `fetchFocusSessionsBetween`
-- `lib/ui/screens/settings/account/tab_account.dart` — wire `_exportUserData()` to the new screen, update tile copy
-- `lib/ui/screens/active_session/active_session_screen.dart` — replace confetti overlay calls with navigation to `SessionCompleteScreen`
-- `firebase.json` — add `"database"` key
+**Edited — Part 1 (tamper protection)**
+- `android/app/src/main/AndroidManifest.xml`
+- `android/app/src/main/java/com/nlp/digitox/helpers/device/PermissionsHelper.kt`
+- `android/app/src/main/java/com/nlp/digitox/helpers/device/NewActivitiesLaunchHelper.kt`
+- `android/app/src/main/java/com/nlp/digitox/FgMethodCallHandler.kt`
+- `android/app/src/main/java/com/nlp/digitox/helpers/KeepAliveHelper.kt`
+- `android/app/src/main/java/com/nlp/digitox/services/accessibility/DeviceFeaturesManager.kt`
+- `android/app/src/main/java/com/nlp/digitox/services/accessibility/DigitoxAccessibilityService.kt`
+- `lib/models/permissions_model.dart`
+- `lib/core/services/method_channel_service.dart`
+- `lib/providers/system/permissions_provider.dart`
+- `lib/ui/screens/parental_controls/parental_controls_screen.dart`
 
-# Verification checklist (all parts)
+**Edited — Part 2 (create-session bug)**
+- `lib/providers/session_provider.dart`
 
-- [x] Settings → Account → "Wellbeing Report" opens the new screen instead of a SnackBar.
-- [x] Tapping "Download PDF Report" opens the native share/save sheet with a real PDF attached.
-- [x] The PDF contains: stat cards, daily usage vs goal bars, days-under-goal
-      percentage, top 5 apps by time, mood trend (if any history exists), and
-      a written insights list.
-- [x] Complete a focus session — the confetti plays for ~1–2 seconds total
-      and stops cleanly; navigating away mid-animation leaves nothing behind.
-- [x] Shared Focus Sessions: create + join works across two accounts after
-      the rules deploy (see C3).
+**Edited — Part 3 (enforcement wiring)**
+- `lib/providers/focus/focus_mode_provider.dart`
+- `lib/features/shared_sessions/sessions_list_screen.dart`
+
+**Edited — Part 4 (startup + leak performance)**
+- `lib/initializer.dart`
+- `lib/core/services/firebase_auth_service.dart`
+- `lib/core/services/session_service.dart`
+
+**Edited — Part 5 (blur performance)**
+- `lib/ui/common/treated_background_image.dart`
+- `lib/ui/common/glass_nav_bar.dart`
+- `lib/ui/common/scaffold_shell.dart` (optional)

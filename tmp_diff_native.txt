@@ -1,0 +1,55 @@
+diff --git a/android/app/src/main/java/com/nlp/digitox/services/accessibility/DeviceFeaturesManager.kt b/android/app/src/main/java/com/nlp/digitox/services/accessibility/DeviceFeaturesManager.kt
+index a63acd5..c7bd62a 100644
+--- a/android/app/src/main/java/com/nlp/digitox/services/accessibility/DeviceFeaturesManager.kt
++++ b/android/app/src/main/java/com/nlp/digitox/services/accessibility/DeviceFeaturesManager.kt
+@@ -4,7 +4,6 @@ import android.content.Context
+ import android.view.accessibility.AccessibilityNodeInfo
+ import com.nlp.digitox.AppConstants.SYSTEM_SETTINGS_PACKAGE
+ import com.nlp.digitox.R
+-import com.nlp.digitox.helpers.device.PermissionsHelper
+ import com.nlp.digitox.models.Wellbeing
+ 
+ class DeviceFeaturesManager(
+@@ -47,12 +46,6 @@ class DeviceFeaturesManager(
+         ): Boolean {
+             val appName: String = context.getString(R.string.app_name)
+ 
+-            // Check for Admin section
+-            val isAdminSectionOpen =
+-                node.findAccessibilityNodeInfosByViewId("com.android.settings:id/admin_name")
+-                    .firstOrNull()?.text == appName
+-
+-
+             // Check for Accessibility section
+             val isAccessibilitySectionOpen =
+                 node.findAccessibilityNodeInfosByText(context.getString(R.string.accessibility_description))
+@@ -60,10 +53,7 @@ class DeviceFeaturesManager(
+                         node.findAccessibilityNodeInfosByText(appName)
+                             .any { it.text == appName }
+ 
+-
+-
+-            return (isAdminSectionOpen || isAccessibilitySectionOpen) &&
+-                    PermissionsHelper.getAndAskAdminPermission(context, false)
++            return isAccessibilitySectionOpen
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/android/app/src/main/java/com/nlp/digitox/services/accessibility/DigitoxAccessibilityService.kt b/android/app/src/main/java/com/nlp/digitox/services/accessibility/DigitoxAccessibilityService.kt
+index 77d9c8c..70eb07c 100644
+--- a/android/app/src/main/java/com/nlp/digitox/services/accessibility/DigitoxAccessibilityService.kt
++++ b/android/app/src/main/java/com/nlp/digitox/services/accessibility/DigitoxAccessibilityService.kt
+@@ -233,11 +233,6 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
+             shortsPlatformPackages.clear()
+             val pm = packageManager
+ 
+-            // Check admin and add settings to blocked packages
+-            if (PermissionsHelper.getAndAskAdminPermission(this, false)) {
+-                devicePlatformPackages.add(SETTINGS_PACKAGE)
+-            }
+-
+             // Fetch installed browser packages
+             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
+             pm.queryIntentActivities(browserIntent, PackageManager.MATCH_ALL).forEach {

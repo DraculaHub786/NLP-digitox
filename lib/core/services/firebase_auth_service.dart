@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nlp_digitox/core/services/session_service.dart';
 
 /// Firebase Authentication Service
 /// Handles all authentication operations including email/password and Google Sign-In
@@ -185,6 +186,11 @@ class FirebaseAuthService {
       await Future.wait([
         _auth.signOut(),
         _googleSignIn.signOut(),
+        // Cancels every shared-session presence heartbeat Timer and RTDB
+        // listener — without this they leak for the rest of the process
+        // lifetime (including for whoever signs in next in the same app
+        // session), since nothing else ever calls SessionService.release().
+        SessionService.instance.release(),
       ]);
       debugPrint('User signed out');
     } catch (e) {

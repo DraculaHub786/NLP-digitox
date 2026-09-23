@@ -36,6 +36,15 @@ object KeepAliveHelper {
     // SharedPrefs key: set to true when accessibility service is permitted but dead
     const val PREF_KEY_ACCESSIBILITY_SERVICE_PAUSED = "accessibility_service_paused"
 
+    // SharedPrefs key: set to true when Device Admin permission was previously
+    // granted but is now revoked (detected on keep-alive tick).
+    const val PREF_KEY_DEVICE_ADMIN_REVOKED = "device_admin_revoked"
+
+    // SharedPrefs key: tracks whether Device Admin was ever seen as active.
+    // Set once when admin is first detected as active; never cleared.
+    // Used to distinguish "never granted" from "was granted but revoked."
+    const val PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE = "device_admin_was_seen_active"
+
     /**
      * Schedules a repeating inexact keep-alive alarm.
      * Inexact = battery-friendly (Android can flex the timing).
@@ -150,6 +159,36 @@ object KeepAliveHelper {
                             false
                         )
                         Log.d(TAG, "Accessibility service is active again — cleared paused flag")
+                    }
+                }
+
+                // ═══════════════════════════════════════════════════════════════════
+                // Task D: Device Admin revocation monitoring
+                // ═══════════════════════════════════════════════════════════════════
+                // Check if admin was previously granted but is now revoked by OEM.
+                // Uses two flags:
+                //   _WAS_SEEN_ACTIVE  → set once when admin is first detected active, never cleared
+                //   _REVOKED          → set when admin was active but no longer is
+                val isAdminActive = PermissionsHelper.getAndAskAdminPermission(context, false)
+
+                // If admin is active right now, note that we've seen it active at least once
+                if (isAdminActive) {
+                    if (!SharedPrefsHelper.getBoolean(context, PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE, false)) {
+                        SharedPrefsHelper.putBoolean(context, PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE, true)
+                    }
+                    // Clear any revocation flag
+                    if (SharedPrefsHelper.getBoolean(context, PREF_KEY_DEVICE_ADMIN_REVOKED, false)) {
+                        SharedPrefsHelper.putBoolean(context, PREF_KEY_DEVICE_ADMIN_REVOKED, false)
+                        Log.d(TAG, "Device Admin is active again — cleared revocation flag")
+                    }
+                } else {
+                    // Admin is not active. Flag as revoked only if we've ever seen it active before.
+                    val wasEverSeenActive = SharedPrefsHelper.getBoolean(
+                        context, PREF_KEY_DEVICE_ADMIN_WAS_SEEN_ACTIVE, false
+                    )
+                    if (wasEverSeenActive) {
+                        SharedPrefsHelper.putBoolean(context, PREF_KEY_DEVICE_ADMIN_REVOKED, true)
+                        Log.w(TAG, "Device Admin was previously enabled but is now inactive — flagging revocation")
                     }
                 }
             } catch (e: Exception) {

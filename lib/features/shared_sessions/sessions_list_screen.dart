@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
+import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
     show digitoxSettingsProvider;
 import 'package:nlp_digitox/providers/session_provider.dart';
@@ -585,7 +587,82 @@ class SessionDetailScreen extends ConsumerWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
+
+                        // Start / stop focusing with this group's settings.
+                        // `blockedApps` is pushed into the normal focus
+                        // profile, so the native blocklist enforces it with
+                        // no extra plumbing.
+                        Consumer(
+                          builder: (context, ref, _) {
+                            final isInSharedFocus = ref.watch(
+                              focusModeProvider.notifier,
+                            ).isInSharedSessionFocus;
+                            final settings = session.settings;
+
+                            if (isInSharedFocus) {
+                              return SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () => ref
+                                      .read(focusModeProvider.notifier)
+                                      .endSharedSession(),
+                                  icon: const Icon(Icons.stop_circle_outlined),
+                                  label: const Text(
+                                      'Stop Focusing With This Group'),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: settings == null
+                                    ? null
+                                    : () {
+                                        ref
+                                            .read(focusModeProvider.notifier)
+                                            .startSessionFromSharedSettings(
+                                                settings);
+                                        Navigator.of(context)
+                                            .pushNamed(
+                                                AppRoutes.activeSessionPath);
+                                      },
+                                icon: const Icon(Icons.play_arrow_rounded),
+                                label: const Text(
+                                    'Start Focusing With This Group'),
+                                style: FilledButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        if (session.settings == null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'This group has no shared settings yet, so group '
+                            'focus is unavailable.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ],
+
+                        const SizedBox(height: 12),
 
                         // Leave button
                         SizedBox(
@@ -766,10 +843,22 @@ class _CreateSessionSheetState
               : _descCtrl.text.trim(),
           isPublic: _isPublic,
         );
-    if (mounted) {
-      Navigator.pop(context);
-      ref.invalidate(userSessionsProvider);
+
+    if (!mounted) return;
+
+    // Only dismiss on success — otherwise the sheet would vanish and the
+    // user would lose their input with no explanation of what went wrong.
+    final createState = ref.read(createSessionProvider);
+    final error = createState.error;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create session: $error')),
+      );
+      return;
     }
+
+    Navigator.pop(context);
+    ref.invalidate(userSessionsProvider);
   }
 }
 

@@ -6,6 +6,7 @@ import android.app.ActivityOptions
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.StatusBarManager
+import android.app.admin.DevicePolicyManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -21,6 +22,7 @@ import com.nlp.digitox.MainActivity
 import com.nlp.digitox.R
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.models.Notification
+import com.nlp.digitox.receivers.DeviceAdminReceiver
 import com.nlp.digitox.services.quickTiles.FocusQuickTileService
 import io.flutter.plugin.common.MethodChannel
 import java.util.Locale
@@ -72,6 +74,30 @@ object NewActivitiesLaunchHelper {
         activity.finishAfterTransition()
     }
 
+
+    /**
+     * Deactivate the admin privileges.
+     *
+     * Called when the user disables tamper protection inside the configured
+     * uninstall window — removes this app from the device-admin list via
+     * `DevicePolicyManager.removeActiveAdmin`.
+     *
+     * @param context The context to use for launching the activity.
+     */
+    fun disableDeviceAdmin(context: Context) {
+        try {
+            val componentName = ComponentName(context, DeviceAdminReceiver::class.java)
+            val devicePolicyManager =
+                context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+
+            if (devicePolicyManager.isAdminActive(componentName)) {
+                devicePolicyManager.removeActiveAdmin(componentName)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "disableDeviceAdmin: Failed to deactivate admin", e)
+            SharedPrefsHelper.insertCrashLogToPrefs(context, e)
+        }
+    }
 
     /**
      * Opens the app's notification settings for permission.

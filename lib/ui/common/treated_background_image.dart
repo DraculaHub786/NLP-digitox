@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 
@@ -29,21 +27,19 @@ class TreatedBackgroundImage extends StatelessWidget {
         // 1. Botanical photograph — a dedicated dark variant is used in dark
         // mode so the ambient backdrop matches the deep-forest palette of the
         // dark theme (instead of crushing one bright photo under heavy scrims).
+        // Pre-blurred at build time (assets/backgrounds/*_blurred.jpg)
+        // instead of blurred live every frame. The image never changes or
+        // moves, so paying a per-frame SaveLayer + sigma-16 blur for it was
+        // pure waste on the most-visited screens.
         Image.asset(
           isDark
-              ? 'assets/backgrounds/bg_dark.jpg'
-              : 'assets/backgrounds/bg_light.jpg',
+              ? 'assets/backgrounds/bg_dark_blurred.jpg'
+              : 'assets/backgrounds/bg_light_blurred.jpg',
           // Keying by brightness guarantees the ImageProvider swaps even
           // when the widget tree is otherwise identical across a theme
           // change (prevents any cached-light-frame edge cases).
           key: ValueKey(isDark),
           fit: BoxFit.cover,
-        ),
-
-        // 2. Heavy backdrop blur so cards/text sit on soft color, not noise.
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: const ColoredBox(color: Colors.transparent),
         ),
 
         // 3. Translucent scrim — keeps text/cards legible over the photo.
@@ -116,6 +112,10 @@ class _Orb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Deliberately no BackdropFilter: the RadialGradient already fades to
+    // fully transparent at the edge, which reads as "soft" on its own.
+    // Three of these stack on every screen using TreatedBackgroundImage, so
+    // the blurs were a pure cost with no visual difference.
     return Container(
       width: size,
       height: size,
@@ -124,10 +124,6 @@ class _Orb extends StatelessWidget {
         gradient: RadialGradient(
           colors: [color, color.withValues(alpha: 0)],
         ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: const SizedBox.shrink(),
       ),
     );
   }

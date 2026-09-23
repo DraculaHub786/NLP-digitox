@@ -15,6 +15,7 @@ import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/models/focus_mode_model.dart';
+import 'package:nlp_digitox/models/shared_session_model.dart';
 
 /// A Riverpod state notifier provider that manages [FocusModeModel].
 final focusModeProvider =
@@ -29,6 +30,11 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   Timer? _activeSessionTimer;
   void Function(FocusSession)? _sessionSuccessCallback;
   bool _isAppPaused = false;
+
+  /// Holds the focus profile that was active before a shared-session focus
+  /// started, so it can be restored when that session ends. Non-null iff a
+  /// shared-session focus is currently running.
+  FocusProfile? _previousProfileBeforeSharedSession;
 
   FocusModeNotifier()
       : super(FocusModeModel(
@@ -288,6 +294,64 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
     );
 
     _updateFocusModeInDb();
+  }
+
+  /// Whether the currently running focus session was started from a shared
+  /// session's [SessionSettings] rather than configured locally.
+  bool get isInSharedSessionFocus =>
+      _previousProfileBeforeSharedSession != null;
+
+  /// Starts a focus session using a shared session's [SessionSettings].
+  ///
+  /// The caller's existing focus profile is snapshotted first so that
+  /// [endSharedSession] can restore it afterwards.
+  ///
+  /// `blockedApps` maps directly onto the existing distracting-apps blocklist
+  /// that the native side already enforces — no native changes are needed.
+  /// (`focusApps`, an allowlist, has no native support today and is
+  /// intentionally not applied here.)
+  Future<void> startSessionFromSharedSettings(SessionSettings settings) async {
+    // Snapshot only once — a second call while already inside a shared session
+    // must not overwrite the snapshot with the shared profile itself.
+    _previousProfileBeforeSharedSession ??= state.focusProfile;
+
+    final sharedBlockedApps = settings.blockedApps;
+    final sharedLimitMinutes = settings.sharedDailyLimit;
+
+    state = state.copyWith(
+      focusProfile: state.focusProfile.copyWith(
+        distractingApps:
+            sharedBlockedApps ?? state.focusProfile.distractingApps,
+        // SessionSettings.sharedDailyLimit is in MINUTES, while
+        // FocusProfile.sessionDuration is in SECONDS.
+        sessionDuration: sharedLimitMinutes != null
+            ? sharedLimitMinutes * Duration.secondsPerMinute
+            : state.focusProfile.sessionDuration,
+      ),
+    );
+    _updateFocusProfileInDb();
+
+    await startNewSession();
+  }
+
+  /// Ends a shared-session focus and restores the profile that was active
+  /// before it started. Safe to call when no shared session is running — it
+  /// then behaves as a plain "finish the active session" call.
+  Future<void> endSharedSession() async {
+    final activeSession = state.activeSession.value;
+    if (activeSession != null) {
+      await giveUpOrFinishFocusSession(
+        isTheSessionSuccessful: true,
+        isFiniteSession: activeSession.durationSecs > 0,
+      );
+    }
+
+    final previousProfile = _previousProfileBeforeSharedSession;
+    if (previousProfile != null) {
+      state = state.copyWith(focusProfile: previousProfile);
+      _updateFocusProfileInDb();
+      _previousProfileBeforeSharedSession = null;
+    }
   }
 
   /// Saves the current focus mode configuration to the database.

@@ -233,6 +233,15 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
             shortsPlatformPackages.clear()
             val pm = packageManager
 
+            // Check admin and add settings to blocked packages.
+            // This is the actual enforcement of tamper protection: while Device
+            // Admin is active, the Settings app is treated as a blocked platform,
+            // so navigating into (and revoking from) the device-admin list is
+            // intercepted by DeviceFeaturesManager.
+            if (PermissionsHelper.getAndAskAdminPermission(this, false)) {
+                devicePlatformPackages.add(SETTINGS_PACKAGE)
+            }
+
             // Fetch installed browser packages
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
             pm.queryIntentActivities(browserIntent, PackageManager.MATCH_ALL).forEach {
