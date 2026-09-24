@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/navigation/app_routes.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/complete_session_button.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
@@ -661,6 +662,12 @@ class SessionDetailScreen extends ConsumerWidget {
                             ),
                           ),
                         ],
+
+                        const SizedBox(height: 12),
+
+                        // Owner-only completion — marks the session finished
+                        // and pays out the completion points.
+                        CompleteSessionButton(session: session),
 
                         const SizedBox(height: 12),
 

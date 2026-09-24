@@ -211,9 +211,18 @@ class ProfileService {
     }
   }
 
+  /// Drops every piece of per-account state held by this process-wide
+  /// singleton. Called on sign-out.
+  ///
+  /// The notifier reset matters as much as the cache reset: avatars listen to
+  /// [profileUrlNotifier], so without clearing it a second account signing in
+  /// on the same app process keeps rendering the previous account's picture.
   void clearCache() {
     _cachedProfileUrl = null;
     _hasLoadedProfileUrl = false;
+    _isLoading = false;
+    profileUrlNotifier.value = null;
+    debugPrint('ProfileService: Cache cleared');
   }
 
   // ---------------------------------------------------------------------------

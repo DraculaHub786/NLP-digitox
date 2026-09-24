@@ -651,8 +651,11 @@ class LeaderboardService {
         transaction.set(lifetimeRef, {
           if (!lifetimeSnap.exists) ...baseIdentity,
           if (!lifetimeSnap.exists) 'email': auth.userEmail,
-          if (!lifetimeSnap.exists && profileImageUrl != null)
-            'profileImageUrl': profileImageUrl,
+          // Re-applied on every points event (not just doc creation) so a
+          // photo uploaded while this doc didn't exist yet — or uploaded
+          // after this doc was already seeded without one — still lands
+          // here the next time the user earns points, instead of never.
+          if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
           'lifetimePoints': currentLifetime + points,
           'pointsBreakdown': currentBreakdown,
           'lastUpdated': FieldValue.serverTimestamp(),
@@ -661,8 +664,7 @@ class LeaderboardService {
 
         transaction.set(weeklyRef, {
           if (!weeklySnap.exists) ...baseIdentity,
-          if (!weeklySnap.exists && profileImageUrl != null)
-            'profileImageUrl': profileImageUrl,
+          if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
           'points': currentWeekly + points,
           'lastUpdated': FieldValue.serverTimestamp(),
           'lastActiveAt': FieldValue.serverTimestamp(),
@@ -670,8 +672,7 @@ class LeaderboardService {
 
         transaction.set(monthlyRef, {
           if (!monthlySnap.exists) ...baseIdentity,
-          if (!monthlySnap.exists && profileImageUrl != null)
-            'profileImageUrl': profileImageUrl,
+          if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
           'points': currentMonthly + points,
           'lastUpdated': FieldValue.serverTimestamp(),
           'lastActiveAt': FieldValue.serverTimestamp(),

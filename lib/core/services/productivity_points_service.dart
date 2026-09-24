@@ -25,8 +25,16 @@ class ProductivityPointsService {
   static const int screenTimeGoalPoints = 50; // Stay within screen time goals
   static const int bedtimeSchedulePoints = 25; // Follow bedtime schedule
   static const int appRestrictionPoints = 10;
+  static const int sharedSessionCompletionPoints = 50; // Finish a group focus session
 
   static const String _lastScreenTimePointsDateKey = 'last_screen_time_points_date';
+  static const String _sharedSessionPointsAwardedKey =
+      'shared_session_points_awarded_ids';
+
+  /// How many completed-session ids to remember locally. The list only exists
+  /// to stop a member being paid twice for the same session, so a short
+  /// rolling window is plenty and keeps the pref entry from growing forever.
+  static const int _sharedSessionAwardedMemory = 50;
   static const String _lastBedtimePointsDateKey = 'last_bedtime_points_date';
   static const String _lastAppRestrictionPointsDateKey = 'last_app_restriction_points_date';
   static const String _lastStreakPointsDateKey = 'last_streak_points_date';
@@ -442,6 +450,82 @@ class ProductivityPointsService {
         bedtimeSchedulePoints +
         appRestrictionPoints +
         dailyStreakPoints;
+  }
+
+  /// Award [sharedSessionCompletionPoints] for finishing a group focus session.
+  ///
+  /// Called by each member's own client when it observes that the session it
+  /// belongs to has been completed. Points are always written to the *signed
+  /// in* user — `LeaderboardService.addPoints` fans out to the current uid
+  /// only, and firestore.rules only permit a client to write its own board
+  /// doc. There is therefore no way for the owner's device to credit the other
+  /// members; each member claims their own share. That is why this is guarded
+  /// by a local per-session flag rather than by anything server-side.
+  Future<void> awardSharedSessionCompletionPoints({
+    required String sessionId,
+    int points = sharedSessionCompletionPoints,
+    bool showNotification = true,
+  }) async {
+    try {
+      if (await _wasSharedSessionPointsAwarded(sessionId)) {
+        debugPrint(
+          'Shared-session points already awarded for $sessionId, skipping',
+        );
+        return;
+      }
+
+      await _leaderboardService.addPoints(points, 'Group Focus Session');
+      await _markSharedSessionPointsAwarded(sessionId);
+
+      if (showNotification) {
+        await _notificationService.sendPointsEarnedNotification(
+          points: points,
+          category: 'completing a group focus session',
+        );
+      }
+
+      debugPrint('Awarded $points points for shared session $sessionId');
+    } catch (e) {
+      debugPrint('Error awarding shared session points: $e');
+    }
+  }
+
+  /// Whether this device has already paid out for [sessionId].
+  Future<bool> _wasSharedSessionPointsAwarded(String sessionId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final awardedIds =
+          prefs.getStringList(_sharedSessionPointsAwardedKey) ?? const [];
+      return awardedIds.contains(sessionId);
+    } catch (e) {
+      debugPrint('Error checking shared session points: $e');
+      // Fail closed: if the check itself errors, never risk a double payout.
+      return true;
+    }
+  }
+
+  /// Records [sessionId] as paid, keeping only the most recent
+  /// [_sharedSessionAwardedMemory] ids.
+  Future<void> _markSharedSessionPointsAwarded(String sessionId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Explicit <String> element type: a bare spread of a
+      // `List<String>? ?? const []` infers as List<dynamic>, and
+      // `setStringList` below then refuses to accept it.
+      final awardedIds = <String>[
+        ...(prefs.getStringList(_sharedSessionPointsAwardedKey) ??
+            const <String>[]),
+      ];
+      if (!awardedIds.contains(sessionId)) awardedIds.add(sessionId);
+
+      final trimmed = awardedIds.length > _sharedSessionAwardedMemory
+          ? awardedIds.sublist(awardedIds.length - _sharedSessionAwardedMemory)
+          : awardedIds;
+
+      await prefs.setStringList(_sharedSessionPointsAwardedKey, trimmed);
+    } catch (e) {
+      debugPrint('Error marking shared session points: $e');
+    }
   }
 
   /// Award points for completing a focus session

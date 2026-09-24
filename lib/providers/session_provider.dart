@@ -113,6 +113,40 @@ final leaveSessionProvider = StateNotifierProvider.autoDispose<LeaveSessionNotif
   return LeaveSessionNotifier(sessionService);
 });
 
+/// Complete session notifier — owner-only "finish this session" action.
+///
+/// On success it invalidates [userSessionsProvider] and the session's own
+/// detail provider, because completing a session flips `isActive` to false and
+/// the finished session must drop out of the active list immediately.
+class CompleteSessionNotifier
+    extends StateNotifier<AsyncValue<SharedSession?>> {
+  final SessionService _sessionService;
+  final Ref _ref;
+
+  CompleteSessionNotifier(this._sessionService, this._ref)
+      : super(const AsyncValue.data(null));
+
+  Future<void> completeSession(String sessionId) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _sessionService.completeSession(sessionId: sessionId),
+    );
+
+    if (state.hasValue) {
+      _ref.invalidate(userSessionsProvider);
+      _ref.invalidate(sessionDetailProvider(sessionId));
+      _ref.invalidate(sessionMembersProvider(sessionId));
+    }
+  }
+}
+
+/// Complete session provider
+final completeSessionProvider = StateNotifierProvider.autoDispose<
+    CompleteSessionNotifier, AsyncValue<SharedSession?>>((ref) {
+  final sessionService = ref.watch(sessionServiceProvider);
+  return CompleteSessionNotifier(sessionService, ref);
+});
+
 /// Public sessions provider — for browse-and-join flow
 final publicSessionsProvider =
     FutureProvider<List<Map<String, dynamic>>>((ref) async {

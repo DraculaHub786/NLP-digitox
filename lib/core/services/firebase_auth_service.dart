@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nlp_digitox/core/services/leaderboard_service.dart';
+import 'package:nlp_digitox/core/services/profile_service.dart';
 import 'package:nlp_digitox/core/services/session_service.dart';
 
 /// Firebase Authentication Service
@@ -183,6 +185,17 @@ class FirebaseAuthService {
   /// Sign out
   Future<void> signOut() async {
     try {
+      // These singletons are process-wide and hold per-account data, so they
+      // must be dropped before the next account signs in on the same process:
+      //   * ProfileService  → cached profile image URL (and its notifier, so
+      //     on-screen avatars stop rendering the previous account's picture).
+      //   * LeaderboardService → cached weekly/monthly boards, which are not
+      //     user-scoped and would otherwise show the previous account's list.
+      // Cleared before `_auth.signOut()` while the state is still consistent;
+      // neither call touches Firestore.
+      ProfileService.instance.clearCache();
+      LeaderboardService.instance.clearCache();
+
       await Future.wait([
         _auth.signOut(),
         _googleSignIn.signOut(),

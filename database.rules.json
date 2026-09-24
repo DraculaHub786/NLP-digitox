@@ -25,6 +25,19 @@
           ".write": "auth != null && auth.uid === $uid"
         }
       }
+    },
+
+    "publicSessions": {
+      ".read": "auth != null",
+
+      "$sessionId": {
+        ".write": "auth != null && (!data.exists() || root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid)",
+
+        "memberCount": {
+          ".write": "auth != null",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
     }
   }
 }

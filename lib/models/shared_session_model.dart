@@ -141,6 +141,11 @@ class SharedSession {
   /// Whether the session is currently active
   final bool isActive;
 
+  /// When the owner completed the session (null while it is still running).
+  /// Written by `SessionService.completeSession`; read by the UI to show the
+  /// finished state.
+  final DateTime? completedAt;
+
   /// Session-wide restriction settings (optional)
   final SessionSettings? settings;
 
@@ -155,6 +160,7 @@ class SharedSession {
     required this.createdAt,
     this.theme,
     this.isActive = true,
+    this.completedAt,
     this.settings,
   });
 
@@ -163,6 +169,24 @@ class SharedSession {
 
   /// Active member count
   int get activeMembers => members.where((m) => m.isActive).length;
+
+  /// A finished session: the owner marked it complete, so it no longer
+  /// accepts presence heartbeats.
+  bool get isCompleted => completedAt != null;
+
+  /// Whether [userId] should be paid the completion bonus for this session.
+  ///
+  /// Two conditions must both hold:
+  ///   * the session was actually *completed* — a session also goes inactive
+  ///     when its owner merely leaves, and that must not pay out, and
+  ///   * the user is still a member, so someone who left before completion
+  ///     gets nothing.
+  ///
+  /// Kept here rather than in `SessionService` so the acceptance rule is a
+  /// single, unit-testable predicate instead of being re-derived at every
+  /// place a completed session is observed.
+  bool isEligibleForCompletionPayout(String userId) =>
+      isCompleted && members.any((m) => m.userId == userId);
 
   /// Parse from Firebase RTDB snapshot value.
   ///
@@ -184,6 +208,9 @@ class SharedSession {
       createdAt: SessionMember._parseDateTime(map['createdAt']),
       theme: map['theme'] as String?,
       isActive: map['isActive'] as bool? ?? true,
+      completedAt: map['completedAt'] != null
+          ? SessionMember._parseDateTime(map['completedAt'])
+          : null,
       settings: map['settings'] != null
           ? SessionSettings.fromMap(
               Map<String, dynamic>.from(map['settings'] as Map))
@@ -250,6 +277,9 @@ class SharedSession {
       'createdAt': createdAt.toIso8601String(),
       'theme': theme,
       'isActive': isActive,
+      // Omitted entirely while the session is running — sending an explicit
+      // null through `set()` would delete/create the key spuriously.
+      if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
       'settings': settings?.toMap(),
     };
   }
@@ -265,6 +295,7 @@ class SharedSession {
     DateTime? createdAt,
     String? theme,
     bool? isActive,
+    DateTime? completedAt,
     SessionSettings? settings,
   }) {
     return SharedSession(
@@ -278,6 +309,7 @@ class SharedSession {
       createdAt: createdAt ?? this.createdAt,
       theme: theme ?? this.theme,
       isActive: isActive ?? this.isActive,
+      completedAt: completedAt ?? this.completedAt,
       settings: settings ?? this.settings,
     );
   }

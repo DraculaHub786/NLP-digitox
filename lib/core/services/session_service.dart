@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
+import 'package:nlp_digitox/core/services/productivity_points_service.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 
 /// Service for managing shared sessions and group presence
@@ -268,12 +269,22 @@ class SessionService {
             .ref('users/$userId/sessions/$sessionId')
             .remove();
 
-        // If owner left, mark session as inactive and remove from public index
+        // Read the session back *after* our removal, so memberCount below is
+        // the authoritative post-leave count. Nothing else maintains that
+        // counter, so without this the Discover card drifts upward forever.
         final sessionSnap =
             await _database!.ref('sessions/$sessionId').get();
         if (sessionSnap.exists) {
           final session = SharedSession.fromMap(
               Map<String, dynamic>.from(sessionSnap.value as Map));
+
+          if (session.isPublic) {
+            await _database!
+                .ref('publicSessions/$sessionId/memberCount')
+                .set(session.memberCount);
+          }
+
+          // If owner left, mark session as inactive and remove from public index
           if (session.ownerId == userId) {
             await _database!
                 .ref('sessions/$sessionId/isActive')
@@ -291,30 +302,137 @@ class SessionService {
     }
   }
 
+  /// Marks a shared session finished and pays the owner their completion
+  /// points. Owner-only.
+  ///
+  /// Only the owner can call this, but the owner's device can only credit the
+  /// *owner*. `LeaderboardService.addPoints` always writes to the signed-in
+  /// uid, and firestore.rules allow a client to write its own board doc only,
+  /// so crediting another member from here is impossible client-side. Every
+  /// other member therefore claims their own points from their own device
+  /// when they observe [SharedSession.completedAt] — see
+  /// [_claimCompletionPointsIfFinished], which both `getSession` and
+  /// `listenToSession` trigger.
+  Future<SharedSession> completeSession({
+    required String sessionId,
+    int pointsPerMember =
+        ProductivityPointsService.sharedSessionCompletionPoints,
+  }) async {
+    try {
+      final userId = FirebaseAuthService.instance.userId;
+      if (userId == null) throw StateError('User not authenticated');
+      if (!_isInitialized) throw StateError('SessionService not initialized');
+
+      final session = await getSession(sessionId);
+      if (session == null) throw StateError('Session not found');
+      if (session.ownerId != userId) {
+        throw StateError('Only the session owner can complete it');
+      }
+      if (session.isCompleted) {
+        debugPrint('SessionService: Session $sessionId already completed');
+        return session;
+      }
+
+      final completedAt = DateTime.now();
+      final completed = session.copyWith(
+        isActive: false,
+        completedAt: completedAt,
+      );
+
+      if (_isFirebaseAvailable && _database != null) {
+        // Written before the points award so a failure in the award path
+        // still leaves the session correctly marked finished, rather than
+        // hanging open.
+        await _database!.ref('sessions/$sessionId').update({
+          'isActive': false,
+          'completedAt': completedAt.toIso8601String(),
+        });
+        if (session.isPublic) {
+          await _database!.ref('publicSessions/$sessionId').remove();
+        }
+      }
+
+      _stopPresenceHeartbeat(sessionId);
+      _sessionCache[sessionId] = completed;
+
+      await ProductivityPointsService.instance.awardSharedSessionCompletionPoints(
+        sessionId: sessionId,
+        points: pointsPerMember,
+      );
+
+      debugPrint('SessionService: Completed session $sessionId');
+      return completed;
+    } catch (e) {
+      debugPrint('SessionService: Error completing session: $e');
+      rethrow;
+    }
+  }
+
+  /// Pays the signed-in user for [session] if it has been completed.
+  ///
+  /// Safe to call repeatedly: `ProductivityPointsService` de-dupes by session
+  /// id, so the worst case is one cheap SharedPreferences read. This is the
+  /// only way a non-owner member can be credited, because a client may not
+  /// write another user's leaderboard doc.
+  Future<void> _claimCompletionPointsIfFinished(SharedSession session) async {
+    try {
+      final userId = FirebaseAuthService.instance.userId;
+      if (userId == null) return;
+
+      // Only a genuine completion pays out, and only to members still on the
+      // session. A session also goes inactive when its owner merely leaves it,
+      // which must not pay anyone — see
+      // SharedSession.isEligibleForCompletionPayout.
+      if (!session.isEligibleForCompletionPayout(userId)) return;
+
+      _stopPresenceHeartbeat(session.id);
+
+      await ProductivityPointsService.instance
+          .awardSharedSessionCompletionPoints(sessionId: session.id);
+    } catch (e) {
+      debugPrint('SessionService: Error claiming completion points: $e');
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Fetching
   // ---------------------------------------------------------------------------
 
-  /// Get a session by ID (cache-first)
+  /// Get a session by ID.
+  ///
+  /// Network-first on purpose. This used to short-circuit on `_sessionCache`,
+  /// but nothing ever refreshed that cache: `listenToSession` has no callers,
+  /// so a session fetched once stayed frozen for the life of the process. The
+  /// visible symptoms were a joined member never appearing in the member list,
+  /// a departed member never disappearing (their RTDB node *was* removed
+  /// correctly — the UI just never re-read it), and a completed session never
+  /// showing as completed.
+  ///
+  /// The cache is now only a fallback for when RTDB is unavailable.
   Future<SharedSession?> getSession(String sessionId) async {
     try {
-      if (_sessionCache.containsKey(sessionId)) {
+      if (!_isFirebaseAvailable || _database == null) {
         return _sessionCache[sessionId];
       }
 
-      if (!_isFirebaseAvailable || _database == null) return null;
-
-      final snapshot =
-          await _database!.ref('sessions/$sessionId').get();
-      if (!snapshot.exists) return null;
+      final snapshot = await _database!.ref('sessions/$sessionId').get();
+      if (!snapshot.exists) {
+        _sessionCache.remove(sessionId);
+        return null;
+      }
 
       final session = SharedSession.fromMap(
           Map<String, dynamic>.from(snapshot.value as Map));
       _sessionCache[sessionId] = session;
+
+      // A member observes completion here (their own device is the only place
+      // that can credit them — see completeSession).
+      unawaited(_claimCompletionPointsIfFinished(session));
+
       return session;
     } catch (e) {
       debugPrint('SessionService: Error getting session: $e');
-      return null;
+      return _sessionCache[sessionId];
     }
   }
 
@@ -439,6 +557,11 @@ class SessionService {
             final session = SharedSession.fromMap(
                 Map<String, dynamic>.from(event.snapshot.value as Map));
             _sessionCache[sessionId] = session;
+
+            // Same completion handling as `getSession`: stop the now-pointless
+            // heartbeat and let the member claim their own points.
+            unawaited(_claimCompletionPointsIfFinished(session));
+
             onUpdate(session);
           }
         } catch (e) {

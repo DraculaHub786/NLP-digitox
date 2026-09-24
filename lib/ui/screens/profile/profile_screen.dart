@@ -18,14 +18,42 @@ import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_component
 /// Dedicated Profile screen — displays the user's identity and live stats at
 /// a glance. Account-management actions (password/email) stay in Settings →
 /// Account; this screen only links out to them.
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _isUploading = false;
+
+  // Created once instead of inside build(): calling streamTopUsers() fresh on
+  // every rebuild opens a brand-new Firestore listener each time and makes the
+  // StreamBuilder flash back to its loading state — a stable field keeps this
+  // screen smooth as ref.watch triggers unrelated rebuilds.
+  late final Stream<List<LeaderboardUser>> _leaderboardStream =
+      LeaderboardService.instance.streamTopUsers(limit: 100);
+
   Future<void> _changeProfilePicture(BuildContext context) async {
+    // Guard against double-taps firing a second upload while one is in
+    // flight (the image picker's own sheet can be dismissed and re-opened
+    // quickly on some devices).
+    if (_isUploading) return;
+
+    setState(() => _isUploading = true);
     try {
-      await ProfileService.instance.uploadProfilePicture();
-      ProfileService.instance.clearCache();
-      if (context.mounted) {
+      final url = await ProfileService.instance.uploadProfilePicture();
+      // NOTE: no ProfileService.instance.clearCache() here.
+      // uploadProfilePicture() already updates the in-memory cache AND
+      // notifies every listening ProfileAvatar via profileUrlNotifier —
+      // clearing the cache right after only throws away that correct,
+      // just-written value and forces an unnecessary extra Firestore read the
+      // next time anything asks for it.
+      if (!context.mounted) return;
+      // A null return means the user cancelled the image picker — not an
+      // error, so no snackbar either way.
+      if (url != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profile picture updated'),
@@ -39,11 +67,13 @@ class ProfileScreen extends ConsumerWidget {
           SnackBar(content: Text('Failed to update picture: $e')),
         );
       }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final username =
         ref.watch(digitoxSettingsProvider.select((v) => v.username));
@@ -56,7 +86,7 @@ class ProfileScreen extends ConsumerWidget {
           filledIcon: FluentIcons.person_20_filled,
           titleText: 'Profile',
           sliverBody: StreamBuilder<List<LeaderboardUser>>(
-            stream: LeaderboardService.instance.streamTopUsers(limit: 100),
+            stream: _leaderboardStream,
             builder: (context, snapshot) {
               final users = snapshot.data ?? const <LeaderboardUser>[];
               LeaderboardUser? currentUser;
@@ -79,7 +109,9 @@ class ProfileScreen extends ConsumerWidget {
                         child: Column(
                           children: [
                             GestureDetector(
-                              onTap: () => _changeProfilePicture(context),
+                              onTap: _isUploading
+                                  ? null
+                                  : () => _changeProfilePicture(context),
                               child: Stack(
                                 children: [
                                   Container(
@@ -93,6 +125,27 @@ class ProfileScreen extends ConsumerWidget {
                                     ),
                                     child: const ProfileAvatar(size: 84),
                                   ),
+                                  if (_isUploading)
+                                    Positioned.fill(
+                                      child: Container(
+                                        margin: const EdgeInsets.all(3),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.black
+                                              .withValues(alpha: 0.45),
+                                        ),
+                                        child: const Center(
+                                          child: SizedBox(
+                                            width: 28,
+                                            height: 28,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   Positioned(
                                     right: 0,
                                     bottom: 0,
@@ -138,7 +191,9 @@ class ProfileScreen extends ConsumerWidget {
                             ],
                             const SizedBox(height: 8),
                             StyledText(
-                              'Tap the photo to change it',
+                              _isUploading
+                                  ? 'Uploading photo…'
+                                  : 'Tap the photo to change it',
                               fontSize: 11,
                               color:
                                   colorScheme.onSurface.withValues(alpha: 0.5),
