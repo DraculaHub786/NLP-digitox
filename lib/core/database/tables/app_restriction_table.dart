@@ -1,7 +1,10 @@
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:nlp_digitox/core/database/adapters/time_of_day_adapter.dart';
 import 'package:nlp_digitox/core/database/app_database.dart';
+import 'package:nlp_digitox/core/database/converters/string_list_converter.dart';
 import 'package:nlp_digitox/core/enums/reminder_type.dart';
 
 @DataClassName("AppRestriction")
@@ -45,4 +48,11 @@ class AppRestrictionTable extends Table {
   /// [ReminderType] Type of reminders to show when using timed app
   TextColumn get reminderType =>
       textEnum<ReminderType>().withDefault(Constant(ReminderType.toast.name))();
+
+  /// Website domains associated with this app (e.g. "instagram.com" for
+  /// com.instagram.android). User/config-set - never hardcoded. Drives
+  /// dynamic website blocking when this app's usage limit is hit.
+  TextColumn get associatedDomains => text()
+      .map(const StringListConverter())
+      .withDefault(Constant(jsonEncode([])))();
 }

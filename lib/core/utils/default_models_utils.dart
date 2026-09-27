@@ -64,7 +64,7 @@ const defaultBedtimeScheduleModel = BedtimeSchedule(
   distractingApps: [],
 );
 
-NotificationSettings defaultNotificationSettingsModel = NotificationSettings(
+final defaultNotificationSettingsModel = NotificationSettings(
   id: 0,
   recapType: RecapType.summeryOnly,
   storeNonBatchedToo: false,
@@ -96,6 +96,7 @@ const defaultAppRestrictionModel = AppRestriction(
   periodDurationInMins: 0,
   canAccessInternet: true,
   reminderType: ReminderType.toast,
+  associatedDomains: [],
 );
 
 final defaultFocusModeModel = FocusMode(

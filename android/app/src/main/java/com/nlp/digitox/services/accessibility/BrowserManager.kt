@@ -52,6 +52,7 @@ class BrowserManager(
         when {
             wellbeing.blockedWebsites.contains(host)
                     || wellbeing.nsfwWebsites.contains(host)
+                    || wellbeing.dynamicallyBlockedWebsites.contains(host)
                     || nsfwDomains[host] ?: false
                     || NsfwBlocklistStore.contains(host)
                 -> {

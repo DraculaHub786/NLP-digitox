@@ -2,6 +2,7 @@ package com.nlp.digitox.models
 
 import com.nlp.digitox.enums.ReminderType
 import com.nlp.digitox.enums.RestrictionType
+import org.json.JSONObject
 
 
 data class RestrictionState(
@@ -22,4 +23,48 @@ data class RestrictionState(
 
     /** The type of reminder to show during app usage **/
     val reminderType: ReminderType = ReminderType.NONE,
-)
+) {
+    /**
+     * Serializes this state so it can be persisted across process restarts.
+     */
+    fun toJson(): JSONObject = JSONObject().apply {
+        put(KEY_TYPE, type.name)
+        put(KEY_GROUP_NAME, groupName ?: JSONObject.NULL)
+        put(KEY_TIME_LEFT_MILLIS, timeLeftMillis)
+        put(KEY_SCREEN_TIME_USED, screenTimeUsed)
+        put(KEY_SCREEN_TIME_LIMIT, screenTimeLimit)
+        put(KEY_REMINDER_TYPE, reminderType.name)
+    }
+
+    companion object {
+        private const val KEY_TYPE = "type"
+        private const val KEY_GROUP_NAME = "groupName"
+        private const val KEY_TIME_LEFT_MILLIS = "timeLeftMillis"
+        private const val KEY_SCREEN_TIME_USED = "screenTimeUsed"
+        private const val KEY_SCREEN_TIME_LIMIT = "screenTimeLimit"
+        private const val KEY_REMINDER_TYPE = "reminderType"
+
+        /**
+         * Rebuilds a state previously written by [toJson].
+         *
+         * Returns `null` if the payload is malformed or references an unknown
+         * enum constant, so a single corrupt entry cannot discard the rest of
+         * the persisted runtime state.
+         */
+        fun fromJson(json: JSONObject): RestrictionState? = try {
+            RestrictionState(
+                type = RestrictionType.valueOf(json.getString(KEY_TYPE)),
+                groupName = json.optString(KEY_GROUP_NAME)
+                    .takeIf { !json.isNull(KEY_GROUP_NAME) && it.isNotEmpty() },
+                timeLeftMillis = json.optLong(KEY_TIME_LEFT_MILLIS, -1L),
+                screenTimeUsed = json.optLong(KEY_SCREEN_TIME_USED, -1L),
+                screenTimeLimit = json.optLong(KEY_SCREEN_TIME_LIMIT, -1L),
+                reminderType = runCatching {
+                    ReminderType.valueOf(json.optString(KEY_REMINDER_TYPE, ReminderType.NONE.name))
+                }.getOrDefault(ReminderType.NONE),
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+}

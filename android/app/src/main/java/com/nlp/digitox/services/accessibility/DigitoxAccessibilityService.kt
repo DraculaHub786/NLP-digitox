@@ -71,6 +71,7 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
     private lateinit var trackingManager: TrackingManager
 
     private var wellbeing = Wellbeing()
+    private var dynamicallyBlockedWebsites: Set<String> = emptySet()
 
     override fun onCreate() {
         super.onCreate()
@@ -91,7 +92,10 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
         // Register shared prefs listener and load data
         SharedPrefsHelper.registerUnregisterListenerToListenablePrefs(this, true, this)
-        wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+        val initialWellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+        dynamicallyBlockedWebsites =
+            SharedPrefsHelper.getSetDynamicallyBlockedWebsites(this, null)
+        wellbeing = initialWellbeing.copy(dynamicallyBlockedWebsites = dynamicallyBlockedWebsites)
 
         // Register listener for install and uninstall events
         deviceAppsChangedReceiver.register(this)
@@ -145,7 +149,10 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
                         processEventInBackground(
                             packageName = eventPackageName,
                             node = it,
-                            wellBeing = wellbeing.copy()
+                            wellBeing = wellbeing.copy(
+                                blockedWebsites = wellbeing.blockedWebsites +
+                                        dynamicallyBlockedWebsites
+                            )
                         )
                     }
                 }
@@ -198,6 +205,7 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
     private fun shouldBlockContent(): Boolean {
         return wellbeing.blockedFeatures.isNotEmpty() ||
                 wellbeing.blockedWebsites.isNotEmpty() ||
+                dynamicallyBlockedWebsites.isNotEmpty() ||
                 wellbeing.nsfwWebsites.isNotEmpty() ||
                 wellbeing.blockNsfwSites
     }
@@ -313,10 +321,20 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, changedKey: String?) {
         changedKey?.let { key ->
-            if (key == SharedPrefsHelper.PREF_KEY_WELLBEING_SETTINGS) {
-                Log.d(TAG, "OnSharedPrefsChanged: Key changed = $changedKey")
-                wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
-                refreshServiceConfig()
+            when (key) {
+                SharedPrefsHelper.PREF_KEY_WELLBEING_SETTINGS -> {
+                    Log.d(TAG, "OnSharedPrefsChanged: Key changed = $changedKey")
+                    wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+                            .copy(dynamicallyBlockedWebsites = dynamicallyBlockedWebsites)
+                    refreshServiceConfig()
+                }
+
+                SharedPrefsHelper.PREF_KEY_DYNAMIC_BLOCKED_WEBSITES -> {
+                    Log.d(TAG, "OnSharedPrefsChanged: Dynamic blocked websites changed")
+                    dynamicallyBlockedWebsites =
+                        SharedPrefsHelper.getSetDynamicallyBlockedWebsites(this, null)
+                    wellbeing = wellbeing.copy(dynamicallyBlockedWebsites = dynamicallyBlockedWebsites)
+                }
             }
         }
     }

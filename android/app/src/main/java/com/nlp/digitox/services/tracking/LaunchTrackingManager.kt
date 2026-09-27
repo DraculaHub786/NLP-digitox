@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-
+    
 
 class LaunchTrackingManager(
     private val context: Context,
@@ -27,6 +27,9 @@ class LaunchTrackingManager(
 
         // Interval for tracking app launches in milliseconds
         private const val TIMER_RATE: Long = 750
+
+        // Lookback window used to recover the currently open app after a process restart
+        private const val RECOVERY_LOOKBACK_MS: Long = 6 * 60 * 60 * 1000
     }
 
     private val executorService: ScheduledExecutorService = Executors.newScheduledThreadPool(2)
@@ -81,7 +84,16 @@ class LaunchTrackingManager(
         }
 
         Log.d(TAG, "onDeviceUnlocked: Usage tracking started (isManual=$isManualTrackingOn)")
-        executorService.submit { invokeNewAppLaunched(lastLaunchedApp) }
+
+        if (lastLaunchedApp.isEmpty()) {
+            // Fresh process (the service was killed and has just been restarted), so there is no
+            // last known app to re-invoke. Look back over the recent usage events to recover
+            // whichever app is currently in the foreground and re-apply its restriction
+            // immediately - otherwise the overlay would not reappear until the user switched apps.
+            executorService.submit { findLaunchedApp(RECOVERY_LOOKBACK_MS) }
+        } else {
+            executorService.submit { invokeNewAppLaunched(lastLaunchedApp) }
+        }
     }
 
     @WorkerThread

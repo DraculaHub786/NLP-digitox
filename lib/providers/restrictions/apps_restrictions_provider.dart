@@ -122,6 +122,29 @@ class AppsRestrictionsNotifier
     _updateStateDbAndServices(appPackage, restriction, updateVpn: true);
   }
 
+  /// Updates the website domains associated with a specific app package.
+  ///
+  /// These domains are blocked automatically by the native side the moment
+  /// this app's own restriction (timer / launch limit / active period) is
+  /// actually hit, and unblocked again on the next midnight reset. They live
+  /// on the same [AppRestriction] record as every other restriction field, so
+  /// they ride the existing Drift -> JSON -> native sync with no extra
+  /// plumbing.
+  Future<void> updateAssociatedDomains(
+    String appPackage,
+    List<String> domains,
+  ) async {
+    final restriction =
+        state[appPackage]?.copyWith(associatedDomains: domains) ??
+            defaultAppRestrictionModel.copyWith(
+              appPackage: appPackage,
+              associatedDomains: domains,
+            );
+
+    /// Update database and state
+    _updateStateDbAndServices(appPackage, restriction);
+  }
+
   /// Updates the id of associated [RestrictionGroup] for a specific app package.
   Future<void> updateAssociatedGroupId({
     required List<String> appPackages,
