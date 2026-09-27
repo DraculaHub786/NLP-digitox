@@ -510,6 +510,34 @@
             }
         }
     },
+    "app_associated_domains_tile_title": "Blocked websites",
+    "app_associated_domains_tile_subtitle": "Also block this app's websites when its limit is reached.",
+    "app_associated_domains_tile_subtitle_count": "{count} website(s) blocked with this app.",
+    "@app_associated_domains_tile_subtitle_count": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "example": "2"
+            }
+        }
+    },
+    "app_associated_domains_dialog_title": "App websites",
+    "app_associated_domains_dialog_info": "Websites listed here are blocked the moment {appName}'s limit is reached, and unblocked again at midnight.",
+    "@app_associated_domains_dialog_info": {
+        "placeholders": {
+            "appName": {
+                "type": "String",
+                "example": "Instagram"
+            }
+        }
+    },
+    "app_associated_domains_dialog_field_label": "Website",
+    "app_associated_domains_dialog_hint": "instagram.com",
+    "app_associated_domains_dialog_add_button": "Add website",
+    "app_associated_domains_dialog_empty": "No websites added yet.",
+    "app_associated_domains_dialog_error_empty": "Enter a website first.",
+    "app_associated_domains_dialog_error_invalid": "Enter a valid website like example.com.",
+    "app_associated_domains_dialog_error_duplicate": "That website is already in the list.",
     "internet_access_tile_title": "Internet access",
     "internet_access_tile_subtitle": "Switch off to block app's internet.",
     "internet_access_blocked_snack_alert": "{appName}'s internet is blocked.",

@@ -78,6 +78,10 @@ object NewActivitiesLaunchHelper {
     /**
      * Deactivate the admin privileges.
      *
+     * Called when the user disables tamper protection inside the configured
+     * uninstall window — removes this app from the device-admin list via
+     * `DevicePolicyManager.removeActiveAdmin`.
+     *
      * @param context The context to use for launching the activity.
      */
     fun disableDeviceAdmin(context: Context) {
@@ -94,7 +98,6 @@ object NewActivitiesLaunchHelper {
             SharedPrefsHelper.insertCrashLogToPrefs(context, e)
         }
     }
-
 
     /**
      * Opens the app's notification settings for permission.

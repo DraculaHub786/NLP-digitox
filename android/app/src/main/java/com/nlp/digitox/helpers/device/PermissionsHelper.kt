@@ -39,38 +39,6 @@ object PermissionsHelper {
     private const val TAG = "Digitox.PermissionsHelper"
 
     /**
-     * Checks if the device administration permission is granted and optionally asks for it if not granted.
-     *
-     * @param context          The application context used to check permissions and start activities.
-     * @param askPermissionToo Whether to prompt the user to enable device administration permission if not granted.
-     * @return True if device administration permission is granted, false otherwise.
-     */
-    fun getAndAskAdminPermission(context: Context, askPermissionToo: Boolean): Boolean {
-        val componentName = ComponentName(context, DeviceAdminReceiver::class.java)
-        val devicePolicyManager =
-            context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-
-        if (devicePolicyManager.isAdminActive(componentName)) {
-            return true
-        }
-
-        if (askPermissionToo) {
-            try {
-                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
-                    .putExtra(
-                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                        R.string.admin_description
-                    )
-                context.startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                Log.e(TAG, "getAndAskAdminPermission: Unable to open device ADMIN settings", e)
-            }
-        }
-        return false
-    }
-
-    /**
      * Checks whether the user has actually granted the accessibility permission
      * in Android Settings by reading the real OS accessibility-services record.
      *
@@ -110,6 +78,41 @@ object PermissionsHelper {
      */
     fun isAccessibilityServiceActive(context: Context): Boolean =
         Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)
+
+    /**
+     * Checks if the device administration permission is granted and optionally asks for it if not granted.
+     *
+     * This backs the tamper-protection feature: when active, the app cannot be
+     * uninstalled or force-stopped from Settings outside the uninstall window.
+     *
+     * @param context          The application context used to check permissions and start activities.
+     * @param askPermissionToo Whether to prompt the user to enable device administration permission if not granted.
+     * @return True if device administration permission is granted, false otherwise.
+     */
+    fun getAndAskAdminPermission(context: Context, askPermissionToo: Boolean): Boolean {
+        val componentName = ComponentName(context, DeviceAdminReceiver::class.java)
+        val devicePolicyManager =
+            context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+
+        if (devicePolicyManager.isAdminActive(componentName)) {
+            return true
+        }
+
+        if (askPermissionToo) {
+            try {
+                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
+                    .putExtra(
+                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                        R.string.admin_description
+                    )
+                context.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Log.e(TAG, "getAndAskAdminPermission: Unable to open device ADMIN settings", e)
+            }
+        }
+        return false
+    }
 
     /**
      * Checks if the accessibility permission is granted and optionally asks for it if not granted.

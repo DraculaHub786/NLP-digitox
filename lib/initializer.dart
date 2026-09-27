@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/core/database/daos/dynamic_records_dao.dart';
+import 'package:nlp_digitox/core/database/daos/unique_records_dao.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/services/productivity_reset_service.dart';
@@ -12,13 +14,49 @@ class Initializer {
   /// Initializes all the required services and schedules.
   ///
   /// This method must be called after initializing `DATABASE` and `METHOD CHANNEL`.
+  ///
+  /// The original implementation awaited sixteen independent operations one
+  /// after another, which made every cold start pay their sum. The four
+  /// "fetch settings, then push them to native" pairs each have an internal
+  /// ordering dependency, but nothing depends on another pair's result — so
+  /// they (and the three service `.initialize()` calls, plus
+  /// `SessionService.init()`) now run concurrently. The leaderboard chain is
+  /// kept sequential because it genuinely has an internal ordering
+  /// dependency.
   static Future<void> initializeServicesAndSchedules() async {
     final startTimeStamp = DateTime.now();
 
     final dynamicDao = DriftDbService.instance.driftDb.dynamicRecordsDao;
     final uniqueDao = DriftDbService.instance.driftDb.uniqueRecordsDao;
 
-    /// fetch app restrictions
+    await Future.wait([
+      _syncAppRestrictions(dynamicDao),
+      _syncRestrictionGroups(dynamicDao),
+      _syncBedtimeSchedule(uniqueDao),
+      _syncWellbeingSettings(uniqueDao),
+      _syncNotificationSettings(uniqueDao),
+      SessionService.instance.init(),
+      ProductivityNotificationService.instance.initialize(),
+      ProductivityResetService.instance.initialize(),
+    ]);
+
+    /// Leaderboard chain has a real internal ordering dependency (reset must
+    /// happen before evaluate, which must happen before mark-active), so it
+    /// stays sequential. It is placed after the batch only so
+    /// `startDailyStreakEvaluation()` starts from a freshly-evaluated state.
+    await LeaderboardService.instance.checkAndResetStreakIfNeeded();
+    await LeaderboardService.instance.evaluateAndUpdateStreak();
+    await LeaderboardService.instance.markActive();
+    LeaderboardService.instance.startDailyStreakEvaluation();
+
+    debugPrint(
+      "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",
+    );
+  }
+
+  /// Fetches app restrictions, splits the internet-blocked subset out, and
+  /// pushes both lists to the native tracker/VPN services concurrently.
+  static Future<void> _syncAppRestrictions(DynamicRecordsDao dynamicDao) async {
     var appRestrictions = await dynamicDao.fetchAppsRestrictions();
     final internetBlockedApps = appRestrictions
         .where((e) => !e.canAccessInternet)
@@ -34,60 +72,48 @@ class Initializer {
           e.associatedGroupId == null,
     );
 
-    /// update tracker service
-    await MethodChannelService.instance.updateAppRestrictions(appRestrictions);
+    await Future.wait([
+      MethodChannelService.instance.updateAppRestrictions(appRestrictions),
+      MethodChannelService.instance
+          .updateInternetBlockedApps(internetBlockedApps),
+    ]);
+  }
 
-    /// update vpn service
-    await MethodChannelService.instance
-        .updateInternetBlockedApps(internetBlockedApps);
-
-    /// Update restriction groups
+  /// Fetches restriction groups and pushes them to the native tracker service.
+  static Future<void> _syncRestrictionGroups(
+    DynamicRecordsDao dynamicDao,
+  ) async {
     final restrictionGroups = await dynamicDao.fetchRestrictionGroups();
     await MethodChannelService.instance
         .updateRestrictionsGroups(restrictionGroups);
+  }
 
-    /// Fetch and update bedtime routine
+  /// Fetches the bedtime schedule and pushes it to the native side.
+  static Future<void> _syncBedtimeSchedule(UniqueRecordsDao uniqueDao) async {
     final bedtime = await uniqueDao.loadBedtimeSchedule();
     await MethodChannelService.instance.updateBedtimeSchedule(bedtime);
+  }
 
-    /// Fetch and update wellbeing
+  /// Fetches the well-being settings and pushes them to the native side.
+  static Future<void> _syncWellbeingSettings(UniqueRecordsDao uniqueDao) async {
     final wellbeing = await uniqueDao.loadWellBeingSettings();
     await MethodChannelService.instance.updateWellBeingSettings(wellbeing);
+  }
 
-    /// Fetch and update notification settings
+  /// Fetches notification settings once — they are needed by two different
+  /// consumers (the native listener service and the scheduler) — and fans the
+  /// push out concurrently.
+  static Future<void> _syncNotificationSettings(
+    UniqueRecordsDao uniqueDao,
+  ) async {
     final notificationSettings = await uniqueDao.loadNotificationSettings();
-    await MethodChannelService.instance
-        .updateNotificationSettings(notificationSettings);
-
-    /// Initialize shared-session service (Firebase RTDB backed; safe in stub
-    /// mode when Firebase/auth unavailable). Must be ready before any screen
-    /// can create/join a shared focus session.
-    await SessionService.instance.init();
-
-    /// Initialize productivity notification service
-    await ProductivityNotificationService.instance.initialize();
-
-    /// Initialize notification scheduler service
-    await NotificationSchedulerService.instance.initialize();
-    await NotificationSchedulerService.instance.updateAllSchedules(notificationSettings.schedules);
-
-    /// Initialize productivity reset service for daily resets and notifications
-    await ProductivityResetService.instance.initialize();
-
-    /// Check and reset leaderboard streak if user was inactive
-    await LeaderboardService.instance.checkAndResetStreakIfNeeded();
-
-    /// Evaluate streak based on today's screen time (< 8hrs = +1, > 8hrs = reset)
-    await LeaderboardService.instance.evaluateAndUpdateStreak();
-
-    /// Stamp lastActiveAt so streak inactivity detection has a real user-activity signal
-    await LeaderboardService.instance.markActive();
-
-    /// Start periodic monitor for daily streak evaluation (runs every 6 hours)
-    LeaderboardService.instance.startDailyStreakEvaluation();
-
-    debugPrint(
-      "All necessary services and schedules are initialized and it took ${DateTime.now().difference(startTimeStamp).inMilliseconds}ms.",
-    );
+    await Future.wait([
+      MethodChannelService.instance
+          .updateNotificationSettings(notificationSettings),
+      NotificationSchedulerService.instance.initialize().then(
+            (_) => NotificationSchedulerService.instance
+                .updateAllSchedules(notificationSettings.schedules),
+          ),
+    ]);
   }
 }

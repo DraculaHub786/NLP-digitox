@@ -56,6 +56,8 @@ class OnboardingPage extends StatelessWidget {
                 width: 88,
                 height: 88,
                 fit: BoxFit.cover,
+                cacheWidth: 176,
+                cacheHeight: 176,
               ),
             ),
             24.vBox,

@@ -17,8 +17,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- The app does not need
-    INTERNET permission but it is declared only to create local vpn socket -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Required for Firebase Auth,
+    Firestore, and Groq API calls -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
@@ -147,6 +147,9 @@
         <!-- _________________________________________________________________________________ -->
         <!-- ________________________________ RECEIVERS ______________________________________ -->
         <!-- _________________________________________________________________________________ -->
+        <!-- Device Admin / tamper protection. Declares the admin policy config and
+             the DEVICE_ADMIN_ENABLED intent-filter so DevicePolicyManager can
+             activate this app as a device administrator. -->
         <receiver
             android:name=".receivers.DeviceAdminReceiver"
             android:enabled="true"

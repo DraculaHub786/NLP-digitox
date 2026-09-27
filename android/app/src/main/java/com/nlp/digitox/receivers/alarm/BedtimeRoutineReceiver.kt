@@ -29,10 +29,10 @@ import com.nlp.digitox.utils.ThreadUtils
 class BedtimeRoutineReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "Digitox.BedtimeRoutineReceiver"
-        const val ACTION_ALERT_BEDTIME: String = "com.mindful.android.action.alertBedtime"
-        const val ACTION_START_BEDTIME: String = "com.mindful.android.action.startBedtime"
-        const val ACTION_STOP_BEDTIME: String = "com.mindful.android.action.stopBedtime"
-        const val EXTRA_BEDTIME_SETTINGS_JSON = "com.mindful.android.extra.bedtimeSettingsJson"
+        const val ACTION_ALERT_BEDTIME: String = "com.nlp.digitox.action.alertBedtime"
+        const val ACTION_START_BEDTIME: String = "com.nlp.digitox.action.startBedtime"
+        const val ACTION_STOP_BEDTIME: String = "com.nlp.digitox.action.stopBedtime"
+        const val EXTRA_BEDTIME_SETTINGS_JSON = "com.nlp.digitox.extra.bedtimeSettingsJson"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -156,7 +156,7 @@ class BedtimeRoutineReceiver : BroadcastReceiver() {
                     .setContentIntent(
                         AppUtils.getPendingIntentForDigitoxUri(
                             context,
-                            "com.mindful.android://open/home?tab=3",
+                            "com.nlp.digitox://open/home?tab=3",
                         )
                     )
                     .setContentTitle(context.getString(R.string.app_name))

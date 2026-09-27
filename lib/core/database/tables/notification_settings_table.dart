@@ -5,7 +5,6 @@ import 'package:drift/drift.dart';
 import 'package:nlp_digitox/core/database/converters/notification_schedule_list_converter.dart';
 import 'package:nlp_digitox/core/database/converters/string_list_converter.dart';
 import 'package:nlp_digitox/core/enums/recap_type.dart';
-import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 
 @DataClassName("NotificationSettings")
 class NotificationSettingsTable extends Table {
@@ -36,7 +35,5 @@ class NotificationSettingsTable extends Table {
   /// List of batching schedules
   TextColumn get schedules => text()
       .map(const NotificationScheduleListConverter())
-      .withDefault(Constant(jsonEncode(
-        defaultNotificationSettingsModel.schedules,
-      )))();
+      .withDefault(Constant(jsonEncode([])))();
 }

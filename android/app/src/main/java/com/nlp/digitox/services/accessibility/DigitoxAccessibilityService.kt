@@ -39,11 +39,11 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
     companion object {
         private const val TAG = "Digitox.DigitoxAccessibilityService"
 
-        const val ACTION_PERFORM_HOME_PRESS = "com.mindful.android.action.performHomePress"
+        const val ACTION_PERFORM_HOME_PRESS = "com.nlp.digitox.action.performHomePress"
         const val ACTION_MIDNIGHT_ACCESSIBILITY_RESET =
-            "com.mindful.android.action.midnightAccessibilityReset"
+            "com.nlp.digitox.action.midnightAccessibilityReset"
         const val ACTION_TAMPER_PROTECTION_CHANGED =
-            "com.mindful.android.action.tamperProtectionChanged"
+            "com.nlp.digitox.action.tamperProtectionChanged"
 
         // Set of desired events which will be processed
         private val desiredEvents = setOf(
@@ -71,6 +71,7 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
     private lateinit var trackingManager: TrackingManager
 
     private var wellbeing = Wellbeing()
+    private var dynamicallyBlockedWebsites: Set<String> = emptySet()
 
     override fun onCreate() {
         super.onCreate()
@@ -91,7 +92,10 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
         // Register shared prefs listener and load data
         SharedPrefsHelper.registerUnregisterListenerToListenablePrefs(this, true, this)
-        wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+        val initialWellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+        dynamicallyBlockedWebsites =
+            SharedPrefsHelper.getSetDynamicallyBlockedWebsites(this, null)
+        wellbeing = initialWellbeing.copy(dynamicallyBlockedWebsites = dynamicallyBlockedWebsites)
 
         // Register listener for install and uninstall events
         deviceAppsChangedReceiver.register(this)
@@ -145,7 +149,10 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
                         processEventInBackground(
                             packageName = eventPackageName,
                             node = it,
-                            wellBeing = wellbeing.copy()
+                            wellBeing = wellbeing.copy(
+                                blockedWebsites = wellbeing.blockedWebsites +
+                                        dynamicallyBlockedWebsites
+                            )
                         )
                     }
                 }
@@ -198,6 +205,7 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
     private fun shouldBlockContent(): Boolean {
         return wellbeing.blockedFeatures.isNotEmpty() ||
                 wellbeing.blockedWebsites.isNotEmpty() ||
+                dynamicallyBlockedWebsites.isNotEmpty() ||
                 wellbeing.nsfwWebsites.isNotEmpty() ||
                 wellbeing.blockNsfwSites
     }
@@ -233,7 +241,11 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
             shortsPlatformPackages.clear()
             val pm = packageManager
 
-            // Check admin and add settings to blocked packages
+            // Check admin and add settings to blocked packages.
+            // This is the actual enforcement of tamper protection: while Device
+            // Admin is active, the Settings app is treated as a blocked platform,
+            // so navigating into (and revoking from) the device-admin list is
+            // intercepted by DeviceFeaturesManager.
             if (PermissionsHelper.getAndAskAdminPermission(this, false)) {
                 devicePlatformPackages.add(SETTINGS_PACKAGE)
             }
@@ -291,7 +303,7 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
 
             // Load nsfw website domains if needed
-            if (wellbeing.blockNsfwSites) BrowserManager.initializeNsfwDomains()
+            if (wellbeing.blockNsfwSites) BrowserManager.initializeNsfwDomains(this)
             else BrowserManager.clearNsfwDomains()
 
             Log.d(
@@ -309,10 +321,20 @@ class DigitoxAccessibilityService : AccessibilityService(), OnSharedPreferenceCh
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, changedKey: String?) {
         changedKey?.let { key ->
-            if (key == SharedPrefsHelper.PREF_KEY_WELLBEING_SETTINGS) {
-                Log.d(TAG, "OnSharedPrefsChanged: Key changed = $changedKey")
-                wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
-                refreshServiceConfig()
+            when (key) {
+                SharedPrefsHelper.PREF_KEY_WELLBEING_SETTINGS -> {
+                    Log.d(TAG, "OnSharedPrefsChanged: Key changed = $changedKey")
+                    wellbeing = SharedPrefsHelper.getSetWellBeingSettings(this, null)
+                            .copy(dynamicallyBlockedWebsites = dynamicallyBlockedWebsites)
+                    refreshServiceConfig()
+                }
+
+                SharedPrefsHelper.PREF_KEY_DYNAMIC_BLOCKED_WEBSITES -> {
+                    Log.d(TAG, "OnSharedPrefsChanged: Dynamic blocked websites changed")
+                    dynamicallyBlockedWebsites =
+                        SharedPrefsHelper.getSetDynamicallyBlockedWebsites(this, null)
+                    wellbeing = wellbeing.copy(dynamicallyBlockedWebsites = dynamicallyBlockedWebsites)
+                }
             }
         }
     }

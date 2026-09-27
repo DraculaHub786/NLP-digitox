@@ -48,7 +48,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ref.read(aiChatLoadingProvider.notifier).state = true;
 
     try {
-      final response = await AIChatbotService.instance.sendMessage(message);
+      await AIChatbotService.instance.sendMessage(message);
 
       ref.read(aiChatMessagesProvider.notifier).state =
           List.from(AIChatbotService.instance.chatHistory);
@@ -56,12 +56,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _scrollToBottom();
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response)),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

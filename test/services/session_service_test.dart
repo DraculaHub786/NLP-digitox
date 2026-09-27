@@ -341,7 +341,9 @@ void main() {
 
     test('should have empty cache after init', () async {
       final status = sessionService.debugStatus;
-      expect(status, contains('cache_size: 0'));
+      // debugStatus renders `cache: <n>` — keep this in step with the getter
+      // rather than asserting a substring it never produced.
+      expect(status, contains('cache: 0'));
     });
 
     test('release should succeed', () async {
@@ -411,7 +413,7 @@ void main() {
     test('should have valid debug status format', () async {
       final status = sessionService.debugStatus;
       expect(status, contains('SessionService'));
-      expect(status, contains('cache_size'));
+      expect(status, contains('cache:'));
       expect(status, contains('heartbeats'));
     });
   });

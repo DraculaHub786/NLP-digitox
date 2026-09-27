@@ -49,125 +49,135 @@ class GlassNavBar extends StatelessWidget {
       curve: Curves.easeOutCubic,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 0, 10, 16),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Radii.xl),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              decoration: BoxDecoration(
-                color: barColor,
-                borderRadius: BorderRadius.circular(Radii.xl),
-                border: Border.all(color: borderColor, width: 0.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final itemWidth = constraints.maxWidth / items.length;
-
-                  // The pill used to be a fixed fraction of the bar
-                  // (`itemWidth - 6`) — same width for every tab regardless
-                  // of label length. That's why it undershot longer words
-                  // ("Dashboard") and left extra slack around shorter ones.
-                  // Instead, measure the SELECTED label's actual rendered
-                  // width via TextPainter and size the pill to hug exactly
-                  // icon + gap + text, dynamically, per tab.
-                  final labelStyle = Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(fontWeight: FontWeight.w600);
-                  final textPainter = TextPainter(
-                    text: TextSpan(
-                      text: items[selectedIndex].label,
-                      style: labelStyle,
+        child: RepaintBoundary(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.xl),
+            child: BackdropFilter(
+              // Reduced 12 -> 8: BackdropFilter cost scales with sigma. The
+              // surrounding RepaintBoundary isolates this blurred layer's
+              // repaints from unrelated animation work higher up the tree.
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                decoration: BoxDecoration(
+                  color: barColor,
+                  borderRadius: BorderRadius.circular(Radii.xl),
+                  border: Border.all(color: borderColor, width: 0.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                    maxLines: 1,
-                    textDirection: Directionality.of(context),
-                    textScaler: MediaQuery.textScalerOf(context), // match the Text widget's actual rendered scale
+                  ],
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final itemWidth = constraints.maxWidth / items.length;
 
-                  )..layout();
+                    // The pill used to be a fixed fraction of the bar
+                    // (`itemWidth - 6`) — same width for every tab regardless
+                    // of label length. That's why it undershot longer words
+                    // ("Dashboard") and left extra slack around shorter ones.
+                    // Instead, measure the SELECTED label's actual rendered
+                    // width via TextPainter and size the pill to hug exactly
+                    // icon + gap + text, dynamically, per tab.
+                    final labelStyle = Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(fontWeight: FontWeight.w600);
+                    final textPainter = TextPainter(
+                      text: TextSpan(
+                        text: items[selectedIndex].label,
+                        style: labelStyle,
+                      ),
+                      maxLines: 1,
+                      textDirection: Directionality.of(context),
+                      textScaler: MediaQuery.textScalerOf(
+                          context), // match the Text widget's actual rendered scale
+                    )..layout();
 
-                  const iconSize = 20.0;
-                  const iconLabelGap = 6.0;
-                  const pillInnerPadding = 28.0; // breathing room L+R
-                  const cellMargin = -4; // allow pill to extend slightly beyond cell
+                    const iconSize = 20.0;
+                    const iconLabelGap = 6.0;
+                    const pillInnerPadding = 28.0; // breathing room L+R
+                    const cellMargin =
+                        -4; // allow pill to extend slightly beyond cell
 
-                  final naturalPillWidth =
-                      iconSize + iconLabelGap + textPainter.width + pillInnerPadding;
+                    final naturalPillWidth = iconSize +
+                        iconLabelGap +
+                        textPainter.width +
+                        pillInnerPadding;
 
-                  // Still cap at the cell width so the pill can never bleed
-                  // into a neighbouring tab on a cramped bar (5+ tabs) — if
-                  // the label doesn't fit even capped, FittedBox on the
-                  // label (in _PillNavButton) scales the text down to match.
-                  final maxPillWidth = itemWidth - cellMargin;
-                  final pillWidth = naturalPillWidth.clamp(0.0, maxPillWidth);
+                    // Still cap at the cell width so the pill can never bleed
+                    // into a neighbouring tab on a cramped bar (5+ tabs) — if
+                    // the label doesn't fit even capped, FittedBox on the
+                    // label (in _PillNavButton) scales the text down to match.
+                    final maxPillWidth = itemWidth - cellMargin;
+                    final pillWidth = naturalPillWidth.clamp(0.0, maxPillWidth);
 
-                  // Center the (now variable-width) pill within its cell.
-                  // Clamped to the bar's real bounds so the intentional
-                  // 2px cell overflow (cellMargin = -4) can never push the
-                  // pill past the bar's rounded edges on the first/last tab
-                  // — where ClipRRect would visibly cut off its corners.
-                  final pillLeft =
-                      (selectedIndex * itemWidth + (itemWidth - pillWidth) / 2)
-                          .clamp(0.0, constraints.maxWidth - pillWidth);
+                    // Center the (now variable-width) pill within its cell.
+                    // Clamped to the bar's real bounds so the intentional
+                    // 2px cell overflow (cellMargin = -4) can never push the
+                    // pill past the bar's rounded edges on the first/last tab
+                    // — where ClipRRect would visibly cut off its corners.
+                    final pillLeft = (selectedIndex * itemWidth +
+                            (itemWidth - pillWidth) / 2)
+                        .clamp(0.0, constraints.maxWidth - pillWidth);
 
-                  return SizedBox(
-                    height: 44,
-                    child: Stack(
-                      children: [
-                        /// Single sliding highlight pill — one shared
-                        /// AnimatedPositioned that glides between tabs
-                        /// instead of each tab resizing itself.
-                        AnimatedPositioned(
-                          left: pillLeft,
-                          width: pillWidth,
-                          top: 2,
-                          bottom: 2,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AccentPalette.orange,
-                              borderRadius: BorderRadius.circular(Radii.pill),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      AccentPalette.orange.withValues(alpha: 0.35),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
+                    return SizedBox(
+                      height: 44,
+                      child: Stack(
+                        children: [
+                          /// Single sliding highlight pill — one shared
+                          /// AnimatedPositioned that glides between tabs
+                          /// instead of each tab resizing itself.
+                          AnimatedPositioned(
+                            left: pillLeft,
+                            width: pillWidth,
+                            top: 2,
+                            bottom: 2,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AccentPalette.orange,
+                                borderRadius: BorderRadius.circular(Radii.pill),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AccentPalette.orange
+                                        .withValues(alpha: 0.35),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
-                        /// Nav buttons — every cell is Expanded (equal width),
-                        /// so the row can never exceed the bar's width
-                        /// regardless of label length. The pill above is
-                        /// independently sized/positioned to hug content.
-                        Row(
-                          children: [
-                            for (var i = 0; i < items.length; i++)
-                              Expanded(
-                                child: _PillNavButton(
-                                  item: items[i],
-                                  selected: i == selectedIndex,
-                                  maxWidth: itemWidth,
-                                  onTap: () => onDestinationSelected(i),
+                          /// Nav buttons — every cell is Expanded (equal width),
+                          /// so the row can never exceed the bar's width
+                          /// regardless of label length. The pill above is
+                          /// independently sized/positioned to hug content.
+                          Row(
+                            children: [
+                              for (var i = 0; i < items.length; i++)
+                                Expanded(
+                                  child: _PillNavButton(
+                                    item: items[i],
+                                    selected: i == selectedIndex,
+                                    maxWidth: itemWidth,
+                                    onTap: () => onDestinationSelected(i),
+                                  ),
                                 ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),

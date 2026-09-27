@@ -9,6 +9,7 @@ import 'package:nlp_digitox/config/navigation/app_routes_observer.dart';
 import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
+import 'package:nlp_digitox/ui/common/wellbeing_report_lifecycle_observer.dart';
 
 class DigitoxApp extends ConsumerWidget {
   const DigitoxApp({super.key});
@@ -54,7 +55,11 @@ class DigitoxApp extends ConsumerWidget {
                   maxScaleFactor: 1.15,
                 ),
               ),
-              child: child!,
+              // Runs the daily scoring catch-up and the monthly AI report
+              // generation from the MAIN isolate only — `Initializer` is also
+              // invoked from the background isolate, which must not hold a
+              // pending end-of-day timer.
+              child: WellbeingReportLifecycleObserver(child: child!),
             );
           },
 

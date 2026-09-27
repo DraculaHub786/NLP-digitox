@@ -115,20 +115,23 @@ class GreetingsUsername extends ConsumerWidget {
         ),
 
         /// Right side - Profile pic shortcut
-        GestureDetector(
-          onTap: () => Navigator.of(context).pushNamed(
-            AppRoutes.profilePath,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: colorScheme.primary,
-                width: 2,
-              ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(
+              AppRoutes.profilePath,
             ),
-            child: const ProfileAvatar(size: 40),
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+              child: const ProfileAvatar(size: 40),
+            ),
           ),
         ),
       ],

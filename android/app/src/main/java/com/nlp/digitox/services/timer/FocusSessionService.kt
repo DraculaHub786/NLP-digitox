@@ -115,11 +115,11 @@ class FocusSessionService : Service() {
             context = this,
             ongoingPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
                 this,
-                "com.mindful.android://open/activeSession"
+                "com.nlp.digitox://open/activeSession"
             ),
             finishedPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
                 this,
-                "com.mindful.android://open/focus?tab=1"
+                "com.nlp.digitox://open/focus?tab=1"
             ),
             isFinite = isFiniteSession,
             title = getString(R.string.focus_session_notification_title),

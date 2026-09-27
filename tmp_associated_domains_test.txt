@@ -1,0 +1,19 @@
+00:00 +0: loading C:/Users/afjal/Documents/Final destination/NLP-digitox/test/core/database/app_restriction_associated_domains_test.dart
+00:00 +0: associatedDomains defaults to an empty list when not set
+00:00 +1: associatedDomains round-trips a list of hosts through the database
+00:00 +2: associatedDomains replaces the stored set on update
+00:00 +3: associatedDomains migration 10 -> 11 adds the column and keeps existing rows readable
+Upgrading database from schema version 10 to 11
+Error Occurred [Migration(10 to 11)] : Unsupported operation: This method should not be called at runtime. Are you sure you re-ran the builder after changing your tables or databases?
+00:00 +3 -1: associatedDomains migration 10 -> 11 adds the column and keeps existing rows readable [E]
+  Null check operator used on a null value
+  package:nlp_digitox/core/database/app_database.g.dart 187:60                 $AppRestrictionTableTable.map
+  dart:_internal                                                               ListIterable.toList
+  package:drift/src/utils/async.dart 12:26                                     MapAndAwait.mapAsyncAndAwait
+  package:drift/src/runtime/query_builder/statements/select/select.dart 91:17  SimpleSelectStatement._mapResponse
+  ===== asynchronous gap ===========================
+  dart:async                                                                   Future.then
+  package:drift/src/runtime/query_builder/statements/select/select.dart 64:25  SimpleSelectStatement.get
+  test\core\database\app_restriction_associated_domains_test.dart 98:60        main.<fn>.<fn>
+  
+00:00 +3 -1: Some tests failed.

@@ -1,4 +1,3 @@
-
 package com.nlp.digitox.receivers
 
 import android.app.admin.DeviceAdminReceiver
@@ -36,4 +35,3 @@ class DeviceAdminReceiver : DeviceAdminReceiver() {
         }
     }
 }
-

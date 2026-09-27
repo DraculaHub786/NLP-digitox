@@ -47,9 +47,85 @@ object NsfwDomains {
         addX()
         addY()
         addZ()
+        addExtra()
 
         Log.d(TAG, "init: Nsfw domains initialized successfully")
         return dict
+    }
+
+    // Additional modern / niche adult domains (creator platforms, cams, AI-gen, leak/aggregator sites)
+    fun addExtra() {
+        val domains = arrayOf(
+            "fansly.com",
+            "loyaltyfans.com",
+            "fanvue.com",
+            "justfor.fans",
+            "ismygirl.com",
+            "mym.fans",
+            "jerkmate.com",
+            "flingster.com",
+            "camrabbit.com",
+            "baddiehub.com",
+            "bigwank.com",
+            "pornxi.com",
+            "pornpen.ai",
+            "dreamgf.ai",
+            "seduced.ai",
+            "yodayo.com",
+            "soulgen.net",
+            "coomer.party",
+            "kemono.party",
+            "thot.lol",
+            "avnstars.com",
+            "leakedmodels.com",
+            "hotleak.vip",
+            "pornhubpremium.com",
+            "xlovecam.app",
+            "chatrecruit.com",
+            "trickyagent.com",
+            "fakehub.com",
+            "stepsiblingscaught.com",
+            "realitykings.com",
+            "badoink.com",
+            "vixen.com",
+            "blacked.com",
+            "tushy.com",
+            "deeper.com",
+            "milfed.com",
+            "elegantangel.com",
+            "julesjordan.com",
+            "penthouse.com",
+            "danejones.com",
+            "x-art.com",
+            "colette.com",
+            "frolicme.com",
+            "luscious.net",
+            "hentai-here.com",
+            "hanime.tv",
+            "rule34.xxx",
+            "nhentai.net",
+            "e-hentai.org",
+            "8muses.com",
+            "zmovs.com",
+            "hegre.com",
+            "metart.com",
+            "femjoy.com",
+            "twistys.com",
+            "babes.com",
+            "bella-hd.com",
+            "letsjerk.com",
+            "wankz.com",
+            "sweetheartvideo.com",
+            "makelovenotporn.com",
+            "manyvids.com",
+            "clips4sale.com",
+            "iwantclips.com",
+            "snapsext.com",
+            "kiksexting.com"
+        )
+        for (domain in domains) {
+            dict[domain] = true
+        }
     }
 
     fun add0() {

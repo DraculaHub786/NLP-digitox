@@ -202,7 +202,7 @@ class OverlayManager(
                 .setContentIntent(
                     AppUtils.getPendingIntentForDigitoxUri(
                         context,
-                        "com.mindful.android://open/appDashboard?package=$packageName"
+                        "com.nlp.digitox://open/appDashboard?package=$packageName"
                     )
                 )
                 .build()

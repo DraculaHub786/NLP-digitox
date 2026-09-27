@@ -2334,6 +2334,78 @@ abstract class AppLocalizations {
   /// **'From {startTime} to {endTime}'**
   String app_active_period_tile_subtitle(String startTime, String endTime);
 
+  /// No description provided for @app_associated_domains_tile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked websites'**
+  String get app_associated_domains_tile_title;
+
+  /// No description provided for @app_associated_domains_tile_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Also block this app\'s websites when its limit is reached.'**
+  String get app_associated_domains_tile_subtitle;
+
+  /// No description provided for @app_associated_domains_tile_subtitle_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} website(s) blocked with this app.'**
+  String app_associated_domains_tile_subtitle_count(num count);
+
+  /// No description provided for @app_associated_domains_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'App websites'**
+  String get app_associated_domains_dialog_title;
+
+  /// No description provided for @app_associated_domains_dialog_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Websites listed here are blocked the moment {appName}\'s limit is reached, and unblocked again at midnight.'**
+  String app_associated_domains_dialog_info(String appName);
+
+  /// No description provided for @app_associated_domains_dialog_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get app_associated_domains_dialog_field_label;
+
+  /// No description provided for @app_associated_domains_dialog_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'instagram.com'**
+  String get app_associated_domains_dialog_hint;
+
+  /// No description provided for @app_associated_domains_dialog_add_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add website'**
+  String get app_associated_domains_dialog_add_button;
+
+  /// No description provided for @app_associated_domains_dialog_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No websites added yet.'**
+  String get app_associated_domains_dialog_empty;
+
+  /// No description provided for @app_associated_domains_dialog_error_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a website first.'**
+  String get app_associated_domains_dialog_error_empty;
+
+  /// No description provided for @app_associated_domains_dialog_error_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid website like example.com.'**
+  String get app_associated_domains_dialog_error_invalid;
+
+  /// No description provided for @app_associated_domains_dialog_error_duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'That website is already in the list.'**
+  String get app_associated_domains_dialog_error_duplicate;
+
   /// No description provided for @internet_access_tile_title.
   ///
   /// In en, this message translates to:

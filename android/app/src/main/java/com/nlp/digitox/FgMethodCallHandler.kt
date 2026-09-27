@@ -488,11 +488,6 @@ class FgMethodCallHandler(
             // ====================================== UTILS =================================================================
             // ==============================================================================================================
 
-            "disableDeviceAdmin" -> {
-                NewActivitiesLaunchHelper.disableDeviceAdmin(context)
-                result.success(true)
-            }
-
             "promptForQuickTile" -> {
                 NewActivitiesLaunchHelper.promptForQuickFocusTile(context, result)
             }
@@ -538,6 +533,11 @@ class FgMethodCallHandler(
                 activity?.let {
                     NewActivitiesLaunchHelper.restartDigitox(it)
                 }
+                result.success(true)
+            }
+
+            "disableDeviceAdmin" -> {
+                NewActivitiesLaunchHelper.disableDeviceAdmin(context)
                 result.success(true)
             }
 

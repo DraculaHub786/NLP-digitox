@@ -69,7 +69,10 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
       description: context.locale.onboarding_page_three_info,
     ),
     const PermissionsPage(),
-    OnboardingQuizPage(onComplete: _finishOnboarding),
+    OnboardingQuizPage(
+      onComplete: _finishOnboarding,
+      onPermissionsMissing: _goToPermissionsPage,
+    ),
   ];
 
   @override
@@ -88,16 +91,19 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
             perms.haveNotificationPermission;
 
         if (!haveAllEssentialPermissions) return;
-        _skipToLastPage();
+        _goToQuizPage();
         _subscription?.close();
       },
     );
 
     /// Go to permissions page if already done onboarding
-    /// but user removed some essential permissions
+    /// but user removed some essential permissions. Note: this only ever
+    /// lands on the PermissionsPage, never back on the quiz — a returning
+    /// user whose persona is already saved should never be asked to redo
+    /// the quiz just because an OS permission got revoked.
     if (widget.isOnboardingDone) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _skipToLastPage();
+        _goToPermissionsPage();
       });
     }
   }
@@ -123,7 +129,22 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  void _skipToLastPage() {
+  /// Jumps to the PermissionsPage (second-to-last page). Used for a
+  /// returning user who already has a saved persona and only needs to
+  /// re-grant OS permissions after a reinstall.
+  void _goToPermissionsPage() {
+    if (mounted) {
+      _controller.animateToPage(
+        _pages.length - 2,
+        duration: _animDuration,
+        curve: _animCurve,
+      );
+    }
+  }
+
+  /// Jumps to the quiz page (last page). Only ever called once all
+  /// essential permissions are confirmed granted.
+  void _goToQuizPage() {
     if (mounted) {
       _controller.animateToPage(
         _pages.length - 1,
@@ -137,11 +158,17 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final isLastPage = _currentPage == _pages.length - 1;
     final isQuizPage = _pages[_currentPage] is OnboardingQuizPage;
+    final isPermissionsPage = _pages[_currentPage] is PermissionsPage;
     final perms = ref.watch(permissionProvider);
     final haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
         perms.haveDisplayOverlayPermission &&
         perms.haveAlarmsPermission &&
         perms.haveNotificationPermission;
+    // Forward navigation is blocked while sitting on the PermissionsPage
+    // until every essential permission is granted — this is what makes
+    // granting permissions mandatory instead of just suggested.
+    final blockedByMissingPermissions =
+        isPermissionsPage && !haveAllEssentialPermissions;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) => SystemNavigator.pop(),
@@ -151,7 +178,14 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
             /// Onboarding Page
             PageView.builder(
               controller: _controller,
-              physics: const BouncingScrollPhysics(),
+              // Swiping is disabled outright while permissions are missing
+              // on the PermissionsPage — otherwise a swipe gesture could
+              // reach the quiz page the same way the old Skip button did.
+              // The back arrow button still works via IconButton.filledTonal
+              // above, so the user isn't fully stuck.
+              physics: blockedByMissingPermissions
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
               itemCount: _pages.length,
               onPageChanged: (i) => setState(() => _currentPage = i),
               itemBuilder: (context, index) => Padding(
@@ -171,14 +205,6 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      /// Skip button
-                      TextButton(
-                        onPressed: _skipToLastPage,
-                        child: Text(context.locale.onboarding_skip_btn_label),
-                      )
-                          .animate(target: isLastPage ? 0 : 1)
-                          .scale(duration: 100.ms),
-
                       /// Bottom controls — tonal surface consistent with the
                       /// app's flat-card system (no frosted blur), keeping the
                       /// pill shape from the nav bar so controls read as a
@@ -267,13 +293,18 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
                                           alignment: Alignment.centerRight,
                                         )
 
-                                    /// Go to next page
+                                    /// Go to next page — disabled while on
+                                    /// the PermissionsPage until every
+                                    /// essential permission is granted, so
+                                    /// permissions can't be swiped past.
                                     : IconButton.filled(
                                         padding: const EdgeInsets.all(10),
-                                        onPressed: () => _controller.nextPage(
-                                          curve: _animCurve,
-                                          duration: _animDuration,
-                                        ),
+                                        onPressed: blockedByMissingPermissions
+                                            ? null
+                                            : () => _controller.nextPage(
+                                                  curve: _animCurve,
+                                                  duration: _animDuration,
+                                                ),
                                         icon: const Icon(
                                           FluentIcons.caret_right_20_filled,
                                         ),

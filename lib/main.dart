@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/services/bg_executor_service.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
@@ -21,22 +24,31 @@ Future<void> initBgExecutorService() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// Initialize Firebase
+  /// Load .env before anything else (provides Cloudinary, API keys, etc.)
+  /// Non-blocking: in release builds we use --dart-define-from-file instead,
+  /// so .env won't be bundled. Ignore missing file errors.
   try {
-    await Firebase.initializeApp();
+    await dotenv.load(fileName: '.env');
   } catch (e) {
-    debugPrint('Firebase initialization failed: $e');
+    debugPrint('dotenv not loaded (expected in release): $e');
   }
 
-  /// Initialize method channel and drift Database
-  await MethodChannelService.instance.init();
+  /// Firebase and the native method channel don't depend on each other — run together.
+  /// This avoids a serialized startup where each await blocks the next.
+  await Future.wait([
+    Firebase.initializeApp().catchError((e) {
+      debugPrint('Firebase initialization failed: $e');
+      return Firebase.app(); // return a valid FirebaseApp on error
+    }),
+    MethodChannelService.instance.init(),
+  ]);
+
+  /// DB is needed before first frame, keep this blocking
   await DriftDbService.instance.init();
 
-  /// Load saved mood check-ins back from disk. Without this, MoodService's
-  /// in-memory history starts empty on every launch — even for a user with
-  /// weeks of saved check-ins — which silently breaks SentimentMoodBridge's
-  /// mood signal (it always reports "No mood check-ins yet").
-  await MoodService().init();
+  /// Mood history isn't needed for the very first frame — load it right after
+  /// runApp() instead of before, so the splash/launch screen clears sooner.
+  unawaited(MoodService().init());
 
   FlutterError.onError = (errorDetails) {
     CrashLogService.instance.recordCrashError(

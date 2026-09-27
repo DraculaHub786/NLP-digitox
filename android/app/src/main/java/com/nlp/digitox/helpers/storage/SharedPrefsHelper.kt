@@ -29,10 +29,13 @@ object SharedPrefsHelper {
     private const val PREF_KEY_APP_RESTRICTIONS = "appRestrictions"
     private const val PREF_KEY_RESTRICTION_GROUPS = "restrictionGroups"
     private const val PREF_KEY_INTERNET_BLOCKED_APPS = "internetBlockedApps"
+    private const val PREF_KEY_RESTRICTION_RUNTIME_STATE = "restrictionRuntimeState"
+    private const val EMPTY_JSON_OBJECT = "{}"
 
     private var mListenablePrefs: SharedPreferences? = null
     private const val LISTENABLE_PREFS_BOX = "UniquePrefs"
     const val PREF_KEY_WELLBEING_SETTINGS: String = "wellBeingSettings"
+    const val PREF_KEY_DYNAMIC_BLOCKED_WEBSITES: String = "dynamicallyBlockedWebsites"
 
     private var mCrashLogPrefs: SharedPreferences? = null
     private const val CRASH_LOG_PREFS_BOX = "CrashLogPrefs"
@@ -119,6 +122,33 @@ object SharedPrefsHelper {
     fun getSetWellBeingSettingsAsJsonString(context: Context): String {
         checkAndInitializeListenablePrefs(context)
         return mListenablePrefs!!.getString(PREF_KEY_WELLBEING_SETTINGS, "{}")!!
+    }
+
+    /**
+     * Fetches the set of domains dynamically blocked because their associated
+     * app hit its usage limit if [domains] is null, else stores it.
+     *
+     * Stored in the *listenable* prefs box (same box as [PREF_KEY_WELLBEING_SETTINGS])
+     * so [com.nlp.digitox.services.accessibility.DigitoxAccessibilityService],
+     * which is already listening on that box, picks up changes reactively -
+     * no extra broadcast/binder plumbing needed between services.
+     *
+     * @param context The application context.
+     * @param domains The set of domains to store, or null to read the current set.
+     * @return The stored set of dynamically blocked domains.
+     */
+    fun getSetDynamicallyBlockedWebsites(context: Context, domains: Set<String>?): Set<String> {
+        checkAndInitializeListenablePrefs(context)
+        if (domains == null) {
+            return JsonUtils.parseStringSet(
+                mListenablePrefs!!.getString(PREF_KEY_DYNAMIC_BLOCKED_WEBSITES, "")
+            )
+        }
+
+        mListenablePrefs!!.edit()
+            .putString(PREF_KEY_DYNAMIC_BLOCKED_WEBSITES, JSONArray(domains).toString())
+            .apply()
+        return domains
     }
 
 
@@ -257,6 +287,30 @@ object SharedPrefsHelper {
 
         mUniquePrefs!!.edit().putString(PREF_KEY_INTERNET_BLOCKED_APPS, jsonBlockedApps).apply()
         return JsonUtils.parseStringSet(jsonBlockedApps)
+    }
+
+    /**
+     * Fetches the restriction engine's runtime state json if runtimeStateJson is null else
+     * stores it.
+     *
+     * The runtime state holds the internally derived caches of the restriction engine
+     * (already-exhausted apps/groups and today's launch counts) so that a process restart
+     * does not silently drop them and re-allow a restricted app.
+     *
+     * @param context          The application context.
+     * @param runtimeStateJson The JSON string of the runtime state, or null to read it.
+     */
+    fun getSetRestrictionRuntimeState(context: Context, runtimeStateJson: String?): String {
+        checkAndInitializeUniquePrefs(context)
+        if (runtimeStateJson == null) {
+            return mUniquePrefs!!.getString(
+                PREF_KEY_RESTRICTION_RUNTIME_STATE, EMPTY_JSON_OBJECT
+            ) ?: EMPTY_JSON_OBJECT
+        }
+
+        mUniquePrefs!!.edit().putString(PREF_KEY_RESTRICTION_RUNTIME_STATE, runtimeStateJson)
+            .apply()
+        return runtimeStateJson
     }
 
     /**

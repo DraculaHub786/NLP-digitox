@@ -44,7 +44,13 @@ class PermissionGrantingSteps extends StatelessWidget {
           DefaultListTile(
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(Radii.sm),
-              child: Image.asset('assets/logo.png', width: 40, height: 40),
+              child: Image.asset(
+                'assets/logo.png',
+                width: 40,
+                height: 40,
+                cacheWidth: 80,
+                cacheHeight: 80,
+              ),
             ),
             titleText: "NLP digitox",
             subtitleText: isAccessibilityPerm

@@ -119,6 +119,68 @@ class DynamicRecordsDao extends DatabaseAccessor<AppDatabase>
     return usageMap;
   }
 
+  /// Loads device-wide screen time for EACH DAY inside [range] in SECONDS.
+  ///
+  /// Unlike [fetchWeeklyDeviceUsage] this does NOT snap the range to a
+  /// calendar week, so it can be used for an arbitrary "last N days" report
+  /// window. Days without any records are omitted (the caller decides how to
+  /// treat a day with no data).
+  Future<Map<DateTime, int>> fetchDailyDeviceScreenTimeForRange({
+    required m.DateTimeRange range,
+  }) async {
+    final results = await (select(appUsageTable)
+          ..where((e) => e.date.isBetweenValues(range.start, range.end)))
+        .get();
+
+    final dailyTotals = <DateTime, int>{};
+    for (final appUsage in results) {
+      final day = DateTime(
+        appUsage.date.year,
+        appUsage.date.month,
+        appUsage.date.day,
+      );
+      dailyTotals.update(
+        day,
+        (v) => v + appUsage.screenTime,
+        ifAbsent: () => appUsage.screenTime,
+      );
+    }
+
+    return dailyTotals;
+  }
+
+  /// Loads per-app TOTAL usage summed across every day in [range], together
+  /// with how many distinct days each app was actually used on.
+  ///
+  /// Differs from [fetchWeeklyAppUsage] in two ways: it aggregates the whole
+  /// period into ONE value per package (instead of one value per day) and it
+  /// covers an arbitrary range rather than a calendar week. Used by the
+  /// wellbeing report to rank the most time-consuming apps.
+  Future<Map<String, ({UsageModel usage, int daysUsed})>>
+      fetchAppUsageTotalsForRange({
+    required m.DateTimeRange range,
+  }) async {
+    final results = await (select(appUsageTable)
+          ..where((e) => e.date.isBetweenValues(range.start, range.end)))
+        .get();
+
+    final totals = <String, ({UsageModel usage, int daysUsed})>{};
+    for (final appUsage in results) {
+      final usage = UsageModel.fromAppUsage(appUsage);
+      final wasUsed = usage.screenTime > 0;
+      final existing = totals[appUsage.packageName];
+
+      totals[appUsage.packageName] = existing == null
+          ? (usage: usage, daysUsed: wasUsed ? 1 : 0)
+          : (
+              usage: existing.usage + usage,
+              daysUsed: existing.daysUsed + (wasUsed ? 1 : 0),
+            );
+    }
+
+    return totals;
+  }
+
   /// Insert or Update list of multiple [AppUsageTableCompanion] objects to/in the database.
   Future<void> insertBatchAppUsages(
     List<AppUsageTableCompanion> usages,
@@ -388,6 +450,21 @@ class DynamicRecordsDao extends DatabaseAccessor<AppDatabase>
 
     return durationMap;
   }
+
+  /// Loads every [FocusSession] that STARTED within [range], newest first.
+  ///
+  /// Unlike [fetchAllSessionsForInterval] (which takes two bare DateTimes and
+  /// always sorts descending) this accepts a [m.DateTimeRange] so the report
+  /// can pass exactly the same window it used for usage queries, and it keeps
+  /// the sort explicit for deterministic output.
+  Future<List<FocusSession>> fetchFocusSessionsBetween({
+    required m.DateTimeRange range,
+  }) async =>
+      (select(focusSessionsTable)
+            ..where((e) =>
+                e.startDateTime.isBetweenValues(range.start, range.end))
+            ..orderBy([(e) => OrderingTerm.desc(e.startDateTime)]))
+          .get();
 
   // Future<void> addDuplicateSessions() async {
   //   final firstDay = DateTime(2026, 12, 1);

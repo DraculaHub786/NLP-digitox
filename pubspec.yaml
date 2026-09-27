@@ -18,7 +18,7 @@ dependencies:
   fluentui_system_icons: ^1.1.210
   fl_chart: ^1.0.0
   animated_flip_counter: ^0.3.4
-  flutter_confetti: ^0.5.1
+  confetti: ^0.7.0
   smooth_page_indicator: ^1.2.0+3
   flutter_slidable: ^4.0.0
   dynamic_color: ^1.7.0
@@ -37,6 +37,10 @@ dependencies:
   drift: ^2.18.0
   drift_flutter: ^0.2.0
 
+  # Reporting — PDF wellbeing report + native share/save sheet
+  pdf: ^3.11.1
+  printing: ^5.13.4
+
   # Util
   intl: any
   sliver_tools: ^0.2.12
@@ -48,27 +52,25 @@ dependencies:
   timezone: ^0.9.2
   flutter_timezone: ^4.1.1
   url_launcher: ^6.3.1
+  flutter_dotenv: ^5.1.0
 
   # Firebase
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.4
   cloud_firestore: ^5.2.1
   firebase_database: ^11.1.4
-  firebase_storage: ^12.4.10
   google_sign_in: ^6.2.1
   shared_preferences: ^2.2.2
   device_info_plus: ^10.1.0
 
   # AI Integration
-  google_generative_ai: ^0.4.6
   http: ^1.2.0  # For Groq API calls
   
   # Additional Features
-  tflite_flutter: ^0.10.4  # On-device ML models
-  geolocator: ^13.0.2  # Location services
   connectivity_plus: ^6.1.2  # Network connectivity
   just_audio: ^0.9.40  # White noise player for focus sessions
   image_picker: ^1.0.7  # Image selection for profile pics
+  cached_network_image: ^3.3.1  # Disk caching for leaderboard avatars
 
   #lottie
   lottie: ^3.3.1
@@ -96,6 +98,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Environment config (for debug builds without --dart-define-from-file)
+    - .env
     # App Logo
     - assets/logo.png
     - assets/logo-prev.png
@@ -104,6 +108,10 @@ flutter:
     # Backgrounds
     - assets/backgrounds/bg_light.jpg
     - assets/backgrounds/bg_dark.jpg
+    # Pre-blurred at build time (see lib/ui/common/treated_background_image.dart)
+    # so the static background never costs a per-frame SaveLayer + blur pass.
+    - assets/backgrounds/bg_light_blurred.jpg
+    - assets/backgrounds/bg_dark_blurred.jpg
     
     # Onboarding
     - assets/illustrations/onboarding_1.png

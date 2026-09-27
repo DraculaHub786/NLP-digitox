@@ -1328,6 +1328,50 @@ class AppLocalizationsSv extends AppLocalizations {
   }
 
   @override
+  String get app_associated_domains_tile_title => 'Blocked websites';
+
+  @override
+  String get app_associated_domains_tile_subtitle =>
+      'Also block this app\'s websites when its limit is reached.';
+
+  @override
+  String app_associated_domains_tile_subtitle_count(num count) {
+    return '$count website(s) blocked with this app.';
+  }
+
+  @override
+  String get app_associated_domains_dialog_title => 'App websites';
+
+  @override
+  String app_associated_domains_dialog_info(String appName) {
+    return 'Websites listed here are blocked the moment $appName\'s limit is reached, and unblocked again at midnight.';
+  }
+
+  @override
+  String get app_associated_domains_dialog_field_label => 'Website';
+
+  @override
+  String get app_associated_domains_dialog_hint => 'instagram.com';
+
+  @override
+  String get app_associated_domains_dialog_add_button => 'Add website';
+
+  @override
+  String get app_associated_domains_dialog_empty => 'No websites added yet.';
+
+  @override
+  String get app_associated_domains_dialog_error_empty =>
+      'Enter a website first.';
+
+  @override
+  String get app_associated_domains_dialog_error_invalid =>
+      'Enter a valid website like example.com.';
+
+  @override
+  String get app_associated_domains_dialog_error_duplicate =>
+      'That website is already in the list.';
+
+  @override
   String get internet_access_tile_title => 'Tillgång till Internet';
 
   @override

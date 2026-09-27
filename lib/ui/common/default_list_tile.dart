@@ -59,10 +59,11 @@ class DefaultListTile extends StatelessWidget {
       elevation: 0,
       tint: isPrimary ? Theme.of(context).colorScheme.secondaryContainer : color,
       onTap: enabled ? onPressed : null,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+      child: ClipRect(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
           /// Leading widget
           leadingIcon != null
               ? Container(
@@ -95,17 +96,19 @@ class DefaultListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// Title widget
+                // Previously wrapped in a FittedBox(fit: scaleDown) — that
+                // combination with the tight mainAxisSize.min Column below
+                // is what caused the recurring sub-pixel ("0.122 pixels")
+                // overflow on this tile. maxLines + ellipsis alone already
+                // handles long text safely, so the FittedBox is unnecessary.
                 titleText != null
-                    ? FittedBox(
-                        fit: BoxFit.scaleDown,
-                        clipBehavior: Clip.none,
-                        child: StyledText(
-                          titleText!,
-                          fontSize: 16,
-                          maxLines: 1,
-                          fontWeight: isPrimary ? FontWeight.w500 : null,
-                          color: enabled ? accent : Theme.of(context).hintColor,
-                        ),
+                    ? StyledText(
+                        titleText!,
+                        fontSize: 16,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: isPrimary ? FontWeight.w500 : null,
+                        color: enabled ? accent : Theme.of(context).hintColor,
                       )
                     : title ?? 0.vBox,
 
@@ -149,7 +152,8 @@ class DefaultListTile extends StatelessWidget {
                       ),
                     )
                   : trailing ?? 0.hBox,
-        ],
+          ],
+        ),
       ),
     );
   }
