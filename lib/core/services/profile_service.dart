@@ -250,9 +250,9 @@ class ProfileService {
   /// Writes (or clears) the denormalised avatar URL on the leaderboard docs.
   ///
   /// Best-effort: a failure here must never break the upload/removal the user
-  /// just performed. Board docs that don't exist yet are skipped — they are
-  /// seeded with the URL by `LeaderboardService.addPoints` instead, so an
-  /// image-only doc never lands in a period collection.
+  /// just performed. Board docs that don't exist yet are seeded with the URL by
+  /// `LeaderboardService.addPoints` when the user first earns points, so we
+  /// write unconditionally here to cover both existing docs and future ones.
   Future<void> _mirrorProfileImageUrl(String? url) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -260,9 +260,6 @@ class ProfileService {
     for (final collection in _boardCollections) {
       try {
         final ref = _firestore.collection(collection).doc(user.uid);
-        final snapshot = await ref.get();
-        if (!snapshot.exists) continue;
-
         await ref.set({
           'profileImageUrl': url ?? FieldValue.delete(),
         }, SetOptions(merge: true));

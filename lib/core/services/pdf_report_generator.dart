@@ -95,6 +95,7 @@ class PdfReportGenerator {
 
   static pw.Widget _header(WellbeingReportData data) {
     return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Row(
@@ -124,7 +125,7 @@ class PdfReportGenerator {
         ),
         pw.SizedBox(height: 4),
         pw.Text(
-          '${_formatDate(data.rangeStart)} — ${_formatDate(data.rangeEnd)}'
+          '${_formatDate(data.rangeStart)} - ${_formatDate(data.rangeEnd)}'
           '   ·   ${data.trackedDays} day'
           '${data.trackedDays == 1 ? '' : 's'} tracked',
           style: const pw.TextStyle(fontSize: 9.5, color: _grey),
@@ -145,6 +146,7 @@ class PdfReportGenerator {
         borderRadius: pw.BorderRadius.circular(10),
       ),
       child: pw.Column(
+        mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(label, style: const pw.TextStyle(fontSize: 8, color: _grey)),
@@ -225,6 +227,7 @@ class PdfReportGenerator {
       ..sort((a, b) => a.key.compareTo(b.key));
     if (entries.isEmpty) {
       return pw.Column(
+        mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           _sectionTitle('Daily Screen Time vs Goal'),
@@ -242,6 +245,7 @@ class PdfReportGenerator {
     final goalRatio = (data.dailyGoalSec / maxSeconds).clamp(0.0, 1.0);
 
     return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         _sectionTitle('Daily Screen Time vs Goal'),
@@ -354,6 +358,7 @@ class PdfReportGenerator {
           pw.SizedBox(width: 14),
           pw.Expanded(
             child: pw.Column(
+              mainAxisSize: pw.MainAxisSize.min,
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
@@ -384,6 +389,7 @@ class PdfReportGenerator {
     final topApps = data.topApps.take(5).toList();
     if (topApps.isEmpty) {
       return pw.Column(
+        mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           _sectionTitle('Most Time-Consuming Apps'),
@@ -399,6 +405,7 @@ class PdfReportGenerator {
     final maxSeconds = topApps.first.totalScreenTimeSec;
 
     return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         _sectionTitle('Most Time-Consuming Apps'),
@@ -407,6 +414,7 @@ class PdfReportGenerator {
           builder: (context, constraints) {
             final trackWidth = constraints?.maxWidth ?? _fallbackPlotWidth;
             return pw.Column(
+              mainAxisSize: pw.MainAxisSize.min,
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: topApps
                   .map((app) => _appUsageRow(app, maxSeconds, trackWidth))
@@ -431,6 +439,7 @@ class PdfReportGenerator {
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 9),
       child: pw.Column(
+        mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Row(
@@ -505,6 +514,7 @@ class PdfReportGenerator {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         _sectionTitle('Mood Analysis'),
@@ -582,6 +592,7 @@ class PdfReportGenerator {
         data.focusSessionsCompleted + data.focusSessionsFailed;
 
     return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         _sectionTitle('Focus Sessions'),
@@ -628,6 +639,7 @@ class PdfReportGenerator {
         borderRadius: pw.BorderRadius.circular(12),
       ),
       child: pw.Column(
+        mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           _sectionTitle('Key Insights'),

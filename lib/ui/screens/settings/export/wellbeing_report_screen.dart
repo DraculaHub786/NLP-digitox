@@ -6,6 +6,7 @@ import 'package:nlp_digitox/models/wellbeing_report_data.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
+import 'package:nlp_digitox/ui/screens/settings/export/monthly_report_section.dart';
 
 class WellbeingReportScreen extends StatefulWidget {
   const WellbeingReportScreen({super.key});
@@ -62,55 +63,61 @@ class _WellbeingReportScreenState extends State<WellbeingReportScreen> {
           filledIcon: Icons.analytics_rounded,
           titleText: 'Wellbeing Report',
           sliverBody: _loading
-              ? SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: const Center(child: CircularProgressIndicator()),
-                )
-              : _data == null
-                  ? SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: const Center(child: Text('No data available yet.')),
-                    )
-                  : CustomScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                StyledText(
-                                  'Last 7 Days',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                8.vBox,
-                                // TODO: build the in-app preview cards here using
-                                // fl_chart, matching the reference dashboard image's
-                                // stat-card + radial-gauge + bar-chart layout. The PDF
-                                // (PdfReportGenerator) is the source of truth for the
-                                // exported file; this preview is a nice-to-have visual
-                                // summary before the user taps download and can reuse
-                                // the same WellbeingReportData.
-                                24.vBox,
-                                FilledButton.icon(
-                                  onPressed: _exporting ? null : _downloadPdf,
-                                  icon: _exporting
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : const Icon(Icons.download),
-                                  label: Text(_exporting ? 'Preparing…' : 'Download PDF Report'),
-                                ),
-                              ],
+              ? const Center(child: CircularProgressIndicator())
+              : CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            StyledText(
+                              'Last 7 Days',
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ),
+                            8.vBox,
+                            // The monthly AI report is the durable artifact: it is
+                            // stored under the user's uid and must stay reachable
+                            // even when there is no 7-day usage data, so it is
+                            // rendered outside the `_data != null` branch below.
+                            if (_data != null) ...[
+                              // TODO: build the in-app preview cards here using
+                              // fl_chart, matching the reference dashboard image's
+                              // stat-card + radial-gauge + bar-chart layout. The PDF
+                              // (PdfReportGenerator) is the source of truth for the
+                              // exported file; this preview is a nice-to-have visual
+                              // summary before the user taps download and can reuse
+                              // the same WellbeingReportData.
+                              24.vBox,
+                              FilledButton.icon(
+                                onPressed: _exporting ? null : _downloadPdf,
+                                icon: _exporting
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.download),
+                                label: Text(_exporting ? 'Preparing…' : 'Download PDF Report'),
+                              ),
+                            ] else
+                              StyledText(
+                                'No screen-time data for the last 7 days yet. Your '
+                                'monthly AI report is still available below.',
+                                fontSize: 12,
+                                isSubtitle: true,
+                              ),
+                            32.vBox,
+                            const MonthlyReportSection(),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
+                  ],
+                ),
         ),
       ],
     );

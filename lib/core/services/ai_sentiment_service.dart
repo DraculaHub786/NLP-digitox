@@ -20,7 +20,7 @@ class AISentimentService {
 
   static final String _apiKey = ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _model = 'groq/compound-mini';
+  static const String _model = 'openai/gpt-oss-20b';
   static const Duration _requestTimeout = Duration(seconds: 15);
 
   Map<String, double>? _lastSentiment;
@@ -659,4 +659,70 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
     }
     return null;
   }
+
+  /// Tests only whether [_apiKey] itself is valid - independent of which
+  /// model is configured. 200 = key works, 401 = key is bad/revoked,
+  /// anything else = network/Groq-side issue.
+  static Future<ApiKeyStatus> testApiKey() async {
+    if (_apiKey.isEmpty) return ApiKeyStatus.notConfigured;
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.groq.com/openai/v1/models'),
+        headers: {'Authorization': 'Bearer $_apiKey'},
+      );
+      if (response.statusCode == 200) return ApiKeyStatus.valid;
+      if (response.statusCode == 401) return ApiKeyStatus.invalid;
+      return ApiKeyStatus.unknownError;
+    } catch (e) {
+      debugPrint('❌ AISentimentService.testApiKey: $e');
+      return ApiKeyStatus.networkError;
+    }
+  }
+
+  /// Tests whether the configured model [_model] is available and responding.
+  /// Makes a minimal chat completion request to verify the model works.
+  /// Returns true if model responds successfully, false otherwise.
+  static Future<bool> testModel() async {
+    if (_apiKey.isEmpty) {
+      debugPrint('⚠️ AISentimentService.testModel: API key not configured');
+      return false;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'messages': [
+            {'role': 'user', 'content': 'test'}
+          ],
+          'max_tokens': 1,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        debugPrint('✅ AISentimentService.testModel: Model \'$_model\' is available and responding');
+        return true;
+      } else if (response.statusCode == 404) {
+        debugPrint('❌ AISentimentService.testModel: Model \'$_model\' NOT FOUND (404). Check available models at https://console.groq.com/docs/models');
+        return false;
+      } else if (response.statusCode == 401) {
+        debugPrint('❌ AISentimentService.testModel: Invalid API key (401)');
+        return false;
+      } else {
+        debugPrint('⚠️ AISentimentService.testModel: Model request failed with status ${response.statusCode}: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ AISentimentService.testModel: Error - $e');
+      return false;
+    }
+  }
 }
+
+/// Tests only whether the Groq API key is valid - independent of which
+/// model is configured.
+enum ApiKeyStatus { valid, invalid, notConfigured, networkError, unknownError }

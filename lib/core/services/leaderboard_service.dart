@@ -488,6 +488,60 @@ class LeaderboardService {
     }
   }
 
+  /// Self-healing fallback: for any user on the board missing a profileImageUrl,
+  /// fetch it from the canonical `users/{uid}` doc and write it back to all three
+  /// leaderboard collections (leaderboard, weekly_leaderboard, monthly_leaderboard).
+  /// This handles users who uploaded a picture before their board doc existed,
+  /// or whose avatar was lost due to a race/partial failure in the mirror write.
+  Future<List<LeaderboardUser>> _backfillMissingAvatars(
+    List<LeaderboardUser> users,
+  ) async {
+    // Find users with missing avatars
+    final missingAvatarUsers =
+        users.where((u) => u.profileImageUrl == null || u.profileImageUrl!.isEmpty).toList();
+
+    if (missingAvatarUsers.isEmpty) return users;
+
+    debugPrint('LeaderboardService: Backfilling avatars for ${missingAvatarUsers.length} users');
+
+    for (final user in missingAvatarUsers) {
+      try {
+        final userDoc = await _firestore.collection('users').doc(user.userId).get();
+        if (!userDoc.exists) continue;
+
+        final url = userDoc.data()?['profileImageUrl'] as String?;
+        if (url == null || url.isEmpty) continue;
+
+        // Write the avatar to all three board collections
+        final boards = ['leaderboard', 'weekly_leaderboard', 'monthly_leaderboard'];
+        for (final col in boards) {
+          try {
+            await _firestore.collection(col).doc(user.userId).set({
+              'profileImageUrl': url,
+            }, SetOptions(merge: true));
+          } catch (e) {
+            debugPrint('LeaderboardService: Failed to backfill avatar to $col: $e');
+          }
+        }
+
+        debugPrint('LeaderboardService: Backfilled avatar for ${user.userId}');
+      } catch (e) {
+        debugPrint('LeaderboardService: Error backfilling avatar for ${user.userId}: $e');
+      }
+    }
+
+    // Return updated list with avatars filled in
+    return users.map((u) {
+      if (u.profileImageUrl != null && u.profileImageUrl!.isNotEmpty) return u;
+      // Find the backfilled URL
+      final found = missingAvatarUsers.firstWhere(
+        (m) => m.userId == u.userId,
+        orElse: () => u,
+      );
+      return found.profileImageUrl != u.profileImageUrl ? found : u;
+    }).toList();
+  }
+
   /// Read-only reset schedule info for a period. Returns null until the
   /// corresponding reset workflow has run at least once (i.e. the
   /// `leaderboard_config/{weekly_reset|monthly_reset}` doc exists).
@@ -763,6 +817,11 @@ class LeaderboardService {
           ranked[enrichedIndex],
         );
       }
+
+      // Self-healing: backfill missing avatar URLs for all users on the board.
+      // This covers users who uploaded a photo before their board doc existed,
+      // or whose avatar was lost due to a race/partial failure.
+      ranked = await _backfillMissingAvatars(ranked);
 
       if (limit > 0 && ranked.length > limit) {
         ranked = ranked.sublist(0, limit);

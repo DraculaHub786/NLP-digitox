@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nlp_digitox/core/database/app_database.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
+import 'package:nlp_digitox/core/services/daily_sentiment_scoring_service.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/core/utils/date_time_utils.dart';
@@ -20,6 +23,10 @@ class BgExecutorService {
 
   /// Private constructor for enforcing the singleton pattern.
   BgExecutorService._();
+
+  /// How long the background isolate waits for Firebase Auth to restore the
+  /// persisted session before giving up on the nightly score.
+  static const Duration _authRestoreTimeout = Duration(seconds: 20);
 
   /// The method channel object used for communication.
   final MethodChannel _methodChannel = const MethodChannel(
@@ -133,5 +140,71 @@ class BgExecutorService {
         .toList();
 
     await dynamicDao.insertBatchAppUsages(usageCompanions);
+
+    /// ============== Score yesterday's chats ===============
+    await _scoreYesterdaysChats(dateYesterday);
+  }
+
+  /// Scores the chat conversation of [day] and stores the result in Firestore.
+  ///
+  /// This runs inside the background isolate that `FlutterBgExecutionWorker`
+  /// spins up, which is a *separate* Dart VM with its own `FirebaseApp` — so
+  /// Firebase has to be initialised here even though the foreground app
+  /// already did it.
+  ///
+  /// The whole thing is wrapped so that no failure — missing Firebase config,
+  /// no signed-in user, no API key, no network — can ever abort the midnight
+  /// run, because the usage backup above shares this invocation and matters
+  /// far more than the score.
+  Future<void> _scoreYesterdaysChats(DateTime day) async {
+    try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp();
+      }
+
+      final user = await _awaitSignedInUser();
+      if (user == null) {
+        debugPrint(
+          'BgExecutorService._scoreYesterdaysChats: no signed-in user in '
+          'background isolate, skipping scoring',
+        );
+        return;
+      }
+
+      final score = await DailySentimentScoringService.instance.scoreDay(day);
+      debugPrint(
+        'BgExecutorService._scoreYesterdaysChats: ${dayKeyOf(day)} = $score',
+      );
+    } catch (e) {
+      debugPrint('BgExecutorService._scoreYesterdaysChats: failed - $e');
+    }
+  }
+
+  /// Waits briefly for the persisted Firebase Auth session to be restored.
+  ///
+  /// A freshly created background isolate starts with no user in memory and
+  /// restores the persisted session from native storage asynchronously.
+  /// Reading `currentUser` straight after `Firebase.initializeApp()` would
+  /// therefore normally return null and the nightly score would silently never
+  /// be taken, so this gives the restore a bounded window to complete.
+  static Future<User?> _awaitSignedInUser() async {
+    final current = FirebaseAuth.instance.currentUser;
+    if (current != null) return current;
+
+    try {
+      return await FirebaseAuth.instance
+          .authStateChanges()
+          .firstWhere((user) => user != null)
+          .timeout(_authRestoreTimeout);
+    } on TimeoutException {
+      debugPrint(
+        'BgExecutorService._awaitSignedInUser: timed out waiting for a '
+        'signed-in user',
+      );
+      return FirebaseAuth.instance.currentUser;
+    } catch (e) {
+      debugPrint('BgExecutorService._awaitSignedInUser: $e');
+      return FirebaseAuth.instance.currentUser;
+    }
   }
 }
