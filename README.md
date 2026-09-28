@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="NLP-Digitox banner" width="100%">
+<img src="https://raw.githubusercontent.com/DraculaHub786/NLP-digitox/main/docs/assets/banner.png" alt="NLP-Digitox banner" width="100%">
 
 <h1><b>NLP-Digitox</b></h1>
 <p><em>Presence over pixels.</em></p>
@@ -164,7 +164,7 @@ Have an idea? [Open an issue](https://github.com/DraculaHub786/NLP-digitox/issue
 NLP-Digitox is free, ad-free, and built and maintained in spare time. If it's helped you put your phone down a little more, consider supporting development:
 
 <p>
-  <img src="docs/assets/donation/upi_qr.png" alt="UPI" height="160">
+  <img src="https://raw.githubusercontent.com/DraculaHub786/NLP-digitox/main/docs/assets/donation/upi_qr.png" alt="UPI" height="160">
 </p>
 
 ☕ **[Buy Me a Coffee](https://buymeacoffee.com/afjalansari29162)** · 🇮🇳 UPI QR above for India-based supporters
