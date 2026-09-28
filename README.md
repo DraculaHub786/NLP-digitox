@@ -164,8 +164,6 @@ Have an idea? [Open an issue](https://github.com/DraculaHub786/NLP-digitox/issue
 NLP-Digitox is free, ad-free, and built and maintained in spare time. If it's helped you put your phone down a little more, consider supporting development:
 
 <p>
-  <a href="https://buymeacoffee.com/afjalansari29162"><img src="docs/assets/donation/bmc_qr.png" alt="Buy Me a Coffee" height="160"></a>
-  &nbsp;&nbsp;&nbsp;
   <img src="docs/assets/donation/upi_qr.png" alt="UPI" height="160">
 </p>
 
