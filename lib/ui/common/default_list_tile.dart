@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/utils/widget_utils.dart';
-import 'package:nlp_digitox/ui/common/clay_toggle.dart';
-import 'package:nlp_digitox/ui/common/clay_widgets.dart';
-import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 
 /// Global list tile used throughout the app
 ///
@@ -52,32 +51,39 @@ class DefaultListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return RoundedContainer(
+    return SurfaceCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: margin ?? const EdgeInsets.only(top: 4),
-      borderRadius: getBorderRadiusFromPosition(position ?? ItemPosition.none),
-      color:
-          isPrimary ? Theme.of(context).colorScheme.secondaryContainer : color,
-      onPressed: enabled ? onPressed : null,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+      borderRadius:
+          getBorderRadiusFromPosition(position ?? ItemPosition.none).topLeft.x,
+      elevation: 0,
+      tint: isPrimary ? Theme.of(context).colorScheme.secondaryContainer : color,
+      onTap: enabled ? onPressed : null,
+      child: ClipRect(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
           /// Leading widget
           leadingIcon != null
-              ? ClayIconPuck(
-                  icon: leadingIcon!,
-                  size: 40,
-                  baseColor: enabled
-                      ? (accent ?? colorScheme.primary)
-                      : colorScheme.onSurface.withValues(alpha: 0.15),
-                  /// Null lets the puck pick a contrast-safe foreground per
-                  /// theme (light base -> dark icon, dark base -> white icon)
-                  iconColor: enabled
-                      ? null
-                      : isPrimary
-                          ? colorScheme.secondaryContainer
-                          : Theme.of(context).hintColor,
+              ? Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: enabled
+                        ? (accent ?? colorScheme.primary)
+                            .withValues(alpha: 0.14)
+                        : colorScheme.onSurface.withValues(alpha: 0.10),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    leadingIcon!,
+                    size: 20,
+                    color: enabled
+                        ? (accent ?? colorScheme.primary)
+                        : Theme.of(context).hintColor,
+                  ),
                 )
               : leading ?? 0.hBox,
 
@@ -90,17 +96,19 @@ class DefaultListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// Title widget
+                // Previously wrapped in a FittedBox(fit: scaleDown) — that
+                // combination with the tight mainAxisSize.min Column below
+                // is what caused the recurring sub-pixel ("0.122 pixels")
+                // overflow on this tile. maxLines + ellipsis alone already
+                // handles long text safely, so the FittedBox is unnecessary.
                 titleText != null
-                    ? FittedBox(
-                        fit: BoxFit.scaleDown,
-                        clipBehavior: Clip.none,
-                        child: StyledText(
-                          titleText!,
-                          fontSize: 16,
-                          maxLines: 1,
-                          fontWeight: isPrimary ? FontWeight.w500 : null,
-                          color: enabled ? accent : Theme.of(context).hintColor,
-                        ),
+                    ? StyledText(
+                        titleText!,
+                        fontSize: 16,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: isPrimary ? FontWeight.w500 : null,
+                        color: enabled ? accent : Theme.of(context).hintColor,
                       )
                     : title ?? 0.vBox,
 
@@ -126,9 +134,10 @@ class DefaultListTile extends StatelessWidget {
               ? IgnorePointer(
                   child: Transform.scale(
                     scale: 0.8,
-                    child: ClayToggle(
+                    child: Switch(
                       value: switchValue ?? false,
-                      activeColor: colorScheme.primary,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: AccentPalette.orange,
                       onChanged: (_) {},
                     ),
                   ),
@@ -143,7 +152,8 @@ class DefaultListTile extends StatelessWidget {
                       ),
                     )
                   : trailing ?? 0.hBox,
-        ],
+          ],
+        ),
       ),
     );
   }

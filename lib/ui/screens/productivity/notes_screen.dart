@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/note_model.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/providers/productivity/notes_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class NotesScreen extends ConsumerWidget {
   const NotesScreen({super.key});
@@ -27,7 +27,7 @@ class NotesScreen extends ConsumerWidget {
           icon: FluentIcons.note_20_regular,
           filledIcon: FluentIcons.note_20_filled,
           titleText: 'Notes & Lists',
-          fab: GlassFAB(
+          fab: DefaultFabButton(
             icon: FluentIcons.add_20_filled,
             label: 'New Note',
             onPressed: () => _showAddNoteDialog(context, ref),
@@ -98,10 +98,10 @@ class NotesScreen extends ConsumerWidget {
                           itemCount: notes.length,
                           itemBuilder: (context, index) {
                             final note = notes[index];
-                            return GlassCard(
+                            return SurfaceCard(
                               onTap: () => _showNoteDetailDialog(context, ref, note),
                               tint: note.color,
-                              elevationLevel: 1,
+                              elevation: 1,
                               padding: const EdgeInsets.all(16),
                               child: GestureDetector(
                                 onLongPress: () => _showDeleteDialog(context, ref, note),
@@ -205,11 +205,11 @@ class NotesScreen extends ConsumerWidget {
 
     final colors = <Color>[
       cs.primary,
-      GlassTokens.of(context).statusGood,
+      AccentPalette.trendGood,
       cs.tertiary,
       cs.error,
-      GlassTokens.of(context).statusWarn,
-      GlassTokens.of(context).statusBad,
+      DesignPalette.gold,
+      AccentPalette.trendBad,
       cs.primaryContainer,
       cs.secondaryContainer,
     ];
@@ -218,9 +218,9 @@ class NotesScreen extends ConsumerWidget {
       context: context,
       builder: (context) => StatefulBuilder(
       builder: (context, setState) => AlertDialog(
-          backgroundColor: GlassTokens.of(context).fillTop,
+          backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+            borderRadius: BorderRadius.circular(Radii.xl),
           ),
           title: const Text('New Note'),
           content: SingleChildScrollView(
@@ -236,19 +236,19 @@ class NotesScreen extends ConsumerWidget {
                     fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                     border: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide: BorderSide(color: cs.primary, width: 1.5),
                     ),
                   ),
@@ -263,19 +263,19 @@ class NotesScreen extends ConsumerWidget {
                     fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                     border: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide: BorderSide(color: cs.primary, width: 1.5),
                     ),
                   ),
@@ -375,9 +375,9 @@ class NotesScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: GlassTokens.of(context).fillTop,
+        backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
         ),
         title: Row(
           children: [
@@ -402,7 +402,7 @@ class NotesScreen extends ConsumerWidget {
                       .withValues(alpha: 0.3),
                   border: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius.circular(GlassTokens.radiusCard),
+                        BorderRadius.circular(Radii.xl),
                     borderSide: BorderSide(
                       color: Theme.of(context)
                           .colorScheme
@@ -412,7 +412,7 @@ class NotesScreen extends ConsumerWidget {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius.circular(GlassTokens.radiusCard),
+                        BorderRadius.circular(Radii.xl),
                     borderSide: BorderSide(
                       color: Theme.of(context)
                           .colorScheme
@@ -422,7 +422,7 @@ class NotesScreen extends ConsumerWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius.circular(GlassTokens.radiusCard),
+                        BorderRadius.circular(Radii.xl),
                     borderSide: BorderSide(
                       color: Theme.of(context).colorScheme.primary,
                       width: 1.5,
@@ -442,7 +442,7 @@ class NotesScreen extends ConsumerWidget {
                       .withValues(alpha: 0.3),
                   border: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius.circular(GlassTokens.radiusCard),
+                        BorderRadius.circular(Radii.xl),
                     borderSide: BorderSide(
                       color: Theme.of(context)
                           .colorScheme
@@ -452,7 +452,7 @@ class NotesScreen extends ConsumerWidget {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius.circular(GlassTokens.radiusCard),
+                        BorderRadius.circular(Radii.xl),
                     borderSide: BorderSide(
                       color: Theme.of(context)
                           .colorScheme
@@ -462,7 +462,7 @@ class NotesScreen extends ConsumerWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius:
-                        BorderRadius.circular(GlassTokens.radiusCard),
+                        BorderRadius.circular(Radii.xl),
                     borderSide: BorderSide(
                       color: Theme.of(context).colorScheme.primary,
                       width: 1.5,
@@ -512,9 +512,9 @@ class NotesScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: GlassTokens.of(context).fillTop,
+        backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
         ),
         title: const Text('Delete Note'),
         content: Text('Are you sure you want to delete "${note.title}"?'),

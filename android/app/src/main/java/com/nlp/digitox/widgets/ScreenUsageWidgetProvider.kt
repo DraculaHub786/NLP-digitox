@@ -21,7 +21,7 @@ import com.nlp.digitox.utils.ThreadUtils
 
 class ScreenUsageWidgetProvider : AppWidgetProvider() {
     companion object {
-        private const val TAG = "Mindful.ScreenUsageWidgetProvider"
+        private const val TAG = "Digitox.ScreenUsageWidgetProvider"
         private const val ACTION_REFRESH_WIDGET = "com.nlp.digitox.action.refreshScreenUsageWidgetProvider"
     }
 
@@ -206,7 +206,7 @@ class ScreenUsageWidgetProvider : AppWidgetProvider() {
     }
 
     private fun setUpClickListener(context: Context, views: RemoteViews) {
-        val launchPendingIntent = AppUtils.getPendingIntentForMindfulUri(
+        val launchPendingIntent = AppUtils.getPendingIntentForDigitoxUri(
             context,
             "com.nlp.digitox://open/home?tab=1"
         )

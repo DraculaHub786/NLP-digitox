@@ -1,15 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'lib/config/api_keys.dart';
 
-/// Test script to verify Groq API integration
+/// Test script to verify Groq API integration.
 /// Run with: dart test_groq_chat.dart
+/// The key is read from the GROQ_API_KEY environment variable (see .env).
 void main() async {
   print('🧪 Testing Groq API Chat Integration...\n');
-  
-  final apiKey = ApiKeys.groqApiKey;
+
+  final apiKey = Platform.environment['GROQ_API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    print('❌ GROQ_API_KEY environment variable is not set.');
+    print('   Copy .env.example to .env, add your key, and export it.');
+    return;
+  }
   const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  const modelName = 'llama-3.1-8b-instant';
+  const modelName = 'groq/compound-mini';
   
   try {
     // Test message - Testing NLP understanding with real-world question

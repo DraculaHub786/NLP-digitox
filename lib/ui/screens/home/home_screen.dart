@@ -9,7 +9,7 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
 import 'package:nlp_digitox/ui/screens/home/bedtime/tab_bedtime.dart';
@@ -65,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final homeTab =
-        ref.watch((mindfulSettingsProvider.select((v) => v.defaultHomeTab)));
+        ref.watch((digitoxSettingsProvider.select((v) => v.defaultHomeTab)));
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) => SystemNavigator.pop(),

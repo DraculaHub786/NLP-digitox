@@ -15,7 +15,7 @@ class DeviceNavigationReceiver(
     private val onAnyNavigation: (() -> Unit)? = null,
 ) : BroadcastReceiver() {
     companion object {
-        private const val TAG = "Mindful.DeviceNavigationReceiver"
+        private const val TAG = "Digitox.DeviceNavigationReceiver"
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")

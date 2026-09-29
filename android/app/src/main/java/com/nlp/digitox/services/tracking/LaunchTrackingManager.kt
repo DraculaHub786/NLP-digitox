@@ -8,13 +8,13 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import com.nlp.digitox.receivers.AccessibilityReceiver
 import com.nlp.digitox.receivers.DeviceLockUnlockReceiver
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
 import com.nlp.digitox.utils.Utils
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-
+    
 
 class LaunchTrackingManager(
     private val context: Context,
@@ -23,10 +23,13 @@ class LaunchTrackingManager(
     private val cancelReminders: () -> Unit,
 ) {
     companion object {
-        private const val TAG = "Mindful.LaunchTrackingManager"
+        private const val TAG = "Digitox.LaunchTrackingManager"
 
         // Interval for tracking app launches in milliseconds
         private const val TIMER_RATE: Long = 750
+
+        // Lookback window used to recover the currently open app after a process restart
+        private const val RECOVERY_LOOKBACK_MS: Long = 6 * 60 * 60 * 1000
     }
 
     private val executorService: ScheduledExecutorService = Executors.newScheduledThreadPool(2)
@@ -64,7 +67,7 @@ class LaunchTrackingManager(
     private fun onDeviceUnlocked() {
         // Check if accessibility is already running
         isManualTrackingOn =
-            !Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)
+            !Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)
 
         // Start tracking manually only if accessibility is not running
         if (isManualTrackingOn) {
@@ -81,7 +84,16 @@ class LaunchTrackingManager(
         }
 
         Log.d(TAG, "onDeviceUnlocked: Usage tracking started (isManual=$isManualTrackingOn)")
-        executorService.submit { invokeNewAppLaunched(lastLaunchedApp) }
+
+        if (lastLaunchedApp.isEmpty()) {
+            // Fresh process (the service was killed and has just been restarted), so there is no
+            // last known app to re-invoke. Look back over the recent usage events to recover
+            // whichever app is currently in the foreground and re-apply its restriction
+            // immediately - otherwise the overlay would not reappear until the user switched apps.
+            executorService.submit { findLaunchedApp(RECOVERY_LOOKBACK_MS) }
+        } else {
+            executorService.submit { invokeNewAppLaunched(lastLaunchedApp) }
+        }
     }
 
     @WorkerThread

@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/models/habit_model.dart';
 import 'package:nlp_digitox/providers/productivity/habits_provider.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
-import 'package:nlp_digitox/ui/common/glass_widgets.dart';
 
 class HabitsScreen extends ConsumerWidget {
   const HabitsScreen({super.key});
@@ -24,7 +24,7 @@ class HabitsScreen extends ConsumerWidget {
           icon: FluentIcons.drink_coffee_20_regular,
           filledIcon: FluentIcons.drink_coffee_20_filled,
           titleText: 'Habits',
-          fab: GlassFAB(
+          fab: DefaultFabButton(
             icon: FluentIcons.add_20_filled,
             label: 'New Habit',
             onPressed: () {
@@ -203,9 +203,9 @@ class HabitsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          backgroundColor: GlassTokens.of(context).fillTop,
+          backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+            borderRadius: BorderRadius.circular(Radii.xl),
           ),
           title: const Text('New Habit'),
           content: SingleChildScrollView(
@@ -222,19 +222,19 @@ class HabitsScreen extends ConsumerWidget {
                         colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                     border: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius:
-                          BorderRadius.circular(GlassTokens.radiusCard),
+                          BorderRadius.circular(Radii.xl),
                       borderSide:
                           BorderSide(color: colorScheme.primary, width: 1.5),
                     ),
@@ -345,9 +345,9 @@ class HabitsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: GlassTokens.of(context).fillTop,
+        backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
         ),
         title: const Text('Delete Habit'),
         content: Text('Are you sure you want to delete "${habit.name}"?'),

@@ -1,10 +1,14 @@
-
 import 'package:flutter/material.dart';
 
 class StyledText extends StatelessWidget {
   /// Globally used text widget with provided configurations.
   ///
-  /// Shades the text color to disabled color if [isSubtitle] is set to TRUE
+  /// Shades the text color to disabled color if [isSubtitle] is set to TRUE.
+  ///
+  /// Set [isHeadline] to TRUE to use the Alice serif display face — intended
+  /// for titles/headlines only so the app keeps the "Leafora"-style serif
+  /// headline + sans body hierarchy. Body copy, buttons and nav labels
+  /// should stay on the default sans font.
   const StyledText(
     this.text, {
     super.key,
@@ -16,11 +20,13 @@ class StyledText extends StatelessWidget {
     this.textAlign,
     this.letterSpacing,
     this.isSubtitle = false,
+    this.isHeadline = false,
     this.fontSize = 12,
   });
 
   final String text;
   final bool isSubtitle;
+  final bool isHeadline;
   final Color? color;
   final double fontSize;
   final FontWeight? fontWeight;
@@ -38,9 +44,10 @@ class StyledText extends StatelessWidget {
       textAlign: textAlign,
       // semanticsLabel: text,
       style: TextStyle(
+        fontFamily: isHeadline ? 'Alice' : null,
         color: color ?? (isSubtitle ? Theme.of(context).disabledColor : null),
         fontSize: fontSize,
-        fontWeight: fontWeight,
+        fontWeight: fontWeight ?? (isHeadline ? FontWeight.w600 : null),
         height: height,
         overflow: overflow,
         letterSpacing: letterSpacing,

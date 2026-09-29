@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/default_fab_button.dart';
 import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
 
@@ -16,7 +16,7 @@ class EmergencyFAB extends ConsumerWidget {
 
   void _useEmergency(BuildContext context, WidgetRef ref) async {
     int leftPasses = ref
-        .read(mindfulSettingsProvider.notifier)
+        .read(digitoxSettingsProvider.notifier)
         .getUpdatedEmergencyPassCount();
 
     if (leftPasses <= 0) {
@@ -42,7 +42,7 @@ class EmergencyFAB extends ConsumerWidget {
         icon: FluentIcons.fire_16_filled,
       );
 
-      ref.read(mindfulSettingsProvider.notifier).useEmergencyPausePass();
+      ref.read(digitoxSettingsProvider.notifier).useEmergencyPausePass();
     } else if (context.mounted) {
       context.showSnackAlert(
         context.locale.emergency_already_active_snack_alert,

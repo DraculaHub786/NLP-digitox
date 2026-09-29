@@ -6,7 +6,7 @@ class CrashLogsTable extends Table {
   /// Unique ID for crash logs
   IntColumn get id => integer().autoIncrement()();
 
-  /// Current version of Mindful app
+  /// Current version of Digitox app
   TextColumn get appVersion => text().withDefault(const Constant(""))();
 
   /// [DateTime] when the error was thrown

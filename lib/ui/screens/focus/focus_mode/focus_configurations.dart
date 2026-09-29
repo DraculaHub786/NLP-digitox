@@ -65,7 +65,7 @@ class FocusConfigurations extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest
                     .withValues(alpha: 0.35),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                borderRadius: BorderRadius.circular(Radii.xl),
                 border: Border.all(
                   color: colorScheme.outline.withValues(alpha: 0.18),
                 ),
@@ -101,7 +101,7 @@ class FocusConfigurations extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                          borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                         child: StyledText(
                           profile.sessionDuration > 0

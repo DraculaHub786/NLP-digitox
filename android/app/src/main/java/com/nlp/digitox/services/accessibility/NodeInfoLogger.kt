@@ -45,7 +45,7 @@ object NodeInfoLogger {
     fun logNode(node: AccessibilityNodeInfo?, level: Int) {
         node?.let {
             Log.d(
-                "Mindful.NodeInfoLogger",
+                "Digitox.NodeInfoLogger",
                 "Level: $level Class: ${it.className} Id: ${it.viewIdResourceName} Text: ${it.text}"
             )
         }

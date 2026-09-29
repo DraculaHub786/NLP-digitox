@@ -39,7 +39,7 @@ class DeviceFeaturesManager(
 
     companion object {
         /**
-         * Checks if Device Settings features (Admin or Accessibility) are open for mindful.
+         * Checks if Device Settings features (Admin or Accessibility) are open for the app.
          */
         private fun isSettingsTamperFeatureOpen(
             context: Context,
@@ -52,15 +52,12 @@ class DeviceFeaturesManager(
                 node.findAccessibilityNodeInfosByViewId("com.android.settings:id/admin_name")
                     .firstOrNull()?.text == appName
 
-
             // Check for Accessibility section
             val isAccessibilitySectionOpen =
                 node.findAccessibilityNodeInfosByText(context.getString(R.string.accessibility_description))
                     .isNotEmpty() &&
                         node.findAccessibilityNodeInfosByText(appName)
                             .any { it.text == appName }
-
-
 
             return (isAdminSectionOpen || isAccessibilitySectionOpen) &&
                     PermissionsHelper.getAndAskAdminPermission(context, false)

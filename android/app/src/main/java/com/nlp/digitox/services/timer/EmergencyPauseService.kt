@@ -11,22 +11,22 @@ import com.nlp.digitox.generics.SafeServiceConnection
 import com.nlp.digitox.generics.ServiceBinder
 import com.nlp.digitox.helpers.device.NotificationHelper.CRITICAL_CHANNEL_ID
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
-import com.nlp.digitox.services.tracking.MindfulTrackerService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.DateTimeUtils
 
 class EmergencyPauseService : Service() {
     private lateinit var mNotificationTimer: NotificationTimer
-    private lateinit var mTrackerServiceConn: SafeServiceConnection<MindfulTrackerService>
+    private lateinit var mTrackerServiceConn: SafeServiceConnection<DigitoxTrackerService>
 
     override fun onCreate() {
         mTrackerServiceConn = SafeServiceConnection(
             context = this,
-            serviceClass = MindfulTrackerService::class.java
+            serviceClass = DigitoxTrackerService::class.java
         )
         mNotificationTimer = NotificationTimer(
             context = this,
-            ongoingPendingIntent = AppUtils.getPendingIntentForMindfulUri(this),
+            ongoingPendingIntent = AppUtils.getPendingIntentForDigitoxUri(this),
             title = getString(R.string.emergency_pause_notification_title),
             timerDurationSeconds = DEFAULT_EMERGENCY_PASS_PERIOD_SECONDS,
             notificationId = EMERGENCY_PAUSE_SERVICE_NOTIFICATION_ID,
@@ -50,7 +50,7 @@ class EmergencyPauseService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ServiceBinder.ACTION_START_MINDFUL_SERVICE) {
+        if (intent?.action == ServiceBinder.ACTION_START_DIGITOX_SERVICE) {
             startEmergencyTimer()
             return START_STICKY
         }
@@ -66,7 +66,7 @@ class EmergencyPauseService : Service() {
                 mNotificationTimer.getInitialNotification
             )
 
-            mTrackerServiceConn.setOnConnectedCallback { service: MindfulTrackerService ->
+            mTrackerServiceConn.setOnConnectedCallback { service: DigitoxTrackerService ->
                 service.getLaunchTrackingManager.pauseResumeTracking(true)
             }
             mTrackerServiceConn.bindService()
@@ -94,6 +94,6 @@ class EmergencyPauseService : Service() {
 
     companion object {
         private const val DEFAULT_EMERGENCY_PASS_PERIOD_SECONDS: Long = 5 * 60L
-        private const val TAG = "Mindful.EmergencyPauseService"
+        private const val TAG = "Digitox.EmergencyPauseService"
     }
 }

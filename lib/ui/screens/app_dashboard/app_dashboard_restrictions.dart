@@ -21,6 +21,7 @@ import 'package:nlp_digitox/ui/common/default_expandable_list_tile.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/dialogs/app_launch_limit_dialog.dart';
+import 'package:nlp_digitox/ui/screens/app_dashboard/app_associated_domains_tile.dart';
 import 'package:nlp_digitox/ui/screens/app_dashboard/app_internet_tile.dart';
 import 'package:nlp_digitox/ui/screens/app_dashboard/app_timer_tile.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
@@ -197,6 +198,9 @@ class AppDashboardRestrictions extends ConsumerWidget {
 
         /// Internet access
         AppInternetTile(appInfo: appInfo).sliver,
+
+        /// Websites blocked alongside this app once its limit is hit
+        AppAssociatedDomainsTile(appInfo: appInfo).sliver,
 
         /// Associated restriction group
         DefaultListTile(

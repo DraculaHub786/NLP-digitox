@@ -26,7 +26,7 @@ import com.nlp.digitox.utils.ThreadUtils.runOnMainThread
  * It includes functionalities to register notification channels and request notification permissions.
  */
 object NotificationHelper {
-    private const val TAG = "Mindful.NotificationHelper"
+    private const val TAG = "Digitox.NotificationHelper"
 
     // Notification channel IDs
     const val CRITICAL_CHANNEL_ID: String = "mindful.notification.channel.CRITICAL"
@@ -132,7 +132,7 @@ object NotificationHelper {
             .setOngoing(true)
             .setAutoCancel(true)
             .setContentTitle(context.getString(R.string.service_running_notification_title))
-            .setContentIntent(AppUtils.getPendingIntentForMindfulUri(context))
+            .setContentIntent(AppUtils.getPendingIntentForDigitoxUri(context))
             .setContentText(content)
             .build()
     }

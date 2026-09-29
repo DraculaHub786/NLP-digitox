@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "sessions": {
+      "$sessionId": {
+        ".read": "auth != null",
+
+        ".write": "auth != null && (!data.exists() || data.child('ownerId').val() === auth.uid)",
+
+        "ownerId": {
+          ".validate": "(!data.exists() && newData.val() === auth.uid) || (data.exists() && data.val() === auth.uid && newData.val() === data.val())"
+        },
+
+        "members": {
+          "$memberId": {
+            ".write": "auth != null && $memberId === auth.uid",
+            ".validate": "newData.hasChildren(['userId', 'displayName', 'joinedAt', 'isActive', 'lastActive'])"
+          }
+        }
+      }
+    },
+
+    "users": {
+      "$uid": {
+        "sessions": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+
+    "publicSessions": {
+      ".read": "auth != null",
+
+      "$sessionId": {
+        ".write": "auth != null && (!data.exists() || root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid)",
+
+        "memberCount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    }
+  }
+}

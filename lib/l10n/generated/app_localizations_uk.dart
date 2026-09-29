@@ -463,18 +463,18 @@ class AppLocalizationsUk extends AppLocalizations {
   String get onboarding_finish_setup_btn_label => 'Завершити налаштування';
 
   @override
-  String get onboarding_page_welcome_title => 'Welcome to NLP digitox.';
+  String get onboarding_page_welcome_title => 'Ласкаво просимо до NLP digitox.';
 
   @override
   String get onboarding_page_welcome_info =>
-      'Take control of your digital life and build healthier screen habits. NLP digitox helps you stay focused, minimize distractions, and make mindful choices every day.';
+      'Візьміть під контроль своє цифрове життя та виробіть здоровіші звички використання екрана. NLP digitox допомагає зберігати зосередженість, зменшувати відволікання та щодня приймати усвідомлені рішення.';
 
   @override
-  String get onboarding_page_statistics_title => 'Know Your Habits.';
+  String get onboarding_page_statistics_title => 'Пізнайте свої звички.';
 
   @override
   String get onboarding_page_statistics_info =>
-      'Understand your digital patterns with detailed insights on screen time, app usage, and focus trends. Track your progress and see how small changes lead to big improvements.';
+      'Зрозумійте свої цифрові моделі завдяки детальній статистиці про час перед екраном, використання застосунків і тенденції концентрації. Слідкуйте за своїм прогресом і побачте, як маленькі зміни призводять до великих покращень.';
 
   @override
   String get onboarding_page_one_title => 'Опануйте Зосередження.';
@@ -882,6 +882,19 @@ class AppLocalizationsUk extends AppLocalizations {
       'Обмежити короткий контент на Reddit.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Обмежити відеострічку в X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Обмежити відео/reels у Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'Блокування сайтів';
 
   @override
@@ -998,7 +1011,8 @@ class AppLocalizationsUk extends AppLocalizations {
       'Запобігає завершенню сесії до закінчення часу.';
 
   @override
-  String get focus_session_start_button => 'Swipe to start Session';
+  String get focus_session_start_button =>
+      'Проведіть пальцем, щоб почати сеанс';
 
   @override
   String get focus_session_minimum_apps_snack_alert =>
@@ -1327,6 +1341,50 @@ class AppLocalizationsUk extends AppLocalizations {
   }
 
   @override
+  String get app_associated_domains_tile_title => 'Blocked websites';
+
+  @override
+  String get app_associated_domains_tile_subtitle =>
+      'Also block this app\'s websites when its limit is reached.';
+
+  @override
+  String app_associated_domains_tile_subtitle_count(num count) {
+    return '$count website(s) blocked with this app.';
+  }
+
+  @override
+  String get app_associated_domains_dialog_title => 'App websites';
+
+  @override
+  String app_associated_domains_dialog_info(String appName) {
+    return 'Websites listed here are blocked the moment $appName\'s limit is reached, and unblocked again at midnight.';
+  }
+
+  @override
+  String get app_associated_domains_dialog_field_label => 'Website';
+
+  @override
+  String get app_associated_domains_dialog_hint => 'instagram.com';
+
+  @override
+  String get app_associated_domains_dialog_add_button => 'Add website';
+
+  @override
+  String get app_associated_domains_dialog_empty => 'No websites added yet.';
+
+  @override
+  String get app_associated_domains_dialog_error_empty =>
+      'Enter a website first.';
+
+  @override
+  String get app_associated_domains_dialog_error_invalid =>
+      'Enter a valid website like example.com.';
+
+  @override
+  String get app_associated_domains_dialog_error_duplicate =>
+      'That website is already in the list.';
+
+  @override
   String get internet_access_tile_title => 'Доступ до інтернету';
 
   @override
@@ -1471,41 +1529,41 @@ class AppLocalizationsUk extends AppLocalizations {
   String get export_db_tile_subtitle => 'Експортувати базу даних до файлу.';
 
   @override
-  String get analysis_tab_title => 'Analysis';
+  String get analysis_tab_title => 'Аналіз';
 
   @override
-  String get analysis_7_days => '7 days';
+  String get analysis_7_days => '7 днів';
 
   @override
-  String get analysis_30_days => '30 days';
+  String get analysis_30_days => '30 днів';
 
   @override
-  String get analysis_90_days => '90 days';
+  String get analysis_90_days => '90 днів';
 
   @override
-  String get analysis_screen_time_trend => 'Screen time trend';
+  String get analysis_screen_time_trend => 'Тенденція часу перед екраном';
 
   @override
   String get analysis_no_data_info =>
-      'No screen time data recorded for this period yet.';
+      'Для цього періоду ще немає даних про час перед екраном.';
 
   @override
-  String get analysis_daily_average => 'Daily average';
+  String get analysis_daily_average => 'Середньодобове значення';
 
   @override
-  String get analysis_total => 'Total';
+  String get analysis_total => 'Разом';
 
   @override
-  String get analysis_no_change => 'Same as last week';
+  String get analysis_no_change => 'Так само, як минулого тижня';
 
   @override
   String analysis_trend_less(String percent) {
-    return '$percent% less than last week';
+    return 'на $percent% менше, ніж минулого тижня';
   }
 
   @override
   String analysis_trend_more(String percent) {
-    return '$percent% more than last week';
+    return 'на $percent% більше, ніж минулого тижня';
   }
 
   @override
@@ -1594,4 +1652,14 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get more_details_button => 'Детальніше';
+
+  @override
+  String get privacy_policy_coming_soon_title => 'Coming Soon';
+
+  @override
+  String get privacy_policy_coming_soon_info =>
+      'Our full privacy policy page is on its way. In the meantime, know that NLP digitox works offline and does not collect or sell your personal data.';
+
+  @override
+  String get ok_button => 'OK';
 }

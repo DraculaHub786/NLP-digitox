@@ -1,0 +1,798 @@
+diff --git a/lib/core/constants/app_icons.dart b/lib/core/constants/app_icons.dart
+new file mode 100644
+index 0000000..6dfcbca
+--- /dev/null
++++ b/lib/core/constants/app_icons.dart
+@@ -0,0 +1,55 @@
++import 'package:fluentui_system_icons/fluentui_system_icons.dart';
++import 'package:flutter/material.dart';
++
++/// Central registry of every icon selectable for habits/notes.
++///
++/// Every icon in the app that a user can pick MUST be listed here as a
++/// literal const. Do not construct `IconData` dynamically anywhere else —
++/// that's what breaks `--release` icon tree-shaking.
++const Map<String, IconData> kSelectableIcons = {
++  // Habit icons (from habits_screen.dart icon picker)
++  'habit_drink_coffee': FluentIcons.drink_coffee_20_filled,
++  'habit_brain_circuit': FluentIcons.brain_circuit_20_filled,
++  'habit_phone_dismiss': FluentIcons.phone_dismiss_20_filled,
++  'habit_book': FluentIcons.book_20_filled,
++  'habit_dumbbell': FluentIcons.dumbbell_20_filled,
++  'habit_bed': FluentIcons.bed_20_filled,
++  'habit_food': FluentIcons.food_20_filled,
++  'habit_heart_pulse': FluentIcons.heart_pulse_20_filled,
++
++  // Note icons (from notes_screen.dart icon picker)
++  'note_note': FluentIcons.note_20_filled,
++  'note_lightbulb': FluentIcons.lightbulb_20_filled,
++  'note_cart': FluentIcons.cart_20_filled,
++  'note_people': FluentIcons.people_20_filled,
++  'note_star': FluentIcons.star_20_filled,
++  'note_heart': FluentIcons.heart_20_filled,
++  'note_flag': FluentIcons.flag_20_filled,
++  'note_calendar': FluentIcons.calendar_20_filled,
++};
++
++/// Reverse lookup: `IconData` -> its registry key, for serialization.
++///
++/// Compares by (codePoint, fontFamily, fontPackage) since IconData doesn't
++/// override `==`.
++String? iconKeyOf(IconData icon) {
++  for (final entry in kSelectableIcons.entries) {
++    final candidate = entry.value;
++    if (candidate.codePoint == icon.codePoint &&
++        candidate.fontFamily == icon.fontFamily &&
++        candidate.fontPackage == icon.fontPackage) {
++      return entry.key;
++    }
++  }
++  return null;
++}
++
++/// Forward lookup used when loading from storage. Falls back to a safe
++/// default if the key is missing/unrecognized (e.g. old data, or an icon
++/// that was later removed from the picker).
++IconData iconFromKey(String? key) {
++  if (key == null) return _fallbackIcon;
++  return kSelectableIcons[key] ?? _fallbackIcon;
++}
++
++const IconData _fallbackIcon = FluentIcons.question_circle_20_filled;
+diff --git a/lib/core/services/drift_db_service.dart b/lib/core/services/drift_db_service.dart
+index 1ae2d3c..fcf062f 100644
+--- a/lib/core/services/drift_db_service.dart
++++ b/lib/core/services/drift_db_service.dart
+@@ -65,7 +65,7 @@ class DriftDbService {
+     db.execute('PRAGMA busy_timeout = 5000;');
+ 
+     /// Enable WAL mode to allow multiple reader/writers (1000 pages = 4MB)
+-    // db.execute('PRAGMA journal_mode = WAL;');
+-    // db.execute('PRAGMA wal_autocheckpoint = 1000;');
++    db.execute('PRAGMA journal_mode = WAL;');
++    db.execute('PRAGMA wal_autocheckpoint = 1000;');
+   }
+ }
+diff --git a/lib/core/services/method_channel_service.dart b/lib/core/services/method_channel_service.dart
+index e98e324..e33405f 100644
+--- a/lib/core/services/method_channel_service.dart
++++ b/lib/core/services/method_channel_service.dart
+@@ -273,16 +273,6 @@ class MethodChannelService {
+   // ===========================================================================================
+   // ==================================== PERMISSIONS ==========================================
+   // ===========================================================================================
+-  /// Checks if the admin permission is granted and optionally asks for it.
+-  ///
+-  /// Returns `true` if the permission is granted Otherwise, returns `false`.
+-  Future<bool> getAndAskAdminPermission(
+-          {bool askPermissionToo = false}) async =>
+-      await _methodChannel.invokeMethod(
+-        'getAndAskAdminPermission',
+-        askPermissionToo,
+-      );
+-
+   /// Checks if the accessibility permission is granted and optionally asks for it.
+   ///
+   /// This method returns `true` if the permission is granted Otherwise, it returns `false`.
+@@ -393,23 +383,6 @@ class MethodChannelService {
+   Future<void> clearAccessibilityServicePausedFlag() async =>
+       await _methodChannel.invokeMethod('clearAccessibilityServicePausedFlag');
+ 
+-  /// Checks whether Device Admin permission was previously granted but has been
+-  /// silently revoked by the OEM (detected by the keep-alive heartbeat on the
+-  /// native side). When true, the UI should show a lightweight one-tap re-enable
+-  /// nudge instead of requiring the user to discover it on their own.
+-  Future<bool> isDeviceAdminRevoked() async =>
+-      await _methodChannel.invokeMethod('isDeviceAdminRevoked') ?? false;
+-
+-  /// Clears the Device Admin revoked flag on the native side (called when user
+-  /// taps the re-enable nudge and the permission check confirms it's active again,
+-  /// or when the user explicitly dismisses the warning).
+-  Future<void> clearDeviceAdminRevokedFlag() async =>
+-      await _methodChannel.invokeMethod('clearDeviceAdminRevokedFlag');
+-
+-  /// Disable device Admin if active.
+-  Future<bool> disableDeviceAdmin() async =>
+-      await _methodChannel.invokeMethod('disableDeviceAdmin');
+-
+   // ===========================================================================================
+   // ============================== EXTERNAL ACTIVITIES ========================================
+   // ===========================================================================================
+diff --git a/lib/core/services/notification_scheduler_service.dart b/lib/core/services/notification_scheduler_service.dart
+index 9fee00c..c7944cb 100644
+--- a/lib/core/services/notification_scheduler_service.dart
++++ b/lib/core/services/notification_scheduler_service.dart
+@@ -206,14 +206,14 @@ class NotificationSchedulerService {
+         scheduledDate = scheduledDate.add(const Duration(days: 1));
+       }
+ 
+-      // Channel ID bumped from 'scheduled_reminders' to 'scheduled_reminders_v2':
++      // Channel ID bumped from 'scheduled_reminders_v2' to 'scheduled_reminders_v3':
+       // Android notification channels are immutable after first creation, so
+-      // existing installs would keep the old channel's (possibly silent)
+-      // behavior no matter what we change here. A new ID forces the OS to
+-      // create a fresh channel that inherits these explicit sound/vibration
+-      // settings.
++      // existing installs would keep the old channel's (possibly silent, or
++      // default-sound) behavior no matter what we change here. A new ID
++      // forces the OS to create a fresh channel that inherits these explicit
++      // sound/vibration settings, including the custom reminder sound below.
+       const androidDetails = AndroidNotificationDetails(
+-        'scheduled_reminders_v2',
++        'scheduled_reminders_v3',
+         'Scheduled Reminders',
+         channelDescription:
+             'Daily scheduled reminder notifications',
+@@ -221,6 +221,10 @@ class NotificationSchedulerService {
+         priority: Priority.high,
+         icon: '@mipmap/ic_launcher',
+         playSound: true,
++        // Custom sound for user-set schedules only. File lives at
++        // android/app/src/main/res/raw/schedule_reminder_sound.wav — resource
++        // name passed WITHOUT the file extension.
++        sound: RawResourceAndroidNotificationSound('schedule_reminder_sound'),
+         enableVibration: true,
+         actions: <AndroidNotificationAction>[
+           AndroidNotificationAction(
+@@ -236,6 +240,10 @@ class NotificationSchedulerService {
+         presentAlert: true,
+         presentBadge: true,
+         presentSound: true,
++        // Custom sound for user-set schedules only. File lives at
++        // ios/Runner/Resources/schedule_reminder_sound.wav — iOS bundles a
++        // resource by filename (WITH extension), unlike Android's raw res.
++        sound: 'schedule_reminder_sound.wav',
+       );
+ 
+       const notificationDetails = NotificationDetails(
+diff --git a/lib/main.dart b/lib/main.dart
+index f675638..b47026e 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -1,3 +1,5 @@
++import 'dart:async';
++
+ import 'package:firebase_core/firebase_core.dart';
+ import 'package:flutter/foundation.dart';
+ import 'package:flutter/material.dart';
+@@ -21,22 +23,22 @@ Future<void> initBgExecutorService() async {
+ Future<void> main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+ 
+-  /// Initialize Firebase
+-  try {
+-    await Firebase.initializeApp();
+-  } catch (e) {
+-    debugPrint('Firebase initialization failed: $e');
+-  }
++  /// Firebase and the native method channel don't depend on each other — run together.
++  /// This avoids a serialized startup where each await blocks the next.
++  await Future.wait([
++    Firebase.initializeApp().catchError((e) {
++      debugPrint('Firebase initialization failed: $e');
++      return Firebase.app(); // return a valid FirebaseApp on error
++    }),
++    MethodChannelService.instance.init(),
++  ]);
+ 
+-  /// Initialize method channel and drift Database
+-  await MethodChannelService.instance.init();
++  /// DB is needed before first frame, keep this blocking
+   await DriftDbService.instance.init();
+ 
+-  /// Load saved mood check-ins back from disk. Without this, MoodService's
+-  /// in-memory history starts empty on every launch — even for a user with
+-  /// weeks of saved check-ins — which silently breaks SentimentMoodBridge's
+-  /// mood signal (it always reports "No mood check-ins yet").
+-  await MoodService().init();
++  /// Mood history isn't needed for the very first frame — load it right after
++  /// runApp() instead of before, so the splash/launch screen clears sooner.
++  unawaited(MoodService().init());
+ 
+   FlutterError.onError = (errorDetails) {
+     CrashLogService.instance.recordCrashError(
+diff --git a/lib/models/habit_model.dart b/lib/models/habit_model.dart
+index f748830..d4056ad 100644
+--- a/lib/models/habit_model.dart
++++ b/lib/models/habit_model.dart
+@@ -1,6 +1,5 @@
+-
+-
+ import 'package:flutter/material.dart';
++import 'package:nlp_digitox/core/constants/app_icons.dart';
+ 
+ @immutable
+ class HabitModel {
+@@ -58,7 +57,7 @@ class HabitModel {
+     return {
+       'id': id,
+       'name': name,
+-      'iconCodePoint': icon.codePoint,
++      'iconKey': iconKeyOf(icon) ?? 'habit_drink_coffee', // safe default key
+       'colorValue': color.toARGB32(),
+       'streak': streak,
+       'completedToday': completedToday ? 1 : 0,
+@@ -73,7 +72,12 @@ class HabitModel {
+     return HabitModel(
+       id: json['id'] as String,
+       name: json['name'] as String,
+-      icon: IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons'),
++      // New format: 'iconKey' (String). Old format: 'iconCodePoint' (int) —
++      // migrated on first load, see Step 3. Once every install has re-saved
++      // at least once, the codePoint branch can be deleted.
++      icon: json['iconKey'] != null
++          ? iconFromKey(json['iconKey'] as String)
++          : _legacyIconFromCodePoint(json['iconCodePoint'] as int?),
+       color: Color(json['colorValue'] as int),
+       streak: json['streak'] as int? ?? 0,
+       completedToday: (json['completedToday'] as int? ?? 0) == 1,
+@@ -91,3 +95,16 @@ class HabitModel {
+     );
+   }
+ }
++
++/// TEMPORARY migration shim — remove once confident no installs still have
++/// pre-iconKey data (check analytics / a few app-versions out).
++/// Old data was saved with fontFamily hardcoded to 'MaterialIcons', which
++/// was WRONG (actual icons are FluentIcons) — so this can only approximate
++/// the original icon. That's acceptable for one-time migration only.
++IconData _legacyIconFromCodePoint(int? codePoint) {
++  if (codePoint == null) return iconFromKey(null);
++  // Best-effort: most existing habits/notes were created with the default
++  // first option in their respective picker, so fall back to that rather
++  // than an unrelated Material glyph rendered in the wrong font.
++  return iconFromKey(null);
++}
+diff --git a/lib/models/note_model.dart b/lib/models/note_model.dart
+index 3472088..cb29e70 100644
+--- a/lib/models/note_model.dart
++++ b/lib/models/note_model.dart
+@@ -1,6 +1,5 @@
+-
+-
+ import 'package:flutter/material.dart';
++import 'package:nlp_digitox/core/constants/app_icons.dart';
+ 
+ @immutable
+ class NoteModel {
+@@ -48,7 +47,7 @@ class NoteModel {
+       'title': title,
+       'content': content,
+       'colorValue': color.toARGB32(),
+-      'iconCodePoint': icon.codePoint,
++      'iconKey': iconKeyOf(icon) ?? 'note_note', // safe default key
+       'createdAt': createdAt.millisecondsSinceEpoch,
+       'updatedAt': updatedAt.millisecondsSinceEpoch,
+     };
+@@ -60,9 +59,27 @@ class NoteModel {
+       title: json['title'] as String,
+       content: json['content'] as String,
+       color: Color(json['colorValue'] as int),
+-      icon: IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons'),
++      // New format: 'iconKey' (String). Old format: 'iconCodePoint' (int) —
++      // migrated on first load, see Step 3. Once every install has re-saved
++      // at least once, the codePoint branch can be deleted.
++      icon: json['iconKey'] != null
++          ? iconFromKey(json['iconKey'] as String)
++          : _legacyIconFromCodePoint(json['iconCodePoint'] as int?),
+       createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] as int),
+       updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] as int),
+     );
+   }
+ }
++
++/// TEMPORARY migration shim — remove once confident no installs still have
++/// pre-iconKey data (check analytics / a few app-versions out).
++/// Old data was saved with fontFamily hardcoded to 'MaterialIcons', which
++/// was WRONG (actual icons are FluentIcons) — so this can only approximate
++/// the original icon. That's acceptable for one-time migration only.
++IconData _legacyIconFromCodePoint(int? codePoint) {
++  if (codePoint == null) return iconFromKey('note_note');
++  // Best-effort: most existing notes were created with the default
++  // first option in their respective picker, so fall back to that rather
++  // than an unrelated Material glyph rendered in the wrong font.
++  return iconFromKey('note_note');
++}
+diff --git a/lib/models/permissions_model.dart b/lib/models/permissions_model.dart
+index cb6ca86..8116ab9 100644
+--- a/lib/models/permissions_model.dart
++++ b/lib/models/permissions_model.dart
+@@ -24,9 +24,6 @@ class PermissionsModel {
+   /// Indicates whether the ignore battery optimization permission is granted.
+   final bool haveIgnoreOptimizationPermission;
+ 
+-  /// Indicates whether the Admin permission is granted.
+-  final bool haveAdminPermission;
+-
+   /// Indicates whether the Notification Access permission is granted.
+   final bool haveNotificationAccessPermission;
+ 
+@@ -41,12 +38,6 @@ class PermissionsModel {
+   /// nudge instead of a full re-permission prompt.
+   final bool isAccessibilityServicePaused;
+ 
+-  /// Indicates whether Device Admin permission was previously granted but has
+-  /// been silently revoked by the OEM. Set by the keep-alive heartbeat on the
+-  /// native side when it detects admin went from active to inactive.
+-  /// When true, the UI should show a lightweight one-tap re-enable nudge.
+-  final bool isDeviceAdminRevoked;
+-
+   const PermissionsModel({
+     this.haveNotificationPermission = true,
+     this.haveUsageAccessPermission = true,
+@@ -56,11 +47,9 @@ class PermissionsModel {
+     this.haveAccessibilityPermission = true,
+     this.haveAlarmsPermission = true,
+     this.haveIgnoreOptimizationPermission = true,
+-    this.haveAdminPermission = true,
+     this.haveNotificationAccessPermission = true,
+     this.isAccessibilityServiceActive = true,
+     this.isAccessibilityServicePaused = false,
+-    this.isDeviceAdminRevoked = false,
+   });
+ 
+   /// Creates a copy of the `PermissionsModel` with potentially modified permissions.
+@@ -73,11 +62,9 @@ class PermissionsModel {
+     bool? haveAccessibilityPermission,
+     bool? haveAlarmsPermission,
+     bool? haveIgnoreOptimizationPermission,
+-    bool? haveAdminPermission,
+     bool? haveNotificationAccessPermission,
+     bool? isAccessibilityServiceActive,
+     bool? isAccessibilityServicePaused,
+-    bool? isDeviceAdminRevoked,
+   }) {
+     return PermissionsModel(
+       haveNotificationPermission:
+@@ -93,7 +80,6 @@ class PermissionsModel {
+       haveAlarmsPermission: haveAlarmsPermission ?? this.haveAlarmsPermission,
+       haveIgnoreOptimizationPermission: haveIgnoreOptimizationPermission ??
+           this.haveIgnoreOptimizationPermission,
+-      haveAdminPermission: haveAdminPermission ?? this.haveAdminPermission,
+       haveNotificationAccessPermission:
+           haveNotificationAccessPermission ??
+               this.haveNotificationAccessPermission,
+@@ -101,8 +87,6 @@ class PermissionsModel {
+           isAccessibilityServiceActive ?? this.isAccessibilityServiceActive,
+       isAccessibilityServicePaused:
+           isAccessibilityServicePaused ?? this.isAccessibilityServicePaused,
+-      isDeviceAdminRevoked:
+-          isDeviceAdminRevoked ?? this.isDeviceAdminRevoked,
+     );
+   }
+ }
+diff --git a/lib/providers/system/permissions_provider.dart b/lib/providers/system/permissions_provider.dart
+index 122379d..0ef55b4 100644
+--- a/lib/providers/system/permissions_provider.dart
++++ b/lib/providers/system/permissions_provider.dart
+@@ -73,10 +73,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+               .getAndAskIgnoreBatteryOptimizationPermission(),
+           'ignore optimization',
+         ),
+-        haveAdminPermission: await _safeGetPermission(
+-          () => MethodChannelService.instance.getAndAskAdminPermission(),
+-          'admin',
+-        ),
+         haveNotificationAccessPermission: await _safeGetPermission(
+           () =>
+               MethodChannelService.instance.getAndAskNotificationAccessPermission(),
+@@ -90,10 +86,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+           () => MethodChannelService.instance.isAccessibilityServicePaused(),
+           'accessibility service paused',
+         ),
+-        isDeviceAdminRevoked: await _safeGetPermission(
+-          () => MethodChannelService.instance.isDeviceAdminRevoked(),
+-          'device admin revoked',
+-        ),
+       );
+ 
+       state = cache;
+@@ -168,10 +160,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+               .getAndAskIgnoreBatteryOptimizationPermission(),
+           'ignore optimization',
+         ),
+-        haveAdminPermission: await _safeGetPermission(
+-          () => MethodChannelService.instance.getAndAskAdminPermission(),
+-          'admin',
+-        ),
+         haveNotificationAccessPermission: await _safeGetPermission(
+           () =>
+               MethodChannelService.instance.getAndAskNotificationAccessPermission(),
+@@ -185,10 +173,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+           () => MethodChannelService.instance.isAccessibilityServicePaused(),
+           'accessibility service paused',
+         ),
+-        isDeviceAdminRevoked: await _safeGetPermission(
+-          () => MethodChannelService.instance.isDeviceAdminRevoked(),
+-          'device admin revoked',
+-        ),
+       );
+ 
+       debugPrint('PermissionNotifier: All permissions re-checked on app resume');
+@@ -212,9 +196,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+       await askDisplayOverlayPermission();
+       await Future.delayed(500.ms);
+ 
+-      await askAdminPermission();
+-      await Future.delayed(500.ms);
+-
+       await fetchPermissionsStatus();
+       debugPrint('PermissionNotifier: All critical permissions requested');
+     } catch (e) {
+@@ -287,28 +268,6 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+         .getAndAskIgnoreBatteryOptimizationPermission(askPermissionToo: true);
+   }
+ 
+-  /// Requests the Admin permission and updates the internal state.
+-  Future<void> askAdminPermission() async {
+-    await MethodChannelService.instance
+-        .getAndAskAdminPermission(askPermissionToo: true);
+-  }
+-
+-  /// Request the device to disable admin if already enabled
+-  Future<void> disableAdminPermission() async {
+-    try {
+-      await MethodChannelService.instance.disableDeviceAdmin();
+-      await Future.delayed(500.ms);
+-      state = state.copyWith(
+-        haveAdminPermission: await _safeGetPermission(
+-          () => MethodChannelService.instance.getAndAskAdminPermission(),
+-          'admin',
+-        ),
+-      );
+-    } catch (e) {
+-      debugPrint('PermissionNotifier: Error disabling admin permission: $e');
+-    }
+-  }
+-
+   /// Requests the notification access permission and updates the internal state.
+   Future<void> askNotificationAccessPermission() async {
+     await MethodChannelService.instance
+@@ -332,20 +291,4 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
+     }
+   }
+ 
+-  /// Clears the Device Admin revoked flag and updates state.
+-  /// Called from the UI when user taps the re-enable nudge.
+-  Future<void> clearDeviceAdminRevokedFlag() async {
+-    try {
+-      await MethodChannelService.instance.clearDeviceAdminRevokedFlag();
+-      state = state.copyWith(
+-        isDeviceAdminRevoked: false,
+-        haveAdminPermission: await _safeGetPermission(
+-          () => MethodChannelService.instance.getAndAskAdminPermission(),
+-          'admin',
+-        ),
+-      );
+-    } catch (e) {
+-      debugPrint('PermissionNotifier: Error clearing admin revoked flag: $e');
+-    }
+-  }
+ }
+diff --git a/lib/ui/auth/login_screen.dart b/lib/ui/auth/login_screen.dart
+index 1f490db..7d77316 100644
+--- a/lib/ui/auth/login_screen.dart
++++ b/lib/ui/auth/login_screen.dart
+@@ -188,6 +188,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
+                             width: 72,
+                             height: 72,
+                             fit: BoxFit.cover,
++                            cacheWidth: 144,
++                            cacheHeight: 144,
+                           ),
+                         ),
+                       ),
+diff --git a/lib/ui/auth/signup_screen.dart b/lib/ui/auth/signup_screen.dart
+index 8371aca..c71afc3 100644
+--- a/lib/ui/auth/signup_screen.dart
++++ b/lib/ui/auth/signup_screen.dart
+@@ -384,6 +384,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
+                             width: 72,
+                             height: 72,
+                             fit: BoxFit.cover,
++                            cacheWidth: 144,
++                            cacheHeight: 144,
+                           ),
+                         ),
+                       ),
+diff --git a/lib/ui/common/application_icon.dart b/lib/ui/common/application_icon.dart
+index 0b92e9c..6273a95 100644
+--- a/lib/ui/common/application_icon.dart
++++ b/lib/ui/common/application_icon.dart
+@@ -39,6 +39,8 @@ class ApplicationIcon extends StatelessWidget {
+               width: size * 2,
+               height: size * 2,
+               fit: BoxFit.cover,
++              cacheWidth: (size * 4).round(),
++              cacheHeight: (size * 4).round(),
+             ),
+           ),
+         );
+diff --git a/lib/ui/common/default_list_tile.dart b/lib/ui/common/default_list_tile.dart
+index 722e369..f7f68ba 100644
+--- a/lib/ui/common/default_list_tile.dart
++++ b/lib/ui/common/default_list_tile.dart
+@@ -59,10 +59,11 @@ class DefaultListTile extends StatelessWidget {
+       elevation: 0,
+       tint: isPrimary ? Theme.of(context).colorScheme.secondaryContainer : color,
+       onTap: enabled ? onPressed : null,
+-      child: Row(
+-        mainAxisSize: MainAxisSize.max,
+-        crossAxisAlignment: CrossAxisAlignment.center,
+-        children: [
++      child: ClipRect(
++        child: Row(
++          mainAxisSize: MainAxisSize.max,
++          crossAxisAlignment: CrossAxisAlignment.center,
++          children: [
+           /// Leading widget
+           leadingIcon != null
+               ? Container(
+@@ -111,12 +112,17 @@ class DefaultListTile extends StatelessWidget {
+ 
+                 /// Subtitle widget
+                 subtitleText != null
+-                    ? StyledText(
+-                        subtitleText!,
+-                        fontSize: 14,
+-                        isSubtitle: true,
+-                        maxLines: 2,
+-                        overflow: TextOverflow.ellipsis,
++                    ? FittedBox(
++                        fit: BoxFit.scaleDown,
++                        alignment: Alignment.centerLeft,
++                        clipBehavior: Clip.none,
++                        child: StyledText(
++                          subtitleText!,
++                          fontSize: 14,
++                          isSubtitle: true,
++                          maxLines: 2,
++                          overflow: TextOverflow.ellipsis,
++                        ),
+                       )
+                     : subtitle ?? 0.vBox,
+               ],
+@@ -149,7 +155,8 @@ class DefaultListTile extends StatelessWidget {
+                       ),
+                     )
+                   : trailing ?? 0.hBox,
+-        ],
++          ],
++        ),
+       ),
+     );
+   }
+diff --git a/lib/ui/onboarding/onboarding_page.dart b/lib/ui/onboarding/onboarding_page.dart
+index 2d72e53..ddc7b6e 100644
+--- a/lib/ui/onboarding/onboarding_page.dart
++++ b/lib/ui/onboarding/onboarding_page.dart
+@@ -56,6 +56,8 @@ class OnboardingPage extends StatelessWidget {
+                 width: 88,
+                 height: 88,
+                 fit: BoxFit.cover,
++                cacheWidth: 176,
++                cacheHeight: 176,
+               ),
+             ),
+             24.vBox,
+diff --git a/lib/ui/permissions/admin_permission_tile.dart b/lib/ui/permissions/admin_permission_tile.dart
+deleted file mode 100644
+index e5520ea..0000000
+--- a/lib/ui/permissions/admin_permission_tile.dart
++++ /dev/null
+@@ -1,103 +0,0 @@
+-
+-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+-import 'package:flutter/material.dart';
+-import 'package:flutter_animate/flutter_animate.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:nlp_digitox/config/hero_tags.dart';
+-import 'package:nlp_digitox/core/database/adapters/time_of_day_adapter.dart';
+-import 'package:nlp_digitox/core/enums/item_position.dart';
+-import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+-import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
+-import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+-import 'package:nlp_digitox/ui/common/default_list_tile.dart';
+-import 'package:nlp_digitox/ui/dialogs/confirmation_dialog.dart';
+-import 'package:nlp_digitox/ui/permissions/accessibility_permission_card.dart';
+-import 'package:nlp_digitox/ui/permissions/permission_sheet.dart';
+-import 'package:nlp_digitox/ui/transitions/default_hero.dart';
+-
+-class AdminPermissionTile extends ConsumerWidget {
+-  const AdminPermissionTile({super.key});
+-
+-  void _toggleTamperProtection(
+-    BuildContext context,
+-    WidgetRef ref,
+-    bool isAdminEnabled,
+-    TimeOfDayAdapter uninstallWindowTime,
+-  ) async {
+-    /// Ask accessibility permission if not allowed
+-    if (!ref.read(permissionProvider).haveAccessibilityPermission) {
+-      const AccessibilityPermissionCard()
+-          .showAccessibilityPermissionSheet(context, ref);
+-      return;
+-    }
+-
+-    if (isAdminEnabled) {
+-      /// User wants to Disable
+-      if (ref
+-          .read(parentalControlsProvider.notifier)
+-          .isBetweenUninstallWindow) {
+-        ref.read(permissionProvider.notifier).disableAdminPermission();
+-      } else {
+-        context.showSnackAlert(
+-          context.locale.permission_admin_snack_alert,
+-        );
+-      }
+-    } else {
+-      /// Confirm
+-      final isConfirm = await showConfirmationDialog(
+-        context: context,
+-        heroTag: HeroTags.tamperProtectionTileTag,
+-        icon: FluentIcons.shield_keyhole_20_filled,
+-        title: context.locale.tamper_protection_tile_title,
+-        info: context.locale.tamper_protection_confirmation_dialog_info,
+-        positiveLabel: context.locale.permission_button_grant_permission,
+-      );
+-
+-      await Future.delayed(400.ms);
+-      if (!isConfirm || !context.mounted) return;
+-
+-      /// User wants to Enable
+-      showModalBottomSheet(
+-        context: context,
+-        isScrollControlled: true,
+-        builder: (sheetContext) => PermissionSheet(
+-          icon: FluentIcons.shield_keyhole_20_filled,
+-          title: context.locale.permission_admin_title,
+-          description: context.locale.permission_admin_info,
+-          onTapGrantPermission: () {
+-            Navigator.of(sheetContext).maybePop();
+-            ref.read(permissionProvider.notifier).askAdminPermission();
+-          },
+-        ),
+-      );
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context, WidgetRef ref) {
+-    final haveAdminPermission =
+-        ref.watch(permissionProvider.select((v) => v.haveAdminPermission));
+-    final haveAccessibilityPermission = ref
+-        .watch(permissionProvider.select((v) => v.haveAccessibilityPermission));
+-
+-    final uninstallWindowTime = ref
+-        .watch(parentalControlsProvider.select((v) => v.uninstallWindowTime));
+-
+-    return DefaultHero(
+-      tag: HeroTags.tamperProtectionTileTag,
+-      child: DefaultListTile(
+-        position: ItemPosition.mid,
+-        switchValue: haveAdminPermission && haveAccessibilityPermission,
+-        leadingIcon: FluentIcons.shield_keyhole_20_regular,
+-        titleText: context.locale.tamper_protection_tile_title,
+-        subtitleText: context.locale.tamper_protection_tile_subtitle,
+-        onPressed: () => _toggleTamperProtection(
+-          context,
+-          ref,
+-          haveAdminPermission,
+-          uninstallWindowTime,
+-        ),
+-      ),
+-    );
+-  }
+-}
+diff --git a/lib/ui/permissions/permission_granting_steps.dart b/lib/ui/permissions/permission_granting_steps.dart
+index 661e292..44e13e0 100644
+--- a/lib/ui/permissions/permission_granting_steps.dart
++++ b/lib/ui/permissions/permission_granting_steps.dart
+@@ -44,7 +44,13 @@ class PermissionGrantingSteps extends StatelessWidget {
+           DefaultListTile(
+             leading: ClipRRect(
+               borderRadius: BorderRadius.circular(Radii.sm),
+-              child: Image.asset('assets/logo.png', width: 40, height: 40),
++              child: Image.asset(
++                'assets/logo.png',
++                width: 40,
++                height: 40,
++                cacheWidth: 80,
++                cacheHeight: 80,
++              ),
+             ),
+             titleText: "NLP digitox",
+             subtitleText: isAccessibilityPerm
+diff --git a/lib/ui/screens/parental_controls/parental_controls_screen.dart b/lib/ui/screens/parental_controls/parental_controls_screen.dart
+index f8d4843..b720f5e 100644
+--- a/lib/ui/screens/parental_controls/parental_controls_screen.dart
++++ b/lib/ui/screens/parental_controls/parental_controls_screen.dart
+@@ -6,14 +6,12 @@ import 'package:nlp_digitox/config/hero_tags.dart';
+ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
+ import 'package:nlp_digitox/core/services/auth_service.dart';
+ import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
+-import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+ import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+ import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+ import 'package:nlp_digitox/ui/common/styled_text.dart';
+ import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
+ import 'package:nlp_digitox/ui/dialogs/time_picker_dialog.dart';
+ import 'package:nlp_digitox/ui/dialogs/parental_password_management_dialog.dart';
+-import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
+ import 'package:nlp_digitox/ui/permissions/battery_optimization_recommendation_card.dart';
+ import 'package:nlp_digitox/ui/screens/parental_controls/invincible_mode_settings.dart';
+ import 'package:nlp_digitox/ui/transitions/default_hero.dart';
+@@ -59,8 +57,6 @@ class ParentalControlsScreen extends ConsumerWidget {
+   Widget build(BuildContext context, WidgetRef ref) {
+     final colorScheme = Theme.of(context).colorScheme;
+     final parentalControls = ref.watch(parentalControlsProvider);
+-    final isAdminEnabled =
+-        ref.watch(permissionProvider.select((v) => v.haveAdminPermission));
+ 
+     return ScaffoldShell(
+       items: [
+@@ -122,14 +118,6 @@ class ParentalControlsScreen extends ConsumerWidget {
+                 ),
+               ),
+ 
+-              /// Tamper protection
+-              SliverToBoxAdapter(
+-                child: Padding(
+-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+-                  child: const AdminPermissionTile(),
+-                ),
+-              ),
+-
+               /// Uninstall window
+               SliverToBoxAdapter(
+                 child: Padding(
+@@ -162,16 +150,6 @@ class ParentalControlsScreen extends ConsumerWidget {
+                         ),
+                       ),
+                       onTap: () async {
+-                        if (isAdminEnabled &&
+-                            !ref
+-                                .read(parentalControlsProvider.notifier)
+-                                .isBetweenUninstallWindow) {
+-                          context.showSnackAlert(
+-                            context.locale.permission_admin_snack_alert,
+-                          );
+-                          return;
+-                        }
+-
+                         final pickedTime = await showCustomTimePickerDialog(
+                           context: context,
+                           heroTag: HeroTags.uninstallWindowTileTag,
+diff --git a/lib/ui/splash_screen.dart b/lib/ui/splash_screen.dart
+index 8d4379c..e34cb4d 100644
+--- a/lib/ui/splash_screen.dart
++++ b/lib/ui/splash_screen.dart
+@@ -203,6 +203,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
+                         child: Image.asset(
+                           'assets/logo-prev.png',
+                           fit: BoxFit.cover,
++                          cacheWidth: 368,
++                          cacheHeight: 368,
+                         ),
+                       ),
+                     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.12, end: 0),

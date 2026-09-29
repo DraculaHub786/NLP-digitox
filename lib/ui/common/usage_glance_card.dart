@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:nlp_digitox/core/enums/item_position.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/utils/widget_utils.dart';
-import 'package:nlp_digitox/ui/common/rounded_container.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class UsageGlanceCard extends StatelessWidget {
@@ -31,13 +31,14 @@ class UsageGlanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final mini = icon == null;
 
-    return RoundedContainer(
-      circularRadius: 6,
-      borderRadius: getBorderRadiusFromPosition(position),
+    return SurfaceCard(
+      borderRadius:
+          getBorderRadiusFromPosition(position).topLeft.x,
       padding: const EdgeInsets.all(16),
-      color:
+      tint:
           isPrimary ? Theme.of(context).colorScheme.secondaryContainer : null,
-      onPressed: onTap,
+      elevation: 0,
+      onTap: onTap,
       child: Stack(
         children: [
           /// Usage

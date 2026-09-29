@@ -1,9 +1,11 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/services/onboarding_sync_service.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
 import 'package:nlp_digitox/models/persona_model.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 
 /// Onboarding Quiz Page
 /// Implements persona fingerprinting based on user responses
@@ -14,13 +16,21 @@ class OnboardingQuizPage extends ConsumerStatefulWidget {
   const OnboardingQuizPage({
     super.key,
     this.onComplete,
+    this.onPermissionsMissing,
   });
 
   /// Called when the user completes the quiz and taps "Get Started".
-  /// Should call [MindfulSettingsNotifier.markOnboardingDone] and navigate
+  /// Should call [DigitoxSettingsNotifier.markOnboardingDone] and navigate
   /// into the app (instead of the quiz navigating directly, which would
   /// bypass persisting the onboarding-done state).
   final VoidCallback? onComplete;
+
+  /// Called once, right after this page is first shown, if essential
+  /// permissions turn out not to all be granted. This is a hard safety
+  /// net so the quiz can never be reached (via swipe, restored navigation
+  /// state, etc.) without permissions having been granted first — the
+  /// caller should bounce the user back to the PermissionsPage.
+  final VoidCallback? onPermissionsMissing;
 
   @override
   ConsumerState<OnboardingQuizPage> createState() => _OnboardingQuizPageState();
@@ -29,6 +39,21 @@ class OnboardingQuizPage extends ConsumerStatefulWidget {
 class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
   int _currentQuestionIndex = 0;
   final Map<String, dynamic> _responses = {};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final perms = ref.read(permissionProvider);
+      final allGranted = perms.haveUsageAccessPermission &&
+          perms.haveDisplayOverlayPermission &&
+          perms.haveAlarmsPermission &&
+          perms.haveNotificationPermission &&
+          perms.haveAccessibilityPermission;
+      if (!allGranted) widget.onPermissionsMissing?.call();
+    });
+  }
 
   // Quiz questions for persona fingerprinting
   // Reframed to reference the onboarding topics (Focus, Block Distractions,
@@ -280,15 +305,19 @@ class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
       (key, value) => MapEntry(key, value.toString()),
     );
 
-    // Persist the persona profile (including raw answers) so AI services can read it
-    await PersonaService.instance.savePersona(
-      PersonaProfile(
-        persona: persona,
-        scores: {},
-        determinedAt: DateTime.now(),
-        answers: answers,
-      ),
+    final profile = PersonaProfile(
+      persona: persona,
+      scores: {},
+      determinedAt: DateTime.now(),
+      answers: answers,
     );
+
+    // Persist the persona profile (including raw answers) so AI services can read it
+    await PersonaService.instance.savePersona(profile);
+
+    // Mirror it to Firestore too, so a future reinstall can restore it
+    // instead of forcing the user to redo the quiz (see OnboardingSyncService).
+    await OnboardingSyncService.instance.pushPersonaToCloud(profile);
 
     debugPrint('Onboarding: Saved persona — ${persona.displayName} ($personaLabel) with ${answers.length} answers');
 

@@ -35,16 +35,21 @@ class _FocusSessionScreenState extends ConsumerState<FocusSessionScreen> {
         title: const Text('Focus Session'),
         actions: [
           if (currentSession != null && !currentSession.isCompleted)
-            IconButton(
-              icon: Icon(_isNoiseEnabled ? Icons.volume_up : Icons.volume_off),
-              onPressed: () async {
-                if (_isNoiseEnabled) {
-                  await _whiteNoisePlayer.stop();
-                } else {
-                  await _whiteNoisePlayer.play();
-                }
-                setState(() => _isNoiseEnabled = !_isNoiseEnabled);
-              },
+            Tooltip(
+              message: 'Ambient sound (placeholder — no audio bundled yet)',
+              child: IconButton(
+                icon: Icon(
+                  _isNoiseEnabled ? Icons.volume_up : Icons.volume_off,
+                ),
+                onPressed: () async {
+                  if (_isNoiseEnabled) {
+                    await _whiteNoisePlayer.stop();
+                  } else {
+                    await _whiteNoisePlayer.play();
+                  }
+                  setState(() => _isNoiseEnabled = !_isNoiseEnabled);
+                },
+              ),
             ),
         ],
       ),

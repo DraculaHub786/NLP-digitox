@@ -1,11 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
-/// Direct HTTP test to find working Gemini models
+/// Direct HTTP test to find working Gemini models.
+/// Run with: dart test_http_direct.dart
+/// The key is read from the GEMINI_TEST_API_KEY environment variable (see .env).
 Future<void> main() async {
   print('🧪 Testing Gemini API directly via HTTP...\n');
   
-  const apiKey = 'AIzaSyB9Hhj7_qrI7l0W0k0UdHvLEiyrVFlHYko';
+  final apiKey = Platform.environment['GEMINI_TEST_API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    print('❌ GEMINI_TEST_API_KEY environment variable is not set.');
+    print('   Copy .env.example to .env and export the variable.');
+    return;
+  }
   
   // First, list available models
   print('📋 Listing available models...\n');

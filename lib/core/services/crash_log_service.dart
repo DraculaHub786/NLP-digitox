@@ -44,7 +44,7 @@ class CrashLogService {
     /// Create log
     final crashLog = CrashLogsTableCompanion.insert(
       appVersion:
-          Value(MethodChannelService.instance.deviceInfo.mindfulVersion),
+          Value(MethodChannelService.instance.deviceInfo.digitoxVersion),
       error: Value(error),
       stackTrace: Value(stackTrace),
       timeStamp: Value(DateTime.now()),

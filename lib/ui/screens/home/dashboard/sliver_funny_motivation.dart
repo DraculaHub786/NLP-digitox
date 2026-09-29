@@ -1,4 +1,4 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 //
 // Funny motivation card — a dismissible, cartoon-brutalist UI element that
 // shows a witty AI-generated message based on the user's mood, persona, and
@@ -102,7 +102,7 @@ class _FunnyMotivationCard extends StatelessWidget {
       decoration: BoxDecoration(
         // Flat solid background, no gradient
         color: isDark ? DesignPalette.funnyDarkFill : DesignPalette.funnyLightFill,
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         // Thick black stroke — cartoon brutalist signature
         border: Border.all(
           color: outlineColor,
@@ -266,7 +266,7 @@ class _ShimmerBlockState extends State<_ShimmerBlock>
         width: double.infinity,
         decoration: BoxDecoration(
           color: baseColor.withValues(alpha: _animation.value),
-          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+          borderRadius: BorderRadius.circular(Radii.pill),
         ),
       ),
     );

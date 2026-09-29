@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nlp_digitox/core/services/leaderboard_service.dart';
+import 'package:nlp_digitox/core/services/profile_service.dart';
+import 'package:nlp_digitox/core/services/session_service.dart';
 
 /// Firebase Authentication Service
 /// Handles all authentication operations including email/password and Google Sign-In
@@ -134,6 +137,11 @@ class FirebaseAuthService {
         throw Exception('Failed to sign in with Google');
       }
 
+      await _seedGoogleProfilePictureIfNeeded(
+        uid: userCredential.user!.uid,
+        googlePhotoUrl: googleUser.photoUrl,
+      );
+
       debugPrint('User signed in with Google: ${userCredential.user!.uid}');
       return userCredential.user!;
     } on FirebaseAuthException catch (e) {
@@ -147,12 +155,55 @@ class FirebaseAuthService {
     }
   }
 
+  /// Populates `profileImageUrl` from the signed-in Google account's own
+  /// photo, but only if the user doesn't already have a custom picture set.
+  /// A later manual upload via ProfileService always overwrites this field
+  /// unconditionally, so it will still correctly take precedence — this is
+  /// a one-time fallback for first sign-in, not a permanent sync.
+  Future<void> _seedGoogleProfilePictureIfNeeded({
+    required String uid,
+    required String? googlePhotoUrl,
+  }) async {
+    if (googlePhotoUrl == null) return;
+    try {
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final hasCustomPic = doc.data()?['profileImageUrl'] != null;
+      if (hasCustomPic) return;
+
+      await FirebaseFirestore.instance.collection('users').doc(uid).set(
+        {'profileImageUrl': googlePhotoUrl},
+        SetOptions(merge: true),
+      );
+      debugPrint('Seeded profile picture from Google account for $uid');
+    } catch (e) {
+      // Non-fatal — sign-in should still succeed even if this fails.
+      debugPrint('Failed to seed Google profile picture: $e');
+    }
+  }
+
   /// Sign out
   Future<void> signOut() async {
     try {
+      // These singletons are process-wide and hold per-account data, so they
+      // must be dropped before the next account signs in on the same process:
+      //   * ProfileService  → cached profile image URL (and its notifier, so
+      //     on-screen avatars stop rendering the previous account's picture).
+      //   * LeaderboardService → cached weekly/monthly boards, which are not
+      //     user-scoped and would otherwise show the previous account's list.
+      // Cleared before `_auth.signOut()` while the state is still consistent;
+      // neither call touches Firestore.
+      ProfileService.instance.clearCache();
+      LeaderboardService.instance.clearCache();
+
       await Future.wait([
         _auth.signOut(),
         _googleSignIn.signOut(),
+        // Cancels every shared-session presence heartbeat Timer and RTDB
+        // listener — without this they leak for the rest of the process
+        // lifetime (including for whoever signs in next in the same app
+        // session), since nothing else ever calls SessionService.release().
+        SessionService.instance.release(),
       ]);
       debugPrint('User signed out');
     } catch (e) {

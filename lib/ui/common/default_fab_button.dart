@@ -31,7 +31,7 @@ class DefaultFabButton extends StatelessWidget {
           padding: const WidgetStatePropertyAll(EdgeInsets.all(16)),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
           ),
         ),

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/models/task_model.dart';

@@ -321,13 +321,30 @@ void main() {
       await sessionService.release();
     });
 
-    test('should throw when not initialized', () async {
-      final newService = SessionService.instance;
-      await newService.release();
+    test('initialises itself on first use after release', () async {
+      final service = SessionService.instance;
 
+      // The old contract was "call init() first" — and nothing did, reliably:
+      // startup ran it from a `Future.delayed(10.seconds)`, and sign-out's
+      // release() cleared the flag for the rest of the process. Create then
+      // threw "SessionService not initialized" and silently created nothing.
+      // The service must now recover on its own.
+      await service.release();
+      expect(service.isReady, isFalse);
+
+      Object? thrown;
+      try {
+        await service.createSession(name: 'Test');
+      } catch (error) {
+        thrown = error;
+      }
+
+      final failedOnInitGuard =
+          thrown is StateError && thrown.message.contains('not initialized');
       expect(
-        newService.createSession(name: 'Test'),
-        throwsStateError,
+        failedOnInitGuard,
+        isFalse,
+        reason: 'createSession must not require a prior init() any more',
       );
     });
 
@@ -341,7 +358,9 @@ void main() {
 
     test('should have empty cache after init', () async {
       final status = sessionService.debugStatus;
-      expect(status, contains('cache_size: 0'));
+      // debugStatus renders `cache: <n>` — keep this in step with the getter
+      // rather than asserting a substring it never produced.
+      expect(status, contains('cache: 0'));
     });
 
     test('release should succeed', () async {
@@ -411,7 +430,7 @@ void main() {
     test('should have valid debug status format', () async {
       final status = sessionService.debugStatus;
       expect(status, contains('SessionService'));
-      expect(status, contains('cache_size'));
+      expect(status, contains('cache:'));
       expect(status, contains('heartbeats'));
     });
   });

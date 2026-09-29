@@ -1,8 +1,13 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/navigation/app_routes.dart';
+import 'package:nlp_digitox/core/services/session_service.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/complete_session_button.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
+import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
+    show digitoxSettingsProvider;
 import 'package:nlp_digitox/providers/session_provider.dart';
 
 /// Shared Focus Sessions screen with glassmorphic design.
@@ -247,91 +252,88 @@ class _SessionCard extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    (isDark ? Colors.white : theme.colorScheme.primary)
-                        .withValues(alpha: 0.10),
-                    (isDark ? Colors.white : theme.colorScheme.primary)
-                        .withValues(alpha: 0.03),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: (isDark ? Colors.white : theme.colorScheme.primary)
-                      .withValues(alpha: 0.15),
-                  width: 1.5,
-                ),
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  (isDark ? Colors.white : theme.colorScheme.primary)
+                      .withValues(alpha: 0.10),
+                  (isDark ? Colors.white : theme.colorScheme.primary)
+                      .withValues(alpha: 0.03),
+                ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Avatar / member count
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary
-                              .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Center(
-                          child: Text(
-                            session.memberCount.toString(),
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: (isDark ? Colors.white : theme.colorScheme.primary)
+                    .withValues(alpha: 0.15),
+                width: 1.5,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Avatar / member count
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Center(
+                        child: Text(
+                          session.memberCount.toString(),
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              session.name,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 3),
-                            Row(
-                              children: [
-                                _StatusDot(isActive: session.activeMembers > 0),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '${session.activeMembers} focused now',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            session.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              _StatusDot(isActive: session.activeMembers > 0),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${session.activeMembers} focused now',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                      ),
-                    ],
-                  ),
-                  if (session.theme != null) ...[
-                    const SizedBox(height: 12),
-                    _ThemeChip(label: session.theme!),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                    ),
                   ],
+                ),
+                if (session.theme != null) ...[
+                  const SizedBox(height: 12),
+                  _ThemeChip(label: session.theme!),
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -359,9 +361,13 @@ class _PublicSessionCardState extends ConsumerState<_PublicSessionCard> {
   Future<void> _join() async {
     setState(() => _joining = true);
     try {
+      // Use the app's configured username as the in-session display name
+      // (falls back to 'Me' if somehow empty).
+      final username =
+          ref.read(digitoxSettingsProvider).username.trim();
       await ref.read(joinByIdProvider.notifier).joinById(
             sessionId: widget.data['id'] as String,
-            displayName: 'Me', // TODO: fetch from user profile
+            displayName: username.isNotEmpty ? username : 'Me',
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -403,65 +409,59 @@ class _PublicSessionCardState extends ConsumerState<_PublicSessionCard> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.secondary.withValues(alpha: 0.10),
-                  theme.colorScheme.secondary.withValues(alpha: 0.03),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              theme.colorScheme.secondary.withValues(alpha: 0.10),
+              theme.colorScheme.secondary.withValues(alpha: 0.03),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: theme.colorScheme.secondary.withValues(alpha: 0.15),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.public_rounded,
+                color: theme.colorScheme.secondary, size: 28),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name,
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 3),
+                  Text(
+                    '$memberCount member${memberCount == 1 ? '' : 's'}${theme2 != null ? ' · $theme2' : ''}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: 0.6),
+                    ),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: theme.colorScheme.secondary.withValues(alpha: 0.15),
-                width: 1.5,
-              ),
             ),
-            child: Row(
-              children: [
-                Icon(Icons.public_rounded,
-                    color: theme.colorScheme.secondary, size: 28),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name,
-                          style: theme.textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 3),
-                      Text(
-                        '$memberCount member${memberCount == 1 ? '' : 's'}${theme2 != null ? ' · $theme2' : ''}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
+            _joining
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : TextButton(
+                    onPressed: _join,
+                    style: TextButton.styleFrom(
+                      foregroundColor: theme.colorScheme.secondary,
+                    ),
+                    child: const Text('Join'),
                   ),
-                ),
-                _joining
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : TextButton(
-                        onPressed: _join,
-                        style: TextButton.styleFrom(
-                          foregroundColor: theme.colorScheme.secondary,
-                        ),
-                        child: const Text('Join'),
-                      ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );
@@ -589,7 +589,88 @@ class SessionDetailScreen extends ConsumerWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
+
+                        // Start / stop focusing with this group's settings.
+                        // `blockedApps` is pushed into the normal focus
+                        // profile, so the native blocklist enforces it with
+                        // no extra plumbing.
+                        Consumer(
+                          builder: (context, ref, _) {
+                            final isInSharedFocus = ref.watch(
+                              focusModeProvider.notifier,
+                            ).isInSharedSessionFocus;
+                            final settings = session.settings;
+
+                            if (isInSharedFocus) {
+                              return SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () => ref
+                                      .read(focusModeProvider.notifier)
+                                      .endSharedSession(),
+                                  icon: const Icon(Icons.stop_circle_outlined),
+                                  label: const Text(
+                                      'Stop Focusing With This Group'),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: settings == null
+                                    ? null
+                                    : () {
+                                        ref
+                                            .read(focusModeProvider.notifier)
+                                            .startSessionFromSharedSettings(
+                                                settings);
+                                        Navigator.of(context)
+                                            .pushNamed(
+                                                AppRoutes.activeSessionPath);
+                                      },
+                                icon: const Icon(Icons.play_arrow_rounded),
+                                label: const Text(
+                                    'Start Focusing With This Group'),
+                                style: FilledButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        if (session.settings == null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'This group has no shared settings yet, so group '
+                            'focus is unavailable.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ],
+
+                        const SizedBox(height: 12),
+
+                        // Owner-only completion — marks the session finished
+                        // and pays out the completion points.
+                        CompleteSessionButton(session: session),
+
+                        const SizedBox(height: 12),
 
                         // Leave button
                         SizedBox(
@@ -684,6 +765,7 @@ class _CreateSessionSheetState
   final _descCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isPublic = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -708,6 +790,23 @@ class _CreateSessionSheetState
                 style: theme.textTheme.titleLarge
                     ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
+            if (_error != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _error!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             TextFormField(
               controller: _nameCtrl,
               decoration: InputDecoration(
@@ -761,8 +860,19 @@ class _CreateSessionSheetState
     );
   }
 
+  /// Turns a thrown session error into something the user can act on.
+  ///
+  /// Firebase's own text is developer-facing, e.g.
+  /// `[firebase_database/permission-denied] Client doesn't have permission…`,
+  /// so the cases that need a different response from the user are mapped here
+  /// instead of being dumped into the sheet verbatim.
+  String _friendly(Object error) => _sessionErrorMessage(error, 'create');
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _error = null);
+
     await ref.read(createSessionProvider.notifier).createSession(
           name: _nameCtrl.text.trim(),
           description: _descCtrl.text.trim().isEmpty
@@ -770,10 +880,20 @@ class _CreateSessionSheetState
               : _descCtrl.text.trim(),
           isPublic: _isPublic,
         );
-    if (mounted) {
-      Navigator.pop(context);
-      ref.invalidate(userSessionsProvider);
+
+    if (!mounted) return;
+
+    // Only dismiss on success — otherwise the sheet would vanish and the
+    // user would lose their input with no explanation of what went wrong.
+    final error = ref.read(createSessionProvider).error;
+    if (error != null) {
+      setState(() => _error = _friendly(error));
+      return;
     }
+
+    ref.invalidate(userSessionsProvider);
+    ref.invalidate(publicSessionsProvider);
+    Navigator.pop(context);
   }
 }
 
@@ -785,6 +905,11 @@ class _JoinByIdSheet extends ConsumerStatefulWidget {
 class _JoinByIdSheetState extends ConsumerState<_JoinByIdSheet> {
   final _idCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
+
+  /// Rendered inside the sheet rather than as a SnackBar: the sheet is drawn on
+  /// top of the screen's Scaffold, so a SnackBar would appear *behind* it and
+  /// every failure would look like the button doing nothing.
+  String? _error;
 
   @override
   void dispose() {
@@ -809,6 +934,23 @@ class _JoinByIdSheetState extends ConsumerState<_JoinByIdSheet> {
           const SizedBox(height: 6),
           Text('Enter the session ID shared by your group.',
               style: theme.textTheme.bodySmall),
+          if (_error != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                _error!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           TextField(
             controller: _idCtrl,
@@ -855,30 +997,35 @@ class _JoinByIdSheetState extends ConsumerState<_JoinByIdSheet> {
   Future<void> _join() async {
     final id = _idCtrl.text.trim();
     final name = _nameCtrl.text.trim();
-    if (id.isEmpty || name.isEmpty) return;
+    if (id.isEmpty || name.isEmpty) {
+      setState(() => _error = 'Enter both the session ID and a display name.');
+      return;
+    }
 
+    setState(() => _error = null);
     await ref.read(joinByIdProvider.notifier).joinById(
           sessionId: id,
           displayName: name,
         );
 
-    final state = ref.read(joinByIdProvider);
     if (!mounted) return;
 
+    final state = ref.read(joinByIdProvider);
     if (state.hasError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${state.error}')),
-      );
-    } else if (!state.isLoading) {
-      Navigator.pop(context);
-      ref.invalidate(userSessionsProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Joined session!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      // Stay open so the user can correct the ID and retry, and so the reason
+      // is actually visible.
+      setState(() => _error = _sessionErrorMessage(state.error!, 'join'));
+      return;
     }
+
+    Navigator.pop(context);
+    ref.invalidate(userSessionsProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Joined session!'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 }
 
@@ -893,32 +1040,26 @@ class _GlassTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.12)),
-          ),
-          child: TabBar(
-            controller: controller,
-            tabs: const [Tab(text: 'My Sessions'), Tab(text: 'Discover')],
-            labelColor: theme.colorScheme.primary,
-            unselectedLabelColor:
-                theme.colorScheme.onSurface.withValues(alpha: 0.5),
-            indicator: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-          ),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: theme.colorScheme.primary.withValues(alpha: 0.12)),
+      ),
+      child: TabBar(
+        controller: controller,
+        tabs: const [Tab(text: 'My Sessions'), Tab(text: 'Discover')],
+        labelColor: theme.colorScheme.primary,
+        unselectedLabelColor:
+            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+        indicator: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
         ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
       ),
     );
   }
@@ -938,50 +1079,44 @@ class _GlassFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                theme.colorScheme.primary,
-                theme.colorScheme.primary.withValues(alpha: 0.8),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.primary.withValues(alpha: 0.35),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onPressed,
-              borderRadius: BorderRadius.circular(28),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 22, vertical: 14),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, color: Colors.white, size: 20),
-                    const SizedBox(width: 10),
-                    Text(
-                      label,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(28),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -1172,36 +1307,43 @@ class _BottomSheetWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-              20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 24),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface.withValues(alpha: 0.92),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
+    // Height is capped to what is actually left once the keyboard is up, and
+    // the body scrolls inside that cap, so every field and the submit button
+    // stay reachable on short screens.
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final maxHeight =
+        MediaQuery.of(context).size.height - bottomInset - 48;
+
+    return Container(
+      constraints: BoxConstraints(maxHeight: maxHeight),
+      padding: EdgeInsets.fromLTRB(20, 20, 20, bottomInset + 24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.15),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+        ),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 16),
-              child,
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            child,
+          ],
         ),
       ),
     );
@@ -1287,4 +1429,35 @@ class _ErrorView extends StatelessWidget {
       ),
     );
   }
+}
+/// Turns a thrown session error into text the user can act on.
+///
+/// Firebase's own message is developer-facing, e.g.
+/// `[firebase_database/permission-denied] Client doesn't have permission to
+/// access the desired data.`, so the cases where the user needs to do something
+/// different are mapped here instead of being dumped into the UI verbatim.
+/// Shared by the create and join sheets so both describe the same failure the
+/// same way. [action] is the verb that fits the caller: 'create' or 'join'.
+String _sessionErrorMessage(Object error, String action) {
+  debugPrint('Session $action failed: $error');
+
+  // Already written for the user by SessionService.
+  if (error is SessionException) return error.message;
+
+  final message = error.toString();
+  if (message.contains('permission-denied') ||
+      message.contains('PERMISSION_DENIED')) {
+    return 'The server rejected this request. Please sign out and back in, '
+        'then try again.';
+  }
+  if (message.contains('not authenticated')) {
+    return 'Please sign in again to $action a session.';
+  }
+  if (message.contains('not initialized')) {
+    return 'Sessions are still starting up. Please try again in a moment.';
+  }
+  if (message.contains('Could not reach the server')) {
+    return 'Could not reach the server. Check your connection and try again.';
+  }
+  return 'Could not $action the session. Please try again.';
 }

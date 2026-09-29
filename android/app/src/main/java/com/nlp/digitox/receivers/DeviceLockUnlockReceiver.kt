@@ -18,7 +18,7 @@ class DeviceLockUnlockReceiver(
     private val onDeviceLockChanged: (isUnLocked: Boolean) -> Unit,
 ) : BroadcastReceiver() {
     companion object {
-        private const val TAG = "Mindful.DeviceLockUnlockReceiver"
+        private const val TAG = "Digitox.DeviceLockUnlockReceiver"
     }
 
     fun register(context: Context) {

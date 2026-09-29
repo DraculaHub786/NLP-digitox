@@ -11,7 +11,7 @@ class ReminderManager(
     private val overlayManager: OverlayManager,
     private val onNewAppLaunched: (packageName: String) -> Unit,
 ) {
-    private val TAG = "Mindful.ReminderManager"
+    private val TAG = "Digitox.ReminderManager"
     private val triggerInterval = 10L
     private val reminderTriggers: HashSet<Int> = HashSet(0)
     private var activeTimer: PreciseCountDownExecutor? = null

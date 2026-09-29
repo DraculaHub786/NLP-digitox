@@ -1,11 +1,14 @@
-// Copyright (c) 2024 NLP digitox
+// Copyright (c) 2026 NLP digitox
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/ai_sentiment_service.dart';
+import 'package:nlp_digitox/core/services/chat_context_extractor.dart';
 import 'package:nlp_digitox/core/services/persona_service.dart';
+import 'package:nlp_digitox/core/services/sentiment_persistence_service.dart';
+import 'package:nlp_digitox/core/utils/date_time_utils.dart';
 import 'package:nlp_digitox/models/persona_model.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
 
@@ -144,9 +147,15 @@ class AIChatbotService {
     debugPrint('✅ AIChatbotService fully initialized');
   }
 
-  static final String _apiKey = ApiKeys.groqApiKey;
+  /// Resolved on every read rather than snapshotted.
+  ///
+  /// This was `static final String _apiKey = ApiKeys.groqApiKey;`, which froze
+  /// the value at first access — before `dotenv.load()` had run — so the key
+  /// read back empty and every request reported "not configured" even with a
+  /// fully populated `.env`.
+  static String get _apiKey => ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _modelName = 'llama-3.1-8b-instant';
+  static const String _modelName = 'openai/gpt-oss-20b';
   
   final List<Map<String, String>> _conversationHistory = [];
   final List<ChatMessage> _chatHistory = [];
@@ -181,9 +190,26 @@ class AIChatbotService {
 
   Future<void> _initializeAI() async {
     try {
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-        debugPrint('⚠️ AIChatbotService: Invalid API key! Please set up your Groq API key.');
+      if (_apiKey.isEmpty) {
+        debugPrint(
+          '⚠️ AIChatbotService: Groq API key not configured. Add '
+          'GROQ_API_KEY to .env (or pass --dart-define=GROQ_API_KEY=...).',
+        );
         return;
+      }
+
+      // Test API key validity (independent of model)
+      final keyStatus = await testApiKey();
+      debugPrint('🔑 Groq API key status: $keyStatus');
+      if (keyStatus == ApiKeyStatus.invalid) {
+        debugPrint('⚠️ Your Groq API key is invalid or revoked - generate a new one at https://console.groq.com/keys');
+      }
+
+      // Test if the configured model is available and responding
+      final modelAvailable = await testModel();
+      if (!modelAvailable) {
+        debugPrint('⚠️ Model \'$_modelName\' is not available. The chatbot may not work correctly.');
+        debugPrint('   Available models: https://console.groq.com/docs/models');
       }
 
       // Load persona for system prompt personalisation
@@ -385,9 +411,10 @@ Remember: You're a supportive friend helping them build better digital habits, n
     
     try {
       // Check if API is properly configured
-      if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
+      if (_apiKey.isEmpty) {
         debugPrint('⚠️ AIChatbotService: API key not configured!');
-        return "Please configure your Groq API key to use the AI chat feature. Visit https://console.groq.com/keys for setup.";
+        return 'Groq API key is not configured. Add GROQ_API_KEY to the .env '
+            'file (or pass --dart-define=GROQ_API_KEY=...) and restart the app.';
       }
       
       // RATE LIMITING: Enforce minimum delay between requests
@@ -568,42 +595,12 @@ $userMessage
     }
   }
 
-  /// Update chatbot with current sentiment analysis
-  /// ⚠️ DISABLED to save API quota - sentiment context is already included in sendMessage every 3rd message
-  /// This method was making EXTRA API calls that caused quota exhaustion
-  Future<void> updateWithSentiment({
-    required Map<String, double> sentiment,
-    required int screenTimeSeconds,
-    required int goalSeconds,
-  }) async {
-    // DISABLED: This was making hidden API calls that bypassed rate limiting
-    // Sentiment context is already included in chat messages (every 3rd message)
-    debugPrint('ℹ️ updateWithSentiment() called but DISABLED to save quota. Context already in messages.');
-    return; // Don't make API call
-    
-    /* ORIGINAL CODE - DISABLED
-    try {
-      final screenTimeHours = (screenTimeSeconds / 3600).toStringAsFixed(1);
-      final goalHours = (goalSeconds / 3600).toStringAsFixed(1);
-      final topSentiment = sentiment.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-
-      final contextMessage = '''
-[System Context Update - Acknowledge briefly and naturally]
-Current User State:
-- Primary Emotion: $topSentiment (${sentiment[topSentiment]!.toInt()}%)
-- Screen Time: $screenTimeHours hours / $goalHours hours goal
-- Other sentiments: ${sentiment.entries.where((e) => e.key != topSentiment).map((e) => '${e.key}: ${e.value.toInt()}%').join(', ')}
-
-Adjust your responses to be empathetic to their current emotional state.
-''';
-
-      await _chatSession.sendMessage(Content.text(contextMessage));
-      debugPrint('AIChatbotService: Updated with sentiment context');
-    } catch (e) {
-      debugPrint('AIChatbotService: Error updating with sentiment - $e');
-    }
-    */
-  }
+  // updateWithSentiment() was removed: it was already fully disabled (a
+  // no-op that returned immediately) with no call sites anywhere in the
+  // app — sentiment context is delivered through the regular chat messages
+  // instead (see sendMessage, every 3rd message). If sentiment-triggered
+  // proactive check-ins are wanted again in future, reintroduce this with
+  // the rate limiter from sendMessage applied, not bypassing it.
 
   Future<void> clearHistory() async {
     try {
@@ -965,6 +962,20 @@ Adjust your responses to be empathetic to their current emotional state.
         await _saveChatHistory();
         debugPrint('✅ Auto-deleted $deletedCount old chat session(s) (older than $_autoDeletionDays days)');
       }
+
+      // Keep the derived sentiment data on the same 30-day clock as the
+      // chats it was computed from. ChatContextExtractor already
+      // self-prunes on every read (see getRecentThemes), but
+      // SentimentPersistenceService's snapshots were never actually
+      // pruned anywhere despite having a pruneBefore method — they would
+      // have accumulated indefinitely instead of respecting the same
+      // 30-day retention window as the chats themselves.
+      try {
+        await SentimentPersistenceService.instance.pruneBefore(cutoffDate);
+        await ChatContextExtractor.instance.pruneBefore(cutoffDate);
+      } catch (e) {
+        debugPrint('⚠️ Error pruning derived sentiment data: $e');
+      }
     } catch (e) {
       debugPrint('❌ Error auto-deleting old chats: $e');
     }
@@ -1024,4 +1035,147 @@ Adjust your responses to be empathetic to their current emotional state.
         ];
     }
   }
+
+  /// Tests only whether [_apiKey] itself is valid - independent of which
+  /// chat model is configured. 200 = key works, 401 = key is bad/revoked,
+  /// anything else = network/Groq-side issue.
+  static Future<ApiKeyStatus> testApiKey() async {
+    if (_apiKey.isEmpty) return ApiKeyStatus.notConfigured;
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.groq.com/openai/v1/models'),
+        headers: {'Authorization': 'Bearer $_apiKey'},
+      );
+      if (response.statusCode == 200) return ApiKeyStatus.valid;
+      if (response.statusCode == 401) return ApiKeyStatus.invalid;
+      return ApiKeyStatus.unknownError;
+    } catch (e) {
+      debugPrint('❌ AIChatbotService.testApiKey: $e');
+      return ApiKeyStatus.networkError;
+    }
+  }
+
+  /// Tests whether the configured model [_modelName] is available and responding.
+  /// Makes a minimal chat completion request to verify the model works.
+  /// Returns true if model responds successfully, false otherwise.
+  static Future<bool> testModel() async {
+    if (_apiKey.isEmpty) {
+      debugPrint('⚠️ AIChatbotService.testModel: API key not configured');
+      return false;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _modelName,
+          'messages': [
+            {'role': 'user', 'content': 'test'}
+          ],
+          'max_tokens': 1,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        debugPrint('✅ AIChatbotService.testModel: Model \'$_modelName\' is available and responding');
+        return true;
+      } else if (response.statusCode == 404) {
+        debugPrint('❌ AIChatbotService.testModel: Model \'$_modelName\' NOT FOUND (404). Check available models at https://console.groq.com/docs/models');
+        return false;
+      } else if (response.statusCode == 401) {
+        debugPrint('❌ AIChatbotService.testModel: Invalid API key (401)');
+        return false;
+      } else {
+        debugPrint('⚠️ AIChatbotService.testModel: Model request failed with status ${response.statusCode}: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ AIChatbotService.testModel: Error - $e');
+      return false;
+    }
+  }
+
+  /// Gets all user messages sent today (for daily sentiment scoring).
+  static Future<List<String>> getTodaysUserMessages() =>
+      getUserMessagesForDay(DateTime.now());
+
+  /// Gets the user's own messages for a specific local [day], oldest first.
+  ///
+  /// Scoring is day-scoped rather than "today"-scoped on purpose: the nightly
+  /// job runs after midnight and the app may stay closed for days, so the
+  /// scorer must be able to reach back to an arbitrary past day. Reads
+  /// directly from SharedPreferences where sessions are stored.
+  static Future<List<String>> getUserMessagesForDay(DateTime day) async {
+    final byDay = await getUserMessagesByDay(
+      from: day,
+      toExclusive: day.add(const Duration(days: 1)),
+    );
+    return byDay[dayKeyOf(day)] ?? const [];
+  }
+
+  /// Bulk variant of [getUserMessagesForDay]: parses the stored sessions once
+  /// and buckets every user message under its `yyyy-MM-dd` key.
+  ///
+  /// The catch-up scorer walks an entire retention window in a single pass, so
+  /// doing this per-day would re-parse the same JSON list up to 30 times.
+  static Future<Map<String, List<String>>> getUserMessagesByDay({
+    required DateTime from,
+    required DateTime toExclusive,
+  }) async {
+    final grouped = <String, List<({DateTime timestamp, String message})>>{};
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sessionsJson = prefs.getString(_chatSessionsKey);
+      if (sessionsJson == null || sessionsJson.isEmpty) return const {};
+
+      final windowStart = DateTime(from.year, from.month, from.day);
+      final windowEnd =
+          DateTime(toExclusive.year, toExclusive.month, toExclusive.day);
+
+      final sessionsList = jsonDecode(sessionsJson) as List;
+      for (final sessionJson in sessionsList) {
+        final sessionMap = sessionJson as Map<String, dynamic>;
+        final messagesList = sessionMap['messages'] as List? ?? [];
+        for (final msgJson in messagesList) {
+          final msgMap = msgJson as Map<String, dynamic>;
+          final isUser = msgMap['isUser'] as bool? ?? false;
+          if (!isUser) continue;
+
+          final timestamp =
+              DateTime.tryParse(msgMap['timestamp'] as String? ?? '');
+          if (timestamp == null ||
+              timestamp.isBefore(windowStart) ||
+              !timestamp.isBefore(windowEnd)) {
+            continue;
+          }
+
+          final message = msgMap['message'] as String? ?? '';
+          if (message.isEmpty) continue;
+
+          grouped
+              .putIfAbsent(dayKeyOf(timestamp), () => [])
+              .add((timestamp: timestamp, message: message));
+        }
+      }
+    } catch (e) {
+      debugPrint('AIChatbotService.getUserMessagesByDay: Error - $e');
+      return const {};
+    }
+
+    return grouped.map(
+      (day, entries) => MapEntry(
+        day,
+        (entries..sort((a, b) => a.timestamp.compareTo(b.timestamp)))
+            .map((entry) => entry.message)
+            .toList(),
+      ),
+    );
+  }
 }
+
+/// Tests only whether the Groq API key is valid - independent of which
+/// chat model is configured.
+enum ApiKeyStatus { valid, invalid, notConfigured, networkError, unknownError }

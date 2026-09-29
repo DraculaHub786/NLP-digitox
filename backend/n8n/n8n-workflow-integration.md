@@ -6,34 +6,23 @@ This document tracks the n8n workflows that handle OTP generation, email deliver
 
 ## Workflow URLs
 
-> **⚠️ IMPORTANT:** These URLs currently point to `localhost` for local development only.
-> Before shipping to real users, n8n must be deployed to a publicly reachable server with HTTPS.
-> Once deployed, update the URLs in the Flutter app (`lib/ui/auth/forgot_password_request_screen.dart`,
-> `lib/ui/auth/forgot_password_otp_screen.dart`, `lib/ui/auth/forgot_password_new_screen.dart`)
-> and update the table below.
+The n8n instance is deployed at `https://n8n.nlpdigitox.me` and the three password-reset webhooks are live:
 
-| Webhook | Local URL | Live URL (HTTPS) |
-|---------|-----------|-------------------|
-| Request OTP | `http://localhost:5678/webhook-test/request-otp` | *(deploy first, then update)* |
-| Verify OTP | `http://localhost:5678/webhook-test/verify-otp` | *(deploy first, then update)* |
-| Reset Password | `http://localhost:5678/webhook-test/reset-password` | *(deploy first, then update)* |
+| Webhook | Live URL (HTTPS) |
+|---------|-------------------|
+| Request OTP | `https://n8n.nlpdigitox.me/webhook/request-otp` |
+| Verify OTP | `https://n8n.nlpdigitox.me/webhook/verify-otp` |
+| Reset Password | `https://n8n.nlpdigitox.me/webhook/reset-password` |
 
 ---
 
 ## n8n Host Configuration
 
-### Local Development
+### Production
 ```
-N8N_HOST = localhost
-N8N_PORT = 5678
-N8N_BASE_URL = http://localhost:5678
-```
-
-### Production (to be filled after deployment)
-```
-N8N_HOST = <your-deployed-host>
+N8N_HOST = n8n.nlpdigitox.me
 N8N_PORT = 443
-N8N_BASE_URL = https://<your-deployed-host>
+N8N_BASE_URL = https://n8n.nlpdigitox.me
 ```
 
 ---
@@ -65,18 +54,18 @@ N8N_BASE_URL = https://<your-deployed-host>
 
 ## Deployment Checklist
 
-- [ ] Deploy n8n to a publicly reachable server (VPS, Railway, Render, or n8n Cloud)
-- [ ] Enable HTTPS on the n8n instance
-- [ ] Import/configure the three webhook workflows
-- [ ] Update the **Live URL** column in the table above
-- [ ] Update all three Flutter screens to use the live HTTPS URLs
+- [x] Deploy n8n to a publicly reachable server (VPS, Railway, Render, or n8n Cloud)
+- [x] Enable HTTPS on the n8n instance
+- [x] Import/configure the three webhook workflows
+- [x] Update the **Live URL** column in the table above
+- [x] Update all three Flutter screens to use the live HTTPS URLs
 - [ ] Test the full forgot-password flow end-to-end with a real device
 
 ---
 
 ## Flutter Files Using These URLs
 
-Each screen has a `static const String _n8nBaseUrl` at the top of its state class. To switch from local to production, change this one line in each file:
+Each screen has a `static const String _n8nBaseUrl` at the top of its state class set to the production base URL:
 
 | Screen | File | Constant to Update | Webhook Used |
 |--------|------|-------------------|-------------|
@@ -84,20 +73,8 @@ Each screen has a `static const String _n8nBaseUrl` at the top of its state clas
 | Forgot Password — OTP | `lib/ui/auth/forgot_password_otp_screen.dart` | `_n8nBaseUrl` | `verify-otp` |
 | Forgot Password — New Password | `lib/ui/auth/forgot_password_new_screen.dart` | `_n8nBaseUrl` | `reset-password` |
 
-### Quick Switch — Find & Replace
-
-When n8n is deployed, do a project-wide find & replace:
-
-```
-Find:    http://localhost:5678
-Replace: https://<your-deployed-host>
-```
-
-This will update all 3 screens at once.
-
 ---
 
-> **Last Updated:** 30 July 2026
-> **Current Base URL:** `http://localhost:5678` (local development)
-> **Status:** Local development — webhooks configured against localhost n8n instance.
-> **Next:** Deploy n8n → update URL above → test end-to-end from a real device.
+> **Last Updated:** 20 August 2026
+> **Status:** Live — webhooks configured against the deployed n8n instance at `https://n8n.nlpdigitox.me`.
+> **Next:** Test the full forgot-password flow end-to-end with a real device.

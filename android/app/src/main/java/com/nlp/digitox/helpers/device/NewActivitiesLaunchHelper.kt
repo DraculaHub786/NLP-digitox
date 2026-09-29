@@ -34,7 +34,7 @@ import java.util.Locale
  * usage access settings, and application settings.
  */
 object NewActivitiesLaunchHelper {
-    private const val TAG = "Mindful.ActivityNewTaskHelper"
+    private const val TAG = "Digitox.ActivityNewTaskHelper"
 
     /**
      * Launches a URL in the default web browser.
@@ -52,13 +52,13 @@ object NewActivitiesLaunchHelper {
         }
     }
 
-    // SECTION: For MINDFUL app ====================================================================
+    // SECTION: For DIGITOX app ====================================================================
     /**
      * Gracefully close and restart the app.
      *
      * @param activity The activity to use.
      */
-    fun restartMindful(activity: Activity) {
+    fun restartDigitox(activity: Activity) {
         val appIntent = Intent(activity, MainActivity::class.java)
             .putExtra(AppConstants.INTENT_EXTRA_IS_SELF_RESTART, true)
 
@@ -78,6 +78,10 @@ object NewActivitiesLaunchHelper {
     /**
      * Deactivate the admin privileges.
      *
+     * Called when the user disables tamper protection inside the configured
+     * uninstall window — removes this app from the device-admin list via
+     * `DevicePolicyManager.removeActiveAdmin`.
+     *
      * @param context The context to use for launching the activity.
      */
     fun disableDeviceAdmin(context: Context) {
@@ -95,13 +99,12 @@ object NewActivitiesLaunchHelper {
         }
     }
 
-
     /**
-     * Opens the mindful's notification settings for permission.
+     * Opens the app's notification settings for permission.
      *
      * @param context The context to use for launching the activity.
      */
-    fun openMindfulNotificationSection(context: Context) {
+    fun openDigitoxNotificationSection(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

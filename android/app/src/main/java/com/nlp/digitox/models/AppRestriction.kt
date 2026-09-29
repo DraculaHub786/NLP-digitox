@@ -2,6 +2,7 @@ package com.nlp.digitox.models
 
 import android.util.Log
 import com.nlp.digitox.enums.ReminderType
+import com.nlp.digitox.utils.JsonUtils
 import org.json.JSONObject
 
 /**
@@ -42,6 +43,15 @@ data class AppRestriction(
      * ID of the restriction group this app belongs to (nullable).
      */
     val associatedGroupId: Int? = null,
+
+    /**
+     * Website domains associated with this app (e.g. "instagram.com" for
+     * com.instagram.android). Never hardcoded in native code - populated
+     * entirely from whatever the user/config sets on the Flutter side and synced
+     * down like every other restriction field. Used to drive dynamic,
+     * limit-triggered website blocking (see [com.nlp.digitox.utils.DynamicWebsiteBlocklist]).
+     */
+    val associatedDomains: Set<String> = emptySet(),
 ) {
     companion object {
         /**
@@ -58,6 +68,9 @@ data class AppRestriction(
                 reminderType = ReminderType.fromName(jsonObject.optString("reminderType", "toast")),
                 associatedGroupId = if (jsonObject.isNull("associatedGroupId")) null else jsonObject.optInt(
                     "associatedGroupId"
+                ),
+                associatedDomains = JsonUtils.parseStringSet(
+                    jsonObject.optJSONArray("associatedDomains")?.toString()
                 ),
             )
         }

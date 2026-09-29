@@ -65,7 +65,7 @@ class DriftDbService {
     db.execute('PRAGMA busy_timeout = 5000;');
 
     /// Enable WAL mode to allow multiple reader/writers (1000 pages = 4MB)
-    // db.execute('PRAGMA journal_mode = WAL;');
-    // db.execute('PRAGMA wal_autocheckpoint = 1000;');
+    db.execute('PRAGMA journal_mode = WAL;');
+    db.execute('PRAGMA wal_autocheckpoint = 1000;');
   }
 }

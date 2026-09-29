@@ -13,6 +13,7 @@ import 'package:nlp_digitox/providers/apps/apps_info_provider.dart';
 import 'package:nlp_digitox/providers/apps/filtered_packages_provider.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/sliver_implicitly_animated_list.dart';
 import 'package:nlp_digitox/ui/common/sliver_usage_chart_panel.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
@@ -205,23 +206,16 @@ class _TabStatisticsState extends ConsumerState<TabStatistics> {
     bool isCompact = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    final cardColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
-    final borderColor = colorScheme.outline.withValues(alpha: 0.18);
-    return Container(
+    return SurfaceCard(
       padding: EdgeInsets.all(isCompact ? 10 : 16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-        border: Border.all(color: borderColor),
-        boxShadow: ElevationTokens.of(context).level(1),
-      ),
+      elevation: 1,
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(isCompact ? 8 : 10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Icon(icon, color: color, size: isCompact ? 16 : 20),
           ),

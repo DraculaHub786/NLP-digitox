@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
 import 'package:nlp_digitox/ui/common/pressable_scale.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 
 /// Modern dashboard card with layered glass surface and tinted accent.
 class ModernDashboardCard extends StatelessWidget {
@@ -30,10 +30,10 @@ class ModernDashboardCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final cardAccent = accentColor ?? scheme.primary;
 
-    final card = GlassCard(
+    final card = SurfaceCard(
       padding: const EdgeInsets.all(20),
       tint: cardAccent,
-      elevationLevel: 2,
+      elevation: 2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -118,14 +118,13 @@ class ModernMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final glass = GlassTokens.of(context);
     final metricColor = color ?? theme.colorScheme.primary;
 
-    return GlassCard(
+    return SurfaceCard(
       padding: const EdgeInsets.all(20),
-      borderRadius: GlassTokens.radiusCard,
+      borderRadius: Radii.lg,
       tint: metricColor,
-      elevationLevel: 1,
+      elevation: 1,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -145,7 +144,7 @@ class ModernMetricCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (trendPositive ? glass.statusGood : glass.statusBad)
+                    color: (trendPositive ? AccentPalette.trendGood : AccentPalette.trendBad)
                         .withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -153,7 +152,7 @@ class ModernMetricCard extends StatelessWidget {
                     trend!,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color:
-                          trendPositive ? glass.statusGood : glass.statusBad,
+                          trendPositive ? AccentPalette.trendGood : AccentPalette.trendBad,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -206,9 +205,9 @@ class ModernListTile extends StatelessWidget {
     final scheme = theme.colorScheme;
     final tileColor = color ?? scheme.primary;
 
-    return GlassCard(
+    return SurfaceCard(
       padding: const EdgeInsets.all(16),
-      borderRadius: GlassTokens.radiusCard,
+      borderRadius: Radii.md,
       tint: tileColor,
       onTap: onTap,
       child: Row(

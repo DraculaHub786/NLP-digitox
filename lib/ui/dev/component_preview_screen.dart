@@ -1,7 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/ui/common/glass_nav_bar.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/status_dot.dart';
 import 'package:nlp_digitox/ui/common/treated_background_image.dart';
@@ -28,9 +28,9 @@ class ComponentPreviewScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
-                GlassCard(
+                SurfaceCard(
                   tint: scheme.primary,
-                  elevationLevel: 2,
+                  elevation: 2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

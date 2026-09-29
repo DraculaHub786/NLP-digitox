@@ -21,18 +21,18 @@ import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.scheduleBedtimeRoutine
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.models.BedtimeSchedule
-import com.nlp.digitox.services.tracking.MindfulTrackerService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.DateTimeUtils
 import com.nlp.digitox.utils.ThreadUtils
 
 class BedtimeRoutineReceiver : BroadcastReceiver() {
     companion object {
-        private const val TAG = "Mindful.BedtimeRoutineReceiver"
-        const val ACTION_ALERT_BEDTIME: String = "com.mindful.android.action.alertBedtime"
-        const val ACTION_START_BEDTIME: String = "com.mindful.android.action.startBedtime"
-        const val ACTION_STOP_BEDTIME: String = "com.mindful.android.action.stopBedtime"
-        const val EXTRA_BEDTIME_SETTINGS_JSON = "com.mindful.android.extra.bedtimeSettingsJson"
+        private const val TAG = "Digitox.BedtimeRoutineReceiver"
+        const val ACTION_ALERT_BEDTIME: String = "com.nlp.digitox.action.alertBedtime"
+        const val ACTION_START_BEDTIME: String = "com.nlp.digitox.action.startBedtime"
+        const val ACTION_STOP_BEDTIME: String = "com.nlp.digitox.action.stopBedtime"
+        const val EXTRA_BEDTIME_SETTINGS_JSON = "com.nlp.digitox.extra.bedtimeSettingsJson"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -70,7 +70,7 @@ class BedtimeRoutineReceiver : BroadcastReceiver() {
 
         private val trackerServiceConn = SafeServiceConnection(
             context = context,
-            serviceClass = MindfulTrackerService::class.java
+            serviceClass = DigitoxTrackerService::class.java
         )
 
 
@@ -106,7 +106,7 @@ class BedtimeRoutineReceiver : BroadcastReceiver() {
 
         private fun startBedtimeRoutine() {
             if (!canStartRoutineToday) return
-            trackerServiceConn.setOnConnectedCallback { service: MindfulTrackerService ->
+            trackerServiceConn.setOnConnectedCallback { service: DigitoxTrackerService ->
                 with(service) {
                     getRestrictionManager.updateBedtimeApps(bedtimeSchedule.distractingApps)
                     getLaunchTrackingManager.detectActiveAppForBedtime()
@@ -124,7 +124,7 @@ class BedtimeRoutineReceiver : BroadcastReceiver() {
         }
 
         private fun stopBedtimeRoutine() {
-            trackerServiceConn.setOnConnectedCallback { service: MindfulTrackerService ->
+            trackerServiceConn.setOnConnectedCallback { service: DigitoxTrackerService ->
                 service.getRestrictionManager.updateBedtimeApps(
                     null
                 )
@@ -154,9 +154,9 @@ class BedtimeRoutineReceiver : BroadcastReceiver() {
                     .setOngoing(false)
                     .setOnlyAlertOnce(true)
                     .setContentIntent(
-                        AppUtils.getPendingIntentForMindfulUri(
+                        AppUtils.getPendingIntentForDigitoxUri(
                             context,
-                            "com.mindful.android://open/home?tab=3",
+                            "com.nlp.digitox://open/home?tab=3",
                         )
                     )
                     .setContentTitle(context.getString(R.string.app_name))

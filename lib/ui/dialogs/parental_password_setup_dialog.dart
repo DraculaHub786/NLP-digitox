@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:nlp_digitox/ui/common/clay_widgets.dart';
 
 /// Shows a dialog to set up a new parental control password
 Future<String?> showParentalPasswordSetupDialog({
@@ -197,19 +196,17 @@ class _ParentalPasswordSetupDialogState
           onPressed: () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
-        ClayContainer(
-          baseColor: Theme.of(context).colorScheme.primary,
-          borderRadius: 12,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          onTap: _validateAndSubmit,
-          child: Text(
-            "Set Password",
-            style: TextStyle(
-              color: ClayStyle.foregroundColor(
-                Theme.of(context).colorScheme.primary,
-              ),
-              fontWeight: FontWeight.w600,
+        FilledButton(
+          onPressed: _validateAndSubmit,
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+          child: const Text(
+            "Set Password",
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
       ],

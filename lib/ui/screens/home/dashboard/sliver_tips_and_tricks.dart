@@ -44,15 +44,14 @@ class _SliverTipsAndTricksState extends State<SliverTipsAndTricks> {
             final tip = _randomTips[index];
 
             final colorScheme = Theme.of(context).colorScheme;
-            final glass = GlassTokens.of(context);
             // Rotate through the botanical accent set so each tip gets a
             // distinct but theme-aware icon tint (no hardcoded Color values).
             final tipColors = <Color>[
               colorScheme.primary,
               colorScheme.secondary,
               colorScheme.tertiary,
-              glass.statusGood,
-              glass.statusWarn,
+              AccentPalette.trendGood,
+              DesignPalette.gold,
             ];
 
             return DefaultListTile(

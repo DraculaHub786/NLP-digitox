@@ -1,10 +1,11 @@
-﻿// Copyright (c) 2024 NLP digitox
+﻿// Copyright (c) 2026 NLP digitox
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:nlp_digitox/models/usage_model.dart';
 import 'package:nlp_digitox/config/api_keys.dart';
+import 'package:nlp_digitox/models/ai_analysis_models.dart';
+import 'package:nlp_digitox/models/usage_model.dart';
 
 /// AI Service for sentiment analysis and personalized recommendations
 /// Uses Groq API (free tier) for accurate and FAST analysis
@@ -17,9 +18,22 @@ class AISentimentService {
 
   AISentimentService._();
 
-  static final String _apiKey = ApiKeys.groqApiKey;
+  /// Resolved on every read rather than snapshotted.
+  ///
+  /// This was `static final String _apiKey = ApiKeys.groqApiKey;`, which froze
+  /// the value at first access - before `dotenv.load()` had run - so the key
+  /// read back empty and every request reported "not configured" even with a
+  /// fully populated `.env`.
+  static String get _apiKey => ApiKeys.groqApiKey;
+
+  /// One shared message for all three call sites, so the guidance cannot drift
+  /// apart again (it previously pointed at a deleted template file).
+  static const String _apiKeyNotConfiguredMessage =
+      'Groq API key is not configured. Add GROQ_API_KEY to the .env file (or '
+      'pass --dart-define=GROQ_API_KEY=...) and restart the app.';
+
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _model = 'llama-3.1-8b-instant';
+  static const String _model = 'openai/gpt-oss-20b';
   static const Duration _requestTimeout = Duration(seconds: 15);
 
   Map<String, double>? _lastSentiment;
@@ -36,6 +50,165 @@ class AISentimentService {
     debugPrint('AISentimentService: Sentiment cache cleared');
   }
 
+  /// Deterministic, rule-based baseline sentiment computed from daily usage
+  /// without any LLM call. Same input always yields the same five labels
+  /// (summing to ~100): Positive, Neutral, Negative, Anxious, Focused.
+  ///
+  /// Rules mirror the Groq prompt's scoring guidelines:
+  /// - Screen time under goal boosts Positive/Focused.
+  /// - Over 150% of goal boosts Anxious/Negative.
+  /// - 100–130% of goal leans Neutral (not Anxious).
+  /// - Streak of 3+ days boosts Positive/Focused.
+  /// - Completed habits/tasks boost Positive/Focused.
+  Map<String, double> computeBaseSentiment({
+    required double screenTimeHours,
+    required double goalHours,
+    required int streakDays,
+    required int habitsCompleted,
+    required int tasksCompleted,
+  }) {
+    var positive = 28.0;
+    var neutral = 40.0;
+    var negative = 12.0;
+    var anxious = 10.0;
+    var focused = 10.0;
+
+    final ratio = goalHours > 0 ? screenTimeHours / goalHours : 0.0;
+
+    if (ratio < 1.0) {
+      final bonus = (1.0 - ratio) * 10;
+      positive += bonus;
+      focused += bonus;
+    } else if (ratio >= 1.5) {
+      final penalty = (ratio - 1.5) * 12 + 6;
+      anxious += penalty;
+      negative += penalty * 0.8;
+      positive -= penalty * 0.5;
+    } else {
+      // 100–130% neutral band — neutral absorbs the pressure instead of
+      // tipping into anxious.
+      neutral += 6;
+      anxious -= 3;
+    }
+
+    if (streakDays >= 3) {
+      final streakBonus = (streakDays / 3.5).clamp(0.5, 2.0);
+      positive += 4 * streakBonus;
+      focused += 4 * streakBonus;
+    }
+
+    positive += habitsCompleted * 2.0;
+    focused += habitsCompleted * 2.0;
+    positive += tasksCompleted * 1.0;
+    focused += tasksCompleted * 1.0;
+
+    final raw = <String, double>{
+      'Positive': positive,
+      'Neutral': neutral,
+      'Negative': negative,
+      'Anxious': anxious,
+      'Focused': focused,
+    };
+    final total = raw.values.fold(0.0, (sum, value) => sum + value);
+    return total > 0
+        ? raw.map((key, value) => MapEntry(key, (value / total) * 100))
+        : raw;
+  }
+
+  /// Parse sentiment percentages from an AI response.
+  ///
+  /// Accepts a JSON object (optionally wrapped in ```json fences) with
+  /// case-insensitive key matching, or the legacy Groq line format
+  /// ("Positive: 30"). Values are normalized so the five canonical labels
+  /// sum to ~100. Throws [FormatException] when fewer than three labels can
+  /// be extracted.
+  Map<String, double> parseSentiment(String text) {
+    final sentiments = <String, double>{};
+    final cleaned = text
+        .trim()
+        .replaceAll(
+          RegExp(r'^```(?:json)?\s*|\s*```$', caseSensitive: false),
+          '',
+        )
+        .trim();
+
+    final decoded = _tryDecodeMap(cleaned);
+    if (decoded != null) {
+      for (final label in kSentimentLabels) {
+        final value = _numericValueForKey(decoded, label);
+        if (value != null) sentiments[label] = value;
+      }
+    } else {
+      // Legacy "Label: value" line format.
+      for (final line in cleaned.split('\n')) {
+        if (!line.contains(':')) continue;
+        final parts = line.split(':');
+        if (parts.length != 2) continue;
+        final rawLabel = parts[0].trim();
+        final value =
+            double.tryParse(parts[1].trim().replaceAll(RegExp(r'[^0-9.]'), ''));
+        if (value == null) continue;
+        final match = kSentimentLabels
+            .where((l) => l.toLowerCase() == rawLabel.toLowerCase())
+            .firstOrNull;
+        if (match != null) sentiments[match] = value;
+      }
+    }
+
+    final total = sentiments.values.fold(0.0, (sum, value) => sum + value);
+    if (total > 0) {
+      sentiments.updateAll((key, value) => (value / total) * 100);
+    }
+
+    if (sentiments.length < 3) {
+      throw FormatException('Failed to parse sentiment response: $text');
+    }
+    return sentiments;
+  }
+
+  /// Parse recommendations from an AI response.
+  ///
+  /// Accepts a bare JSON array of strings, an object-wrapped array
+  /// ("recommendations"), arrays of {title, description, action} maps
+  /// (preferring the most substantive field), or the legacy numbered-list
+  /// line format. Throws [FormatException] when nothing usable is found.
+  List<String> parseRecommendations(String text) {
+    final trimmed = text.trim();
+    final recommendations = <String>[];
+
+    final decoded = _tryDecodeJson(trimmed);
+    if (decoded != null) {
+      Object? raw = decoded;
+      if (decoded is Map && decoded['recommendations'] is List) {
+        raw = decoded['recommendations'];
+      }
+      if (raw is List) {
+        for (final item in raw) {
+          final suggestion = _extractRecommendationText(item);
+          if (suggestion != null && suggestion.length > 10) {
+            recommendations.add(suggestion);
+          }
+        }
+      }
+    }
+
+    if (recommendations.isEmpty) {
+      // Legacy numbered-list fallback ("1. Take a walk...").
+      for (final line in trimmed.split('\n')) {
+        final match =
+            RegExp(r'^\s*\d+[\.\)\-\:]\s*(.{11,})').firstMatch(line);
+        if (match != null) {
+          recommendations.add(match.group(1)!.trim());
+        }
+      }
+    }
+
+    if (recommendations.isEmpty) {
+      throw FormatException('Failed to parse recommendations: $text');
+    }
+    return recommendations.take(4).toList();
+  }
+
   /// Analyze user's digital wellbeing sentiment based on usage patterns
   /// Returns sentiment percentages: {Positive, Neutral, Negative, Anxious, Focused}
   Future<Map<String, double>> analyzeSentiment({
@@ -46,9 +219,11 @@ class AISentimentService {
     int? tasksCompleted,
     List<String>? recentChatMessages,
     List<String>? recentIntentSignals,
+    List<String>? recentChatThemes,
+    String? moodContextBlock,
   }) async {
-    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-      throw Exception('Groq API key is not configured.');
+    if (_apiKey.isEmpty) {
+      throw Exception(_apiKeyNotConfiguredMessage);
     }
 
     try {
@@ -63,7 +238,18 @@ class AISentimentService {
       final recentIntentContext = (recentIntentSignals != null && recentIntentSignals.isNotEmpty)
           ? recentIntentSignals.take(8).map((s) => '- $s').join('\n')
           : 'No recent app-intent context.';
-      
+      // Recurring themes extracted locally (keyword/topic frequency, no
+      // extra LLM call — see ChatContextExtractor) across the full 30-day
+      // chat retention window, not just the last few messages of the
+      // current session. Gives the LLM a sense of what the user has been
+      // talking about lately, not just right now.
+      final chatThemesContext = (recentChatThemes != null && recentChatThemes.isNotEmpty)
+          ? recentChatThemes.take(8).map((t) => '- $t').join('\n')
+          : 'No recurring chat themes yet.';
+      final moodBlock = (moodContextBlock != null && moodContextBlock.trim().isNotEmpty)
+          ? moodContextBlock
+          : 'No mood check-ins recorded.';
+
       final prompt = '''
 Analyze the digital wellbeing sentiment of a user based on their smartphone usage patterns today. Provide a psychological assessment.
 
@@ -78,6 +264,11 @@ Usage Data:
 Recent user chat context:
 $recentChatContext
 
+Recurring chat themes over the last 30 days:
+$chatThemesContext
+
+$moodBlock
+
 Recent app usage intent context:
 $recentIntentContext
 
@@ -89,6 +280,11 @@ SCORING GUIDELINES (apply consistently):
 3. Streak of 3+ days: increase Positive and Focused
 4. Habits completed: increase Positive and Focused
 5. Screen time 100-130% of goal: increase Neutral
+6. Self-reported mood check-ins (if present) should outweigh keyword-derived
+   chat themes when the two disagree — they are the user's own words.
+7. Recurring chat themes are supporting context, not a primary signal —
+   use them to nudge Anxious/Negative/Positive/Focused, not to override the
+   objective usage-metric scoring above.
 
 Respond with ONLY these 5 values (must total 100):
 Positive: XX
@@ -166,8 +362,8 @@ Focused: XX
     required Map<String, double> currentSentiment,
     List<String>? recentChatMessages, // Include chat context for better recommendations
   }) async {
-    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-      throw Exception('Groq API key is not configured.');
+    if (_apiKey.isEmpty) {
+      throw Exception(_apiKeyNotConfiguredMessage);
     }
 
     try {
@@ -253,8 +449,8 @@ Focus on:
     List<String>? recentChatTopics,
     String? usageContext,
   }) async {
-    if (_apiKey.isEmpty || _apiKey.contains('YOUR_')) {
-      throw Exception('Groq API key is not configured.');
+    if (_apiKey.isEmpty) {
+      throw Exception(_apiKeyNotConfiguredMessage);
     }
 
     try {
@@ -400,4 +596,143 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
     
     return recommendations.take(4).toList();
   }
+
+  // ── JSON parsing helpers (public parse methods) ─────────────────────
+
+  /// Decode [source] as a JSON map, returning null when it isn't one.
+  Map<String, dynamic>? _tryDecodeMap(String source) {
+    final decoded = _tryDecodeJson(source);
+    return decoded is Map<String, dynamic> ? decoded : null;
+  }
+
+  /// Decode [source] as JSON (map or list), stripping surrounding markers.
+  Object? _tryDecodeJson(String source) {
+    var candidate = source.trim();
+    if (candidate.startsWith('{') || candidate.startsWith('[')) {
+      try {
+        return jsonDecode(candidate);
+      } catch (_) {
+        return null;
+      }
+    }
+    // Some models wrap JSON in prose or code fences.
+    final fenced = RegExp(r'```(?:json)?\s*(.*?)\s*```', dotAll: true)
+        .firstMatch(candidate);
+    if (fenced != null) {
+      try {
+        return jsonDecode(fenced.group(1)!);
+      } catch (_) {
+        return null;
+      }
+    }
+    final jsonStart = candidate.indexOf(RegExp(r'[\[{]'));
+    if (jsonStart >= 0) {
+      final slice = candidate.substring(jsonStart);
+      final jsonEnd =
+          slice.lastIndexOf(slice.startsWith('[') ? ']' : '}');
+      if (jsonEnd >= 0) {
+        try {
+          return jsonDecode(slice.substring(0, jsonEnd + 1));
+        } catch (_) {
+          return null;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Case-insensitively look up a numeric value for [label] in [map].
+  double? _numericValueForKey(Map<String, dynamic> map, String label) {
+    for (final entry in map.entries) {
+      if (entry.key.toLowerCase() != label.toLowerCase()) continue;
+      if (entry.value is num) return (entry.value as num).toDouble();
+      final parsed = double.tryParse(entry.value.toString().trim());
+      if (parsed != null) return parsed;
+    }
+    return null;
+  }
+
+  /// Extract the most substantive piece of text from a recommendation item
+  /// (string, or a {title, description, action} map) preferring
+  /// description > title > action, in that order.
+  String? _extractRecommendationText(Object? item) {
+    if (item is String) return item.trim();
+    if (item is Map) {
+      String pick(String key) =>
+          item[key] is String ? (item[key] as String).trim() : '';
+      final description = pick('description');
+      if (description.length > 10) return description;
+      final title = pick('title');
+      if (title.length > 10) return title;
+      final action = pick('action');
+      if (action.length > 10) return action;
+    }
+    return null;
+  }
+
+  /// Tests only whether [_apiKey] itself is valid - independent of which
+  /// model is configured. 200 = key works, 401 = key is bad/revoked,
+  /// anything else = network/Groq-side issue.
+  static Future<ApiKeyStatus> testApiKey() async {
+    if (_apiKey.isEmpty) return ApiKeyStatus.notConfigured;
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.groq.com/openai/v1/models'),
+        headers: {'Authorization': 'Bearer $_apiKey'},
+      );
+      if (response.statusCode == 200) return ApiKeyStatus.valid;
+      if (response.statusCode == 401) return ApiKeyStatus.invalid;
+      return ApiKeyStatus.unknownError;
+    } catch (e) {
+      debugPrint('❌ AISentimentService.testApiKey: $e');
+      return ApiKeyStatus.networkError;
+    }
+  }
+
+  /// Tests whether the configured model [_model] is available and responding.
+  /// Makes a minimal chat completion request to verify the model works.
+  /// Returns true if model responds successfully, false otherwise.
+  static Future<bool> testModel() async {
+    if (_apiKey.isEmpty) {
+      debugPrint('⚠️ AISentimentService.testModel: API key not configured');
+      return false;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'messages': [
+            {'role': 'user', 'content': 'test'}
+          ],
+          'max_tokens': 1,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        debugPrint('✅ AISentimentService.testModel: Model \'$_model\' is available and responding');
+        return true;
+      } else if (response.statusCode == 404) {
+        debugPrint('❌ AISentimentService.testModel: Model \'$_model\' NOT FOUND (404). Check available models at https://console.groq.com/docs/models');
+        return false;
+      } else if (response.statusCode == 401) {
+        debugPrint('❌ AISentimentService.testModel: Invalid API key (401)');
+        return false;
+      } else {
+        debugPrint('⚠️ AISentimentService.testModel: Model request failed with status ${response.statusCode}: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ AISentimentService.testModel: Error - $e');
+      return false;
+    }
+  }
 }
+
+/// Tests only whether the Groq API key is valid - independent of which
+/// model is configured.
+enum ApiKeyStatus { valid, invalid, notConfigured, networkError, unknownError }

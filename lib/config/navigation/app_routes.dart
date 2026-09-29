@@ -12,14 +12,17 @@ import 'package:nlp_digitox/ui/screens/active_session/active_session_screen.dart
 import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/screens/app_dashboard/app_dashboard_screen.dart';
 import 'package:nlp_digitox/ui/screens/change_logs/change_logs_screen.dart';
+import 'package:nlp_digitox/ui/screens/chat/chat_screen.dart';
 import 'package:nlp_digitox/ui/screens/focus/focus_screen.dart';
 import 'package:nlp_digitox/ui/screens/home/home_screen.dart';
 import 'package:nlp_digitox/ui/screens/parental_controls/parental_controls_gate.dart';
+import 'package:nlp_digitox/ui/screens/profile/profile_screen.dart';
 import 'package:nlp_digitox/ui/screens/restriction_groups/restriction_groups_screen.dart';
 import 'package:nlp_digitox/ui/screens/settings/settings_screen.dart';
 import 'package:nlp_digitox/ui/screens/shorts_blocking/shorts_blocking_screen.dart';
 import 'package:nlp_digitox/ui/screens/notifications/notifications_screen.dart';
 import 'package:nlp_digitox/ui/screens/websites_blocking/websites_blocking_screen.dart';
+import 'package:nlp_digitox/features/shared_sessions/sessions_list_screen.dart';
 import 'package:nlp_digitox/ui/splash_screen.dart';
 
 class AppRoutes {
@@ -46,6 +49,11 @@ class AppRoutes {
   static const String appDashboardPath = '/appDashboard';
   static const String notificationsPath = '/notifications';
   static const String achievementsPath = '/achievements';
+  static const String profilePath = '/profile';
+  static const String chatPath = '/chat';
+
+  /// Shared focus sessions (create/join/browse)
+  static const String sharedSessionsPath = '/sharedSessions';
 
   static final Map<String, Widget Function(BuildContext)> routes = {
     /// Auth screens
@@ -97,6 +105,15 @@ class AppRoutes {
 
     /// Achievements screen
     achievementsPath: (context) => const AchievementsScreen(),
+
+    /// Profile screen
+    profilePath: (context) => const ProfileScreen(),
+
+    /// Chat screen
+    chatPath: (context) => const ChatScreen(),
+
+    /// Shared focus sessions screen
+    sharedSessionsPath: (context) => const SessionsListScreen(),
 
     /// Focus mode screen
     focusModePath: (context) => FocusScreen(

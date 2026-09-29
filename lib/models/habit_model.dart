@@ -1,6 +1,6 @@
-
-
 import 'package:flutter/material.dart';
+
+import 'package:nlp_digitox/core/constants/app_icons.dart';
 
 @immutable
 class HabitModel {
@@ -58,7 +58,7 @@ class HabitModel {
     return {
       'id': id,
       'name': name,
-      'iconCodePoint': icon.codePoint,
+      'iconKey': AppIcons.keyForHabitIcon(icon),
       'colorValue': color.toARGB32(),
       'streak': streak,
       'completedToday': completedToday ? 1 : 0,
@@ -73,7 +73,9 @@ class HabitModel {
     return HabitModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      icon: IconData(json['iconCodePoint'] as int, fontFamily: 'MaterialIcons'),
+      icon: json['iconKey'] != null
+          ? AppIcons.habitIcon(json['iconKey'] as String?)
+          : AppIcons.habitIconFromLegacyCodePoint(json['iconCodePoint'] as int?),
       color: Color(json['colorValue'] as int),
       streak: json['streak'] as int? ?? 0,
       completedToday: (json['completedToday'] as int? ?? 0) == 1,

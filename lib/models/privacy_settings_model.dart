@@ -6,7 +6,7 @@ import 'dart:convert';
 /// Stored in SharedPreferences as a JSON blob.
 class PrivacySettings {
   /// Whether Firebase/cloud sync is enabled for usage quotas and locks.
-  /// When false, SyncService operates fully locally.
+  /// When false, cross-device cloud sync features operate fully locally.
   final bool cloudSyncEnabled;
 
   /// Whether cross-device features (primary device, device locks) are active.

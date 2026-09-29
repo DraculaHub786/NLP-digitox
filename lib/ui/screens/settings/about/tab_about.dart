@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -22,7 +21,7 @@ class TabAbout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final appVersion = MethodChannelService.instance.deviceInfo.mindfulVersion;
+    final appVersion = MethodChannelService.instance.deviceInfo.digitoxVersion;
     final dbVersion = DriftDbService.instance.driftDb.schemaVersion;
 
     return CustomScrollView(
@@ -36,7 +35,7 @@ class TabAbout extends ConsumerWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                borderRadius: BorderRadius.circular(Radii.xl),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -48,7 +47,7 @@ class TabAbout extends ConsumerWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                        borderRadius: BorderRadius.circular(Radii.pill),
                       ),
                       child: ClipOval(
                         child: Image.asset(
@@ -107,7 +106,7 @@ class TabAbout extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                    borderRadius: BorderRadius.circular(Radii.xl),
                     border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
                   ),
                   child: Column(
@@ -151,7 +150,7 @@ class TabAbout extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                    borderRadius: BorderRadius.circular(Radii.xl),
                     border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
                   ),
                   child: Column(
@@ -209,7 +208,7 @@ class TabAbout extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                borderRadius: BorderRadius.circular(Radii.xl),
                 border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
@@ -221,7 +220,7 @@ class TabAbout extends ConsumerWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                          borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                         child: Icon(
                           FluentIcons.shield_keyhole_20_regular,
@@ -250,7 +249,7 @@ class TabAbout extends ConsumerWidget {
                     child: FilledButton.tonalIcon(
                       icon: const Icon(FluentIcons.info_20_regular, size: 18),
                       label: Text(context.locale.more_details_button),
-                      onPressed: null,
+                      onPressed: () => _showComingSoonDialog(context),
                     ),
                   ),
                 ],
@@ -266,12 +265,29 @@ class TabAbout extends ConsumerWidget {
     );
   }
 
+  void _showComingSoonDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(FluentIcons.shield_keyhole_20_regular),
+        title: Text(context.locale.privacy_policy_coming_soon_title),
+        content: Text(context.locale.privacy_policy_coming_soon_info),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.locale.ok_button),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBadge(BuildContext context, String label, IconData icon, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+        borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -297,7 +313,7 @@ class TabAbout extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -307,7 +323,7 @@ class TabAbout extends ConsumerWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+              borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Icon(FluentIcons.handshake_20_regular, color: colorScheme.primary, size: 20),
           ),
@@ -349,5 +365,4 @@ class TabAbout extends ConsumerWidget {
       ),
     );
   }
-
 }

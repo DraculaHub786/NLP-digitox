@@ -13,10 +13,10 @@ class TrackingManager(
 ) {
 
     companion object {
-        const val ACTION_ACCESSIBILITY_ACTIVE = "com.mindful.android.action.accessibilityActive"
-        const val ACTION_ACCESSIBILITY_INACTIVE = "com.mindful.android.action.accessibilityInactive"
-        const val ACTION_NEW_APP_LAUNCHED = "com.mindful.android.action.newAppLaunched"
-        const val EXTRA_PACKAGE_NAME: String = "com.mindful.android.extra.packageName"
+        const val ACTION_ACCESSIBILITY_ACTIVE = "com.nlp.digitox.action.accessibilityActive"
+        const val ACTION_ACCESSIBILITY_INACTIVE = "com.nlp.digitox.action.accessibilityInactive"
+        const val ACTION_NEW_APP_LAUNCHED = "com.nlp.digitox.action.newAppLaunched"
+        const val EXTRA_PACKAGE_NAME: String = "com.nlp.digitox.extra.packageName"
     }
 
     private var lastActiveApp: String = ""
@@ -46,7 +46,7 @@ class TrackingManager(
             context.sendBroadcast(intent)
         } catch (e: Exception) {
             Log.e(
-                "Mindful.Accessibility.TrackingManager",
+                "Digitox.Accessibility.TrackingManager",
                 "broadcastEvent: Failed to send broadcast for action:$action",
                 e
             )

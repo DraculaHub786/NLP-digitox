@@ -33,6 +33,14 @@ data class Wellbeing(
      * Set of NSFW website hosts.
      */
     val nsfwWebsites: Set<String> = emptySet(),
+
+    /**
+     * Set of website hosts dynamically blocked because their associated app
+     * just hit a usage limit (launch count / timer / active period). This is
+     * populated at runtime by [RestrictionManager] and cleared on midnight
+     * reset. Never user-configured directly.
+     */
+    val dynamicallyBlockedWebsites: Set<String> = emptySet(),
 ) {
     companion object {
         private const val DEFAULT_SHORTS_TIME_SEC = 30 * 60

@@ -27,7 +27,7 @@ import com.nlp.digitox.AppConstants
 import com.nlp.digitox.R
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.receivers.DeviceAdminReceiver
-import com.nlp.digitox.services.accessibility.MindfulAccessibilityService
+import com.nlp.digitox.services.accessibility.DigitoxAccessibilityService
 import com.nlp.digitox.utils.Utils
 
 /**
@@ -36,10 +36,54 @@ import com.nlp.digitox.utils.Utils
  * usage access, and Do Not Disturb (DND) access.
  */
 object PermissionsHelper {
-    private const val TAG = "Mindful.PermissionsHelper"
+    private const val TAG = "Digitox.PermissionsHelper"
+
+    /**
+     * Checks whether the user has actually granted the accessibility permission
+     * in Android Settings by reading the real OS accessibility-services record.
+     *
+     * This is NOT a process-liveness check — it reads
+     * `Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES` and looks for our
+     * [DigitoxAccessibilityService] component name. This correctly reports
+     * `true` even when the OS has killed the service process (which OEMs
+     * routinely do to idle services).
+     */
+    fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        val expectedComponentName =
+            ComponentName(context, DigitoxAccessibilityService::class.java)
+        val enabledServicesSetting = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+        ) ?: return false
+
+        val colonSplitter = TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServicesSetting)
+        while (colonSplitter.hasNext()) {
+            val componentName =
+                ComponentName.unflattenFromString(colonSplitter.next())
+            if (componentName == expectedComponentName) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Checks whether the accessibility service *process* is currently running/alive.
+     *
+     * Unlike [isAccessibilityServiceEnabled], this returns the service's runtime
+     * liveness — useful for detecting "permission granted but service is currently
+     * dead (killed by OEM)" so the app can show a lightweight reconnect nudge
+     * instead of asking the user to re-grant the permission.
+     */
+    fun isAccessibilityServiceActive(context: Context): Boolean =
+        Utils.isServiceRunning(context, DigitoxAccessibilityService::class.java)
 
     /**
      * Checks if the device administration permission is granted and optionally asks for it if not granted.
+     *
+     * This backs the tamper-protection feature: when active, the app cannot be
+     * uninstalled or force-stopped from Settings outside the uninstall window.
      *
      * @param context          The application context used to check permissions and start activities.
      * @param askPermissionToo Whether to prompt the user to enable device administration permission if not granted.
@@ -69,47 +113,6 @@ object PermissionsHelper {
         }
         return false
     }
-
-    /**
-     * Checks whether the user has actually granted the accessibility permission
-     * in Android Settings by reading the real OS accessibility-services record.
-     *
-     * This is NOT a process-liveness check — it reads
-     * `Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES` and looks for our
-     * [MindfulAccessibilityService] component name. This correctly reports
-     * `true` even when the OS has killed the service process (which OEMs
-     * routinely do to idle services).
-     */
-    fun isAccessibilityServiceEnabled(context: Context): Boolean {
-        val expectedComponentName =
-            ComponentName(context, MindfulAccessibilityService::class.java)
-        val enabledServicesSetting = Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-        ) ?: return false
-
-        val colonSplitter = TextUtils.SimpleStringSplitter(':')
-        colonSplitter.setString(enabledServicesSetting)
-        while (colonSplitter.hasNext()) {
-            val componentName =
-                ComponentName.unflattenFromString(colonSplitter.next())
-            if (componentName == expectedComponentName) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
-     * Checks whether the accessibility service *process* is currently running/alive.
-     *
-     * Unlike [isAccessibilityServiceEnabled], this returns the service's runtime
-     * liveness — useful for detecting "permission granted but service is currently
-     * dead (killed by OEM)" so the app can show a lightweight reconnect nudge
-     * instead of asking the user to re-grant the permission.
-     */
-    fun isAccessibilityServiceActive(context: Context): Boolean =
-        Utils.isServiceRunning(context, MindfulAccessibilityService::class.java)
 
     /**
      * Checks if the accessibility permission is granted and optionally asks for it if not granted.
@@ -284,7 +287,7 @@ object PermissionsHelper {
 
         if (askPermissionToo) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                NewActivitiesLaunchHelper.openMindfulNotificationSection(activity)
+                NewActivitiesLaunchHelper.openDigitoxNotificationSection(activity)
             } else {
                 val count = SharedPrefsHelper.getSetNotificationAskCount(activity, null)
                 if (count < 2) {
@@ -294,7 +297,7 @@ object PermissionsHelper {
                         0
                     )
                 } else {
-                    NewActivitiesLaunchHelper.openMindfulNotificationSection(activity)
+                    NewActivitiesLaunchHelper.openDigitoxNotificationSection(activity)
                 }
 
                 SharedPrefsHelper.getSetNotificationAskCount(activity, count + 1)

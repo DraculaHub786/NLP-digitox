@@ -7,13 +7,13 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/services/auth_service.dart';
 import 'package:nlp_digitox/providers/system/parental_controls_provider.dart';
 import 'package:nlp_digitox/providers/system/permissions_provider.dart';
+import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 import 'package:nlp_digitox/ui/dialogs/time_picker_dialog.dart';
 import 'package:nlp_digitox/ui/dialogs/parental_password_management_dialog.dart';
-import 'package:nlp_digitox/ui/permissions/admin_permission_tile.dart';
 import 'package:nlp_digitox/ui/permissions/battery_optimization_recommendation_card.dart';
 import 'package:nlp_digitox/ui/screens/parental_controls/invincible_mode_settings.dart';
 import 'package:nlp_digitox/ui/transitions/default_hero.dart';
@@ -122,7 +122,7 @@ class ParentalControlsScreen extends ConsumerWidget {
                 ),
               ),
 
-              /// Tamper protection
+              /// Tamper protection (Android Device Admin)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
@@ -151,7 +151,7 @@ class ParentalControlsScreen extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                            borderRadius: BorderRadius.circular(Radii.pill),
                           ),
                           child: StyledText(
                             parentalControls.uninstallWindowTime.format(context),
@@ -162,12 +162,17 @@ class ParentalControlsScreen extends ConsumerWidget {
                         ),
                       ),
                       onTap: () async {
+                        // While tamper protection is active the uninstall
+                        // window can only be changed from inside the current
+                        // window — otherwise a user (or a child) could simply
+                        // move the window and then disable protection.
                         if (isAdminEnabled &&
                             !ref
                                 .read(parentalControlsProvider.notifier)
                                 .isBetweenUninstallWindow) {
                           context.showSnackAlert(
                             context.locale.permission_admin_snack_alert,
+                            icon: FluentIcons.shield_keyhole_20_filled,
                           );
                           return;
                         }

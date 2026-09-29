@@ -25,12 +25,6 @@ firebase deploy --only database:rules
 echo "📦 Deploying Firestore security rules..."
 firebase deploy --only firestore:rules
 
-# Deploy Storage rules (if exists)
-if [ -f "storage.rules" ]; then
-    echo "📦 Deploying Storage rules..."
-    firebase deploy --only storage
-fi
-
 # Deploy Cloud Functions (if exists)
 if [ -d "functions" ]; then
     echo "📦 Deploying Cloud Functions..."

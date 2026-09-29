@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 NLP digitox
+ * Copyright (c) 2026 NLP digitox
  * Author : Afjal Ansari
  *
  * This source code is licensed under the GPL-2.0 license found in the
@@ -187,11 +187,10 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
             onPressed: () async {
               await AIChatbotService.instance.cleanupOldChats();
               _loadSessions();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Old chats cleaned up')),
-                );
-              }
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Old chats cleaned up')),
+              );
             },
             tooltip: 'Clean up old chats',
           ),
@@ -208,7 +207,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                      borderRadius: BorderRadius.circular(Radii.xl),
                     ),
                     child: Row(
                       children: [
@@ -235,7 +234,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                      borderRadius: BorderRadius.circular(Radii.xl),
                     ),
                     child: Row(
                       children: [
@@ -310,7 +309,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                               elevation: isCurrent ? 4 : 1,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
-                                  GlassTokens.radiusCard,
+                                  Radii.xl,
                                 ),
                               ),
                               color: isCurrent
@@ -321,7 +320,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                                     ? null
                                     : () => _switchToSession(session),
                                 borderRadius: BorderRadius.circular(
-                                  GlassTokens.radiusCard,
+                                  Radii.xl,
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(16),
@@ -368,7 +367,7 @@ class _ChatSettingsScreenState extends ConsumerState<ChatSettingsScreen> {
                                                     .errorContainer,
                                                 borderRadius:
                                                     BorderRadius.circular(
-                                                  GlassTokens.radiusPill,
+                                                  Radii.pill,
                                                 ),
                                               ),
                                               child: StyledText(

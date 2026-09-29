@@ -72,7 +72,7 @@ class WebsitesBlockingScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                      borderRadius: BorderRadius.circular(Radii.pill),
                     ),
                     child: StyledText(
                       '$totalBlocked',
@@ -93,7 +93,7 @@ class WebsitesBlockingScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                    borderRadius: BorderRadius.circular(Radii.xl),
                     border: Border.all(
                       color: colorScheme.primary.withValues(alpha: 0.15),
                     ),

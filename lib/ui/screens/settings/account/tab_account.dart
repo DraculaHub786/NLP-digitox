@@ -12,6 +12,7 @@ import 'package:nlp_digitox/features/onboarding/quiz.dart';
 import 'package:nlp_digitox/ui/screens/achievements/achievements_screen.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
+import 'package:nlp_digitox/ui/screens/settings/export/wellbeing_report_screen.dart';
 
 class TabAccount extends ConsumerStatefulWidget {
   const TabAccount({super.key});
@@ -101,11 +102,6 @@ class _TabAccountState extends ConsumerState<TabAccount> {
 
               20.vBox,
 
-              /// Profile Picture Management
-              _buildProfileSection(colorScheme),
-
-              20.vBox,
-
               /// Account Actions Card
               _buildResponsiveCard(
                 colorScheme: colorScheme,
@@ -182,8 +178,8 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 title: 'Data Management',
                 children: [
                   ModernListTile(
-                    title: 'Export My Data',
-                    subtitle: 'Download all your data (GDPR)',
+                    title: 'Wellbeing Report',
+                    subtitle: 'A detailed report on your usage, goals, and mood',
                     icon: FluentIcons.arrow_download_20_regular,
                     iconColor: colorScheme.secondary,
                     showChevron: true,
@@ -201,7 +197,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 decoration: BoxDecoration(
                   border:
                       Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                  borderRadius: BorderRadius.circular(Radii.xl),
                 ),
                 child: Column(
                   children: [
@@ -259,7 +255,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
@@ -358,14 +354,13 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   }
 
   Widget _buildEmailVerificationBanner(ColorScheme colorScheme) {
-    final glass = GlassTokens.of(context);
-    final warn = glass.statusWarn;
+    final warn = DesignPalette.gold;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: warn.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: warn.withValues(alpha: 0.35)),
       ),
       child: Row(
@@ -406,7 +401,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 backgroundColor: warn.withValues(alpha: 0.2),
                 foregroundColor: warn,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                  borderRadius: BorderRadius.circular(Radii.pill),
                 ),
               ),
               child: _isSendingVerification
@@ -427,154 +422,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
     );
   }
 
-  Widget _buildProfileSection(ColorScheme colorScheme) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
-                ),
-                child: Icon(
-                  FluentIcons.image_20_regular,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    StyledText(
-                      'Profile Picture',
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    StyledText(
-                      'Upload a photo to personalize your profile',
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isNarrow = constraints.maxWidth < 280;
-              final avatarSize = isNarrow ? 48.0 : 64.0;
-              // For narrow screens, switch to vertical layout
-              if (isNarrow) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: _ProfilePicWidget(
-                        size: avatarSize,
-                        profileUrl: _profileUrl,
-                        isLoading: _isUploading,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton.icon(
-                      onPressed: _isUploading ? null : _uploadProfilePic,
-                      icon: _isUploading
-                          ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colorScheme.onPrimary,
-                              ),
-                            )
-                          : const Icon(FluentIcons.image_add_20_filled),
-                      label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
-                    ),
-                    if (_profileUrl != null && _profileUrl!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: _isUploading ? null : _removeProfilePic,
-                        icon: const Icon(FluentIcons.delete_20_regular),
-                        label: const Text('Remove Photo'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: colorScheme.error,
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-              }
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: constraints.maxWidth < 200 ? 8 : 0),
-                    child: _ProfilePicWidget(
-                      size: avatarSize,
-                      profileUrl: _profileUrl,
-                      isLoading: _isUploading,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        FilledButton.icon(
-                          onPressed: _isUploading ? null : _uploadProfilePic,
-                          icon: _isUploading
-                              ? SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: colorScheme.onPrimary,
-                                  ),
-                                )
-                              : const Icon(FluentIcons.image_add_20_filled),
-                          label: Text(_isUploading ? 'Uploading...' : 'Upload Photo'),
-                        ),
-                        if (_profileUrl != null && _profileUrl!.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          TextButton.icon(
-                            onPressed: _isUploading ? null : _removeProfilePic,
-                            icon: const Icon(FluentIcons.delete_20_regular),
-                            label: const Text('Remove Photo'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: colorScheme.error,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Reusable responsive card builder that avoids overflow by using compact padding.
+    /// Reusable responsive card builder that avoids overflow by using compact padding.
   Widget _buildResponsiveCard({
     required ColorScheme colorScheme,
     required IconData icon,
@@ -587,7 +435,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+        borderRadius: BorderRadius.circular(Radii.xl),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -600,7 +448,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Icon(
                     icon,
@@ -659,7 +507,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                  borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Icon(
                   FluentIcons.image_add_20_regular,
@@ -679,7 +527,7 @@ class _TabAccountState extends ConsumerState<TabAccount> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                    borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Icon(
                     FluentIcons.delete_20_regular,
@@ -1036,14 +884,9 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   }
 
   Future<void> _exportUserData() async {
-    try {
-      final data = await FirestoreService.instance.exportUserData();
-      if (mounted) {
-        context.showSnackAlert('Data exported: ${data.length} characters');
-      }
-    } catch (e) {
-      _showError(e.toString());
-    }
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const WellbeingReportScreen()),
+    );
   }
 
   Future<void> _signOut() async {
@@ -1136,70 +979,4 @@ class _TabAccountState extends ConsumerState<TabAccount> {
   }
 }
 
-/// Profile pic widget for account screen
-class _ProfilePicWidget extends StatelessWidget {
-  final double size;
-  final String? profileUrl;
-  final bool isLoading;
 
-  const _ProfilePicWidget({
-    required this.size,
-    this.profileUrl,
-    this.isLoading = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (isLoading) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colorScheme.primaryContainer,
-        ),
-        child: Center(
-          child: SizedBox(
-            width: size * 0.5,
-            height: size * 0.5,
-            child: const CircularProgressIndicator(
-              strokeWidth: 2,
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (profileUrl != null && profileUrl!.isNotEmpty) {
-      return ClipOval(
-        child: Image.network(
-          profileUrl!,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(colorScheme),
-        ),
-      );
-    }
-
-    return _buildDefaultAvatar(colorScheme);
-  }
-
-  Widget _buildDefaultAvatar(ColorScheme colorScheme) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: colorScheme.primaryContainer,
-      ),
-      child: Icon(
-        FluentIcons.person_24_filled,
-        size: size * 0.5,
-        color: colorScheme.primary,
-      ),
-    );
-  }
-}

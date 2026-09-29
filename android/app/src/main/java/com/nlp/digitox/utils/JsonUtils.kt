@@ -10,7 +10,7 @@ import org.json.JSONException
  * Utility functions for JSON parsing related to app restrictions and restriction groups.
  */
 object JsonUtils {
-    private const val TAG = "Mindful.JsonUtils"
+    private const val TAG = "Digitox.JsonUtils"
 
     /**
      * Parses a JSON array string into a list of integers.

@@ -1,0 +1,143 @@
+package com.nlp.digitox.services.notification
+
+import android.app.PendingIntent
+import android.content.ComponentName
+import android.content.Intent
+import android.os.IBinder
+import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
+import android.util.Log
+import com.nlp.digitox.generics.ServiceBinder
+import com.nlp.digitox.generics.SmartCacheBox
+import com.nlp.digitox.helpers.storage.DriftDbHelper
+import com.nlp.digitox.helpers.storage.SharedPrefsHelper
+import com.nlp.digitox.models.Notification
+import com.nlp.digitox.models.NotificationSettings
+import com.nlp.digitox.utils.executors.Throttler
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
+
+class DigitoxNotificationListenerService : NotificationListenerService() {
+    companion object {
+        private const val TAG = "Digitox.DigitoxNotificationService"
+    }
+
+    private val binder = ServiceBinder(this@DigitoxNotificationListenerService)
+    private val executorService: ExecutorService = Executors.newFixedThreadPool(4)
+
+    private val pendingNotifications: MutableList<Notification> = mutableListOf()
+    private val cachedPendingIntents: SmartCacheBox<String, PendingIntent> = SmartCacheBox(
+        maxSize = 100,
+        maxAgeMs = 24 * 60 * 60 * 1000L // 24 hours
+    )
+
+    private val throttler: Throttler = Throttler(5 * 1000L) // Every 5 seconds
+    private var settings: NotificationSettings = NotificationSettings()
+    private var isListenerActive = false
+
+    /**
+     *  Returns the pending intent for the provided key if found, otherwise null
+     */
+    fun getPendingIntentForKey(key: String): PendingIntent? = cachedPendingIntents.get(key)
+
+
+    override fun onListenerConnected() {
+        isListenerActive = true
+        Log.d(TAG, "onListenerConnected: Notifications listener CONNECTED")
+        super.onListenerConnected()
+    }
+
+    override fun onListenerDisconnected() {
+        isListenerActive = false
+        Log.d(TAG, "onListenerConnected: Notifications listener DIS-CONNECTED")
+
+        super.onListenerDisconnected()
+        // Try to rebind again
+        runCatching {
+            val listener = ComponentName(this, DigitoxNotificationListenerService::class.java)
+            requestRebind(listener)
+        }
+    }
+
+    override fun onNotificationPosted(sbn: StatusBarNotification) {
+        if (!isListenerActive) return
+        val packageName = sbn.packageName
+        try {
+            // If from this app or not clearable or group summery
+            val isGroupSummary =
+                sbn.notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY != 0
+            if (packageName == this.packageName || !sbn.isClearable || isGroupSummary || sbn.isOngoing) return
+
+            // Dismiss notification if it is from distracting apps
+            val isFromBatchedApp = settings.batchedApps.contains(packageName)
+            if (isFromBatchedApp) {
+                cancelNotification(sbn.key)
+                Log.d(TAG, "onNotificationPosted: Distracting notification dismissed")
+            }
+
+            // Process only if keeping history or it is from batched app
+            if (settings.storeNonBatchedToo || isFromBatchedApp) {
+                executorService.submit {
+                    processNotificationInBg(
+                        sbn,
+                        isFromBatchedApp
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            SharedPrefsHelper.insertCrashLogToPrefs(this, e)
+            Log.e(TAG, "onNotificationPosted: Something went wrong for package: $packageName", e)
+        }
+        super.onNotificationPosted(sbn)
+    }
+
+
+    fun updateNotificationSettings(settings: NotificationSettings) {
+        this.settings = settings
+        Log.d(
+            TAG,
+            "updateNotificationSettings: Notification settings updated successfully: $settings"
+        )
+    }
+
+    private fun processNotificationInBg(sbn: StatusBarNotification, isFromBatchedApp: Boolean) {
+        try {
+            Log.d(TAG, "processNotificationInBg: Processing notification")
+
+            // Create notification and cache
+            val notification = Notification.fromSbn(sbn).copy(isRead = !isFromBatchedApp)
+            if (notification.title.isEmpty() || notification.content.isEmpty()) return
+
+            sbn.notification.contentIntent?.let { cachedPendingIntents.put(notification.key, it) }
+            pendingNotifications.add(notification)
+
+            // Insert notifications to db if the difference between last insertion is more than 1 minute
+            throttler.submit { insertNotificationsToDb() }
+        } catch (e: Exception) {
+            SharedPrefsHelper.insertCrashLogToPrefs(this, e)
+            Log.e(TAG, "processNotificationInBg: Failed to process notification", e)
+        }
+    }
+
+    private fun insertNotificationsToDb() {
+        if (pendingNotifications.isEmpty()) return
+        val isSuccess = DriftDbHelper.insertNotifications(this, pendingNotifications)
+
+        // Clear list if inserted successfully
+        if (isSuccess) pendingNotifications.clear()
+    }
+
+
+    override fun onBind(intent: Intent): IBinder? {
+        return if (intent.action == ServiceBinder.ACTION_BIND_TO_DIGITOX) binder
+        else super.onBind(intent)
+    }
+
+    override fun onDestroy() {
+        insertNotificationsToDb()
+        executorService.shutdown()
+        Log.d(TAG, "onDestroy: Notifications listener DESTROYED")
+        super.onDestroy()
+    }
+}

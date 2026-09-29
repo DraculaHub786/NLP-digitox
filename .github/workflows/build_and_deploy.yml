@@ -51,7 +51,12 @@ jobs:
         run: flutter pub get
 
       - name: Build AAB
-        run: flutter build appbundle --release
+        # --no-tree-shake-icons is a safety net: habit/note icons are now
+        # looked up through AppIcons' const map (lib/models/app_icons.dart),
+        # which the tree-shaker can already resolve statically, but this
+        # flag protects against any *future* dynamically-built IconData
+        # elsewhere in the app silently losing its glyph in release builds.
+        run: flutter build appbundle --release --no-tree-shake-icons
 
       - name: Upload AAB to Play Store
         id: upload_google_play

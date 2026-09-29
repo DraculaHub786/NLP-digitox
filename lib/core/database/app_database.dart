@@ -21,7 +21,7 @@ import 'package:nlp_digitox/core/database/tables/focus_sessions_table.dart';
 import 'package:nlp_digitox/core/database/tables/notification_settings_table.dart';
 import 'package:nlp_digitox/core/database/tables/notifications_table.dart';
 import 'package:nlp_digitox/core/database/tables/parental_controls_table.dart';
-import 'package:nlp_digitox/core/database/tables/mindful_settings_table.dart';
+import 'package:nlp_digitox/core/database/tables/digitox_settings_table.dart';
 import 'package:nlp_digitox/core/database/tables/restriction_groups_table.dart';
 import 'package:nlp_digitox/core/database/tables/shared_unique_data_table.dart';
 import 'package:nlp_digitox/core/database/tables/wellbeing_table.dart';
@@ -47,7 +47,7 @@ part 'app_database.g.dart';
     FocusModeTable,
     FocusProfileTable,
     FocusSessionsTable,
-    MindfulSettingsTable,
+    DigitoxSettingsTable,
     ParentalControlsTable,
     RestrictionGroupsTable,
     WellbeingTable,
@@ -73,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   //
   // STEP 6 => Add migration steps to migration strategy by create new file in migrations folder. See previous migrations for help
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   // Always use [runSafe()] for upgrades - why?
   // If a user imports a backup from a newer schema when they are on an older
@@ -98,6 +98,7 @@ class AppDatabase extends _$AppDatabase {
               from7To8: from7To8,
               from8To9: from8To9,
               from9To10: from9To10,
+              from10To11: from10To11,
             ),
           );
         },

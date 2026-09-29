@@ -6,14 +6,14 @@ class DeviceInfoModel {
   final String model;
   final String androidVersion;
   final int sdkVersion;
-  final String mindfulVersion;
+  final String digitoxVersion;
 
   const DeviceInfoModel({
     required this.manufacturer,
     required this.model,
     required this.androidVersion,
     required this.sdkVersion,
-    required this.mindfulVersion,
+    required this.digitoxVersion,
   });
 
   factory DeviceInfoModel.fromMap(Map<String, dynamic> map) {
@@ -22,7 +22,7 @@ class DeviceInfoModel {
       model: map['model'] ?? '',
       androidVersion: map['androidVersion'] ?? '',
       sdkVersion: map['sdkVersion'] ?? 24,
-      mindfulVersion: map['mindfulVersion'] ?? '',
+      digitoxVersion: map['digitoxVersion'] ?? '',
     );
   }
 }

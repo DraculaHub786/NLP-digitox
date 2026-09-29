@@ -17,7 +17,7 @@ import com.nlp.digitox.enums.RestrictionType
 import com.nlp.digitox.models.RestrictionState
 import com.nlp.digitox.utils.AppUtils
 import com.nlp.digitox.utils.DateTimeUtils
-import com.nlp.digitox.utils.MindfulQuotes
+import com.nlp.digitox.utils.DigitoxQuotes
 import com.nlp.digitox.utils.ThreadUtils
 
 object OverlayBuilder {
@@ -52,9 +52,9 @@ object OverlayBuilder {
 
         // Set click listener
         toastView.setOnClickListener {
-            // Open mindful
+            // Open the app
             context.applicationContext.startActivity(
-                AppUtils.getIntentForMindfulUri(
+                AppUtils.getIntentForDigitoxUri(
                     context,
                     "com.nlp.digitox://open/appDashboard?package=$packageName"
                 )
@@ -79,7 +79,7 @@ object OverlayBuilder {
         // Set quote and author
         val quoteTxt = sheetView.findViewById<TextView>(R.id.overlay_sheet_quote)
         val quoteAuthorTxt = sheetView.findViewById<TextView>(R.id.overlay_sheet_quote_author)
-        val randomQuote = MindfulQuotes.getRandomQuote()
+        val randomQuote = DigitoxQuotes.getRandomQuote()
         quoteTxt.text = buildString {
             append("\"")
             append(randomQuote.value)
@@ -105,9 +105,9 @@ object OverlayBuilder {
             emergencyBtn.visibility = View.VISIBLE
             emergencyBtn.setOnClickListener {
                 ThreadUtils.runOnMainThread {
-                    /// Open mindful
+                    /// Open the app
                     context.applicationContext.startActivity(
-                        AppUtils.getIntentForMindfulUri(
+                        AppUtils.getIntentForDigitoxUri(
                             context,
                             "com.nlp.digitox://open/appDashboard?package=$packageName"
                         )

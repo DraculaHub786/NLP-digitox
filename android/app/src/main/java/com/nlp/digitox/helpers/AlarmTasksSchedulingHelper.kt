@@ -17,7 +17,7 @@ import com.nlp.digitox.receivers.alarm.MidnightResetReceiver
 import com.nlp.digitox.receivers.alarm.NotificationBatchReceiver
 import com.nlp.digitox.receivers.alarm.NotificationBatchReceiver.Companion.EXTRA_NOTIFICATION_SETTINGS_JSON
 import com.nlp.digitox.receivers.alarm.NotificationBatchReceiver.NotificationBatchWorker
-import com.nlp.digitox.services.tracking.MindfulTrackerService
+import com.nlp.digitox.services.tracking.DigitoxTrackerService
 import com.nlp.digitox.utils.DateTimeUtils.todToTodayCal
 import com.nlp.digitox.utils.Utils
 import java.util.Calendar
@@ -27,7 +27,7 @@ import java.util.Date
  * Helper class for scheduling alarm tasks related to bedtime routines and midnight resets.
  */
 object AlarmTasksSchedulingHelper {
-    private const val TAG = "Mindful.AlarmTasksSchedulingHelper"
+    private const val TAG = "Digitox.AlarmTasksSchedulingHelper"
     private const val MIDNIGHT_RESET_ALARM_ID = 101
     private const val BEDTIME_ROUTINE_ALARM_ID = 102
     private const val NOTIFICATION_BATCH_ALARM_ID = 103
@@ -163,8 +163,8 @@ object AlarmTasksSchedulingHelper {
 
         // Let service know
         runCatching {
-            if (Utils.isServiceRunning(context, MindfulTrackerService::class.java)) {
-                val conn = SafeServiceConnection(context, MindfulTrackerService::class.java)
+            if (Utils.isServiceRunning(context, DigitoxTrackerService::class.java)) {
+                val conn = SafeServiceConnection(context, DigitoxTrackerService::class.java)
                 conn.setOnConnectedCallback { service ->
                     service.getRestrictionManager.updateBedtimeApps(
                         null

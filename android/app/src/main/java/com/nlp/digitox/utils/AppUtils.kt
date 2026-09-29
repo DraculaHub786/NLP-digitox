@@ -15,13 +15,13 @@ import java.io.ByteArrayOutputStream
 object AppUtils {
 
     /**
-     * Creates a intent for Mindful with the provided URI.
+ * Creates a intent for the Digitox app with the provided URI.
      *
      * @param context          The application context.
      * @param uriString          The string representation of URI.
      * @return The pending intent.
      */
-    fun getIntentForMindfulUri(
+    fun getIntentForDigitoxUri(
         context: Context,
         uriString: String = "com.nlp.digitox://open/home",
     ): Intent {
@@ -37,13 +37,13 @@ object AppUtils {
     }
 
     /**
-     * Creates a pending intent for Mindful with the provided URI.
+ * Creates a pending intent for the Digitox app with the provided URI.
      *
      * @param context          The application context.
      * @param uriString          The string representation of URI.
      * @return The pending intent.
      */
-    fun getPendingIntentForMindfulUri(
+    fun getPendingIntentForDigitoxUri(
         context: Context,
         uriString: String = "com.nlp.digitox://open/home",
     ): PendingIntent {
@@ -51,7 +51,7 @@ object AppUtils {
         return PendingIntent.getActivity(
             context.applicationContext,
             0,
-            getIntentForMindfulUri(context, uriString),
+            getIntentForDigitoxUri(context, uriString),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
@@ -90,7 +90,7 @@ object AppUtils {
     /**
      * Resolve the device information and  returns it
      *
-     * @return Map containing Manufacturer, Model, Android Version, SDK Version and Mindful version.
+     * @return Map containing Manufacturer, Model, Android Version, SDK Version and Digitox version.
      */
     fun getDeviceInfoMap(context: Context): Map<String, Any> {
         val infoMap = HashMap<String, Any>()
@@ -98,7 +98,7 @@ object AppUtils {
         infoMap["model"] = Build.MODEL
         infoMap["androidVersion"] = Build.VERSION.RELEASE
         infoMap["sdkVersion"] = Build.VERSION.SDK_INT
-        infoMap["mindfulVersion"] = getAppVersion(context)
+        infoMap["digitoxVersion"] = getAppVersion(context)
         return infoMap
     }
 
@@ -135,7 +135,7 @@ object AppUtils {
         try {
             appIcon = encodeToBase64(icon)
         } catch (e: Exception) {
-            Log.e("Mindful.AppUtils", "getEncodedAppIcon: Cannot parse app icon from memory", e)
+            Log.e("Digitox.AppUtils", "getEncodedAppIcon: Cannot parse app icon from memory", e)
         }
         return appIcon
     }

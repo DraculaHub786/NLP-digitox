@@ -65,7 +65,7 @@ class ShortsBlockingScreen extends ConsumerWidget {
                               color: remainingTimeSec > 0
                                   ? colorScheme.primaryContainer
                                   : colorScheme.errorContainer,
-                              borderRadius: BorderRadius.circular(GlassTokens.radiusPill),
+                              borderRadius: BorderRadius.circular(Radii.pill),
                             ),
                             child: StyledText(
                               '${(remainingTimeSec / 60).toStringAsFixed(0)}m left',
@@ -89,7 +89,7 @@ class ShortsBlockingScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+                      borderRadius: BorderRadius.circular(Radii.xl),
                       border: Border.all(
                         color: colorScheme.primary.withValues(alpha: 0.15),
                       ),

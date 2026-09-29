@@ -2,39 +2,46 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
 /// Which scoring window a leaderboard view is showing.
 ///
-/// Both fields already exist on every `leaderboard/{uid}` doc:
-///   - `points`        → resets every Monday 4 AM (Asia/Kolkata), server-side
-///   - `monthlyPoints` → resets on the 1st of each month 4 AM, server-side
-///   - `lifetimePoints` → never resets
+/// Points are now stored across three Firestore collections:
+///   - `leaderboard/{uid}`            → the **lifetime** record. Never resets.
+///   - `weekly_leaderboard/{uid}`     → this week's score only. Resets weekly.
+///   - `monthly_leaderboard/{uid}`    → this month's score only. Resets monthly.
 ///
-/// Resets are performed exclusively by the `resetWeeklyLeaderboard` /
-/// `resetMonthlyLeaderboard` Cloud Functions (see /functions/index.js) using
-/// the Firebase Admin SDK, which bypasses firestore.rules. The client never
-/// writes a reset — firestore.rules intentionally forbids that (see the
-/// `leaderboard` and `leaderboard_config` rules), so nothing below attempts
-/// to write points to 0 from the app.
+/// Resets are performed exclusively by the external n8n workflows (see the
+/// `N8N_LEADERBOARD_WORKFLOWS_GUIDE.md` / the human-installed
+/// `[Digitox] Weekly/Monthly Leaderboard Winner` workflows) using the
+/// Firebase Admin SDK, which bypasses firestore.rules. The client never
+/// writes a reset — firestore.rules intentionally forbids that, so nothing
+/// below attempts to write points to 0 from the app.
 enum LeaderboardPeriod { weekly, monthly }
 
 extension LeaderboardPeriodX on LeaderboardPeriod {
-  /// Firestore field on the `leaderboard/{uid}` doc that holds this period's score.
-  String get field =>
-      this == LeaderboardPeriod.weekly ? 'points' : 'monthlyPoints';
+  /// Firestore field on the period-collection doc that holds this period's score.
+  /// Both `weekly_leaderboard` and `monthly_leaderboard` use a `points` field.
+  String get field => 'points';
 
-  /// Doc id under `leaderboard_config` that the reset Cloud Function updates.
+  /// Doc id under `leaderboard_config` that the reset workflow updates.
   String get configDocId =>
       this == LeaderboardPeriod.weekly ? 'weekly_reset' : 'monthly_reset';
 
   String get label => this == LeaderboardPeriod.weekly ? 'Weekly' : 'Monthly';
 }
 
+/// The Firestore collection that holds this period's leaderboard docs.
+extension LeaderboardPeriodCollectionX on LeaderboardPeriod {
+  String get collectionName =>
+      this == LeaderboardPeriod.weekly ? 'weekly_leaderboard' : 'monthly_leaderboard';
+}
+
 /// Read-only info about the last/next server-side reset for a period.
 /// Populated entirely from `leaderboard_config/{weekly_reset|monthly_reset}`,
-/// which only the Cloud Functions may write.
+/// which only the reset workflows may write.
 class LeaderboardResetInfo {
   final LeaderboardPeriod period;
   final DateTime lastResetDate;
@@ -82,6 +89,7 @@ class LeaderboardUser {
   final int monthlyPoints;
   final DateTime? lastActiveAt;
   final String? email;
+  final String? profileImageUrl;
 
   LeaderboardUser({
     required this.userId,
@@ -96,13 +104,81 @@ class LeaderboardUser {
     this.monthlyPoints = 0,
     this.lastActiveAt,
     this.email,
+    this.profileImageUrl,
   });
 
-  /// The score relevant to a given leaderboard view — weekly `points` or
-  /// `monthlyPoints`. Use this instead of `.points` directly anywhere the
-  /// UI needs to respect the active tab.
+  /// The score relevant to a given leaderboard view.
+  ///
+  /// Weekly/monthly docs carry their period score in `points`. Lifetime docs
+  /// carry the all-time total in `lifetimePoints`. When the current user is
+  /// merged from a period doc + lifetime doc (see `getCurrentUserData` and
+  /// `streamTopUsers`), `points` holds the period score and `monthlyPoints`
+  /// mirrors it so either tab reads correctly.
   int scoreFor(LeaderboardPeriod period) =>
       period == LeaderboardPeriod.weekly ? points : monthlyPoints;
+
+  /// Build a user from a `weekly_leaderboard` or `monthly_leaderboard` doc.
+  ///
+  /// Period docs only carry `points`, `username`, `avatarEmoji`,
+  /// `lastActiveAt` — lifetime/streak/breakdown live on the lifetime doc and
+  /// are merged in by the service when needed.
+  factory LeaderboardUser.fromPeriodDoc(
+    DocumentSnapshot doc,
+    int rank,
+    String currentUserId,
+  ) {
+    final data = doc.data() as Map<String, dynamic>;
+    final points = data['points'] ?? 0;
+    return LeaderboardUser(
+      userId: doc.id,
+      username: data['username'] ?? 'Anonymous',
+      points: points,
+      streak: data['streak'] ?? 0,
+      avatarEmoji: data['avatarEmoji'] ?? '👤',
+      rank: rank,
+      isCurrentUser: doc.id == currentUserId,
+      pointsBreakdown: data['pointsBreakdown'] != null
+          ? Map<String, int>.from(data['pointsBreakdown'])
+          : null,
+      lifetimePoints: data['lifetimePoints'] ?? 0,
+      // Mirror the period score so `scoreFor(monthly)` works on a doc that
+      // was read from the monthly collection (which also uses `points`).
+      monthlyPoints: points,
+      lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
+      email: data['email'] as String?,
+      profileImageUrl: data['profileImageUrl'] as String?,
+    );
+  }
+
+  /// Build a user from the lifetime `leaderboard/{uid}` doc.
+  ///
+  /// The lifetime doc carries `lifetimePoints`, `streak`, `pointsBreakdown`,
+  /// `username`, `lastActiveAt`. Period scores are NOT stored here anymore —
+  /// they live in the period collections.
+  factory LeaderboardUser.fromLifetimeDoc(
+    DocumentSnapshot doc,
+    int rank,
+    String currentUserId,
+  ) {
+    final data = doc.data() as Map<String, dynamic>;
+    return LeaderboardUser(
+      userId: doc.id,
+      username: data['username'] ?? 'Anonymous',
+      points: data['points'] ?? 0,
+      streak: data['streak'] ?? 0,
+      avatarEmoji: data['avatarEmoji'] ?? '👤',
+      rank: rank,
+      isCurrentUser: doc.id == currentUserId,
+      pointsBreakdown: data['pointsBreakdown'] != null
+          ? Map<String, int>.from(data['pointsBreakdown'])
+          : null,
+      lifetimePoints: data['lifetimePoints'] ?? 0,
+      monthlyPoints: data['monthlyPoints'] ?? 0,
+      lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
+      email: data['email'] as String?,
+      profileImageUrl: data['profileImageUrl'] as String?,
+    );
+  }
 
   factory LeaderboardUser.fromFirestore(
     DocumentSnapshot doc,
@@ -125,6 +201,34 @@ class LeaderboardUser {
       monthlyPoints: data['monthlyPoints'] ?? 0,
       lastActiveAt: (data['lastActiveAt'] as Timestamp?)?.toDate(),
       email: data['email'] as String?,
+      profileImageUrl: data['profileImageUrl'] as String?,
+    );
+  }
+
+  /// Create a copy of this user with lifetime fields overlaid from a lifetime
+  /// doc. Used to enrich a period-board row so the signed-in user still shows
+  /// streak / lifetime / breakdown on screens that use `streamTopUsers`.
+  LeaderboardUser mergeLifetime({
+    required int lifetimePoints,
+    required int streak,
+    Map<String, int>? pointsBreakdown,
+    String? email,
+    String? profileImageUrl,
+  }) {
+    return LeaderboardUser(
+      userId: userId,
+      username: username,
+      points: points,
+      streak: streak,
+      avatarEmoji: avatarEmoji,
+      rank: rank,
+      isCurrentUser: isCurrentUser,
+      pointsBreakdown: pointsBreakdown ?? this.pointsBreakdown,
+      lifetimePoints: lifetimePoints,
+      monthlyPoints: monthlyPoints,
+      lastActiveAt: lastActiveAt,
+      email: email ?? this.email,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
     );
   }
 
@@ -138,6 +242,7 @@ class LeaderboardUser {
       'lifetimePoints': lifetimePoints,
       'monthlyPoints': monthlyPoints,
       if (email != null) 'email': email,
+      if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
       'lastUpdated': FieldValue.serverTimestamp(),
       'lastActiveAt': lastActiveAt != null
           ? Timestamp.fromDate(lastActiveAt!)
@@ -150,10 +255,10 @@ class LeaderboardUser {
 /// Handles fetching and updating leaderboard data from Firestore.
 ///
 /// IMPORTANT: this service never resets anyone's points. Weekly/monthly
-/// resets are performed server-side by Cloud Functions (see
-/// /functions/index.js) using the Admin SDK, which is required because
-/// firestore.rules deliberately blocks the client from writing other
-/// users' docs or the `leaderboard_config` collection.
+/// resets are performed externally via the n8n workflows (see
+/// `N8N_LEADERBOARD_WORKFLOWS_GUIDE.md`) using the Admin SDK, which is
+/// required because firestore.rules deliberately blocks the client from
+/// writing other users' docs or the `leaderboard_config` collection.
 class LeaderboardService {
   LeaderboardService._();
   static final LeaderboardService instance = LeaderboardService._();
@@ -176,6 +281,51 @@ class LeaderboardService {
   // FETCH / READ
   // =========================================================================
 
+  /// Sorts a fetched list deterministically and assigns 1-based ranks.
+  ///
+  /// Firestore's `orderBy(field, descending: true)` returns an unspecified
+  /// order for equal scores. After a weekly/monthly reset the entire board
+  /// ties on 0, so without this tie-break the visible order (and the
+  /// "current user" position) would be arbitrary and could change between
+  /// snapshots. Ties are broken by most-recent activity first, then by
+  /// username for full determinism.
+  static List<LeaderboardUser> _sortAndRank(
+    List<LeaderboardUser> users,
+    LeaderboardPeriod period,
+  ) {
+    final sorted = [...users]..sort((a, b) {
+        final scoreDiff = b.scoreFor(period).compareTo(a.scoreFor(period));
+        if (scoreDiff != 0) return scoreDiff;
+
+        // More recently active ranks higher among tied scores.
+        final aActive = a.lastActiveAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bActive = b.lastActiveAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final activeDiff = bActive.compareTo(aActive);
+        if (activeDiff != 0) return activeDiff;
+
+        return a.username.toLowerCase().compareTo(b.username.toLowerCase());
+      });
+
+    for (var i = 0; i < sorted.length; i++) {
+      sorted[i] = LeaderboardUser(
+        userId: sorted[i].userId,
+        username: sorted[i].username,
+        points: sorted[i].points,
+        streak: sorted[i].streak,
+        avatarEmoji: sorted[i].avatarEmoji,
+        rank: i + 1,
+        isCurrentUser: sorted[i].isCurrentUser,
+        pointsBreakdown: sorted[i].pointsBreakdown,
+        lifetimePoints: sorted[i].lifetimePoints,
+        monthlyPoints: sorted[i].monthlyPoints,
+        lastActiveAt: sorted[i].lastActiveAt,
+        email: sorted[i].email,
+        profileImageUrl: sorted[i].profileImageUrl,
+      );
+    }
+    return sorted;
+  }
+
   Future<List<LeaderboardUser>> getTopUsers({
     LeaderboardPeriod period = LeaderboardPeriod.weekly,
     int limit = 100,
@@ -192,23 +342,43 @@ class LeaderboardService {
 
       final currentUserId = FirebaseAuthService.instance.userId ?? '';
 
+      // Query the period-specific collection directly, ordered by score.
+      // Every period doc has a `points` field, so `orderBy('points')` only
+      // returns users who have earned points this period — exactly the set
+      // the board should show.
       final querySnapshot = await _firestore
-          .collection('leaderboard')
-          .orderBy(period.field, descending: true)
+          .collection(period.collectionName)
+          .orderBy('points', descending: true)
           .limit(limit)
           .get();
 
-      final users = querySnapshot.docs.asMap().entries.map((entry) {
-        final rank = entry.key + 1;
-        final doc = entry.value;
-        return LeaderboardUser.fromFirestore(doc, rank, currentUserId);
+      final users = querySnapshot.docs.map((doc) {
+        return LeaderboardUser.fromPeriodDoc(doc, 0, currentUserId);
       }).toList();
 
-      _cachedLeaderboard[period] = users;
+      var ranked = _sortAndRank(users, period);
+
+      // Enrich the signed-in user with lifetime/streak/breakdown from the
+      // lifetime doc so profile/achievements/leaderboard cards that read
+      // `.lifetimePoints` / `.streak` stay correct.
+      final currentUserIndex = ranked.indexWhere(
+        (u) => u.userId == currentUserId,
+      );
+      if (currentUserId.isNotEmpty && currentUserIndex != -1) {
+        ranked[currentUserIndex] = await _mergeCurrentUserLifetime(
+          ranked[currentUserIndex],
+        );
+      }
+
+      final trimmed = limit > 0 && ranked.length > limit
+          ? ranked.sublist(0, limit)
+          : ranked;
+
+      _cachedLeaderboard[period] = trimmed;
       _lastFetchTime[period] = DateTime.now();
 
-      debugPrint('Fetched ${users.length} users (${period.label})');
-      return users;
+      debugPrint('Fetched ${trimmed.length} users (${period.label})');
+      return trimmed;
     } catch (e) {
       debugPrint('Get leaderboard error (${period.label}): $e');
       return [];
@@ -223,27 +393,157 @@ class LeaderboardService {
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) return null;
 
-      final doc = await _firestore.collection('leaderboard').doc(userId).get();
-      if (!doc.exists) return null;
+      final periodRef = _firestore.collection(period.collectionName).doc(userId);
+      final lifetimeRef = _firestore.collection('leaderboard').doc(userId);
 
-      final userScore = (doc.data()?[period.field] ?? 0) as int;
+      // Fetch the two independent reads in parallel.
+      final results = await Future.wait([
+        periodRef.get(),
+        lifetimeRef.get(),
+      ]);
+      final periodDoc = results[0] as DocumentSnapshot;
+      final lifetimeDoc = results[1] as DocumentSnapshot;
+
+      if (!periodDoc.exists && !lifetimeDoc.exists) return null;
+
+      final periodData =
+          periodDoc.exists ? periodDoc.data() as Map<String, dynamic> : null;
+      final lifetimeData = lifetimeDoc.exists
+          ? lifetimeDoc.data() as Map<String, dynamic>
+          : null;
+
+      final userScore = (periodData?['points'] ?? 0) as int;
       final higherRankedCount = await _firestore
-          .collection('leaderboard')
-          .where(period.field, isGreaterThan: userScore)
+          .collection(period.collectionName)
+          .where('points', isGreaterThan: userScore)
           .count()
           .get();
 
       final rank = higherRankedCount.count! + 1;
 
-      return LeaderboardUser.fromFirestore(doc, rank, userId);
+      final username =
+          (periodData?['username'] ?? lifetimeData?['username']) as String? ??
+              'Anonymous';
+      final avatarEmoji =
+          (periodData?['avatarEmoji'] ?? lifetimeData?['avatarEmoji']) as String? ??
+              '👤';
+      final lifetimePoints = (lifetimeData?['lifetimePoints'] ?? 0) as int;
+      final streak = (lifetimeData?['streak'] ?? 0) as int;
+      final breakdown = lifetimeData?['pointsBreakdown'] != null
+          ? Map<String, int>.from(lifetimeData!['pointsBreakdown'])
+          : null;
+      final lastActiveAt =
+          (periodData?['lastActiveAt'] ?? lifetimeData?['lastActiveAt'] as Timestamp?)
+              ?.toDate();
+      final profileImageUrl = (periodData?['profileImageUrl'] ??
+          lifetimeData?['profileImageUrl']) as String?;
+
+      return LeaderboardUser(
+        userId: userId,
+        username: username,
+        points: userScore,
+        streak: streak,
+        avatarEmoji: avatarEmoji,
+        rank: rank,
+        isCurrentUser: true,
+        pointsBreakdown: breakdown,
+        lifetimePoints: lifetimePoints,
+        monthlyPoints: userScore,
+        lastActiveAt: lastActiveAt,
+        email: lifetimeData?['email'] as String?,
+        profileImageUrl: profileImageUrl,
+      );
     } catch (e) {
       debugPrint('Get current user data error (${period.label}): $e');
       return null;
     }
   }
 
+  /// Merge lifetime fields (lifetimePoints, streak, breakdown) onto a
+  /// period-board user row by reading the lifetime doc once.
+  Future<LeaderboardUser> _mergeCurrentUserLifetime(
+    LeaderboardUser periodUser,
+  ) async {
+    try {
+      final lifetimeDoc =
+          await _firestore.collection('leaderboard').doc(periodUser.userId).get();
+      if (!lifetimeDoc.exists) return periodUser;
+
+      final data = lifetimeDoc.data() as Map<String, dynamic>;
+      return periodUser.mergeLifetime(
+        lifetimePoints: (data['lifetimePoints'] ?? 0) as int,
+        streak: (data['streak'] ?? 0) as int,
+        pointsBreakdown: data['pointsBreakdown'] != null
+            ? Map<String, int>.from(data['pointsBreakdown'])
+            : null,
+        email: data['email'] as String?,
+        // The lifetime doc also carries the avatar copy written by
+        // ProfileService, so a row read before the period doc has one still
+        // shows the picture.
+        profileImageUrl: data['profileImageUrl'] as String?,
+      );
+    } catch (e) {
+      debugPrint('Merge current user lifetime error: $e');
+      return periodUser;
+    }
+  }
+
+  /// Self-healing fallback: for any user on the board missing a profileImageUrl,
+  /// fetch it from the canonical `users/{uid}` doc and write it back to all three
+  /// leaderboard collections (leaderboard, weekly_leaderboard, monthly_leaderboard).
+  /// This handles users who uploaded a picture before their board doc existed,
+  /// or whose avatar was lost due to a race/partial failure in the mirror write.
+  Future<List<LeaderboardUser>> _backfillMissingAvatars(
+    List<LeaderboardUser> users,
+  ) async {
+    // Find users with missing avatars
+    final missingAvatarUsers =
+        users.where((u) => u.profileImageUrl == null || u.profileImageUrl!.isEmpty).toList();
+
+    if (missingAvatarUsers.isEmpty) return users;
+
+    debugPrint('LeaderboardService: Backfilling avatars for ${missingAvatarUsers.length} users');
+
+    for (final user in missingAvatarUsers) {
+      try {
+        final userDoc = await _firestore.collection('users').doc(user.userId).get();
+        if (!userDoc.exists) continue;
+
+        final url = userDoc.data()?['profileImageUrl'] as String?;
+        if (url == null || url.isEmpty) continue;
+
+        // Write the avatar to all three board collections
+        final boards = ['leaderboard', 'weekly_leaderboard', 'monthly_leaderboard'];
+        for (final col in boards) {
+          try {
+            await _firestore.collection(col).doc(user.userId).set({
+              'profileImageUrl': url,
+            }, SetOptions(merge: true));
+          } catch (e) {
+            debugPrint('LeaderboardService: Failed to backfill avatar to $col: $e');
+          }
+        }
+
+        debugPrint('LeaderboardService: Backfilled avatar for ${user.userId}');
+      } catch (e) {
+        debugPrint('LeaderboardService: Error backfilling avatar for ${user.userId}: $e');
+      }
+    }
+
+    // Return updated list with avatars filled in
+    return users.map((u) {
+      if (u.profileImageUrl != null && u.profileImageUrl!.isNotEmpty) return u;
+      // Find the backfilled URL
+      final found = missingAvatarUsers.firstWhere(
+        (m) => m.userId == u.userId,
+        orElse: () => u,
+      );
+      return found.profileImageUrl != u.profileImageUrl ? found : u;
+    }).toList();
+  }
+
   /// Read-only reset schedule info for a period. Returns null until the
-  /// corresponding Cloud Function has run at least once (i.e. the
+  /// corresponding reset workflow has run at least once (i.e. the
   /// `leaderboard_config/{weekly_reset|monthly_reset}` doc exists).
   Future<LeaderboardResetInfo?> getResetInfo(LeaderboardPeriod period) async {
     try {
@@ -313,6 +613,13 @@ class LeaderboardService {
               existingDoc.data()?['pointsBreakdown'] ?? {})
           : <String, int>{};
 
+      // The avatar URL is written separately by ProfileService (which mirrors
+      // it onto this doc); read it back so this merge-write never drops it.
+      String? profileImageUrl = await ProfileService.instance.getProfileUrl();
+      if (profileImageUrl == null && existingDoc.exists) {
+        profileImageUrl = existingDoc.data()?['profileImageUrl'] as String?;
+      }
+
       final leaderboardUser = LeaderboardUser(
         userId: userId,
         username: username,
@@ -326,6 +633,7 @@ class LeaderboardService {
         monthlyPoints: existingMonthlyPoints,
         lastActiveAt: DateTime.now(),
         email: FirebaseAuthService.instance.userEmail,
+        profileImageUrl: profileImageUrl,
       );
 
       await _firestore
@@ -347,59 +655,86 @@ class LeaderboardService {
   }
 
   /// Add points to current user.
-  /// `points` tracks weekly points (reset every Monday 4 AM by Cloud Function).
-  /// `monthlyPoints` tracks monthly points (reset 1st of month 4 AM by Cloud Function).
-  /// `lifetimePoints` tracks all-time total (never reset).
-  /// If the doc does not exist yet, seeds username/email/avatarEmoji to
-  /// prevent "Anonymous" showing on the leaderboard before updateUserData runs.
+  ///
+  /// Fanned out to all three collections in a single transaction:
+  ///   - `leaderboard/{uid}`          → lifetimePoints + pointsBreakdown
+  ///   - `weekly_leaderboard/{uid}`   → points (weekly score)
+  ///   - `monthly_leaderboard/{uid}`  → points (monthly score)
+  ///
+  /// If any doc does not exist yet, seeds username/email/avatarEmoji so the
+  /// user shows correctly on the board before `updateUserData` runs.
   Future<void> addPoints(int points, String category) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) return;
 
-      final docRef = _firestore.collection('leaderboard').doc(userId);
+      final lifetimeRef = _firestore.collection('leaderboard').doc(userId);
+      final weeklyRef = _firestore.collection('weekly_leaderboard').doc(userId);
+      final monthlyRef = _firestore.collection('monthly_leaderboard').doc(userId);
+
+      // Warm the profile-picture cache so a brand-new board doc is seeded with
+      // the user's avatar (no Firestore read after the first call per session).
+      final profileImageUrl = await ProfileService.instance.getProfileUrl();
 
       await _firestore.runTransaction((transaction) async {
-        final snapshot = await transaction.get(docRef);
+        final lifetimeSnap = await transaction.get(lifetimeRef);
+        final weeklySnap = await transaction.get(weeklyRef);
+        final monthlySnap = await transaction.get(monthlyRef);
 
-        final currentPoints = snapshot.exists
-            ? (snapshot.data()?['points'] ?? 0) as int
+        final currentLifetime = lifetimeSnap.exists
+            ? (lifetimeSnap.data()?['lifetimePoints'] ?? 0) as int
             : 0;
-        final currentMonthlyPoints = snapshot.exists
-            ? (snapshot.data()?['monthlyPoints'] ?? 0) as int
-            : 0;
-        final currentBreakdown = snapshot.exists
-            ? Map<String, int>.from(
-                snapshot.data()?['pointsBreakdown'] ?? {})
+        final currentBreakdown = lifetimeSnap.exists
+            ? Map<String, int>.from(lifetimeSnap.data()?['pointsBreakdown'] ?? {})
             : <String, int>{};
-        final currentLifetimePoints = snapshot.exists
-            ? (snapshot.data()?['lifetimePoints'] ?? 0) as int
+        final currentWeekly = weeklySnap.exists
+            ? (weeklySnap.data()?['points'] ?? 0) as int
+            : 0;
+        final currentMonthly = monthlySnap.exists
+            ? (monthlySnap.data()?['points'] ?? 0) as int
             : 0;
 
-        currentBreakdown[category] =
-            (currentBreakdown[category] ?? 0) + points;
+        currentBreakdown[category] = (currentBreakdown[category] ?? 0) + points;
 
         final auth = FirebaseAuthService.instance;
-        final data = <String, dynamic>{
-          'points': currentPoints + points,
-          'monthlyPoints': currentMonthlyPoints + points,
-          'pointsBreakdown': currentBreakdown,
-          'lifetimePoints': currentLifetimePoints + points,
-          'lastUpdated': FieldValue.serverTimestamp(),
-          'lastActiveAt': FieldValue.serverTimestamp(),
+        final baseIdentity = <String, dynamic>{
+          'username': auth.userDisplayName ?? 'User',
+          'avatarEmoji': '👤',
         };
 
-        if (!snapshot.exists) {
-          data['username'] = auth.userDisplayName ?? 'User';
-          data['email'] = auth.userEmail;
-          data['avatarEmoji'] = '👤';
-        }
+        transaction.set(lifetimeRef, {
+          if (!lifetimeSnap.exists) ...baseIdentity,
+          if (!lifetimeSnap.exists) 'email': auth.userEmail,
+          // Re-applied on every points event (not just doc creation) so a
+          // photo uploaded while this doc didn't exist yet — or uploaded
+          // after this doc was already seeded without one — still lands
+          // here the next time the user earns points, instead of never.
+          if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
+          'lifetimePoints': currentLifetime + points,
+          'pointsBreakdown': currentBreakdown,
+          'lastUpdated': FieldValue.serverTimestamp(),
+          'lastActiveAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
 
-        transaction.set(docRef, data, SetOptions(merge: true));
+        transaction.set(weeklyRef, {
+          if (!weeklySnap.exists) ...baseIdentity,
+          if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
+          'points': currentWeekly + points,
+          'lastUpdated': FieldValue.serverTimestamp(),
+          'lastActiveAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        transaction.set(monthlyRef, {
+          if (!monthlySnap.exists) ...baseIdentity,
+          if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
+          'points': currentMonthly + points,
+          'lastUpdated': FieldValue.serverTimestamp(),
+          'lastActiveAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       });
 
       clearCache();
-      debugPrint('Added $points points to $category');
+      debugPrint('Added $points points to $category (fanned out to 3 collections)');
     } catch (e) {
       debugPrint('Add points error: $e');
     }
@@ -441,16 +776,57 @@ class LeaderboardService {
     final currentUserId = FirebaseAuthService.instance.userId ?? '';
 
     return _firestore
-        .collection('leaderboard')
-        .orderBy(period.field, descending: true)
+        .collection(period.collectionName)
+        .orderBy('points', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.asMap().entries.map((entry) {
-        final rank = entry.key + 1;
-        final doc = entry.value;
-        return LeaderboardUser.fromFirestore(doc, rank, currentUserId);
+        .asyncMap((snapshot) async {
+      var ranked = snapshot.docs.map((doc) {
+        return LeaderboardUser.fromPeriodDoc(doc, 0, currentUserId);
       }).toList();
+
+      ranked = _sortAndRank(ranked, period);
+
+      // Always surface the signed-in user: if their doc fell outside the
+      // fetch cap (or doesn't exist in the collection yet), merge a fresh
+      // read so their rank + stats never silently disappear from the board.
+      final currentUserIndex = ranked.indexWhere(
+        (u) => u.userId == currentUserId,
+      );
+      if (currentUserId.isNotEmpty && currentUserIndex == -1) {
+        final currentDoc = await _firestore
+            .collection(period.collectionName)
+            .doc(currentUserId)
+            .get();
+        if (currentDoc.exists) {
+          ranked.add(
+            LeaderboardUser.fromPeriodDoc(currentDoc, 0, currentUserId),
+          );
+          ranked = _sortAndRank(ranked, period);
+        }
+      }
+
+      // Enrich the signed-in user with lifetime/streak/breakdown from the
+      // lifetime doc so profile/achievements/leaderboard cards that read
+      // `.lifetimePoints` / `.streak` stay correct.
+      final enrichedIndex = ranked.indexWhere(
+        (u) => u.userId == currentUserId,
+      );
+      if (currentUserId.isNotEmpty && enrichedIndex != -1) {
+        ranked[enrichedIndex] = await _mergeCurrentUserLifetime(
+          ranked[enrichedIndex],
+        );
+      }
+
+      // Self-healing: backfill missing avatar URLs for all users on the board.
+      // This covers users who uploaded a photo before their board doc existed,
+      // or whose avatar was lost due to a race/partial failure.
+      ranked = await _backfillMissingAvatars(ranked);
+
+      if (limit > 0 && ranked.length > limit) {
+        ranked = ranked.sublist(0, limit);
+      }
+      return ranked;
     });
   }
 

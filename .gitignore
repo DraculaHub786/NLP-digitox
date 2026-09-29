@@ -9,7 +9,6 @@
 .history
 .svn/
 migrate_working_dir/
-.vscode
 temp/
 
 # IntelliJ related
@@ -18,10 +17,11 @@ temp/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# The .vscode folder is ignored except for launch.json (needed so
+# `flutter run` from the editor passes --dart-define-from-file=.env —
+# without it, Cloudinary/Groq/Gemini keys are silently empty at runtime).
+.vscode/*
+!.vscode/launch.json
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -58,8 +58,20 @@ app.*.map.json
 # Environment variables and API keys
 .env
 .env.*
-**/api_keys.dart
-**/secrets.dart
+!.env.example
+
+# Android keystore and signing (gitignored — must exist locally / in CI secrets)
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
+# NOTE: lib/config/api_keys.dart is deliberately COMMITTED.
+# It is the resolver that reads keys from .env / --dart-define, and the AI
+# services import it, so it must exist in a fresh clone and in CI. It holds no
+# secrets by design - keep real keys in .env (ignored above) or pass them with
+# --dart-define. Only genuinely secret-bearing files are ignored here:
+/api_keys.dart
+**/api_keys_secret.dart
 
 # Large generated files
 /lib/l10n/generated/
@@ -94,7 +106,17 @@ app.*.map.json
 /QUICK_START_NEW_FEATURES.md
 /TASK8_REAL_SENTIMENT_ANALYZER.md
 /TASKS_12_13_14_COMPLETE.md
-
-# Assest refference
-Demo-light.png
-Demo-dark.png
+# Assest reference and task files
+/Demo-light.png
+/Demo-dark.png
+/dark-mode-ref.png
+/light-mode-ref.png
+/Task.md
+/prior.md
+n8n-changes.md
+fix.md
+scripts/reconcile-once.js
+scripts/service-account.json
+profile_avatar_implementation.md
+tree_shake_fix.md
+todo.md

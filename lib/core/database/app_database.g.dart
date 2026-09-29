@@ -85,6 +85,15 @@ class $AppRestrictionTableTable extends AppRestrictionTable
           .withConverter<ReminderType>(
               $AppRestrictionTableTable.$converterreminderType);
   @override
+  late final GeneratedColumnWithTypeConverter<List<String>, String>
+      associatedDomains = GeneratedColumn<String>(
+              'associated_domains', aliasedName, false,
+              type: DriftSqlType.string,
+              requiredDuringInsert: false,
+              defaultValue: Constant(jsonEncode([])))
+          .withConverter<List<String>>(
+              $AppRestrictionTableTable.$converterassociatedDomains);
+  @override
   List<GeneratedColumn> get $columns => [
         appPackage,
         timerSec,
@@ -94,7 +103,8 @@ class $AppRestrictionTableTable extends AppRestrictionTable
         periodDurationInMins,
         associatedGroupId,
         canAccessInternet,
-        reminderType
+        reminderType,
+        associatedDomains
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -172,6 +182,9 @@ class $AppRestrictionTableTable extends AppRestrictionTable
       reminderType: $AppRestrictionTableTable.$converterreminderType.fromSql(
           attachedDatabase.typeMapping.read(
               DriftSqlType.string, data['${effectivePrefix}reminder_type'])!),
+      associatedDomains: $AppRestrictionTableTable.$converterassociatedDomains
+          .fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string,
+              data['${effectivePrefix}associated_domains'])!),
     );
   }
 
@@ -187,6 +200,8 @@ class $AppRestrictionTableTable extends AppRestrictionTable
   static JsonTypeConverter2<ReminderType, String, String>
       $converterreminderType =
       const EnumNameConverter<ReminderType>(ReminderType.values);
+  static TypeConverter<List<String>, String> $converterassociatedDomains =
+      const StringListConverter();
 }
 
 class AppRestriction extends DataClass implements Insertable<AppRestriction> {
@@ -218,6 +233,11 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
 
   /// [ReminderType] Type of reminders to show when using timed app
   final ReminderType reminderType;
+
+  /// Website domains associated with this app (e.g. "instagram.com" for
+  /// com.instagram.android). User/config-set - never hardcoded. Drives
+  /// dynamic website blocking when this app's usage limit is hit.
+  final List<String> associatedDomains;
   const AppRestriction(
       {required this.appPackage,
       required this.timerSec,
@@ -227,7 +247,8 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
       required this.periodDurationInMins,
       this.associatedGroupId,
       required this.canAccessInternet,
-      required this.reminderType});
+      required this.reminderType,
+      required this.associatedDomains});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -253,6 +274,11 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
       map['reminder_type'] = Variable<String>(
           $AppRestrictionTableTable.$converterreminderType.toSql(reminderType));
     }
+    {
+      map['associated_domains'] = Variable<String>($AppRestrictionTableTable
+          .$converterassociatedDomains
+          .toSql(associatedDomains));
+    }
     return map;
   }
 
@@ -269,6 +295,7 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
           : Value(associatedGroupId),
       canAccessInternet: Value(canAccessInternet),
       reminderType: Value(reminderType),
+      associatedDomains: Value(associatedDomains),
     );
   }
 
@@ -289,6 +316,8 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
       canAccessInternet: serializer.fromJson<bool>(json['canAccessInternet']),
       reminderType: $AppRestrictionTableTable.$converterreminderType
           .fromJson(serializer.fromJson<String>(json['reminderType'])),
+      associatedDomains:
+          serializer.fromJson<List<String>>(json['associatedDomains']),
     );
   }
   @override
@@ -310,6 +339,7 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
       'reminderType': serializer.toJson<String>($AppRestrictionTableTable
           .$converterreminderType
           .toJson(reminderType)),
+      'associatedDomains': serializer.toJson<List<String>>(associatedDomains),
     };
   }
 
@@ -322,7 +352,8 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
           int? periodDurationInMins,
           Value<int?> associatedGroupId = const Value.absent(),
           bool? canAccessInternet,
-          ReminderType? reminderType}) =>
+          ReminderType? reminderType,
+          List<String>? associatedDomains}) =>
       AppRestriction(
         appPackage: appPackage ?? this.appPackage,
         timerSec: timerSec ?? this.timerSec,
@@ -335,6 +366,7 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
             : this.associatedGroupId,
         canAccessInternet: canAccessInternet ?? this.canAccessInternet,
         reminderType: reminderType ?? this.reminderType,
+        associatedDomains: associatedDomains ?? this.associatedDomains,
       );
   AppRestriction copyWithCompanion(AppRestrictionTableCompanion data) {
     return AppRestriction(
@@ -361,6 +393,9 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
       reminderType: data.reminderType.present
           ? data.reminderType.value
           : this.reminderType,
+      associatedDomains: data.associatedDomains.present
+          ? data.associatedDomains.value
+          : this.associatedDomains,
     );
   }
 
@@ -375,7 +410,8 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
           ..write('periodDurationInMins: $periodDurationInMins, ')
           ..write('associatedGroupId: $associatedGroupId, ')
           ..write('canAccessInternet: $canAccessInternet, ')
-          ..write('reminderType: $reminderType')
+          ..write('reminderType: $reminderType, ')
+          ..write('associatedDomains: $associatedDomains')
           ..write(')'))
         .toString();
   }
@@ -390,7 +426,8 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
       periodDurationInMins,
       associatedGroupId,
       canAccessInternet,
-      reminderType);
+      reminderType,
+      associatedDomains);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -403,7 +440,8 @@ class AppRestriction extends DataClass implements Insertable<AppRestriction> {
           other.periodDurationInMins == this.periodDurationInMins &&
           other.associatedGroupId == this.associatedGroupId &&
           other.canAccessInternet == this.canAccessInternet &&
-          other.reminderType == this.reminderType);
+          other.reminderType == this.reminderType &&
+          other.associatedDomains == this.associatedDomains);
 }
 
 class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
@@ -416,6 +454,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
   final Value<int?> associatedGroupId;
   final Value<bool> canAccessInternet;
   final Value<ReminderType> reminderType;
+  final Value<List<String>> associatedDomains;
   final Value<int> rowid;
   const AppRestrictionTableCompanion({
     this.appPackage = const Value.absent(),
@@ -427,6 +466,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
     this.associatedGroupId = const Value.absent(),
     this.canAccessInternet = const Value.absent(),
     this.reminderType = const Value.absent(),
+    this.associatedDomains = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AppRestrictionTableCompanion.insert({
@@ -439,6 +479,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
     this.associatedGroupId = const Value.absent(),
     this.canAccessInternet = const Value.absent(),
     this.reminderType = const Value.absent(),
+    this.associatedDomains = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : appPackage = Value(appPackage);
   static Insertable<AppRestriction> custom({
@@ -451,6 +492,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
     Expression<int>? associatedGroupId,
     Expression<bool>? canAccessInternet,
     Expression<String>? reminderType,
+    Expression<String>? associatedDomains,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -464,6 +506,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
       if (associatedGroupId != null) 'associated_group_id': associatedGroupId,
       if (canAccessInternet != null) 'can_access_internet': canAccessInternet,
       if (reminderType != null) 'reminder_type': reminderType,
+      if (associatedDomains != null) 'associated_domains': associatedDomains,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -478,6 +521,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
       Value<int?>? associatedGroupId,
       Value<bool>? canAccessInternet,
       Value<ReminderType>? reminderType,
+      Value<List<String>>? associatedDomains,
       Value<int>? rowid}) {
     return AppRestrictionTableCompanion(
       appPackage: appPackage ?? this.appPackage,
@@ -489,6 +533,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
       associatedGroupId: associatedGroupId ?? this.associatedGroupId,
       canAccessInternet: canAccessInternet ?? this.canAccessInternet,
       reminderType: reminderType ?? this.reminderType,
+      associatedDomains: associatedDomains ?? this.associatedDomains,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -530,6 +575,11 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
           .$converterreminderType
           .toSql(reminderType.value));
     }
+    if (associatedDomains.present) {
+      map['associated_domains'] = Variable<String>($AppRestrictionTableTable
+          .$converterassociatedDomains
+          .toSql(associatedDomains.value));
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -548,6 +598,7 @@ class AppRestrictionTableCompanion extends UpdateCompanion<AppRestriction> {
           ..write('associatedGroupId: $associatedGroupId, ')
           ..write('canAccessInternet: $canAccessInternet, ')
           ..write('reminderType: $reminderType, ')
+          ..write('associatedDomains: $associatedDomains, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1170,7 +1221,7 @@ class CrashLog extends DataClass implements Insertable<CrashLog> {
   /// Unique ID for crash logs
   final int id;
 
-  /// Current version of Mindful app
+  /// Current version of Digitox app
   final String appVersion;
 
   /// [DateTime] when the error was thrown
@@ -2407,12 +2458,12 @@ class FocusSessionsTableCompanion extends UpdateCompanion<FocusSession> {
   }
 }
 
-class $MindfulSettingsTableTable extends MindfulSettingsTable
-    with TableInfo<$MindfulSettingsTableTable, MindfulSettings> {
+class $DigitoxSettingsTableTable extends DigitoxSettingsTable
+    with TableInfo<$DigitoxSettingsTableTable, DigitoxSettings> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $MindfulSettingsTableTable(this.attachedDatabase, [this._alias]);
+  $DigitoxSettingsTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -2427,7 +2478,7 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
               requiredDuringInsert: false,
               defaultValue: Constant(AppConstants.defaultThemeMode.index))
           .withConverter<AppThemeMode>(
-              $MindfulSettingsTableTable.$converterthemeMode);
+              $DigitoxSettingsTableTable.$converterthemeMode);
   static const VerificationMeta _accentColorMeta =
       const VerificationMeta('accentColor');
   @override
@@ -2480,7 +2531,7 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
               requiredDuringInsert: false,
               defaultValue: Constant(DefaultHomeTab.dashboard.index))
           .withConverter<DefaultHomeTab>(
-              $MindfulSettingsTableTable.$converterdefaultHomeTab);
+              $DigitoxSettingsTableTable.$converterdefaultHomeTab);
   static const VerificationMeta _usageHistoryWeeksMeta =
       const VerificationMeta('usageHistoryWeeks');
   @override
@@ -2545,7 +2596,7 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
   String get actualTableName => $name;
   static const String $name = 'mindful_settings_table';
   @override
-  VerificationContext validateIntegrity(Insertable<MindfulSettings> instance,
+  VerificationContext validateIntegrity(Insertable<DigitoxSettings> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -2616,12 +2667,12 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  MindfulSettings map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DigitoxSettings map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MindfulSettings(
+    return DigitoxSettings(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      themeMode: $MindfulSettingsTableTable.$converterthemeMode.fromSql(
+      themeMode: $DigitoxSettingsTableTable.$converterthemeMode.fromSql(
           attachedDatabase.typeMapping
               .read(DriftSqlType.int, data['${effectivePrefix}theme_mode'])!),
       accentColor: attachedDatabase.typeMapping
@@ -2634,7 +2685,7 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
           .read(DriftSqlType.bool, data['${effectivePrefix}use_amoled_dark'])!,
       useDynamicColors: attachedDatabase.typeMapping.read(
           DriftSqlType.bool, data['${effectivePrefix}use_dynamic_colors'])!,
-      defaultHomeTab: $MindfulSettingsTableTable.$converterdefaultHomeTab
+      defaultHomeTab: $DigitoxSettingsTableTable.$converterdefaultHomeTab
           .fromSql(attachedDatabase.typeMapping.read(
               DriftSqlType.int, data['${effectivePrefix}default_home_tab'])!),
       usageHistoryWeeks: attachedDatabase.typeMapping.read(
@@ -2652,8 +2703,8 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
   }
 
   @override
-  $MindfulSettingsTableTable createAlias(String alias) {
-    return $MindfulSettingsTableTable(attachedDatabase, alias);
+  $DigitoxSettingsTableTable createAlias(String alias) {
+    return $DigitoxSettingsTableTable(attachedDatabase, alias);
   }
 
   static JsonTypeConverter2<AppThemeMode, int, int> $converterthemeMode =
@@ -2662,7 +2713,7 @@ class $MindfulSettingsTableTable extends MindfulSettingsTable
       const EnumIndexConverter<DefaultHomeTab>(DefaultHomeTab.values);
 }
 
-class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
+class DigitoxSettings extends DataClass implements Insertable<DigitoxSettings> {
   /// Unique ID for app settings
   final int id;
 
@@ -2699,10 +2750,10 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
   /// Flag indicating if onboarding is completed or not
   final bool isOnboardingDone;
 
-  /// The currently installed version of Mindful.
+  /// The currently installed version of Digitox.
   /// Mainly used to show changelogs screen.
   final String appVersion;
-  const MindfulSettings(
+  const DigitoxSettings(
       {required this.id,
       required this.themeMode,
       required this.accentColor,
@@ -2722,7 +2773,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
     map['id'] = Variable<int>(id);
     {
       map['theme_mode'] = Variable<int>(
-          $MindfulSettingsTableTable.$converterthemeMode.toSql(themeMode));
+          $DigitoxSettingsTableTable.$converterthemeMode.toSql(themeMode));
     }
     map['accent_color'] = Variable<String>(accentColor);
     map['username'] = Variable<String>(username);
@@ -2730,7 +2781,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
     map['use_amoled_dark'] = Variable<bool>(useAmoledDark);
     map['use_dynamic_colors'] = Variable<bool>(useDynamicColors);
     {
-      map['default_home_tab'] = Variable<int>($MindfulSettingsTableTable
+      map['default_home_tab'] = Variable<int>($DigitoxSettingsTableTable
           .$converterdefaultHomeTab
           .toSql(defaultHomeTab));
     }
@@ -2742,8 +2793,8 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
     return map;
   }
 
-  MindfulSettingsTableCompanion toCompanion(bool nullToAbsent) {
-    return MindfulSettingsTableCompanion(
+  DigitoxSettingsTableCompanion toCompanion(bool nullToAbsent) {
+    return DigitoxSettingsTableCompanion(
       id: Value(id),
       themeMode: Value(themeMode),
       accentColor: Value(accentColor),
@@ -2760,19 +2811,19 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
     );
   }
 
-  factory MindfulSettings.fromJson(Map<String, dynamic> json,
+  factory DigitoxSettings.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MindfulSettings(
+    return DigitoxSettings(
       id: serializer.fromJson<int>(json['id']),
-      themeMode: $MindfulSettingsTableTable.$converterthemeMode
+      themeMode: $DigitoxSettingsTableTable.$converterthemeMode
           .fromJson(serializer.fromJson<int>(json['themeMode'])),
       accentColor: serializer.fromJson<String>(json['accentColor']),
       username: serializer.fromJson<String>(json['username']),
       localeCode: serializer.fromJson<String>(json['localeCode']),
       useAmoledDark: serializer.fromJson<bool>(json['useAmoledDark']),
       useDynamicColors: serializer.fromJson<bool>(json['useDynamicColors']),
-      defaultHomeTab: $MindfulSettingsTableTable.$converterdefaultHomeTab
+      defaultHomeTab: $DigitoxSettingsTableTable.$converterdefaultHomeTab
           .fromJson(serializer.fromJson<int>(json['defaultHomeTab'])),
       usageHistoryWeeks: serializer.fromJson<int>(json['usageHistoryWeeks']),
       leftEmergencyPasses:
@@ -2789,13 +2840,13 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'themeMode': serializer.toJson<int>(
-          $MindfulSettingsTableTable.$converterthemeMode.toJson(themeMode)),
+          $DigitoxSettingsTableTable.$converterthemeMode.toJson(themeMode)),
       'accentColor': serializer.toJson<String>(accentColor),
       'username': serializer.toJson<String>(username),
       'localeCode': serializer.toJson<String>(localeCode),
       'useAmoledDark': serializer.toJson<bool>(useAmoledDark),
       'useDynamicColors': serializer.toJson<bool>(useDynamicColors),
-      'defaultHomeTab': serializer.toJson<int>($MindfulSettingsTableTable
+      'defaultHomeTab': serializer.toJson<int>($DigitoxSettingsTableTable
           .$converterdefaultHomeTab
           .toJson(defaultHomeTab)),
       'usageHistoryWeeks': serializer.toJson<int>(usageHistoryWeeks),
@@ -2806,7 +2857,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
     };
   }
 
-  MindfulSettings copyWith(
+  DigitoxSettings copyWith(
           {int? id,
           AppThemeMode? themeMode,
           String? accentColor,
@@ -2820,7 +2871,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
           DateTime? lastEmergencyUsed,
           bool? isOnboardingDone,
           String? appVersion}) =>
-      MindfulSettings(
+      DigitoxSettings(
         id: id ?? this.id,
         themeMode: themeMode ?? this.themeMode,
         accentColor: accentColor ?? this.accentColor,
@@ -2835,8 +2886,8 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
         isOnboardingDone: isOnboardingDone ?? this.isOnboardingDone,
         appVersion: appVersion ?? this.appVersion,
       );
-  MindfulSettings copyWithCompanion(MindfulSettingsTableCompanion data) {
-    return MindfulSettings(
+  DigitoxSettings copyWithCompanion(DigitoxSettingsTableCompanion data) {
+    return DigitoxSettings(
       id: data.id.present ? data.id.value : this.id,
       themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
       accentColor:
@@ -2872,7 +2923,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
 
   @override
   String toString() {
-    return (StringBuffer('MindfulSettings(')
+    return (StringBuffer('DigitoxSettings(')
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('accentColor: $accentColor, ')
@@ -2908,7 +2959,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MindfulSettings &&
+      (other is DigitoxSettings &&
           other.id == this.id &&
           other.themeMode == this.themeMode &&
           other.accentColor == this.accentColor &&
@@ -2924,7 +2975,7 @@ class MindfulSettings extends DataClass implements Insertable<MindfulSettings> {
           other.appVersion == this.appVersion);
 }
 
-class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
+class DigitoxSettingsTableCompanion extends UpdateCompanion<DigitoxSettings> {
   final Value<int> id;
   final Value<AppThemeMode> themeMode;
   final Value<String> accentColor;
@@ -2938,7 +2989,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
   final Value<DateTime> lastEmergencyUsed;
   final Value<bool> isOnboardingDone;
   final Value<String> appVersion;
-  const MindfulSettingsTableCompanion({
+  const DigitoxSettingsTableCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.accentColor = const Value.absent(),
@@ -2953,7 +3004,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
     this.isOnboardingDone = const Value.absent(),
     this.appVersion = const Value.absent(),
   });
-  MindfulSettingsTableCompanion.insert({
+  DigitoxSettingsTableCompanion.insert({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.accentColor = const Value.absent(),
@@ -2968,7 +3019,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
     this.isOnboardingDone = const Value.absent(),
     this.appVersion = const Value.absent(),
   });
-  static Insertable<MindfulSettings> custom({
+  static Insertable<DigitoxSettings> custom({
     Expression<int>? id,
     Expression<int>? themeMode,
     Expression<String>? accentColor,
@@ -3001,7 +3052,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
     });
   }
 
-  MindfulSettingsTableCompanion copyWith(
+  DigitoxSettingsTableCompanion copyWith(
       {Value<int>? id,
       Value<AppThemeMode>? themeMode,
       Value<String>? accentColor,
@@ -3015,7 +3066,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
       Value<DateTime>? lastEmergencyUsed,
       Value<bool>? isOnboardingDone,
       Value<String>? appVersion}) {
-    return MindfulSettingsTableCompanion(
+    return DigitoxSettingsTableCompanion(
       id: id ?? this.id,
       themeMode: themeMode ?? this.themeMode,
       accentColor: accentColor ?? this.accentColor,
@@ -3039,7 +3090,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
       map['id'] = Variable<int>(id.value);
     }
     if (themeMode.present) {
-      map['theme_mode'] = Variable<int>($MindfulSettingsTableTable
+      map['theme_mode'] = Variable<int>($DigitoxSettingsTableTable
           .$converterthemeMode
           .toSql(themeMode.value));
     }
@@ -3059,7 +3110,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
       map['use_dynamic_colors'] = Variable<bool>(useDynamicColors.value);
     }
     if (defaultHomeTab.present) {
-      map['default_home_tab'] = Variable<int>($MindfulSettingsTableTable
+      map['default_home_tab'] = Variable<int>($DigitoxSettingsTableTable
           .$converterdefaultHomeTab
           .toSql(defaultHomeTab.value));
     }
@@ -3083,7 +3134,7 @@ class MindfulSettingsTableCompanion extends UpdateCompanion<MindfulSettings> {
 
   @override
   String toString() {
-    return (StringBuffer('MindfulSettingsTableCompanion(')
+    return (StringBuffer('DigitoxSettingsTableCompanion(')
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('accentColor: $accentColor, ')
@@ -3367,7 +3418,7 @@ class ParentalControls extends DataClass
   /// Unique ID for Invincible Mode settings
   final int id;
 
-  /// Flag indicating whether to authenticate before opening Mindful or not
+  /// Flag indicating whether to authenticate before opening Digitox or not
   final bool protectedAccess;
 
   /// Daily uninstall window start time [TimeOfDay] stored as minutes
@@ -6054,8 +6105,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $FocusProfileTableTable(this);
   late final $FocusSessionsTableTable focusSessionsTable =
       $FocusSessionsTableTable(this);
-  late final $MindfulSettingsTableTable mindfulSettingsTable =
-      $MindfulSettingsTableTable(this);
+  late final $DigitoxSettingsTableTable digitoxSettingsTable =
+      $DigitoxSettingsTableTable(this);
   late final $ParentalControlsTableTable parentalControlsTable =
       $ParentalControlsTableTable(this);
   late final $RestrictionGroupsTableTable restrictionGroupsTable =
@@ -6083,7 +6134,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         focusModeTable,
         focusProfileTable,
         focusSessionsTable,
-        mindfulSettingsTable,
+        digitoxSettingsTable,
         parentalControlsTable,
         restrictionGroupsTable,
         wellbeingTable,
@@ -6105,6 +6156,7 @@ typedef $$AppRestrictionTableTableCreateCompanionBuilder
   Value<int?> associatedGroupId,
   Value<bool> canAccessInternet,
   Value<ReminderType> reminderType,
+  Value<List<String>> associatedDomains,
   Value<int> rowid,
 });
 typedef $$AppRestrictionTableTableUpdateCompanionBuilder
@@ -6118,6 +6170,7 @@ typedef $$AppRestrictionTableTableUpdateCompanionBuilder
   Value<int?> associatedGroupId,
   Value<bool> canAccessInternet,
   Value<ReminderType> reminderType,
+  Value<List<String>> associatedDomains,
   Value<int> rowid,
 });
 
@@ -6165,6 +6218,11 @@ class $$AppRestrictionTableTableFilterComposer
       get reminderType => $composableBuilder(
           column: $table.reminderType,
           builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnWithTypeConverterFilters<List<String>, List<String>, String>
+      get associatedDomains => $composableBuilder(
+          column: $table.associatedDomains,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 }
 
 class $$AppRestrictionTableTableOrderingComposer
@@ -6208,6 +6266,10 @@ class $$AppRestrictionTableTableOrderingComposer
   ColumnOrderings<String> get reminderType => $composableBuilder(
       column: $table.reminderType,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get associatedDomains => $composableBuilder(
+      column: $table.associatedDomains,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AppRestrictionTableTableAnnotationComposer
@@ -6248,6 +6310,10 @@ class $$AppRestrictionTableTableAnnotationComposer
   GeneratedColumnWithTypeConverter<ReminderType, String> get reminderType =>
       $composableBuilder(
           column: $table.reminderType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<List<String>, String>
+      get associatedDomains => $composableBuilder(
+          column: $table.associatedDomains, builder: (column) => column);
 }
 
 class $$AppRestrictionTableTableTableManager extends RootTableManager<
@@ -6288,6 +6354,7 @@ class $$AppRestrictionTableTableTableManager extends RootTableManager<
             Value<int?> associatedGroupId = const Value.absent(),
             Value<bool> canAccessInternet = const Value.absent(),
             Value<ReminderType> reminderType = const Value.absent(),
+            Value<List<String>> associatedDomains = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AppRestrictionTableCompanion(
@@ -6300,6 +6367,7 @@ class $$AppRestrictionTableTableTableManager extends RootTableManager<
             associatedGroupId: associatedGroupId,
             canAccessInternet: canAccessInternet,
             reminderType: reminderType,
+            associatedDomains: associatedDomains,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -6312,6 +6380,7 @@ class $$AppRestrictionTableTableTableManager extends RootTableManager<
             Value<int?> associatedGroupId = const Value.absent(),
             Value<bool> canAccessInternet = const Value.absent(),
             Value<ReminderType> reminderType = const Value.absent(),
+            Value<List<String>> associatedDomains = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AppRestrictionTableCompanion.insert(
@@ -6324,6 +6393,7 @@ class $$AppRestrictionTableTableTableManager extends RootTableManager<
             associatedGroupId: associatedGroupId,
             canAccessInternet: canAccessInternet,
             reminderType: reminderType,
+            associatedDomains: associatedDomains,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -7289,8 +7359,8 @@ typedef $$FocusSessionsTableTableProcessedTableManager = ProcessedTableManager<
     ),
     FocusSession,
     PrefetchHooks Function()>;
-typedef $$MindfulSettingsTableTableCreateCompanionBuilder
-    = MindfulSettingsTableCompanion Function({
+typedef $$DigitoxSettingsTableTableCreateCompanionBuilder
+    = DigitoxSettingsTableCompanion Function({
   Value<int> id,
   Value<AppThemeMode> themeMode,
   Value<String> accentColor,
@@ -7305,8 +7375,8 @@ typedef $$MindfulSettingsTableTableCreateCompanionBuilder
   Value<bool> isOnboardingDone,
   Value<String> appVersion,
 });
-typedef $$MindfulSettingsTableTableUpdateCompanionBuilder
-    = MindfulSettingsTableCompanion Function({
+typedef $$DigitoxSettingsTableTableUpdateCompanionBuilder
+    = DigitoxSettingsTableCompanion Function({
   Value<int> id,
   Value<AppThemeMode> themeMode,
   Value<String> accentColor,
@@ -7322,9 +7392,9 @@ typedef $$MindfulSettingsTableTableUpdateCompanionBuilder
   Value<String> appVersion,
 });
 
-class $$MindfulSettingsTableTableFilterComposer
-    extends Composer<_$AppDatabase, $MindfulSettingsTableTable> {
-  $$MindfulSettingsTableTableFilterComposer({
+class $$DigitoxSettingsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $DigitoxSettingsTableTable> {
+  $$DigitoxSettingsTableTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7380,9 +7450,9 @@ class $$MindfulSettingsTableTableFilterComposer
       column: $table.appVersion, builder: (column) => ColumnFilters(column));
 }
 
-class $$MindfulSettingsTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $MindfulSettingsTableTable> {
-  $$MindfulSettingsTableTableOrderingComposer({
+class $$DigitoxSettingsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $DigitoxSettingsTableTable> {
+  $$DigitoxSettingsTableTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7436,9 +7506,9 @@ class $$MindfulSettingsTableTableOrderingComposer
       column: $table.appVersion, builder: (column) => ColumnOrderings(column));
 }
 
-class $$MindfulSettingsTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $MindfulSettingsTableTable> {
-  $$MindfulSettingsTableTableAnnotationComposer({
+class $$DigitoxSettingsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DigitoxSettingsTableTable> {
+  $$DigitoxSettingsTableTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7486,33 +7556,33 @@ class $$MindfulSettingsTableTableAnnotationComposer
       column: $table.appVersion, builder: (column) => column);
 }
 
-class $$MindfulSettingsTableTableTableManager extends RootTableManager<
+class $$DigitoxSettingsTableTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $MindfulSettingsTableTable,
-    MindfulSettings,
-    $$MindfulSettingsTableTableFilterComposer,
-    $$MindfulSettingsTableTableOrderingComposer,
-    $$MindfulSettingsTableTableAnnotationComposer,
-    $$MindfulSettingsTableTableCreateCompanionBuilder,
-    $$MindfulSettingsTableTableUpdateCompanionBuilder,
+    $DigitoxSettingsTableTable,
+    DigitoxSettings,
+    $$DigitoxSettingsTableTableFilterComposer,
+    $$DigitoxSettingsTableTableOrderingComposer,
+    $$DigitoxSettingsTableTableAnnotationComposer,
+    $$DigitoxSettingsTableTableCreateCompanionBuilder,
+    $$DigitoxSettingsTableTableUpdateCompanionBuilder,
     (
-      MindfulSettings,
-      BaseReferences<_$AppDatabase, $MindfulSettingsTableTable, MindfulSettings>
+      DigitoxSettings,
+      BaseReferences<_$AppDatabase, $DigitoxSettingsTableTable, DigitoxSettings>
     ),
-    MindfulSettings,
+    DigitoxSettings,
     PrefetchHooks Function()> {
-  $$MindfulSettingsTableTableTableManager(
-      _$AppDatabase db, $MindfulSettingsTableTable table)
+  $$DigitoxSettingsTableTableTableManager(
+      _$AppDatabase db, $DigitoxSettingsTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$MindfulSettingsTableTableFilterComposer($db: db, $table: table),
+              $$DigitoxSettingsTableTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$MindfulSettingsTableTableOrderingComposer(
+              $$DigitoxSettingsTableTableOrderingComposer(
                   $db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$MindfulSettingsTableTableAnnotationComposer(
+              $$DigitoxSettingsTableTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -7529,7 +7599,7 @@ class $$MindfulSettingsTableTableTableManager extends RootTableManager<
             Value<bool> isOnboardingDone = const Value.absent(),
             Value<String> appVersion = const Value.absent(),
           }) =>
-              MindfulSettingsTableCompanion(
+              DigitoxSettingsTableCompanion(
             id: id,
             themeMode: themeMode,
             accentColor: accentColor,
@@ -7559,7 +7629,7 @@ class $$MindfulSettingsTableTableTableManager extends RootTableManager<
             Value<bool> isOnboardingDone = const Value.absent(),
             Value<String> appVersion = const Value.absent(),
           }) =>
-              MindfulSettingsTableCompanion.insert(
+              DigitoxSettingsTableCompanion.insert(
             id: id,
             themeMode: themeMode,
             accentColor: accentColor,
@@ -7581,22 +7651,22 @@ class $$MindfulSettingsTableTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$MindfulSettingsTableTableProcessedTableManager
+typedef $$DigitoxSettingsTableTableProcessedTableManager
     = ProcessedTableManager<
         _$AppDatabase,
-        $MindfulSettingsTableTable,
-        MindfulSettings,
-        $$MindfulSettingsTableTableFilterComposer,
-        $$MindfulSettingsTableTableOrderingComposer,
-        $$MindfulSettingsTableTableAnnotationComposer,
-        $$MindfulSettingsTableTableCreateCompanionBuilder,
-        $$MindfulSettingsTableTableUpdateCompanionBuilder,
+        $DigitoxSettingsTableTable,
+        DigitoxSettings,
+        $$DigitoxSettingsTableTableFilterComposer,
+        $$DigitoxSettingsTableTableOrderingComposer,
+        $$DigitoxSettingsTableTableAnnotationComposer,
+        $$DigitoxSettingsTableTableCreateCompanionBuilder,
+        $$DigitoxSettingsTableTableUpdateCompanionBuilder,
         (
-          MindfulSettings,
-          BaseReferences<_$AppDatabase, $MindfulSettingsTableTable,
-              MindfulSettings>
+          DigitoxSettings,
+          BaseReferences<_$AppDatabase, $DigitoxSettingsTableTable,
+              DigitoxSettings>
         ),
-        MindfulSettings,
+        DigitoxSettings,
         PrefetchHooks Function()>;
 typedef $$ParentalControlsTableTableCreateCompanionBuilder
     = ParentalControlsTableCompanion Function({
@@ -9066,8 +9136,8 @@ class $AppDatabaseManager {
       $$FocusProfileTableTableTableManager(_db, _db.focusProfileTable);
   $$FocusSessionsTableTableTableManager get focusSessionsTable =>
       $$FocusSessionsTableTableTableManager(_db, _db.focusSessionsTable);
-  $$MindfulSettingsTableTableTableManager get mindfulSettingsTable =>
-      $$MindfulSettingsTableTableTableManager(_db, _db.mindfulSettingsTable);
+  $$DigitoxSettingsTableTableTableManager get digitoxSettingsTable =>
+      $$DigitoxSettingsTableTableTableManager(_db, _db.digitoxSettingsTable);
   $$ParentalControlsTableTableTableManager get parentalControlsTable =>
       $$ParentalControlsTableTableTableManager(_db, _db.parentalControlsTable);
   $$RestrictionGroupsTableTableTableManager get restrictionGroupsTable =>

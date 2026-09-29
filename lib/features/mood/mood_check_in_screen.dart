@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
-import 'package:nlp_digitox/ui/common/glass_card.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 import 'package:nlp_digitox/ui/common/pill_button.dart';
 import 'package:nlp_digitox/ui/common/treated_background_image.dart';
 import 'models.dart';
@@ -56,9 +56,9 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            GlassCard(
+            SurfaceCard(
               padding: const EdgeInsets.all(20),
-              elevationLevel: 1,
+              elevation: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -72,9 +72,9 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            GlassCard(
+            SurfaceCard(
               padding: const EdgeInsets.all(20),
-              elevationLevel: 1,
+              elevation: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -111,9 +111,9 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            GlassCard(
+            SurfaceCard(
               padding: const EdgeInsets.all(20),
-              elevationLevel: 1,
+              elevation: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,21 +136,21 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
                           colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                       border: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.outline.withValues(alpha: 0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide: BorderSide(
                           color: colorScheme.outline.withValues(alpha: 0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius:
-                            BorderRadius.circular(GlassTokens.radiusCard),
+                            BorderRadius.circular(Radii.xl),
                         borderSide:
                             BorderSide(color: colorScheme.primary, width: 1.5),
                       ),
@@ -193,7 +193,7 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
               color: isSelected
                   ? mood.color.withValues(alpha: 0.2)
                   : colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+              borderRadius: BorderRadius.circular(Radii.xl),
               border: Border.all(
                 color: isSelected
                     ? mood.color
@@ -322,13 +322,12 @@ class _MoodCheckInScreenState extends ConsumerState<MoodCheckInScreen> {
   }
 
   void _showInterventionDialog(List<String> interventions) {
-    final glass = GlassTokens.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: glass.fillTop,
+        backgroundColor: (Theme.of(context).brightness == Brightness.dark ? DesignPalette.darkGlassFill : DesignPalette.lightGlassFill),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(GlassTokens.radiusCard),
+          borderRadius: BorderRadius.circular(Radii.xl),
         ),
         title: const Text('Helpful Suggestions'),
         content: Column(

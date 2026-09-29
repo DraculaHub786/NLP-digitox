@@ -9,7 +9,7 @@ import 'package:nlp_digitox/core/extensions/ext_build_context.dart';
 import 'package:nlp_digitox/core/extensions/ext_num.dart';
 import 'package:nlp_digitox/core/extensions/ext_widget.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
-import 'package:nlp_digitox/providers/system/mindful_settings_provider.dart';
+import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/content_section_header.dart';
 import 'package:nlp_digitox/ui/common/default_list_tile.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
@@ -32,7 +32,7 @@ class _ChangeLogsScreenState extends ConsumerState<ChangeLogsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ref.read(mindfulSettingsProvider.notifier).updateAppVersion(),
+      (_) => ref.read(digitoxSettingsProvider.notifier).updateAppVersion(),
     );
   }
 
@@ -64,7 +64,7 @@ class _ChangeLogsScreenState extends ConsumerState<ChangeLogsScreen> {
                 trailing: const Icon(FluentIcons.chevron_right_20_regular),
                 onPressed: () => MethodChannelService.instance.launchUrl(
                   AppConstants.githubChangeLogUrl(
-                      MethodChannelService.instance.deviceInfo.mindfulVersion),
+                      MethodChannelService.instance.deviceInfo.digitoxVersion),
                 ),
               ).sliver,
               12.vSliverBox,

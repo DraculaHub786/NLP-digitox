@@ -24,16 +24,16 @@
   `glass_card.dart`, `pill_button.dart`, `glass_nav_bar.dart`,
   `treated_background_image.dart`, `status_dot.dart`.
 
-## 3. Theme wiring (`lib/config/app_themes.dart` / `mindful_app.dart`)
+## 3. Theme wiring (`lib/config/app_themes.dart` / `digitox_app.dart`)
 
 - Both `AppTheme.lightTheme` and `AppTheme.darkTheme` define full
   `ColorScheme` (seed-based botanical + explicit botanical surfaces).
 - `ThemeExtension` is used: `GlassTokens` and `ElevationTokens` are
   attached to both `ThemeData` objects.
-- `MaterialApp` in `lib/mindful_app.dart` wires
+- `MaterialApp` in `lib/digitox_app.dart` wires
   `theme: AppTheme.lightTheme(...)`, `darkTheme: AppTheme.darkTheme(...)`,
   `themeMode: ThemeMode.values[themeMode.index]` driven by
-  `mindfulSettingsProvider` — the plumbing was already correct.
+  `digitoxSettingsProvider` — the plumbing was already correct.
   The dark-mode bug was caused by hardcoded literals in widgets, not
   by missing theme plumbing.
 

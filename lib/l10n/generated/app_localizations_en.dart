@@ -868,6 +868,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reddit_features_tile_subtitle => 'Restrict shorts on reddit.';
 
   @override
+  String get x_features_tile_title => 'X';
+
+  @override
+  String get x_features_tile_subtitle => 'Restrict video feed on X.';
+
+  @override
+  String get threads_features_tile_title => 'Threads';
+
+  @override
+  String get threads_features_tile_subtitle =>
+      'Restrict video/reels on Threads.';
+
+  @override
   String get websites_blocking_tab_title => 'Websites blocking';
 
   @override
@@ -1312,6 +1325,50 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get app_associated_domains_tile_title => 'Blocked websites';
+
+  @override
+  String get app_associated_domains_tile_subtitle =>
+      'Also block this app\'s websites when its limit is reached.';
+
+  @override
+  String app_associated_domains_tile_subtitle_count(num count) {
+    return '$count website(s) blocked with this app.';
+  }
+
+  @override
+  String get app_associated_domains_dialog_title => 'App websites';
+
+  @override
+  String app_associated_domains_dialog_info(String appName) {
+    return 'Websites listed here are blocked the moment $appName\'s limit is reached, and unblocked again at midnight.';
+  }
+
+  @override
+  String get app_associated_domains_dialog_field_label => 'Website';
+
+  @override
+  String get app_associated_domains_dialog_hint => 'instagram.com';
+
+  @override
+  String get app_associated_domains_dialog_add_button => 'Add website';
+
+  @override
+  String get app_associated_domains_dialog_empty => 'No websites added yet.';
+
+  @override
+  String get app_associated_domains_dialog_error_empty =>
+      'Enter a website first.';
+
+  @override
+  String get app_associated_domains_dialog_error_invalid =>
+      'Enter a valid website like example.com.';
+
+  @override
+  String get app_associated_domains_dialog_error_duplicate =>
+      'That website is already in the list.';
+
+  @override
   String get internet_access_tile_title => 'Internet access';
 
   @override
@@ -1575,4 +1632,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get more_details_button => 'More details';
+
+  @override
+  String get privacy_policy_coming_soon_title => 'Coming Soon';
+
+  @override
+  String get privacy_policy_coming_soon_info =>
+      'Our full privacy policy page is on its way. In the meantime, know that NLP digitox works offline and does not collect or sell your personal data.';
+
+  @override
+  String get ok_button => 'OK';
 }
