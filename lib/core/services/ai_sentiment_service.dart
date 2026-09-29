@@ -36,6 +36,55 @@ class AISentimentService {
   static const String _model = 'openai/gpt-oss-20b';
   static const Duration _requestTimeout = Duration(seconds: 15);
 
+  /// `openai/gpt-oss-20b` is a *reasoning* model: it always emits reasoning
+  /// tokens, and those tokens are charged against the completion budget
+  /// rather than added on top of it. The sentiment call used to ask for only
+  /// 150 tokens and recommendations for 200, so the entire budget was spent
+  /// on internal reasoning and `message.content` came back as an empty
+  /// string — which surfaced as `Failed to parse sentiment response:` with
+  /// nothing after the colon, and a dashboard with no tips at all. Groq's own
+  /// guidance is that the 1024 default is a floor for reasoning models, not a
+  /// target. See https://console.groq.com/docs/reasoning.
+  static const int _sentimentMaxTokens = 1024;
+  static const int _recommendationsMaxTokens = 1024;
+  static const int _motivationMaxTokens = 512;
+
+  /// Keeps reasoning short so the answer still fits the budget above and the
+  /// extra thinking does not add needless latency to a call the dashboard
+  /// waits on. `low`/`medium`/`high` are the only values GPT-OSS accepts.
+  static const String _reasoningEffort = 'low';
+
+  /// Pulls `choices[0].message.content` out of a chat-completions payload.
+  ///
+  /// Throws a [FormatException] naming the call and its `finish_reason` when
+  /// the model returned no text. Previously the empty string travelled on to
+  /// the sentiment/recommendation parsers, which then reported the opaque
+  /// `Failed to parse sentiment response: ` — with nothing after the colon —
+  /// so the real cause (the token budget running out, `finish_reason:
+  /// length`) was invisible in the logs.
+  static String _extractContent(
+    Map<String, dynamic> jsonResponse,
+    String callLabel,
+  ) {
+    final choices = jsonResponse['choices'];
+    if (choices is List && choices.isNotEmpty && choices.first is Map) {
+      final choice = choices.first as Map;
+      final message = choice['message'];
+      final content = message is Map ? message['content'] : null;
+      if (content is String && content.trim().isNotEmpty) return content;
+
+      final finishReason = choice['finish_reason'] ?? 'unknown';
+      throw FormatException(
+        'Groq returned no text for the $callLabel call '
+        '(finish_reason: $finishReason).',
+      );
+    }
+    throw FormatException(
+      'Groq returned an unexpected payload for the $callLabel call: '
+      '${jsonResponse.keys.join(', ')}',
+    );
+  }
+
   Map<String, double>? _lastSentiment;
   String? _lastSentimentContext;
 
@@ -310,7 +359,11 @@ Focused: XX
                 {'role': 'user', 'content': prompt},
               ],
               'temperature': 0.1,  // Low temperature for consistency
-              'max_tokens': 150,
+              'max_tokens': _sentimentMaxTokens,
+              // Reasoning tokens are charged against max_tokens, so without
+              // this the model can think its way through the entire budget
+              // and return an empty answer.
+              'reasoning_effort': _reasoningEffort,
               'seed': 42,  // Fixed seed for deterministic results
             }),
           )
@@ -323,12 +376,12 @@ Focused: XX
       }
       
       final jsonResponse = jsonDecode(response.body);
-      final text = jsonResponse['choices'][0]['message']['content'] as String;
+      final text = _extractContent(jsonResponse, 'sentiment analysis');
       
       debugPrint('📥 AISentimentService: Received response from Groq API');
       debugPrint('Response text: $text');
       
-      final sentiments = _parseSentiment(text);
+      final sentiments = parseSentiment(text);
       
       _lastSentiment = sentiments;
       _lastSentimentContext = 'Screen time: $screenTimeHours hrs (goal: $goalHours hrs), Streak: ${streakDays ?? 0} days, Habits: ${habitsCompleted ?? 0}, Tasks: ${tasksCompleted ?? 0}';
@@ -412,7 +465,8 @@ Focus on:
                 {'role': 'user', 'content': prompt},
               ],
               'temperature': 0.8,
-              'max_tokens': 200,
+              'max_tokens': _recommendationsMaxTokens,
+              'reasoning_effort': _reasoningEffort,
             }),
           )
           .timeout(_requestTimeout);
@@ -423,11 +477,11 @@ Focus on:
       }
       
       final jsonResponse = jsonDecode(response.body);
-      final text = jsonResponse['choices'][0]['message']['content'] as String;
+      final text = _extractContent(jsonResponse, 'recommendations');
       
       debugPrint('📥 AISentimentService: Received recommendations from Groq API');
       
-      final recommendations = _parseRecommendations(text);
+      final recommendations = parseRecommendations(text);
       
       debugPrint('✅ AISentimentService: Generated ${recommendations.length} recommendations');
       return recommendations;
@@ -508,7 +562,8 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
                 {'role': 'user', 'content': prompt},
               ],
               'temperature': 0.9, // Higher temp for creative humour
-              'max_tokens': 80,
+              'max_tokens': _motivationMaxTokens,
+              'reasoning_effort': _reasoningEffort,
             }),
           )
           .timeout(_requestTimeout);
@@ -519,7 +574,7 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
       }
 
       final jsonResponse = jsonDecode(response.body);
-      final text = (jsonResponse['choices'][0]['message']['content'] as String).trim();
+      final text = _extractContent(jsonResponse, 'funny motivation').trim();
 
       // Clean up quotes the model might wrap around
       final cleaned = text.replaceAll(RegExp("^[\"']|[\"']\$"), '').trim();
@@ -534,66 +589,77 @@ Respond with ONLY the funny sentence. No prefixes, no labels.
     }
   }
 
-  /// Parse sentiment percentages from AI response
-  Map<String, double> _parseSentiment(String text) {
-    final Map<String, double> sentiments = {};
-    final lines = text.split('\n');
-    
-    for (final line in lines) {
-      if (line.contains(':')) {
-        final parts = line.split(':');
-        if (parts.length == 2) {
-          final sentiment = parts[0].trim();
-          final valueStr = parts[1].trim().replaceAll(RegExp(r'[^0-9.]'), '');
-          final value = double.tryParse(valueStr);
-          
-          if (value != null && (sentiment == 'Positive' || sentiment == 'Neutral' || 
-              sentiment == 'Negative' || sentiment == 'Anxious' || sentiment == 'Focused')) {
-            sentiments[sentiment] = value;
-          }
-        }
-      }
-    }
-    
-    // Normalize to 100% if needed
-    final total = sentiments.values.fold(0.0, (sum, val) => sum + val);
-    if (total > 0 && (total < 95 || total > 105)) {
-      sentiments.updateAll((key, value) => (value / total) * 100);
-    }
-    
-    // Treat parse failure as an error to avoid fake fallback sentiment.
-    if (sentiments.length < 3) {
-      throw FormatException('Failed to parse sentiment response: $text');
-    }
-    
-    return sentiments;
-  }
+  /// Deterministic, rule-based recommendations derived from the day's usage
+  /// and sentiment — no LLM call.
+  ///
+  /// This is the safety net behind [getRecommendations]: if the Groq call
+  /// fails for any reason (offline, rate limited, key missing), the dashboard
+  /// still shows advice that is about *this* user's day rather than the same
+  /// three canned strings for everybody. Rules mirror the sentiment
+  /// guidelines in [computeBaseSentiment].
+  List<String> computeBaseRecommendations({
+    required double screenTimeHours,
+    required double goalHours,
+    required Map<String, double> sentiment,
+    int screenTimeGoalSeconds = 0,
+  }) {
+    final ratio = goalHours > 0 ? screenTimeHours / goalHours : 0.0;
+    final dominant = sentiment.isEmpty
+        ? 'Neutral'
+        : sentiment.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
 
-  /// Parse recommendations from AI response
-  List<String> _parseRecommendations(String text) {
     final recommendations = <String>[];
-    final lines = text.split('\n');
-    
-    for (final line in lines) {
-      final trimmed = line.trim();
-      // Match numbered lists: "1.", "1)", "1 -", etc.
-      if (RegExp(r'^\d+[\.\)\-\:]').hasMatch(trimmed)) {
-        // Remove the number prefix
-        final cleaned = trimmed.replaceFirst(RegExp(r'^\d+[\.\)\-\:]\s*'), '').trim();
-        if (cleaned.isNotEmpty && cleaned.length > 10) {
-          recommendations.add(cleaned);
-        }
-      }
+
+    if (ratio >= 1.5) {
+      recommendations.add(
+        'You are at ${(ratio * 100).round()}% of your screen time goal — '
+        'put the phone face-down for the next hour.',
+      );
+    } else if (ratio >= 1.0) {
+      recommendations.add(
+        'You are just over your screen time goal. Close one app you did not '
+        'actually need today.',
+      );
+    } else if (screenTimeGoalSeconds > 0) {
+      recommendations.add(
+        'You are inside your screen time goal — keep this pace for the rest '
+        'of the day.',
+      );
     }
-    
-    // Fallback to simple splitting if parsing failed
-    if (recommendations.isEmpty) {
-      return text.split('\n')
-          .where((line) => line.trim().isNotEmpty && line.length > 15)
-          .take(4)
-          .toList();
+
+    switch (dominant) {
+      case 'Anxious':
+        recommendations.add(
+          'Try a two-minute breathing pause before your next scroll — '
+          'notifications can wait.',
+        );
+      case 'Negative':
+        recommendations.add(
+          'Pick one small win right now, like clearing a single task, to '
+          'break the slump.',
+        );
+      case 'Focused':
+        recommendations.add(
+          'Your focus is high — protect it by silencing non-essential '
+          'notifications for the next hour.',
+        );
+      case 'Positive':
+        recommendations.add(
+          'You are in a good place — bank it by finishing one habit you '
+          'usually skip.',
+        );
+      default:
+        recommendations.add(
+          'Set one concrete goal for the next 20 minutes and start a focus '
+          'session.',
+        );
     }
-    
+
+    recommendations.add(
+      'Take a short screen-free break — stand up, look away, and reset '
+      'before the next block of work.',
+    );
+
     return recommendations.take(4).toList();
   }
 

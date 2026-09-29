@@ -789,8 +789,30 @@ $userMessage
       (m) => m.isUser,
       orElse: () => _chatHistory.first,
     );
-    final title = firstUserMsg.message.trim();
-    return title.length > 30 ? '${title.substring(0, 30)}...' : title;
+    return titleFromMessage(firstUserMsg.message);
+  }
+
+  /// Longest session title, in characters, before an ellipsis is appended.
+  static const int maxTitleLength = 30;
+
+  /// Derive a session title from the first user message of a chat.
+  ///
+  /// Three normalisations matter here, all of them user-visible in the
+  /// session list:
+  ///  * runs of whitespace (including newlines) collapse to single spaces, so
+  ///    a multi-line opening message cannot produce a two-line title;
+  ///  * the result is capped at [maxTitleLength] characters plus an ellipsis;
+  ///  * truncation counts Unicode code points, not UTF-16 units — the previous
+  ///    `substring(0, 30)` could slice an emoji or accented character in half
+  ///    and render a replacement glyph in the sidebar.
+  ///
+  /// Pure and static so the NLP evaluation suite can score it directly.
+  static String titleFromMessage(String message, {int maxTitleLength = 30}) {
+    final title = message.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (title.isEmpty) return 'New Chat';
+    final codePoints = title.runes.toList();
+    if (codePoints.length <= maxTitleLength) return title;
+    return '${String.fromCharCodes(codePoints.take(maxTitleLength))}...';
   }
   
   /// Delete a chat session

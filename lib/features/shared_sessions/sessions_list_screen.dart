@@ -1,17 +1,35 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nlp_digitox/config/navigation/app_routes.dart';
-import 'package:nlp_digitox/core/services/session_service.dart';
-import 'package:nlp_digitox/features/shared_sessions/widgets/complete_session_button.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
+import 'package:nlp_digitox/config/hero_tags.dart';
+import 'package:nlp_digitox/features/shared_sessions/session_detail_screen.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/create_session_sheet.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/join_by_id_sheet.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/session_cards.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/session_state_views.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
-import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
-import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
-    show digitoxSettingsProvider;
 import 'package:nlp_digitox/providers/session_provider.dart';
+import 'package:nlp_digitox/ui/common/default_fab_button.dart';
+import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
+import 'package:nlp_digitox/ui/common/default_segmented_button.dart';
+import 'package:nlp_digitox/ui/common/modern_cards.dart';
+import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
+import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
+import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
 
-/// Shared Focus Sessions screen with glassmorphic design.
-/// Two tabs: My Sessions and Discover (public sessions to join).
+/// The two panes of the shared-sessions screen.
+enum SessionTab { mine, discover }
+
+/// Shared focus sessions — browse the groups you belong to, or discover and
+/// join a public one.
+///
+/// Built on the app's standard [ScaffoldShell] so it shares the botanical
+/// background, the serif app-bar title and the back affordance with every
+/// other pushed route, and it reads correctly in both the light and the dark
+/// palette.
 class SessionsListScreen extends ConsumerStatefulWidget {
   const SessionsListScreen({super.key});
 
@@ -19,1445 +37,361 @@ class SessionsListScreen extends ConsumerStatefulWidget {
   ConsumerState<SessionsListScreen> createState() => _SessionsListScreenState();
 }
 
-class _SessionsListScreenState extends ConsumerState<SessionsListScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _SessionsListScreenState extends ConsumerState<SessionsListScreen> {
+  SessionTab _tab = SessionTab.mine;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  Future<void> _refresh() async {
+    ref.invalidate(userSessionsProvider);
+    ref.invalidate(publicSessionsProvider);
+    await Future.wait([
+      ref.read(userSessionsProvider.future),
+      ref.read(publicSessionsProvider.future),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.08),
-                  theme.colorScheme.surface,
-                  theme.colorScheme.surface,
-                ],
-              ),
-            ),
+    return ScaffoldShell(
+      items: [
+        NavbarItem(
+          icon: FluentIcons.people_20_regular,
+          filledIcon: FluentIcons.people_20_filled,
+          titleText: 'Focus Sessions',
+          fab: DefaultFabButton(
+            heroTag: HeroTags.newSharedSessionFABTag,
+            label: 'New Session',
+            icon: FluentIcons.add_20_filled,
+            onPressed: () => showCreateSessionSheet(context),
           ),
-
-          // Main content
-          NestedScrollView(
-            headerSliverBuilder: (context, _) => [
-              SliverAppBar(
-                pinned: true,
-                expandedHeight: 140,
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                flexibleSpace: FlexibleSpaceBar(
-                  titlePadding:
-                      const EdgeInsets.only(left: 20, bottom: 56),
-                  title: Text(
-                    'Focus Sessions',
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          theme.colorScheme.primary.withValues(alpha: 0.12),
-                          theme.colorScheme.surface,
+          actions: [
+            IconButton(
+              tooltip: 'Join by ID',
+              icon: const Icon(FluentIcons.qr_code_20_regular),
+              onPressed: () => showJoinByIdSheet(context),
+            ),
+          ],
+          sliverBody: DefaultRefreshIndicator(
+            onRefresh: _refresh,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 4, 4, 16),
+                    child: Center(
+                      child: DefaultSegmentedButton<SessionTab>(
+                        selected: _tab,
+                        onChanged: (value) => setState(() => _tab = value),
+                        segments: const [
+                          SegmentItem(
+                            value: SessionTab.mine,
+                            label: 'My Sessions',
+                            icon: FluentIcons.people_20_regular,
+                            filledIcon: FluentIcons.people_20_filled,
+                          ),
+                          SegmentItem(
+                            value: SessionTab.discover,
+                            label: 'Discover',
+                            icon: FluentIcons.globe_search_20_regular,
+                            filledIcon: FluentIcons.globe_search_20_filled,
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(48),
-                  child: _GlassTabBar(controller: _tabController),
-                ),
-                actions: [
-                  IconButton(
-                    tooltip: 'Join by ID',
-                    icon: const Icon(Icons.qr_code_scanner_rounded),
-                    onPressed: () => _showJoinByIdSheet(context),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-            ],
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                _MySessionsTab(onCreateTap: () => _showCreateDialog(context, ref)),
-                const _DiscoverTab(),
+                if (_tab == SessionTab.mine)
+                  ..._mySessionsSlivers()
+                else
+                  ..._discoverSlivers(),
               ],
             ),
           ),
-
-          // FAB
-          Positioned(
-            bottom: 24,
-            right: 20,
-            child: _GlassFAB(
-              icon: Icons.add_rounded,
-              label: 'New Session',
-              onPressed: () => _showCreateDialog(context, ref),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  void _showCreateDialog(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _CreateSessionSheet(),
-    );
-  }
+  // -------------------------------------------------------------------------
+  // My Sessions
+  // -------------------------------------------------------------------------
 
-  void _showJoinByIdSheet(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _JoinByIdSheet(),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// My Sessions Tab
-// ---------------------------------------------------------------------------
-
-class _MySessionsTab extends ConsumerWidget {
-  final VoidCallback onCreateTap;
-  const _MySessionsTab({required this.onCreateTap});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  List<Widget> _mySessionsSlivers() {
     final sessionsAsync = ref.watch(userSessionsProvider);
 
     return sessionsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => _ErrorView(message: e.toString()),
+      loading: () => [_loadingSliver()],
+      error: (error, _) => [
+        SliverToBoxAdapter(
+          child: SessionErrorView(
+            message: error.toString(),
+            onRetry: _refresh,
+          ),
+        ),
+      ],
       data: (sessions) {
         if (sessions.isEmpty) {
-          return _EmptyView(
-            icon: Icons.group_rounded,
-            title: 'No active sessions',
-            subtitle: 'Create a focus session to stay accountable with friends.',
-            actionLabel: 'Create Session',
-            onAction: onCreateTap,
-          );
+          return [
+            SliverToBoxAdapter(
+              child: SessionEmptyView(
+                icon: FluentIcons.people_20_regular,
+                title: 'No active sessions',
+                subtitle: 'Create a focus session to stay accountable with '
+                    'friends and family.',
+                actionLabel: 'Create Session',
+                onAction: () => showCreateSessionSheet(context),
+              ),
+            ),
+            ..._footerSlivers,
+          ];
         }
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-          itemCount: sessions.length,
-          itemBuilder: (ctx, i) =>
-              _SessionCard(session: sessions[i]).animate(
-            delay: Duration(milliseconds: 60 * i),
-          ).fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0),
-        );
+
+        return [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+              child: ModernSectionHeader(
+                title: 'Your Sessions',
+                subtitle: _plural(sessions.length, 'active session',
+                    'active sessions'),
+                trailing: _CountPill(count: sessions.length),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+              child: SurfaceCard(
+                padding: EdgeInsets.zero,
+                elevation: 0,
+                child: Column(
+                  children: [
+                    for (final session in sessions) ...[
+                      MySessionCard(
+                        session: session,
+                        margin: EdgeInsets.zero,
+                        onTap: () => _openSession(session),
+                      ),
+                      if (session != sessions.last)
+                        const Divider(height: 0.5, indent: 56),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+          ..._footerSlivers,
+        ];
       },
     );
   }
-}
 
-// ---------------------------------------------------------------------------
-// Discover Tab
-// ---------------------------------------------------------------------------
+  void _openSession(SharedSession session) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SessionDetailScreen(sessionId: session.id),
+      ),
+    );
+  }
 
-class _DiscoverTab extends ConsumerWidget {
-  const _DiscoverTab();
+  // -------------------------------------------------------------------------
+  // Discover
+  // -------------------------------------------------------------------------
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  List<Widget> _discoverSlivers() {
     final publicAsync = ref.watch(publicSessionsProvider);
 
     return publicAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => _ErrorView(message: e.toString()),
+      loading: () => [_loadingSliver()],
+      error: (error, _) => [
+        SliverToBoxAdapter(
+          child: SessionErrorView(
+            message: error.toString(),
+            onRetry: _refresh,
+          ),
+        ),
+      ],
       data: (sessions) {
         if (sessions.isEmpty) {
-          return _EmptyView(
-            icon: Icons.explore_rounded,
-            title: 'No public sessions',
-            subtitle: 'Be the first to create a public focus session!',
-          );
+          return [
+            SliverToBoxAdapter(
+              child: SessionEmptyView(
+                icon: FluentIcons.globe_search_20_regular,
+                title: 'No public sessions',
+                subtitle: 'Be the first to open a public focus session — it '
+                    'will show up here for everyone.',
+                actionLabel: 'Create Session',
+                onAction: () => showCreateSessionSheet(context),
+              ),
+            ),
+            ..._footerSlivers,
+          ];
         }
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-          itemCount: sessions.length,
-          itemBuilder: (ctx, i) {
-            final s = sessions[i];
-            return _PublicSessionCard(data: s).animate(
-              delay: Duration(milliseconds: 60 * i),
-            ).fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0);
-          },
-        );
+
+        return [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+              child: ModernSectionHeader(
+                title: 'Open Groups',
+                subtitle: _plural(sessions.length, 'public session',
+                    'public sessions'),
+                trailing: _CountPill(count: sessions.length),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+              child: Column(
+                children: [
+                  for (final entry in sessions)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: Spacing.md),
+                      child: DiscoverSessionCard(data: entry),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          ..._footerSlivers,
+        ];
       },
     );
   }
-}
 
-// ---------------------------------------------------------------------------
-// Session Card (My Sessions)
-// ---------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Shared pieces
+  // -------------------------------------------------------------------------
 
-class _SessionCard extends StatelessWidget {
-  final SharedSession session;
-  const _SessionCard({required this.session});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => SessionDetailScreen(sessionId: session.id),
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.primary.withValues(alpha: 0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  (isDark ? Colors.white : theme.colorScheme.primary)
-                      .withValues(alpha: 0.10),
-                  (isDark ? Colors.white : theme.colorScheme.primary)
-                      .withValues(alpha: 0.03),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: (isDark ? Colors.white : theme.colorScheme.primary)
-                    .withValues(alpha: 0.15),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    // Avatar / member count
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary
-                            .withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Center(
-                        child: Text(
-                          session.memberCount.toString(),
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            session.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 3),
-                          Row(
-                            children: [
-                              _StatusDot(isActive: session.activeMembers > 0),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${session.activeMembers} focused now',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                    ),
-                  ],
-                ),
-                if (session.theme != null) ...[
-                  const SizedBox(height: 12),
-                  _ThemeChip(label: session.theme!),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Public Session Card (Discover)
-// ---------------------------------------------------------------------------
-
-class _PublicSessionCard extends ConsumerStatefulWidget {
-  final Map<String, dynamic> data;
-  const _PublicSessionCard({required this.data});
-
-  @override
-  ConsumerState<_PublicSessionCard> createState() =>
-      _PublicSessionCardState();
-}
-
-class _PublicSessionCardState extends ConsumerState<_PublicSessionCard> {
-  bool _joining = false;
-
-  Future<void> _join() async {
-    setState(() => _joining = true);
-    try {
-      // Use the app's configured username as the in-session display name
-      // (falls back to 'Me' if somehow empty).
-      final username =
-          ref.read(digitoxSettingsProvider).username.trim();
-      await ref.read(joinByIdProvider.notifier).joinById(
-            sessionId: widget.data['id'] as String,
-            displayName: username.isNotEmpty ? username : 'Me',
-          );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('You joined the session!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Invalidate to refresh My Sessions tab
-        ref.invalidate(userSessionsProvider);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to join: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _joining = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final name = widget.data['name'] as String? ?? 'Session';
-    final theme2 = widget.data['theme'] as String?;
-    final memberCount = widget.data['memberCount'] as int? ?? 0;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.secondary.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              theme.colorScheme.secondary.withValues(alpha: 0.10),
-              theme.colorScheme.secondary.withValues(alpha: 0.03),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: theme.colorScheme.secondary.withValues(alpha: 0.15),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.public_rounded,
-                color: theme.colorScheme.secondary, size: 28),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 3),
-                  Text(
-                    '$memberCount member${memberCount == 1 ? '' : 's'}${theme2 != null ? ' · $theme2' : ''}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface
-                          .withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _joining
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : TextButton(
-                    onPressed: _join,
-                    style: TextButton.styleFrom(
-                      foregroundColor: theme.colorScheme.secondary,
-                    ),
-                    child: const Text('Join'),
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Session Detail Screen
-// ---------------------------------------------------------------------------
-
-class SessionDetailScreen extends ConsumerWidget {
-  final String sessionId;
-
-  const SessionDetailScreen({
-    super.key,
-    required this.sessionId,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final sessionAsync = ref.watch(sessionDetailProvider(sessionId));
-    final membersAsync = ref.watch(sessionMembersProvider(sessionId));
-    final leaveState = ref.watch(leaveSessionProvider);
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.08),
-                  theme.colorScheme.surface,
-                ],
-              ),
-            ),
-          ),
-          CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                pinned: true,
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                title: sessionAsync.maybeWhen(
-                    data: (s) => Text(s?.name ?? 'Session'),
-                    orElse: () => const Text('Session')),
-              ),
-              sessionAsync.when(
-                loading: () => const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator())),
-                error: (e, _) => SliverFillRemaining(
-                    child: _ErrorView(message: e.toString())),
-                data: (session) {
-                  if (session == null) {
-                    return const SliverFillRemaining(
-                        child: Center(child: Text('Session not found')));
-                  }
-                  return SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        // Stats row
-                        Row(
-                          children: [
-                            _StatBubble(
-                                value: '${session.memberCount}',
-                                label: 'Members',
-                                color: theme.colorScheme.primary),
-                            const SizedBox(width: 12),
-                            _StatBubble(
-                                value: '${session.activeMembers}',
-                                label: 'Active now',
-                                color: Colors.green),
-                            const SizedBox(width: 12),
-                            _StatBubble(
-                                value:
-                                    session.isPublic ? 'Public' : 'Private',
-                                label: 'Type',
-                                color: theme.colorScheme.secondary),
-                          ],
-                        )
-                            .animate()
-                            .fadeIn(duration: 350.ms)
-                            .slideY(begin: 0.04, end: 0),
-
-                        if (session.theme != null) ...[
-                          const SizedBox(height: 12),
-                          _ThemeChip(label: session.theme!),
-                        ],
-
-                        if (session.description != null) ...[
-                          const SizedBox(height: 16),
-                          _GlassInfoBlock(text: session.description!),
-                        ],
-
-                        const SizedBox(height: 24),
-
-                        Text(
-                          'Members',
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Members list
-                        membersAsync.when(
-                          loading: () => const Center(
-                              child: CircularProgressIndicator()),
-                          error: (e, _) =>
-                              Text('Error: $e'),
-                          data: (members) => Column(
-                            children: members
-                                .asMap()
-                                .entries
-                                .map((e) => _MemberTile(
-                                      member: e.value,
-                                      delay: Duration(
-                                          milliseconds: 50 * e.key),
-                                    ))
-                                .toList(),
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Start / stop focusing with this group's settings.
-                        // `blockedApps` is pushed into the normal focus
-                        // profile, so the native blocklist enforces it with
-                        // no extra plumbing.
-                        Consumer(
-                          builder: (context, ref, _) {
-                            final isInSharedFocus = ref.watch(
-                              focusModeProvider.notifier,
-                            ).isInSharedSessionFocus;
-                            final settings = session.settings;
-
-                            if (isInSharedFocus) {
-                              return SizedBox(
-                                width: double.infinity,
-                                child: OutlinedButton.icon(
-                                  onPressed: () => ref
-                                      .read(focusModeProvider.notifier)
-                                      .endSharedSession(),
-                                  icon: const Icon(Icons.stop_circle_outlined),
-                                  label: const Text(
-                                      'Stop Focusing With This Group'),
-                                  style: OutlinedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return SizedBox(
-                              width: double.infinity,
-                              child: FilledButton.icon(
-                                onPressed: settings == null
-                                    ? null
-                                    : () {
-                                        ref
-                                            .read(focusModeProvider.notifier)
-                                            .startSessionFromSharedSettings(
-                                                settings);
-                                        Navigator.of(context)
-                                            .pushNamed(
-                                                AppRoutes.activeSessionPath);
-                                      },
-                                icon: const Icon(Icons.play_arrow_rounded),
-                                label: const Text(
-                                    'Start Focusing With This Group'),
-                                style: FilledButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 14),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        if (session.settings == null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            'This group has no shared settings yet, so group '
-                            'focus is unavailable.',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.6),
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(height: 12),
-
-                        // Owner-only completion — marks the session finished
-                        // and pays out the completion points.
-                        CompleteSessionButton(session: session),
-
-                        const SizedBox(height: 12),
-
-                        // Leave button
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: leaveState.isLoading
-                                ? null
-                                : () => _confirmLeave(
-                                    context, ref, sessionId),
-                            icon: leaveState.isLoading
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2))
-                                : const Icon(Icons.logout_rounded),
-                            label: const Text('Leave Session'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red.shade400,
-                              side: BorderSide(
-                                  color: Colors.red.shade400
-                                      .withValues(alpha: 0.5)),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14)),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 14),
-                            ),
-                          ),
-                        ),
-                      ]),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmLeave(
-      BuildContext context, WidgetRef ref, String sessionId) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)),
-        title: const Text('Leave session?'),
-        content: const Text(
-            'Are you sure? If you are the owner, the session will be marked inactive.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await ref
-                  .read(leaveSessionProvider.notifier)
-                  .leaveSession(sessionId);
-              if (context.mounted) Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade400,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Leave'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Bottom Sheets
-// ---------------------------------------------------------------------------
-
-class _CreateSessionSheet extends ConsumerStatefulWidget {
-  const _CreateSessionSheet();
-
-  @override
-  ConsumerState<_CreateSessionSheet> createState() =>
-      _CreateSessionSheetState();
-}
-
-class _CreateSessionSheetState
-    extends ConsumerState<_CreateSessionSheet> {
-  final _nameCtrl = TextEditingController();
-  final _descCtrl = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  bool _isPublic = false;
-  String? _error;
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _descCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final createState = ref.watch(createSessionProvider);
-
-    return _BottomSheetWrapper(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Create Session',
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            if (_error != null) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  _error!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onErrorContainer,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-            TextFormField(
-              controller: _nameCtrl,
-              decoration: InputDecoration(
-                labelText: 'Session Name',
-                hintText: 'e.g., Morning Study Group',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14)),
-              ),
-              validator: (v) =>
-                  v == null || v.isEmpty ? 'Name is required' : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descCtrl,
-              maxLines: 2,
-              decoration: InputDecoration(
-                labelText: 'Description (optional)',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              title: const Text('Public Session'),
-              subtitle: const Text('Allow anyone to discover and join'),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: createState.isLoading ? null : _submit,
-                style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    padding: const EdgeInsets.symmetric(vertical: 16)),
-                child: createState.isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : const Text('Create'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Turns a thrown session error into something the user can act on.
-  ///
-  /// Firebase's own text is developer-facing, e.g.
-  /// `[firebase_database/permission-denied] Client doesn't have permission…`,
-  /// so the cases that need a different response from the user are mapped here
-  /// instead of being dumped into the sheet verbatim.
-  String _friendly(Object error) => _sessionErrorMessage(error, 'create');
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    FocusScope.of(context).unfocus();
-    setState(() => _error = null);
-
-    await ref.read(createSessionProvider.notifier).createSession(
-          name: _nameCtrl.text.trim(),
-          description: _descCtrl.text.trim().isEmpty
-              ? null
-              : _descCtrl.text.trim(),
-          isPublic: _isPublic,
-        );
-
-    if (!mounted) return;
-
-    // Only dismiss on success — otherwise the sheet would vanish and the
-    // user would lose their input with no explanation of what went wrong.
-    final error = ref.read(createSessionProvider).error;
-    if (error != null) {
-      setState(() => _error = _friendly(error));
-      return;
-    }
-
-    ref.invalidate(userSessionsProvider);
-    ref.invalidate(publicSessionsProvider);
-    Navigator.pop(context);
-  }
-}
-
-class _JoinByIdSheet extends ConsumerStatefulWidget {
-  @override
-  ConsumerState<_JoinByIdSheet> createState() => _JoinByIdSheetState();
-}
-
-class _JoinByIdSheetState extends ConsumerState<_JoinByIdSheet> {
-  final _idCtrl = TextEditingController();
-  final _nameCtrl = TextEditingController();
-
-  /// Rendered inside the sheet rather than as a SnackBar: the sheet is drawn on
-  /// top of the screen's Scaffold, so a SnackBar would appear *behind* it and
-  /// every failure would look like the button doing nothing.
-  String? _error;
-
-  @override
-  void dispose() {
-    _idCtrl.dispose();
-    _nameCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final joinState = ref.watch(joinByIdProvider);
-
-    return _BottomSheetWrapper(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Join by ID',
-              style: theme.textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          Text('Enter the session ID shared by your group.',
-              style: theme.textTheme.bodySmall),
-          if (_error != null) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _error!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onErrorContainer,
-                ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 20),
-          TextField(
-            controller: _idCtrl,
-            decoration: InputDecoration(
-              labelText: 'Session ID',
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14)),
-              prefixIcon: const Icon(Icons.tag_rounded),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _nameCtrl,
-            decoration: InputDecoration(
-              labelText: 'Your display name',
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14)),
-              prefixIcon: const Icon(Icons.person_outline_rounded),
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: joinState.isLoading ? null : _join,
-              style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                  padding: const EdgeInsets.symmetric(vertical: 16)),
-              child: joinState.isLoading
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Text('Join Session'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _join() async {
-    final id = _idCtrl.text.trim();
-    final name = _nameCtrl.text.trim();
-    if (id.isEmpty || name.isEmpty) {
-      setState(() => _error = 'Enter both the session ID and a display name.');
-      return;
-    }
-
-    setState(() => _error = null);
-    await ref.read(joinByIdProvider.notifier).joinById(
-          sessionId: id,
-          displayName: name,
-        );
-
-    if (!mounted) return;
-
-    final state = ref.read(joinByIdProvider);
-    if (state.hasError) {
-      // Stay open so the user can correct the ID and retry, and so the reason
-      // is actually visible.
-      setState(() => _error = _sessionErrorMessage(state.error!, 'join'));
-      return;
-    }
-
-    Navigator.pop(context);
-    ref.invalidate(userSessionsProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Joined session!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Small reusable widgets
-// ---------------------------------------------------------------------------
-
-class _GlassTabBar extends StatelessWidget {
-  final TabController controller;
-  const _GlassTabBar({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.12)),
-      ),
-      child: TabBar(
-        controller: controller,
-        tabs: const [Tab(text: 'My Sessions'), Tab(text: 'Discover')],
-        labelColor: theme.colorScheme.primary,
-        unselectedLabelColor:
-            theme.colorScheme.onSurface.withValues(alpha: 0.5),
-        indicator: BoxDecoration(
-          color: theme.colorScheme.primary.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Colors.transparent,
-      ),
-    );
-  }
-}
-
-class _GlassFAB extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
-
-  const _GlassFAB({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary.withValues(alpha: 0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.primary.withValues(alpha: 0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(28),
+  static List<Widget> get _footerSlivers => const [
+        SliverToBoxAdapter(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: Colors.white, size: 20),
-                const SizedBox(width: 10),
-                Text(
-                  label,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+            padding: EdgeInsets.fromLTRB(4, 0, 4, 16),
+            child: _HowSessionsWorkCard(),
           ),
         ),
-      ),
-    ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(
-        begin: 0.3, end: 0, curve: Curves.easeOutBack);
-  }
+        SliverTabsBottomPadding(),
+      ];
+
+  Widget _loadingSliver() => const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 64),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+
+  String _plural(int count, String singular, String plural) =>
+      count == 1 ? '1 $singular' : '$count $plural';
 }
 
-class _MemberTile extends StatelessWidget {
-  final SessionMember member;
-  final Duration delay;
+/// Small count chip shown on the right of a section header.
+class _CountPill extends StatelessWidget {
+  const _CountPill({required this.count});
 
-  const _MemberTile({required this.member, required this.delay});
+  final int count;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.10),
-        ),
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(Radii.pill),
       ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor:
-                theme.colorScheme.primary.withValues(alpha: 0.15),
-            child: Text(
-              member.displayName.isNotEmpty
-                  ? member.displayName[0].toUpperCase()
-                  : '?',
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
+      child: StyledText(
+        '$count',
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+        color: colorScheme.onPrimaryContainer,
+      ),
+    );
+  }
+}
+
+/// Explains what a shared session does, in the app's standard dashboard-card
+/// shape.
+class _HowSessionsWorkCard extends StatelessWidget {
+  const _HowSessionsWorkCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ModernDashboardCard(
+      title: 'How Sessions Work',
+      subtitle: 'Focus together, stay accountable',
+      icon: const Icon(FluentIcons.people_community_20_filled),
+      accentColor: colorScheme.primary,
+      children: [
+        _infoRow(
+          context,
+          icon: FluentIcons.add_circle_20_regular,
+          title: 'Create or join a group',
+          body: 'Share the session ID, or open a public one from Discover.',
+        ),
+        const SizedBox(height: Spacing.md),
+        _infoRow(
+          context,
+          icon: FluentIcons.eye_20_regular,
+          title: 'See who is focusing',
+          body: 'Members show as Focused while they are in the session.',
+        ),
+        const SizedBox(height: Spacing.md),
+        _infoRow(
+          context,
+          icon: FluentIcons.flag_20_regular,
+          title: 'Finish together',
+          body: 'The owner completes the session and everyone earns points.',
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String body,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colorScheme.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(Radii.sm),
+          ),
+          child: Icon(icon, size: 18, color: colorScheme.primary),
+        ),
+        const SizedBox(width: Spacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StyledText(
+                title,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              member.displayName,
-              style:
-                  theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-            ),
-          ),
-          _StatusDot(isActive: member.isActive),
-          const SizedBox(width: 6),
-          Text(
-            member.isActive ? 'Focused' : 'Away',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color:
-                  member.isActive ? Colors.green : Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    ).animate(delay: delay).fadeIn(duration: 250.ms);
-  }
-}
-
-class _StatusDot extends StatelessWidget {
-  final bool isActive;
-  const _StatusDot({required this.isActive});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isActive ? Colors.green : Colors.grey,
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: Colors.green.withValues(alpha: 0.4),
-                  blurRadius: 6,
-                )
-              ]
-            : null,
-      ),
-    );
-  }
-}
-
-class _ThemeChip extends StatelessWidget {
-  final String label;
-  const _ThemeChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.secondary.withValues(alpha: 0.25),
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: theme.colorScheme.secondary,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _StatBubble extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color color;
-
-  const _StatBubble({
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.18)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold, color: color),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.55)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassInfoBlock extends StatelessWidget {
-  final String text;
-  const _GlassInfoBlock({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest
-            .withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Text(text,
-          style: theme.textTheme.bodyMedium?.copyWith(height: 1.5)),
-    );
-  }
-}
-
-class _BottomSheetWrapper extends StatelessWidget {
-  final Widget child;
-  const _BottomSheetWrapper({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    // Height is capped to what is actually left once the keyboard is up, and
-    // the body scrolls inside that cap, so every field and the submit button
-    // stay reachable on short screens.
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final maxHeight =
-        MediaQuery.of(context).size.height - bottomInset - 48;
-
-    return Container(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      padding: EdgeInsets.fromLTRB(20, 20, 20, bottomInset + 24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(
-          top: BorderSide(
-            color: theme.colorScheme.outline.withValues(alpha: 0.15),
-          ),
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyView extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  const _EmptyView({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 64,
-                color: theme.colorScheme.primary.withValues(alpha: 0.3)),
-            const SizedBox(height: 16),
-            Text(title,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.55)),
-            ),
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: onAction,
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 28, vertical: 14),
-                ),
-                child: Text(actionLabel!),
+              const SizedBox(height: 2),
+              StyledText(
+                body,
+                fontSize: 12,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                height: 1.35,
               ),
             ],
-          ],
+          ),
         ),
-      ),
-    ).animate().fadeIn(duration: 400.ms).scale(
-        begin: const Offset(0.94, 0.94), end: const Offset(1, 1));
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  const _ErrorView({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline_rounded,
-                size: 48, color: Colors.red.shade400),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
-          ],
-        ),
-      ),
+      ],
     );
   }
-}
-/// Turns a thrown session error into text the user can act on.
-///
-/// Firebase's own message is developer-facing, e.g.
-/// `[firebase_database/permission-denied] Client doesn't have permission to
-/// access the desired data.`, so the cases where the user needs to do something
-/// different are mapped here instead of being dumped into the UI verbatim.
-/// Shared by the create and join sheets so both describe the same failure the
-/// same way. [action] is the verb that fits the caller: 'create' or 'join'.
-String _sessionErrorMessage(Object error, String action) {
-  debugPrint('Session $action failed: $error');
-
-  // Already written for the user by SessionService.
-  if (error is SessionException) return error.message;
-
-  final message = error.toString();
-  if (message.contains('permission-denied') ||
-      message.contains('PERMISSION_DENIED')) {
-    return 'The server rejected this request. Please sign out and back in, '
-        'then try again.';
-  }
-  if (message.contains('not authenticated')) {
-    return 'Please sign in again to $action a session.';
-  }
-  if (message.contains('not initialized')) {
-    return 'Sessions are still starting up. Please try again in a moment.';
-  }
-  if (message.contains('Could not reach the server')) {
-    return 'Could not reach the server. Check your connection and try again.';
-  }
-  return 'Could not $action the session. Please try again.';
 }

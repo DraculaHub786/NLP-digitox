@@ -13,6 +13,7 @@ import 'package:nlp_digitox/core/enums/session_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/shared_session_focus_tracker.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/models/focus_mode_model.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
@@ -32,9 +33,18 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   bool _isAppPaused = false;
 
   /// Holds the focus profile that was active before a shared-session focus
-  /// started, so it can be restored when that session ends. Non-null iff a
-  /// shared-session focus is currently running.
+  /// started, so it can be restored when that session ends.
   FocusProfile? _previousProfileBeforeSharedSession;
+
+  /// The shared session that the in-flight group focus run belongs to, if any.
+  /// Rehydrated from [SharedSessionFocusTracker] on launch so a run that is
+  /// completed while the app was closed is still credited correctly.
+  String? _activeSharedSessionId;
+
+  /// Minimum focused time before an open-ended group run counts as a finished
+  /// group focus session. Finite runs are bounded by their own goal instead,
+  /// so this only closes the "start the run and immediately stop it" hole.
+  static const Duration _minSharedRunDuration = Duration(minutes: 1);
 
   FocusModeNotifier()
       : super(FocusModeModel(
@@ -55,6 +65,12 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
     final focusProfile =
         await _dynamicDao.fetchFocusProfileBySessionType(focusMode.sessionType);
     final activeSession = await _dynamicDao.fetchLastActiveFocusSession();
+
+    /// A group focus run may still be in flight — the app can be closed
+    /// mid-run, in which case the timer below completes it on this launch and
+    /// it must still count towards the session's completion.
+    _activeSharedSessionId =
+        await SharedSessionFocusTracker.instance.activeFocusRunSessionId();
 
     /// update state
     state = state.copyWith(
@@ -209,6 +225,14 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   ///
   /// Returns a [FocusSession] object representing the newly started session.
   Future<void> startNewSession() async {
+    // A session started outside a shared group must not inherit a group run
+    // that was left in progress: otherwise finishing this local session would
+    // be credited against that group. `startSessionFromSharedSettings` sets
+    // the id *before* calling this, so a genuine group run is unaffected.
+    if (_activeSharedSessionId == null) {
+      await SharedSessionFocusTracker.instance.clearActiveFocusRun();
+    }
+
     /// Insert session to database
     final session = await _dynamicDao.insertFocusSession(
       type: state.focusMode.sessionType,
@@ -263,7 +287,13 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
 
     if (isTheSessionSuccessful) {
       _incrementOrResetStreaks();
+      await _recordSharedRunCompleted();
       _sessionSuccessCallback?.call(updatedSession);
+    } else if (_activeSharedSessionId != null) {
+      // The run ended without reaching its goal, so it is not a completed
+      // group focus session and must never be counted as one.
+      _activeSharedSessionId = null;
+      await SharedSessionFocusTracker.instance.clearActiveFocusRun();
     }
   }
 
@@ -296,9 +326,11 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
     _updateFocusModeInDb();
   }
 
-  /// Whether the currently running focus session was started from a shared
-  /// session's [SessionSettings] rather than configured locally.
+  /// Whether a group focus session is active — either because a run is in
+  /// flight right now or because the shared profile is still applied from a
+  /// run that has finished but not yet been closed out.
   bool get isInSharedSessionFocus =>
+      _activeSharedSessionId != null ||
       _previousProfileBeforeSharedSession != null;
 
   /// Starts a focus session using a shared session's [SessionSettings].
@@ -310,7 +342,16 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   /// that the native side already enforces — no native changes are needed.
   /// (`focusApps`, an allowlist, has no native support today and is
   /// intentionally not applied here.)
-  Future<void> startSessionFromSharedSettings(SessionSettings settings) async {
+  Future<void> startSessionFromSharedSettings({
+    required SessionSettings settings,
+    required String sessionId,
+  }) async {
+    // Remember which group this run belongs to — in memory for the completion
+    // that follows, and on disk so a run that finishes while the app is closed
+    // is still credited as a completed group focus session.
+    _activeSharedSessionId = sessionId;
+    await SharedSessionFocusTracker.instance.markFocusRunStarted(sessionId);
+
     // Snapshot only once — a second call while already inside a shared session
     // must not overwrite the snapshot with the shared profile itself.
     _previousProfileBeforeSharedSession ??= state.focusProfile;
@@ -340,9 +381,21 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   Future<void> endSharedSession() async {
     final activeSession = state.activeSession.value;
     if (activeSession != null) {
+      final isFiniteSession = activeSession.durationSecs > 0;
+
+      // Stopping is not automatically a success. A finite run only counts once
+      // its goal was reached — the timer completes it at that point, so a
+      // still-running finite session plainly has not made it. An open-ended
+      // run counts after [_minSharedRunDuration] of real focus. Without this,
+      // starting a group run and immediately stopping it counted as
+      // "completing" a group focus session and paid out the bonus.
+      final isSuccessful = isFiniteSession
+          ? state.elapsedTimeSec >= activeSession.durationSecs
+          : state.elapsedTimeSec >= _minSharedRunDuration.inSeconds;
+
       await giveUpOrFinishFocusSession(
-        isTheSessionSuccessful: true,
-        isFiniteSession: activeSession.durationSecs > 0,
+        isTheSessionSuccessful: isSuccessful,
+        isFiniteSession: isFiniteSession,
       );
     }
 
@@ -352,6 +405,25 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
       _updateFocusProfileInDb();
       _previousProfileBeforeSharedSession = null;
     }
+
+    // Either way, this user is no longer focusing with the group.
+    _activeSharedSessionId = null;
+    await SharedSessionFocusTracker.instance.clearActiveFocusRun();
+  }
+
+  /// Credits a just-finished run to the shared session it was started from.
+  ///
+  /// This is the evidence the 50-point completion bonus is paid against: the
+  /// session merely being marked complete is not enough (see
+  /// `ProductivityPointsService.awardSharedSessionCompletionPoints`).
+  Future<void> _recordSharedRunCompleted() async {
+    final sessionId = _activeSharedSessionId;
+    if (sessionId == null) return;
+
+    _activeSharedSessionId = null;
+    final tracker = SharedSessionFocusTracker.instance;
+    await tracker.markFocusRunCompleted(sessionId);
+    await tracker.clearActiveFocusRun();
   }
 
   /// Saves the current focus mode configuration to the database.

@@ -1,11 +1,15 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/productivity_points_service.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
+import 'package:nlp_digitox/ui/common/styled_text.dart';
+import 'package:nlp_digitox/ui/common/surface_card.dart';
 
-/// Owner-only "Complete Session" action for [SessionDetailScreen].
+/// Owner-only "Complete Session" action for the session detail screen.
 ///
 /// Completing a session pays the owner straight away and marks the session
 /// finished. It deliberately does *not* try to pay the other members from
@@ -15,9 +19,9 @@ import 'package:nlp_digitox/providers/session_provider.dart';
 /// session, so the confirmation copy states that rather than implying the
 /// owner credits the whole group.
 class CompleteSessionButton extends ConsumerWidget {
-  final SharedSession session;
-
   const CompleteSessionButton({super.key, required this.session});
+
+  final SharedSession session;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,17 +45,20 @@ class CompleteSessionButton extends ConsumerWidget {
             completeState.isLoading ? null : () => _confirm(context, ref),
         icon: completeState.isLoading
             ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
-            : const Icon(Icons.flag_rounded),
+            : const Icon(FluentIcons.flag_20_filled, size: 18),
         label: const Text('Complete Session'),
         style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: Spacing.base),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(Radii.pill),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
     );
@@ -63,13 +70,14 @@ class CompleteSessionButton extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.xl),
+        ),
         title: const Text('Complete session?'),
         content: Text(
-          'This marks "${session.name}" as finished. You earn $points points, '
-          'and every other member earns $points the next time they open the '
-          'app. This cannot be undone.',
+          'This marks "${session.name}" as finished. The $points points go to '
+          'members who focused with the group and finished their focus run — '
+          'including you, if you did. This cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -100,7 +108,9 @@ class CompleteSessionButton extends ConsumerWidget {
               ? 'Could not complete session: ${result.error}'
               : 'Session completed — $points points added.',
         ),
-        backgroundColor: result.hasError ? Colors.red.shade400 : Colors.green,
+        backgroundColor: result.hasError
+            ? Theme.of(context).colorScheme.error
+            : DesignPalette.fern,
       ),
     );
   }
@@ -112,27 +122,28 @@ class _MemberWaitingNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(14),
-      ),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SurfaceCard(
+      elevation: 0,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            Icons.hourglass_top_rounded,
+            FluentIcons.hourglass_half_20_regular,
             size: 18,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: Spacing.md),
           Expanded(
-            child: Text(
-              'Waiting for the owner to complete this session. '
-              'You will earn your points automatically when they do.',
-              style: theme.textTheme.bodySmall,
+            child: StyledText(
+              'Waiting for the owner to complete this session. Finish a focus '
+              'run with the group and your '
+              '${ProductivityPointsService.sharedSessionCompletionPoints} '
+              'points are added automatically once they complete it.',
+              fontSize: 13,
+              isSubtitle: true,
+              height: 1.35,
             ),
           ),
         ],
@@ -143,40 +154,52 @@ class _MemberWaitingNotice extends StatelessWidget {
 
 /// Shown once a session has been completed, replacing the action button.
 class _CompletionBanner extends StatelessWidget {
-  final DateTime completedAt;
-
   const _CompletionBanner({required this.completedAt});
+
+  final DateTime completedAt;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.green.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
-      ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? DesignPalette.sage : DesignPalette.fern;
+
+    return SurfaceCard(
+      tint: accent,
+      elevation: 0,
       child: Row(
         children: [
-          const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
-          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(Radii.pill),
+            ),
+            child: Icon(
+              FluentIcons.checkmark_circle_20_filled,
+              size: 20,
+              color: accent,
+            ),
+          ),
+          const SizedBox(width: Spacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                StyledText(
                   'Session completed',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green.shade700,
-                  ),
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: accent,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Text(
+                StyledText(
                   'Finished ${_formatTimestamp(completedAt)}',
-                  style: theme.textTheme.bodySmall,
+                  fontSize: 12,
+                  isSubtitle: true,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

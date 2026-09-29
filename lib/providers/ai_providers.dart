@@ -94,6 +94,7 @@ final aiSentimentProvider = FutureProvider<Map<String, double>>((ref) async {
       streak,
       habitsCompleted,
       tasksCompleted,
+      screenTimeGoalSeconds: screenTimeGoal,
     );
   }
 });
@@ -107,11 +108,18 @@ final aiRecommendationsProvider =
 
   // Get wellbeing settings for screen time goal
   final screenTimeGoal = await _loadScreenTimeGoalSeconds();
-  if (screenTimeGoal == null) {
-    return _fallbackRecommendations();
-  }
 
   final sentiment = await ref.watch(aiSentimentProvider.future);
+
+  if (screenTimeGoal == null) {
+    // Without a configured goal there is nothing meaningful to ask the model
+    // about, so go straight to the deterministic tips rather than burning a
+    // request that would be based on a missing number.
+    return _fallbackRecommendations(
+      todayUsage,
+      sentiment: sentiment,
+    );
+  }
 
   final recentMessages = AIChatbotService.instance.getRecentMessages(count: 3);
 
@@ -126,7 +134,11 @@ final aiRecommendationsProvider =
     return recommendations;
   } catch (e) {
     debugPrint('⚠️ aiRecommendationsProvider fallback triggered: $e');
-    return _fallbackRecommendations();
+    return _fallbackRecommendations(
+      todayUsage,
+      sentiment: sentiment,
+      screenTimeGoalSeconds: screenTimeGoal,
+    );
   }
 });
 
@@ -236,6 +248,19 @@ Future<int?> _loadScreenTimeGoalSeconds() async {
   }
 }
 
+/// Reference goal used only when the user has not configured one, so the
+/// deterministic estimators still have a scale to compare screen time
+/// against. Everything is expressed as a ratio of screen time to goal, so a
+/// zero goal would make every ratio meaningless.
+const double _unsetGoalHours = 1.0;
+
+/// Resolves the goal in hours, falling back to [_unsetGoalHours] when the
+/// user has not set one.
+double _goalHoursOr(int screenTimeGoalSeconds) =>
+    screenTimeGoalSeconds > 0
+        ? screenTimeGoalSeconds / 3600
+        : _unsetGoalHours;
+
 /// Deterministic, usage-driven fallback — delegates to the real
 /// `computeBaseSentiment()` estimator (which mirrors the Groq prompt's
 /// scoring rules) so the numbers genuinely reflect the user's day instead of
@@ -244,21 +269,33 @@ Map<String, double> _usageDrivenFallback(
   UsageModel todayUsage,
   int streak,
   int habitsCompleted,
-  int tasksCompleted,
-) {
+  int tasksCompleted, {
+  int screenTimeGoalSeconds = 0,
+}) {
   return AISentimentService.instance.computeBaseSentiment(
     screenTimeHours: todayUsage.screenTime / 3600,
-    goalHours: 1.0, // Unknown goal — treat 1h as the reference baseline.
+    goalHours: _goalHoursOr(screenTimeGoalSeconds),
     streakDays: streak,
     habitsCompleted: habitsCompleted,
     tasksCompleted: tasksCompleted,
   );
 }
 
-List<String> _fallbackRecommendations() {
-  return const [
-    'Set one small focus goal for the next 20 minutes.',
-    'Take a short break and return with a clear next task.',
-    'Review today\'s habits and complete one quick win now.',
-  ];
+/// Deterministic tips derived from the day's usage and sentiment.
+///
+/// Used whenever the Groq recommendation call cannot run (no key, offline,
+/// rate limited, or an unparseable reply) and when no screen time goal is
+/// configured. This replaces a previous hardcoded three-string list that was
+/// identical for every user and every day.
+List<String> _fallbackRecommendations(
+  UsageModel todayUsage, {
+  required Map<String, double> sentiment,
+  int screenTimeGoalSeconds = 0,
+}) {
+  return AISentimentService.instance.computeBaseRecommendations(
+    screenTimeHours: todayUsage.screenTime / 3600,
+    goalHours: _goalHoursOr(screenTimeGoalSeconds),
+    sentiment: sentiment,
+    screenTimeGoalSeconds: screenTimeGoalSeconds,
+  );
 }

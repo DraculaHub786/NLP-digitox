@@ -1,0 +1,521 @@
+{
+  "generatedAt": "2026-09-30T03:11:10.055005",
+  "environment": {
+    "suite": "NLP / AI evaluation",
+    "dataset: topics": 117,
+    "dataset: sentiment parse replies": 27,
+    "dataset: rule scenarios": 38,
+    "dataset: agent routing": 30,
+    "dataset: agent titles": 16,
+    "sentiment labels": 11
+  },
+  "scorecards": [
+    {
+      "suite": "topic_classification",
+      "description": "ChatContextExtractor.classifyTopics (11-topic keyword classifier) scored against 117 hand-labelled chat messages.",
+      "metrics": [
+        {
+          "name": "Subset accuracy (exact match)",
+          "value": 0.7863247863247863,
+          "unit": "pct",
+          "note": "92/117 examples"
+        },
+        {
+          "name": "Micro precision",
+          "value": 0.8732394366197183,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro recall",
+          "value": 0.9323308270676691,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro F1",
+          "value": 0.9018181818181819,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro precision",
+          "value": 0.8771892249164975,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro recall",
+          "value": 0.9343063502154412,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro F1",
+          "value": 0.8990446111899086,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Weighted F1",
+          "value": 1.0257035944402944,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Examples scored",
+          "value": 117.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Accuracy (single-label argmax)",
+          "value": 0.9736842105263158,
+          "unit": "pct",
+          "note": "37/38 examples"
+        },
+        {
+          "name": "Empty-gold precision (no false positives)",
+          "value": 0.8,
+          "unit": "pct",
+          "note": "28/35 negative messages stayed empty"
+        },
+        {
+          "name": "Single-topic messages",
+          "value": 47.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Multi-topic messages",
+          "value": 35.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Negative messages",
+          "value": 35.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Labels in the space",
+          "value": 11.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Topics in the keyword dictionary",
+          "value": 11.0,
+          "unit": "count",
+          "note": ""
+        }
+      ],
+      "notes": [
+        "The confusion matrix covers only the 38 single-topic messages: a multi-topic example has no single gold class to sit in, so it is scored in the micro/macro F1 block above but omitted from the matrix. Accuracy above is therefore over single-topic cases only.",
+        "Micro F1 pools every tp/fp/fn, so the frequent topics dominate it. Macro F1 weights all eleven topics equally, which is the stricter number when a rare topic such as loneliness matters."
+      ],
+      "sections": [
+        {
+          "title": "Per-label",
+          "body": "label              prec      rec       F1     tp     fp     fn  support\nsleep             0.857    0.800    0.828     12      2      3       15\nwork              0.778    1.000    0.875     14      4      0       14\nstudy             0.909    1.000    0.952     10      1      0       10\nanxiety           1.000    1.000    1.000     12      0      0       12\nfamily            0.818    1.000    0.900      9      2      0        9\nsocial media      1.000    0.923    0.960     12      0      1       13\nfocus             1.000    0.818    0.900      9      0      2       11\nhealth            0.875    0.778    0.824      7      1      2        9\nloneliness        0.800    1.000    0.889      8      2      0        8\nproductivity      0.727    1.000    0.842      8      3      0        8\nphone usage       0.885    0.958    0.920     23      3      1       24\n"
+        },
+        {
+          "title": "Confusion matrix (counts)",
+          "body": "                 sleep     work    study  anxiety   familysocial media    focus   healthlonelinessproductivityphone usage  (rows = gold, cols = predicted)\nsleep                1        0        0        0        0        0        0        0        0        0        0\nwork                 0        3        0        0        0        0        0        0        0        0        0\nstudy                0        0        3        0        0        0        0        0        0        0        0\nanxiety              0        0        0        2        0        0        0        0        0        0        0\nfamily               0        0        0        0        3        0        0        0        0        0        0\nsocial media         0        0        0        0        0        4        0        0        0        0        0\nfocus                0        0        0        0        0        0        4        0        0        0        0\nhealth               0        1        0        0        0        0        0        3        0        0        0\nloneliness           0        0        0        0        0        0        0        0        4        0        0\nproductivity         0        0        0        0        0        0        0        0        0        5        0\nphone usage          0        0        0        0        0        0        0        0        0        0        5\n"
+        },
+        {
+          "title": "Confusion matrix (row-normalised)",
+          "body": "                 sleep     work    study  anxiety   familysocial media    focus   healthlonelinessproductivityphone usage  (rows = gold, cols = predicted)\nsleep             1.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00\nwork              0.00     1.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00\nstudy             0.00     0.00     1.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00\nanxiety           0.00     0.00     0.00     1.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00\nfamily            0.00     0.00     0.00     0.00     1.00     0.00     0.00     0.00     0.00     0.00     0.00\nsocial media      0.00     0.00     0.00     0.00     0.00     1.00     0.00     0.00     0.00     0.00     0.00\nfocus             0.00     0.00     0.00     0.00     0.00     0.00     1.00     0.00     0.00     0.00     0.00\nhealth            0.00     0.25     0.00     0.00     0.00     0.00     0.00     0.75     0.00     0.00     0.00\nloneliness        0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     1.00     0.00     0.00\nproductivity      0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     1.00     0.00\nphone usage       0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00     1.00\n"
+        }
+      ],
+      "metadata": {
+        "headline": {
+          "micro F1": 0.9018181818181819,
+          "macro F1": 0.8990446111899086,
+          "weighted F1": 1.0257035944402944,
+          "subset accuracy": 0.7863247863247863,
+          "single-label accuracy": 0.9736842105263158,
+          "false-positive-free negatives": 0.8
+        }
+      }
+    },
+    {
+      "suite": "sentiment_parser",
+      "description": "AISentimentService.parseSentiment scored against 27 raw model replies (19 of which carry usable sentiment).",
+      "metrics": [
+        {
+          "name": "Parse-decision accuracy",
+          "value": 0.7777777777777778,
+          "unit": "pct",
+          "note": "21/27 replies handled correctly"
+        },
+        {
+          "name": "Replies that should parse",
+          "value": 19.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Replies that should be rejected",
+          "value": 8.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Subset accuracy (exact match)",
+          "value": 0.7777777777777778,
+          "unit": "pct",
+          "note": "21/27 examples"
+        },
+        {
+          "name": "Micro precision",
+          "value": 0.9333333333333333,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro recall",
+          "value": 0.7368421052631579,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro F1",
+          "value": 0.8235294117647058,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro precision",
+          "value": 0.9333333333333333,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro recall",
+          "value": 0.7368421052631579,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro F1",
+          "value": 0.8235294117647058,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Weighted F1",
+          "value": 2.89760348583878,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Examples scored",
+          "value": 27.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Normalisation correctness",
+          "value": 1.0,
+          "unit": "pct",
+          "note": "15/15 successful parses summed to 100 (+/- 0.01)"
+        },
+        {
+          "name": "Successful parses",
+          "value": 15.0,
+          "unit": "count",
+          "note": ""
+        }
+      ],
+      "notes": [
+        "Per-label F1 here measures label recovery on replies that both should and do parse: a reply the parser wrongly rejects contributes false negatives for all five labels, so parse-decision accuracy is the more direct measure of parser health."
+      ],
+      "sections": [
+        {
+          "title": "Per-label (parsed label sets)",
+          "body": "label              prec      rec       F1     tp     fp     fn  support\nPositive          0.933    0.737    0.824     14      1      5       19\nNeutral           0.933    0.737    0.824     14      1      5       19\nNegative          0.933    0.737    0.824     14      1      5       19\nAnxious           0.933    0.737    0.824     14      1      5       19\nFocused           0.933    0.737    0.824     14      1      5       19\n"
+        },
+        {
+          "title": "Per reply format",
+          "body": "format                      correct   total\nbulleted-list                     0       1\nempty                             2       2\nerror-json                        1       1\nfenced-json                       2       2\nfenced-lines                      1       1\njson                              3       3\njson-array                        1       1\njson-percent-values               0       1\njson-string-values                1       1\nlines                             4       4\nlines-extra-label                 1       1\nlines-normalise                   1       1\nmarkdown-table                    0       1\nnegative-values                   0       1\nno-separator                      0       1\nnon-numeric-values                1       1\nnumbered-list                     0       1\nprose-wrapped-json                1       1\nrefusal                           1       1\ntoo-few-labels                    1       1\n"
+        }
+      ],
+      "metadata": {
+        "headline": {
+          "parse-decision accuracy": 0.7777777777777778,
+          "label micro F1": 0.8235294117647058,
+          "label macro F1": 0.8235294117647058,
+          "normalisation correctness": 1.0
+        }
+      }
+    },
+    {
+      "suite": "rule_sentiment",
+      "description": "AISentimentService.computeBaseSentiment scored against 38 usage scenarios. Gold is the emotion a digital-wellbeing analyst would name; the prediction is the highest of the five returned percentages.",
+      "metrics": [
+        {
+          "name": "Subset accuracy (exact match)",
+          "value": 0.631578947368421,
+          "unit": "pct",
+          "note": "24/38 examples"
+        },
+        {
+          "name": "Micro precision",
+          "value": 0.631578947368421,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro recall",
+          "value": 0.631578947368421,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro F1",
+          "value": 0.631578947368421,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro precision",
+          "value": 0.4222222222222222,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro recall",
+          "value": 0.5599999999999999,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro F1",
+          "value": 0.4608547008547008,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Weighted F1",
+          "value": 0.531893837156995,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Examples scored",
+          "value": 38.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Accuracy (single-label argmax)",
+          "value": 0.631578947368421,
+          "unit": "pct",
+          "note": "24/38 examples"
+        },
+        {
+          "name": "Scenarios",
+          "value": 38.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Mean (1 - top share)",
+          "value": 0.6424565164102809,
+          "unit": "raw",
+          "note": ""
+        }
+      ],
+      "notes": [
+        "computeBaseSentiment returns a five-label distribution, not a class. The app displays all five values, so this suite is a diagnostic on which label the highest percentage lands on, not a claim that the scorer is meant to output a single class.",
+        "The rule set starts every day from a Neutral prior of 40 points while Positive starts at 28 and Focused at 10, so Neutral wins the argmax unless the good-habit bonuses (streak, habits, tasks) or the over-goal penalty are large. That prior is the main driver of the confusion matrix below.",
+        "Positive and Focused receive identical bonuses in every branch of the rule set, so the scorer cannot separate them; they are expected to absorb each other in the confusion matrix."
+      ],
+      "sections": [
+        {
+          "title": "Per-label",
+          "body": "label              prec      rec       F1     tp     fp     fn  support\nPositive          0.667    1.000    0.800      8      4      0        8\nNeutral           0.444    1.000    0.615      8     10      0        8\nNegative          0.000    0.000    0.000      0      0      8        8\nAnxious           1.000    0.800    0.889      8      0      2       10\nFocused           0.000    0.000    0.000      0      0      4        4\n"
+        },
+        {
+          "title": "Confusion matrix (counts)",
+          "body": "              Positive  Neutral Negative  Anxious  Focused  (rows = gold, cols = predicted)\nPositive             8        0        0        0        0\nNeutral              0        8        0        0        0\nNegative             0        8        0        0        0\nAnxious              0        2        0        8        0\nFocused              4        0        0        0        0\n"
+        },
+        {
+          "title": "Confusion matrix (row-normalised)",
+          "body": "              Positive  Neutral Negative  Anxious  Focused  (rows = gold, cols = predicted)\nPositive          1.00     0.00     0.00     0.00     0.00\nNeutral           0.00     1.00     0.00     0.00     0.00\nNegative          0.00     1.00     0.00     0.00     0.00\nAnxious           0.00     0.20     0.00     0.80     0.00\nFocused           1.00     0.00     0.00     0.00     0.00\n"
+        },
+        {
+          "title": "How often each label was the argmax",
+          "body": "argmax label   times chosen\nAnxious                   8\nNeutral                  18\nPositive                 12\n"
+        }
+      ],
+      "metadata": {
+        "headline": {
+          "argmax accuracy": 0.631578947368421,
+          "macro F1": 0.4608547008547008,
+          "micro F1": 0.631578947368421,
+          "weighted F1": 0.531893837156995
+        }
+      }
+    },
+    {
+      "suite": "daily_score_parser",
+      "description": "DailySentimentScoringService.parseScoreResponse scored against 21 raw model replies, including the decorated forms a bare double.tryParse would have rejected.",
+      "metrics": [
+        {
+          "name": "Exact-match accuracy",
+          "value": 1.0,
+          "unit": "pct",
+          "note": "21/21 replies parsed to the expected value"
+        },
+        {
+          "name": "Rejection correctness",
+          "value": 1.0,
+          "unit": "pct",
+          "note": "6/6 unusable or out-of-range replies were rejected"
+        },
+        {
+          "name": "Cases",
+          "value": 21.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Usable replies",
+          "value": 15.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Replies that must be rejected",
+          "value": 6.0,
+          "unit": "count",
+          "note": ""
+        }
+      ],
+      "notes": [],
+      "sections": [
+        {
+          "title": "Accept/reject confusion matrix",
+          "body": "                     parser accepts   parser rejects\n should parse                 15                0\n should reject                 0                6\n"
+        }
+      ],
+      "metadata": {
+        "headline": {
+          "exact-match accuracy": 1.0,
+          "rejection correctness": 1.0
+        }
+      }
+    },
+    {
+      "suite": "agent_behaviour",
+      "description": "Deterministic AIChatbotService behaviour: prompt routing (30 sentiment vectors) and session-title normalisation (16 messages).",
+      "metrics": [
+        {
+          "name": "Subset accuracy (exact match)",
+          "value": 0.7,
+          "unit": "pct",
+          "note": "21/30 examples"
+        },
+        {
+          "name": "Micro precision",
+          "value": 0.7,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro recall",
+          "value": 0.7,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Micro F1",
+          "value": 0.7,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro precision",
+          "value": 0.7071428571428571,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro recall",
+          "value": 0.6909523809523809,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Macro F1",
+          "value": 0.6826340326340326,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Weighted F1",
+          "value": 0.7013209013209012,
+          "unit": "pct",
+          "note": ""
+        },
+        {
+          "name": "Examples scored",
+          "value": 30.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Accuracy (single-label argmax)",
+          "value": 0.7,
+          "unit": "pct",
+          "note": "21/30 examples"
+        },
+        {
+          "name": "Title normalisation accuracy",
+          "value": 1.0,
+          "unit": "pct",
+          "note": "16/16 titles produced as expected"
+        },
+        {
+          "name": "Routing cases",
+          "value": 30.0,
+          "unit": "count",
+          "note": ""
+        },
+        {
+          "name": "Title cases",
+          "value": 16.0,
+          "unit": "count",
+          "note": ""
+        }
+      ],
+      "notes": [
+        "Prompt routing is a five-way classification scored over the bucket the returned starter set belongs to. Ties resolve to whichever key the sentiment map yields first, which is why two identical vectors with different key order can legitimately route to different buckets; those cases are labelled to the behaviour the production reduce produces."
+      ],
+      "sections": [
+        {
+          "title": "Prompt routing per bucket",
+          "body": "label              prec      rec       F1     tp     fp     fn  support\nAnxious           0.750    0.750    0.750      6      2      2        8\nNegative          0.500    0.500    0.500      2      2      2        4\nFocused           0.571    0.800    0.667      4      3      1        5\nPositive          1.000    0.571    0.727      4      0      3        7\nNeutral           0.714    0.833    0.769      5      2      1        6\n"
+        },
+        {
+          "title": "Prompt routing confusion matrix (counts)",
+          "body": "               Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)\nAnxious              6        1        0        0        1\nNegative             2        2        0        0        0\nFocused              0        0        4        0        1\nPositive             0        1        2        4        0\nNeutral              0        0        1        0        5\n"
+        },
+        {
+          "title": "Prompt routing confusion matrix (row-normalised)",
+          "body": "               Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)\nAnxious           0.75     0.13     0.00     0.00     0.13\nNegative          0.50     0.50     0.00     0.00     0.00\nFocused           0.00     0.00     0.80     0.00     0.20\nPositive          0.00     0.14     0.29     0.57     0.00\nNeutral           0.00     0.00     0.17     0.00     0.83\n"
+        }
+      ],
+      "metadata": {
+        "headline": {
+          "routing accuracy": 0.7,
+          "routing macro F1": 0.6826340326340326,
+          "title accuracy": 1.0
+        }
+      }
+    }
+  ]
+}
