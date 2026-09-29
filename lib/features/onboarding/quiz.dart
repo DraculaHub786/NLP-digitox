@@ -49,7 +49,8 @@ class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
       final allGranted = perms.haveUsageAccessPermission &&
           perms.haveDisplayOverlayPermission &&
           perms.haveAlarmsPermission &&
-          perms.haveNotificationPermission;
+          perms.haveNotificationPermission &&
+          perms.haveAccessibilityPermission;
       if (!allGranted) widget.onPermissionsMissing?.call();
     });
   }

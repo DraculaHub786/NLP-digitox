@@ -55,11 +55,12 @@ class Badge {
       if (parts.length == 2) {
         final year = parts[0];
         final month = int.tryParse(parts[1]) ?? 1;
+        final safeMonth = (month >= 1 && month <= 12) ? month : 1;
         final monthNames = [
           '', 'January', 'February', 'March', 'April', 'May', 'June',
           'July', 'August', 'September', 'October', 'November', 'December'
         ];
-        return '${monthNames[month]} $year';
+        return '${monthNames[safeMonth]} $year';
       }
       return cycleLabel;
     }

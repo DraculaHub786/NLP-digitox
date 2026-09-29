@@ -147,7 +147,13 @@ class AIChatbotService {
     debugPrint('✅ AIChatbotService fully initialized');
   }
 
-  static final String _apiKey = ApiKeys.groqApiKey;
+  /// Resolved on every read rather than snapshotted.
+  ///
+  /// This was `static final String _apiKey = ApiKeys.groqApiKey;`, which froze
+  /// the value at first access — before `dotenv.load()` had run — so the key
+  /// read back empty and every request reported "not configured" even with a
+  /// fully populated `.env`.
+  static String get _apiKey => ApiKeys.groqApiKey;
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   static const String _modelName = 'openai/gpt-oss-20b';
   
@@ -185,7 +191,10 @@ class AIChatbotService {
   Future<void> _initializeAI() async {
     try {
       if (_apiKey.isEmpty) {
-        debugPrint('⚠️ AIChatbotService: Groq API key not configured! Add it to lib/config/api_keys.dart (copy from api_keys_template.dart)');
+        debugPrint(
+          '⚠️ AIChatbotService: Groq API key not configured. Add '
+          'GROQ_API_KEY to .env (or pass --dart-define=GROQ_API_KEY=...).',
+        );
         return;
       }
 
@@ -404,7 +413,8 @@ Remember: You're a supportive friend helping them build better digital habits, n
       // Check if API is properly configured
       if (_apiKey.isEmpty) {
         debugPrint('⚠️ AIChatbotService: API key not configured!');
-        return "Groq API key is not configured. Copy lib/config/api_keys_template.dart to lib/config/api_keys.dart and add your key.";
+        return 'Groq API key is not configured. Add GROQ_API_KEY to the .env '
+            'file (or pass --dart-define=GROQ_API_KEY=...) and restart the app.';
       }
       
       // RATE LIMITING: Enforce minimum delay between requests

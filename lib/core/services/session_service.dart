@@ -58,6 +58,57 @@ class SessionService {
   /// Whether Firebase is available
   bool _isFirebaseAvailable = true;
 
+  /// The in-flight [init] call, so simultaneous first uses share one attempt.
+  Future<void>? _initFuture;
+
+  /// Guarantees the service is ready, initialising it on demand.
+  ///
+  /// Nothing at startup initialises this reliably: `initializeServicesAndSchedules()`
+  /// is fired from a `Future.delayed(10.seconds)` inside `NavigationService` and
+  /// is never run again, and [release] — called on every sign-out — clears the
+  /// initialised flag. Relying on that left Create throwing
+  /// "SessionService not initialized" during the first ten seconds of a cold
+  /// start and for the entire rest of the process after any sign-out.
+  /// [init] is already idempotent, and `_initFuture` de-dupes concurrent calls.
+  Future<void> _ensureInitialized() async {
+    if (_isInitialized) return;
+    await (_initFuture ??= init());
+  }
+
+  /// How long a Realtime Database round trip may take before the caller is
+  /// told the server is unreachable.
+  ///
+  /// A Realtime Database `set()`/`update()` future only completes once the
+  /// server acknowledges the write, so without a bound a dropped connection
+  /// left the UI spinning with no error and no feedback at all.
+  static const Duration _networkTimeout = Duration(seconds: 15);
+
+  /// Runs [work] against the database, turning a timeout into a
+  /// [SessionException] the UI can actually show. Every network call in this
+  /// service goes through here so no code path can hang forever.
+  Future<T> _onDatabase<T>(Future<T> Function() work) async {
+    try {
+      return await work().timeout(_networkTimeout);
+    } on TimeoutException {
+      // Firebase may still commit a write that timed out locally, so tell the
+      // user to look before retrying rather than silently duplicating.
+      throw const SessionException(
+        'Could not reach the server. Check your connection, then reopen your '
+        'session list before trying again.',
+      );
+    }
+  }
+
+  /// Drops null values before handing a map to `update()`.
+  ///
+  /// A Realtime Database `update()` treats an explicit null as a *delete*
+  /// instruction, so passing a session whose `description`/`theme`/`settings`
+  /// are unset would remove those keys instead of simply leaving them out.
+  static Map<String, Object?> _withoutNulls(Map<String, dynamic> source) =>
+      Map<String, Object?>.fromEntries(
+        source.entries.where((entry) => entry.value != null),
+      );
+
   // ---------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------
@@ -107,9 +158,7 @@ class SessionService {
     SessionSettings? settings,
   }) async {
     try {
-      if (!_isInitialized) {
-        throw StateError('SessionService not initialized. Call init() first.');
-      }
+      await _ensureInitialized();
 
       if (name.isEmpty) {
         throw ArgumentError('Session name cannot be empty');
@@ -156,18 +205,24 @@ class SessionService {
       );
 
       if (_isFirebaseAvailable && _database != null) {
-        await _database!.ref('sessions/$sessionId').set(session.toMap());
-        // Index for this user's session list
-        await _database!.ref('users/$userId/sessions/$sessionId').set(true);
-        // Index in public listing if applicable
-        if (isPublic) {
-          await _database!.ref('publicSessions/$sessionId').set({
-            'name': name,
-            'theme': theme,
-            'memberCount': 1,
-            'createdAt': now.toIso8601String(),
-          });
-        }
+        // One atomic multi-path write rather than three sequential `set()`s:
+        // it is a single round trip, and either every index lands or none
+        // does. The old sequence could leave `users/{uid}/sessions` pointing
+        // at a session that was never created, and it gave the UI no way to
+        // tell a slow connection from a failed one.
+        final updates = <String, Object?>{
+          'sessions/$sessionId': _withoutNulls(session.toMap()),
+          'users/$userId/sessions/$sessionId': true,
+          if (isPublic)
+            'publicSessions/$sessionId': _withoutNulls({
+              'name': name,
+              'theme': theme,
+              'memberCount': 1,
+              'createdAt': now.toIso8601String(),
+            }),
+        };
+
+        await _onDatabase(() => _database!.ref().update(updates));
       }
 
       _sessionCache[sessionId] = session;
@@ -189,55 +244,65 @@ class SessionService {
     required String displayName,
   }) async {
     try {
+      await _ensureInitialized();
+
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) throw StateError('User not authenticated');
-      if (!_isInitialized) throw StateError('SessionService not initialized');
       if (displayName.isEmpty) throw ArgumentError('Display name cannot be empty');
 
       final deviceId = DeviceIdentityService.instance.deviceId;
 
       if (_isFirebaseAvailable && _database != null) {
-        final sessionRef = _database!.ref('sessions/$sessionId');
-        final sessionSnap = await sessionRef.get();
-
-        if (!sessionSnap.exists) throw StateError('Session not found');
-
-        final session = SharedSession.fromMap(
-          Map<String, dynamic>.from(sessionSnap.value as Map));
-
-        // Check max members
-        if (session.maxMembers > 0 && session.memberCount >= session.maxMembers) {
-          throw StateError('Session is full');
-        }
-
-        // Check if already a member
-        if (session.members.any((m) => m.userId == userId)) {
-          debugPrint('SessionService: User already in session');
-          return;
-        }
-
-        final now = DateTime.now();
-        final newMember = SessionMember(
-          userId: userId,
-          deviceId: deviceId,
-          displayName: displayName,
-          joinedAt: now,
-          isActive: true,
-          lastActive: now,
+        final sessionSnap = await _onDatabase(
+          () => _database!.ref('sessions/$sessionId').get(),
         );
 
-        // Write into members/{userId} — the nested-map structure
-        await _database!
-            .ref('sessions/$sessionId/members/$userId')
-            .set(newMember.toMap());
-        await _database!
-            .ref('users/$userId/sessions/$sessionId')
-            .set(true);
-        // Update public index member count
-        if (session.isPublic) {
-          await _database!
-              .ref('publicSessions/$sessionId/memberCount')
-              .set(session.memberCount + 1);
+        if (!sessionSnap.exists) {
+          throw const SessionException(
+            'This session no longer exists. The owner may have ended it.',
+          );
+        }
+
+        final session = SharedSession.fromMap(
+            Map<String, dynamic>.from(sessionSnap.value as Map));
+
+        if (session.isCompleted || !session.isActive) {
+          throw const SessionException(
+            'This session has already finished, so you can no longer join it.',
+          );
+        }
+
+        if (session.maxMembers > 0 &&
+            session.memberCount >= session.maxMembers) {
+          throw const SessionException('This session is full.');
+        }
+
+        if (session.members.any((m) => m.userId == userId)) {
+          // Already in: nothing to write, but the heartbeat must still run.
+          debugPrint('SessionService: User already in session');
+        } else {
+          final now = DateTime.now();
+          final newMember = SessionMember(
+            userId: userId,
+            deviceId: deviceId,
+            displayName: displayName,
+            joinedAt: now,
+            isActive: true,
+            lastActive: now,
+          );
+
+          // Membership and the user's own session index land together or not
+          // at all, so a dropped connection can never leave one without the
+          // other. `memberCount` on the public index is deliberately no longer
+          // written here: only the owner may write that node, and the live
+          // count is derived from this member map when the Discover list is
+          // read — see `getPublicSessions`.
+          await _onDatabase(
+            () => _database!.ref().update({
+              'sessions/$sessionId/members/$userId': newMember.toMap(),
+              'users/$userId/sessions/$sessionId': true,
+            }),
+          );
         }
       }
 
@@ -254,44 +319,42 @@ class SessionService {
   /// Leave a session
   Future<void> leaveSession({required String sessionId}) async {
     try {
+      await _ensureInitialized();
+
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) throw StateError('User not authenticated');
-      if (!_isInitialized) throw StateError('SessionService not initialized');
 
       // Stop presence heartbeat
       _stopPresenceHeartbeat(sessionId);
 
       if (_isFirebaseAvailable && _database != null) {
-        await _database!
-            .ref('sessions/$sessionId/members/$userId')
-            .remove();
-        await _database!
-            .ref('users/$userId/sessions/$sessionId')
-            .remove();
+        // Read first: once our own member node is gone there is no way left
+        // to tell whether we were the owner.
+        final sessionSnap = await _onDatabase(
+          () => _database!.ref('sessions/$sessionId').get(),
+        );
 
-        // Read the session back *after* our removal, so memberCount below is
-        // the authoritative post-leave count. Nothing else maintains that
-        // counter, so without this the Discover card drifts upward forever.
-        final sessionSnap =
-            await _database!.ref('sessions/$sessionId').get();
+        final updates = <String, Object?>{
+          'sessions/$sessionId/members/$userId': null,
+          'users/$userId/sessions/$sessionId': null,
+        };
+
         if (sessionSnap.exists) {
           final session = SharedSession.fromMap(
               Map<String, dynamic>.from(sessionSnap.value as Map));
 
-          if (session.isPublic) {
-            await _database!
-                .ref('publicSessions/$sessionId/memberCount')
-                .set(session.memberCount);
-          }
-
-          // If owner left, mark session as inactive and remove from public index
           if (session.ownerId == userId) {
-            await _database!
-                .ref('sessions/$sessionId/isActive')
-                .set(false);
-            await _database!.ref('publicSessions/$sessionId').remove();
+            // The owner leaving ends the session and delists it from Discover.
+            updates['sessions/$sessionId/isActive'] = false;
+            updates['publicSessions/$sessionId'] = null;
           }
         }
+
+        // A single atomic write. The previous version deleted our member node
+        // twice, and it no longer touches the public `memberCount`: only the
+        // owner may write that node, and the live count is derived from the
+        // member map when the Discover list is read — see `getPublicSessions`.
+        await _onDatabase(() => _database!.ref().update(updates));
       }
 
       _sessionCache.remove(sessionId);
@@ -319,9 +382,10 @@ class SessionService {
         ProductivityPointsService.sharedSessionCompletionPoints,
   }) async {
     try {
+      await _ensureInitialized();
+
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) throw StateError('User not authenticated');
-      if (!_isInitialized) throw StateError('SessionService not initialized');
 
       final session = await getSession(sessionId);
       if (session == null) throw StateError('Session not found');
@@ -341,15 +405,17 @@ class SessionService {
 
       if (_isFirebaseAvailable && _database != null) {
         // Written before the points award so a failure in the award path
-        // still leaves the session correctly marked finished, rather than
-        // hanging open.
-        await _database!.ref('sessions/$sessionId').update({
-          'isActive': false,
-          'completedAt': completedAt.toIso8601String(),
-        });
-        if (session.isPublic) {
-          await _database!.ref('publicSessions/$sessionId').remove();
-        }
+        // still leaves the session correctly marked finished rather than
+        // hanging open. Marking it finished and delisting it from Discover
+        // are one write, so a public session can never linger in
+        // `publicSessions` after it has been completed.
+        await _onDatabase(
+          () => _database!.ref().update({
+            'sessions/$sessionId/isActive': false,
+            'sessions/$sessionId/completedAt': completedAt.toIso8601String(),
+            if (session.isPublic) 'publicSessions/$sessionId': null,
+          }),
+        );
       }
 
       _stopPresenceHeartbeat(sessionId);
@@ -411,11 +477,15 @@ class SessionService {
   /// The cache is now only a fallback for when RTDB is unavailable.
   Future<SharedSession?> getSession(String sessionId) async {
     try {
+      await _ensureInitialized();
+
       if (!_isFirebaseAvailable || _database == null) {
         return _sessionCache[sessionId];
       }
 
-      final snapshot = await _database!.ref('sessions/$sessionId').get();
+      final snapshot = await _onDatabase(
+        () => _database!.ref('sessions/$sessionId').get(),
+      );
       if (!snapshot.exists) {
         _sessionCache.remove(sessionId);
         return null;
@@ -439,12 +509,15 @@ class SessionService {
   /// Get sessions the current user belongs to
   Future<List<SharedSession>> getUserSessions() async {
     try {
+      await _ensureInitialized();
+
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) return [];
       if (!_isFirebaseAvailable || _database == null) return [];
 
-      final snapshot =
-          await _database!.ref('users/$userId/sessions').get();
+      final snapshot = await _onDatabase(
+        () => _database!.ref('users/$userId/sessions').get(),
+      );
       if (!snapshot.exists) return [];
 
       final sessionIds =
@@ -470,23 +543,56 @@ class SessionService {
   /// Get public sessions (for join-by-browse)
   Future<List<Map<String, dynamic>>> getPublicSessions({int limit = 30}) async {
     try {
+      await _ensureInitialized();
+
       if (!_isFirebaseAvailable || _database == null) return [];
 
-      final snapshot = await _database!
-          .ref('publicSessions')
-          .limitToFirst(limit)
-          .get();
+      final snapshot = await _onDatabase(
+        () => _database!.ref('publicSessions').limitToFirst(limit).get(),
+      );
       if (!snapshot.exists) return [];
 
       final raw = Map<String, dynamic>.from(snapshot.value as Map);
-      return raw.entries.map((e) {
+      final sessions = raw.entries.map((e) {
         final data = Map<String, dynamic>.from(e.value as Map);
         data['id'] = e.key;
         return data;
       }).toList();
+
+      // `publicSessions/{id}/memberCount` only holds the value written when
+      // the session was created — the rules let nobody but the owner write
+      // that node, so it cannot track members joining and leaving. Replace it
+      // with the authoritative count taken from each session's member map.
+      await Future.wait(sessions.map(_attachLiveMemberCount));
+      return sessions;
     } catch (e) {
       debugPrint('SessionService: Error getting public sessions: $e');
       return [];
+    }
+  }
+
+  /// Replaces an entry's stored `memberCount` with the live count read from
+  /// `sessions/{id}/members`.
+  ///
+  /// The stored value is only a fallback: it is written once when the session
+  /// is created and the rules deliberately stop anyone but the owner from
+  /// updating it, so it would otherwise drift as members join and leave.
+  Future<void> _attachLiveMemberCount(Map<String, dynamic> entry) async {
+    final sessionId = entry['id'] as String?;
+    if (sessionId == null || _database == null) return;
+
+    try {
+      final snapshot = await _database!
+          .ref('sessions/$sessionId/members')
+          .get()
+          .timeout(_networkTimeout);
+      final members = snapshot.value;
+      if (members is Map) {
+        entry['memberCount'] = members.length;
+      }
+    } catch (e) {
+      debugPrint(
+          'SessionService: member count lookup failed for $sessionId: $e');
     }
   }
 
@@ -525,12 +631,14 @@ class SessionService {
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null || !_isFirebaseAvailable || _database == null) return;
 
-      await _database!
-          .ref('sessions/$sessionId/members/$userId')
-          .update({
-        'lastActive': DateTime.now().toIso8601String(),
-        'isActive': true,
-      });
+      await _onDatabase(
+        () => _database!
+            .ref('sessions/$sessionId/members/$userId')
+            .update({
+          'lastActive': DateTime.now().toIso8601String(),
+          'isActive': true,
+        }),
+      );
     } catch (e) {
       debugPrint('SessionService: Error updating presence: $e');
     }
@@ -610,4 +718,19 @@ class SessionService {
       'heartbeats: ${_presenceHeartbeatTimers.length})';
 
   bool get isReady => _isInitialized;
+}
+
+/// A shared-session failure whose message is already written for the user.
+///
+/// Thrown for the cases this service can describe precisely (unreachable
+/// server, session not found, session full). Anything else — most importantly
+/// Firebase's own `permission-denied` — propagates as-is so the UI layer can
+/// recognise it and decide what to say.
+class SessionException implements Exception {
+  final String message;
+
+  const SessionException(this.message);
+
+  @override
+  String toString() => message;
 }

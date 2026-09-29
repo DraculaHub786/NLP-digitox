@@ -9,6 +9,7 @@
 // This is the piece that makes "download" actually produce a file — the old
 // Export My Data button only ever showed a SnackBar.
 
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:nlp_digitox/models/ai_analysis_models.dart';
@@ -33,6 +34,16 @@ class PdfReportGenerator {
   /// Height of the tallest possible bar in the daily chart.
   static const double _barChartHeight = 96;
 
+  /// Fixed height for a row of stat cards.
+  ///
+  /// The stat rows use [pw.CrossAxisAlignment.stretch] so every card in a row
+  /// ends up the same height. Inside a [pw.MultiPage] the incoming vertical
+  /// constraint is unbounded, and `stretch` therefore hands each card
+  /// `maxHeight: Infinity` — which fails the entire document with "Widget won't
+  /// fit into the page as its height (Infinity) exceed a page height". Bounding
+  /// the row first is what makes `stretch` safe here.
+  static const double _statCardHeight = 72;
+
   /// Vertical space under the bars reserved for the day labels.
   static const double _axisHeight = 14;
 
@@ -43,7 +54,13 @@ class PdfReportGenerator {
   // ── Entry point ────────────────────────────────────────────────────
 
   /// Builds the full report and returns the raw PDF bytes.
-  static Future<Uint8List> generate(WellbeingReportData data) async {
+  ///
+  /// Page 1 shows the overall picture for the widest collected window; page 2
+  /// holds the weekly and monthly breakdowns. Each period section prints an
+  /// explicit "not enough data yet" box rather than being skipped, so the
+  /// downloaded file always matches what the screen promised.
+  static Future<Uint8List> generate(ReportBundle bundle) async {
+    final overview = bundle.overview;
     final document = pw.Document(
       title: 'Digital Wellbeing Report',
       author: 'NLP digitox',
@@ -59,7 +76,7 @@ class PdfReportGenerator {
           bold: pw.Font.helveticaBold(),
         ),
         header: (context) =>
-            context.pageNumber == 1 ? _header(data) : pw.SizedBox(),
+            context.pageNumber == 1 ? _header(overview) : pw.SizedBox(),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
           child: pw.Text(
@@ -68,27 +85,206 @@ class PdfReportGenerator {
           ),
         ),
         build: (context) => [
+          // ── Page 1: overall picture ──
           pw.SizedBox(height: 14),
-          _statCardsRow(data),
+          _statCardsRow(overview),
           pw.SizedBox(height: 22),
-          _dailyUsageChart(data),
+          _performanceChart(overview),
           pw.SizedBox(height: 18),
-          _goalComparisonSection(data),
+          _goalComparisonSection(overview),
           pw.SizedBox(height: 22),
-          _topAppsSection(data),
-          pw.SizedBox(height: 22),
-          if (data.moodHistory.isNotEmpty) ...[
-            _moodSection(data),
-            pw.SizedBox(height: 22),
-          ],
-          _focusSection(data),
-          pw.SizedBox(height: 22),
-          _insightsSection(data),
+          _topAppsSection(overview),
+
+          // ── Page 2: weekly + monthly ──
+          pw.NewPage(),
+          _periodSection(
+            title: 'Weekly Report',
+            subtitle: 'Last 7 days',
+            data: bundle.weekly,
+            enoughData: bundle.hasWeekly,
+            minDays: ReportBundle.minWeeklyDays,
+          ),
+          pw.SizedBox(height: 26),
+          _periodSection(
+            title: 'Monthly Report',
+            subtitle: 'Last 30 days',
+            data: bundle.monthly,
+            enoughData: bundle.hasMonthly,
+            minDays: ReportBundle.minMonthlyDays,
+            narrative: bundle.monthlyNarrative,
+            // Mood and focus data are only meaningful over a full month, and
+            // printing them twice would push the weekly report onto its own
+            // page for no benefit.
+            showMoodAndFocus: true,
+          ),
         ],
       ),
     );
 
     return document.save();
+  }
+
+  // ── Weekly / monthly section (page 2) ───────────────────────────────
+
+  static pw.Widget _periodSection({
+    required String title,
+    required String subtitle,
+    required WellbeingReportData data,
+    required bool enoughData,
+    required int minDays,
+    String? narrative,
+    bool showMoodAndFocus = false,
+  }) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        _sectionTitle(title),
+        pw.SizedBox(height: 2),
+        pw.Text(subtitle, style: const pw.TextStyle(fontSize: 9, color: _grey)),
+        pw.SizedBox(height: 10),
+        if (!enoughData)
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(16),
+            decoration: pw.BoxDecoration(
+              color: _card,
+              borderRadius: pw.BorderRadius.circular(10),
+            ),
+            child: pw.Text(
+              'Not enough data yet - this report needs at least $minDays '
+              'days of tracked usage.',
+              style: const pw.TextStyle(fontSize: 10, color: _grey),
+            ),
+          )
+        else ...[
+          _statCardsRow(data),
+          if (showMoodAndFocus) ...[
+            pw.SizedBox(height: 18),
+            _focusSection(data),
+            pw.SizedBox(height: 18),
+            _moodSection(data),
+          ],
+          pw.SizedBox(height: 18),
+          _insightsSection(data),
+          if (narrative != null && narrative.trim().isNotEmpty) ...[
+            pw.SizedBox(height: 12),
+            _sectionTitle('AI Summary'),
+            pw.SizedBox(height: 6),
+            pw.Text(
+              _plainText(narrative),
+              style: const pw.TextStyle(fontSize: 9.5, lineSpacing: 2),
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+
+  /// Flattens the stored AI report, which is markdown, into text the PDF font
+  /// can actually draw.
+  ///
+  /// The built-in Helvetica base font has no glyphs for markdown punctuation or
+  /// for characters outside Latin-1, which would otherwise render as blanks or
+  /// throw during content encoding.
+  static String _plainText(String markdown, {int maxChars = 1400}) {
+    var text = markdown
+        .replaceAll(RegExp(r'^#{1,6}\s*', multiLine: true), '')
+        .replaceAll(RegExp(r'[*_`>]'), '')
+        .replaceAll(RegExp(r'^\s*[-•]\s+', multiLine: true), '- ')
+        .replaceAll(RegExp(r'[^\x00-\xFF]'), '')
+        .trim();
+    if (text.length > maxChars) {
+      text = '${text.substring(0, maxChars).trimRight()}...';
+    }
+    return text;
+  }
+
+  // ── Screen-time trend line chart ────────────────────────────────────
+
+  /// A line chart of daily screen time against the goal, matching the trend
+  /// shown on the in-app analysis screen.
+  ///
+  /// A line needs two points, so a single tracked day (or none) falls back to
+  /// [_dailyUsageChart], which already has its own empty state.
+  static pw.Widget _performanceChart(WellbeingReportData data) {
+    final entries = data.dailyScreenTimeSec.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    if (entries.length < 2) return _dailyUsageChart(data);
+
+    final dayCount = entries.length;
+    final hours = [for (final entry in entries) entry.value / 3600.0];
+    final goalHours = data.dailyGoalSec / 3600.0;
+    final yMax = math.max(
+      1,
+      math.max(hours.reduce(math.max), goalHours).ceil(),
+    );
+    final yStep = math.max(1, (yMax / 5).ceil());
+    final xStep = math.max(1, (dayCount / 7).ceil());
+
+    final xLabels = <int>{
+      for (var i = 0; i < dayCount; i += xStep) i,
+      dayCount - 1,
+    }.toList()
+      ..sort();
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('Screen Time Trend'),
+        pw.SizedBox(height: 5),
+        pw.Row(
+          children: [
+            _legendDot(_accent, 'Daily screen time'),
+            pw.SizedBox(width: 12),
+            _legendDot(_win, 'Goal'),
+          ],
+        ),
+        pw.SizedBox(height: 10),
+        pw.SizedBox(
+          height: 170,
+          child: pw.Chart(
+            grid: pw.CartesianGrid(
+              xAxis: pw.FixedAxis<num>(
+                xLabels,
+                format: (value) => _dayLabel(entries[value.toInt()].key),
+                textStyle: const pw.TextStyle(fontSize: 7, color: _grey),
+              ),
+              yAxis: pw.FixedAxis<num>(
+                [for (var v = 0; v <= yMax; v += yStep) v],
+                format: (value) => '${value.toInt()}h',
+                divisions: true,
+                divisionsColor: _track,
+                textStyle: const pw.TextStyle(fontSize: 7, color: _grey),
+              ),
+            ),
+            datasets: [
+              pw.LineDataSet<pw.PointChartValue>(
+                color: _accent,
+                isCurved: true,
+                drawSurface: true,
+                surfaceOpacity: 0.12,
+                drawPoints: true,
+                pointSize: 2.5,
+                data: [
+                  for (var i = 0; i < dayCount; i++)
+                    pw.PointChartValue(i.toDouble(), hours[i]),
+                ],
+              ),
+              pw.LineDataSet<pw.PointChartValue>(
+                color: _win,
+                drawPoints: false,
+                lineWidth: 1,
+                data: [
+                  pw.PointChartValue(0, goalHours),
+                  pw.PointChartValue((dayCount - 1).toDouble(), goalHours),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   // ── Header ─────────────────────────────────────────────────────────
@@ -171,7 +367,14 @@ class PdfReportGenerator {
     );
   }
 
-  static pw.Widget _statCardsRow(WellbeingReportData data) {
+  static pw.Widget _statCardsRow(WellbeingReportData data) => pw.SizedBox(
+        height: _statCardHeight,
+        child: _statCardRow(data),
+      );
+
+  /// The card row itself. Kept separate from [_statCardsRow] so the latter can
+  /// bound its height — see [_statCardHeight].
+  static pw.Widget _statCardRow(WellbeingReportData data) {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
@@ -603,24 +806,30 @@ class PdfReportGenerator {
             style: const pw.TextStyle(fontSize: 10, color: _grey),
           )
         else
-          pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-            children: [
-              pw.Expanded(
-                child: _statCard('Completed', '${data.focusSessionsCompleted}'),
-              ),
-              pw.SizedBox(width: 9),
-              pw.Expanded(
-                child: _statCard('Ended Early', '${data.focusSessionsFailed}'),
-              ),
-              pw.SizedBox(width: 9),
-              pw.Expanded(
-                child: _statCard(
-                  'Focused Time',
-                  '${_hoursFromMinutes(data.focusMinutesTotal)}h',
+          // Height is bounded before stretching — see [_statCardHeight].
+          pw.SizedBox(
+            height: _statCardHeight,
+            child: pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+              children: [
+                pw.Expanded(
+                  child:
+                      _statCard('Completed', '${data.focusSessionsCompleted}'),
                 ),
-              ),
-            ],
+                pw.SizedBox(width: 9),
+                pw.Expanded(
+                  child:
+                      _statCard('Ended Early', '${data.focusSessionsFailed}'),
+                ),
+                pw.SizedBox(width: 9),
+                pw.Expanded(
+                  child: _statCard(
+                    'Focused Time',
+                    '${_hoursFromMinutes(data.focusMinutesTotal)}h',
+                  ),
+                ),
+              ],
+            ),
           ),
       ],
     );

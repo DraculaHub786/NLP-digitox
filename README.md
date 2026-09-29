@@ -118,15 +118,17 @@ Requires **Android 8.0 (API 26)** or higher on the target device. iOS isn't curr
 
 ### 🔑 API Key & Cloud Setup (optional, only for AI/cloud features)
 
-The app runs and builds fine with zero configuration — you only need this if you want the AI chatbot or profile picture upload working locally. NLP-Digitox uses **two separate mechanisms**, depending on the service:
+The app runs and builds fine with zero configuration — you only need this if you want the AI chatbot or profile picture upload working locally. Every key is resolved through **one mechanism**: `lib/config/api_keys.dart`, which reads a `--dart-define` first, then the bundled `.env`, and only then a literal in that file.
 
-**1. Groq / Gemini** (AI chatbot, sentiment analysis) — compiled in as Dart constants, not read from `.env`:
+**1. Groq / Gemini** (AI chatbot, sentiment analysis, nightly scoring, monthly report):
 ```bash
-cp lib/config/api_keys_template.dart lib/config/api_keys.dart
+cp .env.example .env
+# fill in GROQ_API_KEY   (free key: https://console.groq.com/keys)
+# optionally GEMINI_API_KEY (https://aistudio.google.com/apikey)
 ```
-Then open `lib/config/api_keys.dart` and paste in your keys — a free Groq key from [console.groq.com/keys](https://console.groq.com/keys), and optionally a Gemini key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey). The file is gitignored; your keys never get committed. Run normally with `flutter run` — no extra flags. Without a key, the chatbot just shows "not configured" and everything else works as usual.
+`.env` is bundled as an app asset, so plain `flutter run` is enough — no extra flags. `lib/config/api_keys.dart` is committed and holds **no secrets by design**; never paste real keys into it. Without a key, the chatbot just shows "not configured" and everything else works as usual.
 
-**2. Cloudinary** (profile picture uploads) — injected at build time via `--dart-define-from-file`:
+**2. Cloudinary** (profile picture uploads) — the same `.env`, and for release builds pass it at compile time via `--dart-define-from-file`:
 ```bash
 cp .env.example .env
 # fill in CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, etc.

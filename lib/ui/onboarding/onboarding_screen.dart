@@ -88,7 +88,8 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
         final haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
             perms.haveDisplayOverlayPermission &&
             perms.haveAlarmsPermission &&
-            perms.haveNotificationPermission;
+            perms.haveNotificationPermission &&
+            perms.haveAccessibilityPermission;
 
         if (!haveAllEssentialPermissions) return;
         _goToQuizPage();
@@ -163,7 +164,8 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     final haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
         perms.haveDisplayOverlayPermission &&
         perms.haveAlarmsPermission &&
-        perms.haveNotificationPermission;
+        perms.haveNotificationPermission &&
+        perms.haveAccessibilityPermission;
     // Forward navigation is blocked while sitting on the PermissionsPage
     // until every essential permission is granted — this is what makes
     // granting permissions mandatory instead of just suggested.

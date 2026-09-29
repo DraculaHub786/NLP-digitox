@@ -8,12 +8,41 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-/// Reads a config value from compile-time constant (production) with fallback
-/// to runtime .env (development).
+/// Reads a config value from a compile-time constant (production) with a
+/// fallback to the runtime `.env` asset (development).
+///
+/// Two fixes over the previous implementation:
+///
+/// * `const compileTime = String.fromEnvironment;` then `compileTime(key)`
+///   never worked. `String.fromEnvironment` is only substituted when invoked
+///   in a *const* context, so a tear-off called with a runtime `key` always
+///   returned `''` and the `--dart-define` path was dead. Each supported key
+///   now gets its own const read.
+/// * `dotenv.env` throws a `StateError` when the file has not been loaded —
+///   which is exactly what happened in the background isolate. A missing
+///   environment now reads as "no value".
 String _cfg(String key) {
-  const compileTime = String.fromEnvironment;
-  final v = compileTime(key);
-  return v.isNotEmpty ? v : (dotenv.env[key] ?? '');
+  const cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME');
+  const uploadPreset = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET');
+  const cleanupWebhookUrl =
+      String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_URL');
+  const cleanupWebhookSecret =
+      String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
+
+  final compileTime = switch (key) {
+    'CLOUDINARY_CLOUD_NAME' => cloudName,
+    'CLOUDINARY_UPLOAD_PRESET' => uploadPreset,
+    'CLOUDINARY_CLEANUP_WEBHOOK_URL' => cleanupWebhookUrl,
+    'CLOUDINARY_CLEANUP_WEBHOOK_SECRET' => cleanupWebhookSecret,
+    _ => '',
+  };
+  if (compileTime.isNotEmpty) return compileTime;
+
+  try {
+    return dotenv.env[key] ?? '';
+  } catch (_) {
+    return '';
+  }
 }
 
 /// Reads/writes the user's profile picture.

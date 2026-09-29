@@ -142,3 +142,43 @@ class WellbeingReportData {
   /// The configured goal expressed in whole hours, one decimal.
   String get goalHoursLabel => (dailyGoalSec / 3600).toStringAsFixed(1);
 }
+
+/// Everything the exported wellbeing PDF needs, already gathered.
+///
+/// Page 1 of the document renders [overview]; page 2 renders [weekly] and
+/// [monthly] side by side. This exists so the screen can collect every window
+/// in one place and hand the generator a single object, instead of the
+/// generator re-querying the database mid-render.
+@immutable
+class ReportBundle {
+  /// Tracked days the weekly section needs before it is worth showing.
+  static const int minWeeklyDays = 3;
+
+  /// Tracked days the monthly section needs before it is worth showing.
+  static const int minMonthlyDays = 10;
+
+  /// The last 7 days.
+  final WellbeingReportData weekly;
+
+  /// The last 30 days.
+  final WellbeingReportData monthly;
+
+  /// The stored AI narrative for the current month (markdown), when one has
+  /// been generated. Included in the monthly section of the PDF.
+  final String? monthlyNarrative;
+
+  const ReportBundle({
+    required this.weekly,
+    required this.monthly,
+    this.monthlyNarrative,
+  });
+
+  /// Page 1 shows the widest window that was collected.
+  WellbeingReportData get overview => monthly;
+
+  /// Whether the weekly section has enough data to be worth printing.
+  bool get hasWeekly => weekly.trackedDays >= minWeeklyDays;
+
+  /// Whether the monthly section has enough data to be worth printing.
+  bool get hasMonthly => monthly.trackedDays >= minMonthlyDays;
+}

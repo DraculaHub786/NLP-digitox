@@ -60,9 +60,16 @@ app.*.map.json
 .env.*
 !.env.example
 
-# Real API keys live here (copied from api_keys_template.dart).
-# NEVER commit this file - it holds actual secrets.
-lib/config/api_keys.dart
+# Android keystore and signing (gitignored — must exist locally / in CI secrets)
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
+# NOTE: lib/config/api_keys.dart is deliberately COMMITTED.
+# It is the resolver that reads keys from .env / --dart-define, and the AI
+# services import it, so it must exist in a fresh clone and in CI. It holds no
+# secrets by design - keep real keys in .env (ignored above) or pass them with
+# --dart-define. Only genuinely secret-bearing files are ignored here:
 /api_keys.dart
 **/api_keys_secret.dart
 

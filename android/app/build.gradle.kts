@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -33,15 +36,23 @@ android {
         viewBinding = true
     }
 
-    // Release signing config - using local keystore
-    val releaseStoreFile = file("C:/Users/afjal/Documents/Final destination/NLP-digitox/android/upload-keystore.jks")
+    // Release signing — credentials come from android/key.properties,
+    // which is gitignored and must exist locally / in CI secrets.
+    val keystorePropertiesFile = rootProject.file("key.properties")
+    val keystoreProperties = Properties()
+    val hasKeystoreProperties = keystorePropertiesFile.exists()
+    if (hasKeystoreProperties) {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    }
 
     signingConfigs {
         create("release") {
-            keyAlias = "upload"
-            keyPassword = "android"
-            storeFile = releaseStoreFile
-            storePassword = "android"
+            if (hasKeystoreProperties) {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
         }
     }
 
@@ -51,7 +62,16 @@ android {
                 debugSymbolLevel = "full"
             }
             resValue("string", "app_name", "NLP digitox")
-            signingConfig = signingConfigs.getByName("release")
+            // Fail loudly and early instead of silently producing an
+            // unsigned/misconfigured release build when key.properties is missing.
+            signingConfig = if (hasKeystoreProperties) {
+                signingConfigs.getByName("release")
+            } else {
+                throw GradleException(
+                    "android/key.properties not found — required for a release build. " +
+                    "See README for setup, or run a debug build instead."
+                )
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

@@ -4,8 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/config/env_loader.dart';
 import 'package:nlp_digitox/core/services/bg_executor_service.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
@@ -17,6 +17,13 @@ import 'package:nlp_digitox/digitox_app.dart';
 @pragma('vm:entry-point')
 Future<void> initBgExecutorService() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  /// The midnight job scores yesterday's chats through the Groq API, so this
+  /// isolate needs the keys too. Asset access is not guaranteed here (a cold
+  /// background start has no root isolate token), so this is best-effort:
+  /// EnvLoader never throws, and ApiKeys falls back to any --dart-define.
+  await EnvLoader.load();
+
   await BgExecutorService.instance.init();
 }
 
@@ -24,14 +31,12 @@ Future<void> initBgExecutorService() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// Load .env before anything else (provides Cloudinary, API keys, etc.)
-  /// Non-blocking: in release builds we use --dart-define-from-file instead,
-  /// so .env won't be bundled. Ignore missing file errors.
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (e) {
-    debugPrint('dotenv not loaded (expected in release): $e');
-  }
+  /// Load .env before anything else (provides Cloudinary, API keys, etc.).
+  /// .env IS bundled (see pubspec.yaml assets) and supplies the Groq key in
+  /// debug builds; release builds may instead pass --dart-define. Either way
+  /// EnvLoader reports failure instead of throwing, and ApiKeys resolves from
+  /// whichever source is present.
+  await EnvLoader.load();
 
   /// Firebase and the native method channel don't depend on each other — run together.
   /// This avoids a serialized startup where each await blocks the next.

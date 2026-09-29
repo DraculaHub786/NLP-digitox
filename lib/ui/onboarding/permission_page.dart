@@ -128,7 +128,8 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
               final allGranted = permissions.haveUsageAccessPermission &&
                   permissions.haveDisplayOverlayPermission &&
                   permissions.haveAlarmsPermission &&
-                  permissions.haveNotificationPermission;
+                  permissions.haveNotificationPermission &&
+                  permissions.haveAccessibilityPermission;
 
               if (_isRequesting) return const CircularProgressIndicator();
 

@@ -81,7 +81,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
         perms.haveDisplayOverlayPermission &&
         perms.haveAlarmsPermission &&
-        perms.haveNotificationPermission;
+        perms.haveNotificationPermission &&
+        perms.haveAccessibilityPermission;
 
     // Q-8: Use PersonaService as the authoritative quiz-completion check.
     // If the persona is corrupted (flag true but key missing), isQuizCompleted()

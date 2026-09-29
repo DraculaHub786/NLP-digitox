@@ -1,17 +1,18 @@
-rules_version = '2';
+rules_version = "2";
 service cloud.firestore {
   match /databases/{database}/documents {
     
     // User data access rules
     match /users/{userId} {
-      // Allow users to read their own data fully, and other users' public profile info (username, avatar)
-      // for leaderboard display. Write access remains restricted to the document owner.
-      allow read: if request.auth != null;
+      // Allow users to read their own data fully. Write access remains restricted to the document owner.
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if request.auth != null && request.auth.uid == userId
-        && (!('profileImageUrl' in request.resource.data)
+        && (!("profileImageUrl" in request.resource.data)
             || request.resource.data.profileImageUrl == null
             || request.resource.data.profileImageUrl
-                 .matches('https://res\\.cloudinary\\.com/ucarrdxh/.*'));
+                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
+            || request.resource.data.profileImageUrl
+                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
       
       // Habits subcollection
       match /habits/{habitId} {
@@ -52,7 +53,7 @@ service cloud.firestore {
     match /shared_sessions/{sessionId} {
       allow read: if request.auth != null && 
         (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null ||
-         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.visibility == 'public');
+         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.visibility == "public");
       
       allow write: if request.auth != null &&
         (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.owner == request.auth.uid ||
@@ -65,7 +66,7 @@ service cloud.firestore {
     match /groups/{groupId} {
       allow read: if request.auth != null && 
         (get(/databases/$(database)/documents/groups/$(groupId)).data.members[request.auth.uid] != null ||
-         get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == 'public');
+         get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == "public");
       
       allow write: if request.auth != null &&
         get(/databases/$(database)/documents/groups/$(groupId)).data.owner == request.auth.uid;
@@ -77,16 +78,17 @@ service cloud.firestore {
     match /leaderboard/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId
-        && (!('profileImageUrl' in request.resource.data)
+        && (
+             !exists(/databases/$(database)/documents/leaderboard/$(userId))
+             || request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(["profileImageUrl", "profileImagePublicId", "username"])
+           )
+        && (!("profileImageUrl" in request.resource.data)
             || request.resource.data.profileImageUrl == null
             || request.resource.data.profileImageUrl
-                 .matches('https://res\\.cloudinary\\.com/ucarrdxh/.*'));
-      
-      // Badges subcollection - only n8n (service account) can write
-      match /badges/{badgeId} {
-        allow read: if request.auth != null;
-        allow write: if false; // only n8n (via REST + API key) writes this
-      }
+                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
+            || request.resource.data.profileImageUrl
+                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
     }
     
     // Leaderboard config - readable by all authenticated; only service accounts can write
@@ -105,7 +107,7 @@ service cloud.firestore {
     // so only the owner can read their own badges. Write is service-account only (n8n).
     match /badges/{badgeId} {
       allow read: if request.auth != null &&
-        badgeId.matches(request.auth.uid + '_.*');
+        badgeId.matches(request.auth.uid + "_.*");
       allow write: if false; // n8n service account only
     }
     
@@ -118,13 +120,25 @@ service cloud.firestore {
     // Weekly leaderboard - all authenticated users can read; each user writes only their own doc
     match /weekly_leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && (!("profileImageUrl" in request.resource.data)
+            || request.resource.data.profileImageUrl == null
+            || request.resource.data.profileImageUrl
+                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
+            || request.resource.data.profileImageUrl
+                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
     }
     
     // Monthly leaderboard - same pattern
     match /monthly_leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && (!("profileImageUrl" in request.resource.data)
+            || request.resource.data.profileImageUrl == null
+            || request.resource.data.profileImageUrl
+                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
+            || request.resource.data.profileImageUrl
+                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
     }
   }
 }
