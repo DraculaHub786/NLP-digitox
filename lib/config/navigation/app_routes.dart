@@ -71,6 +71,11 @@ class AppRoutes {
     onboardingPath: (context) => OnboardingScreen(
           isOnboardingDone:
               context.resolveParam<bool>("isOnboardingDone") ?? false,
+          // Set by the splash when an already-onboarded user is missing an OS
+          // permission: render the permission screen alone, never the intro
+          // slides or the persona quiz.
+          permissionsOnly:
+              context.resolveParam<bool>("permissionsOnly") ?? false,
         ),
 
     /// Change logs screen

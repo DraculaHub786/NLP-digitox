@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
+import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/features/shared_sessions/session_error_message.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_sheet_scaffold.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
@@ -117,6 +118,8 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
                 enabled: !isBusy,
                 onChanged: (value) => setState(() => _isPublic = value),
               ),
+              const SizedBox(height: Spacing.md),
+              const _CapacityTile(),
               const SizedBox(height: Spacing.lg),
               SizedBox(
                 width: double.infinity,
@@ -167,6 +170,63 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// States the member cap before the session exists.
+///
+/// The cap is fixed and enforced on the server, so this reports it rather than
+/// offering a control that could disagree with `database.rules.json`.
+class _CapacityTile extends StatelessWidget {
+  const _CapacityTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    const cap = SessionLimits.maxMembersPerSession;
+
+    return Container(
+      padding: const EdgeInsets.all(Spacing.md),
+      decoration: BoxDecoration(
+        color: colorScheme.secondary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(Radii.md),
+        border: Border.all(
+          color: colorScheme.secondary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            FluentIcons.people_20_filled,
+            size: 20,
+            color: colorScheme.secondary,
+          ),
+          const SizedBox(width: Spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StyledText(
+                  'Up to $cap people',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                StyledText(
+                  'Sessions hold $cap members, you included, to keep the timer '
+                  'and focus state in sync.',
+                  fontSize: 12,
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                  height: 1.35,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

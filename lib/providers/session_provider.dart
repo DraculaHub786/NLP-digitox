@@ -43,12 +43,15 @@ class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession?>> {
   // is gated on `createState.isLoading`.
   CreateSessionNotifier(this._sessionService) : super(const AsyncValue.data(null));
 
+  /// [maxMembers] is a request, not a guarantee: the service and the server
+  /// rules both clamp it to
+  /// [SessionLimits.maxMembersPerSession]. Leaving it null asks for the cap.
   Future<void> createSession({
     required String name,
     String? description,
     String? theme,
     bool isPublic = false,
-    int maxMembers = 0,
+    int? maxMembers,
     SessionSettings? settings,
   }) async {
     state = const AsyncValue.loading();

@@ -10,7 +10,13 @@
           ".validate": "(!data.exists() && newData.val() === auth.uid) || (data.exists() && data.val() === auth.uid && newData.val() === data.val())"
         },
 
+        "maxMembers": {
+          ".validate": "(!data.exists() && newData.isNumber() && newData.val() >= 1 && newData.val() <= 10) || (data.exists() && newData.val() === data.val())"
+        },
+
         "members": {
+          ".validate": "!newData.exists() || newData.numChildren() <= 10",
+
           "$memberId": {
             ".write": "auth != null && $memberId === auth.uid",
             ".validate": "newData.hasChildren(['userId', 'displayName', 'joinedAt', 'isActive', 'lastActive'])"

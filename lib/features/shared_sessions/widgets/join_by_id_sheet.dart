@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
+import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/features/shared_sessions/session_error_message.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_sheet_scaffold.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
@@ -143,7 +144,9 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
             Expanded(
               child: StyledText(
                 'Ask the session owner for the ID, or find an open group in '
-                'Discover.',
+                'Discover. Rooms hold up to '
+                '${SessionLimits.maxMembersPerSession} people, so a full one '
+                'cannot be joined.',
                 fontSize: 12,
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
                 height: 1.35,

@@ -28,10 +28,18 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
   /// Flag to track if initialization is complete
   bool _isInitialized = false;
 
+  /// Whether [dispose] has already run.
+  ///
+  /// `StateNotifier.dispose()` throws if called a second time, but teardown can
+  /// plausibly reach it twice (a double pop, or a provider scope torn down
+  /// after the owning widget). Disposal has to be a safe no-op the second time.
+  bool _isDisposed = false;
+
   /// Initialize permissions on startup
   Future<void> _initializePermissions() async {
     if (_isInitialized) return;
     _isInitialized = true;
+    if (!mounted) return;
     await fetchPermissionsStatus();
   }
 
@@ -96,11 +104,16 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
         ),
       );
 
+      // The native round-trips above can outlive this notifier (e.g. the owning
+      // widget was torn down mid-fetch); both assigning and reading `state`
+      // after disposal throws.
+      if (!mounted) return cache;
+
       state = cache;
       return cache;
     } catch (e) {
       debugPrint('PermissionNotifier: Error fetching permissions: $e');
-      return state;
+      return mounted ? state : const PermissionsModel();
     }
   }
 
@@ -117,22 +130,29 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
     }
   }
 
-  /// Removes the lifecycle observer when the widget is disposed.
+  /// Removes the lifecycle observer and releases the notifier.
+  ///
+  /// Idempotent: a second call is a no-op instead of throwing.
   @override
   void dispose() {
-    super.dispose();
+    if (_isDisposed) return;
+    _isDisposed = true;
+
     WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   /// Handles permission updates when the app resumes from background and when window focus changes.
   @override
   void didChangeAppLifecycleState(AppLifecycleState appState) async {
     if (appState != AppLifecycleState.resumed) return;
+    if (!mounted) return;
     await recheckAllPermissions();
   }
 
   /// Re-check ALL permissions when app resumes - not just the last requested one.
   Future<void> recheckAllPermissions() async {
+    if (!mounted) return;
     try {
       state = PermissionsModel(
         haveNotificationPermission: await _safeGetPermission(
@@ -199,6 +219,7 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
 
   /// Request all critical permissions at once
   Future<void> requestAllCriticalPermissions() async {
+    if (!mounted) return;
     try {
       await askNotificationPermission();
       await Future.delayed(500.ms);

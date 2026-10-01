@@ -2,6 +2,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/productivity_points_service.dart';
@@ -109,6 +110,45 @@ class SessionService {
         source.entries.where((entry) => entry.value != null),
       );
 
+  /// Reads an integer from a value that may be an `int`, a `double` (JSON
+  /// round-tripping turns whole numbers into doubles) or nothing at all.
+  static int? _asIntOrNull(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return null;
+  }
+
+  /// Turns a failed member write into the most accurate error available.
+  ///
+  /// A rejected join almost always means the session filled up between the
+  /// capacity check and the write: that check reads the member map and the
+  /// write lands afterwards, and only the server rules can see the gap. So the
+  /// session is re-read to tell the two cases apart — if there is genuinely no
+  /// room the user gets the full-session message, and if there is still room
+  /// the original error is returned untouched rather than replaced by a guess.
+  Future<Object> _translateJoinFailure(String sessionId, Object error) async {
+    try {
+      final database = _database;
+      if (database != null) {
+        final snapshot = await database
+            .ref('sessions/$sessionId')
+            .get()
+            .timeout(_networkTimeout);
+        final value = snapshot.value;
+        if (value is Map) {
+          final latest =
+              SharedSession.fromMap(Map<String, dynamic>.from(value));
+          if (latest.isFull) {
+            return SessionException(SessionLimits.fullSessionMessage);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('SessionService: join failure re-check failed: $e');
+    }
+    return error;
+  }
+
   // ---------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------
@@ -154,7 +194,7 @@ class SessionService {
     String? description,
     String? theme,
     bool isPublic = false,
-    int maxMembers = 0,
+    int? maxMembers,
     SessionSettings? settings,
   }) async {
     try {
@@ -170,6 +210,11 @@ class SessionService {
       }
 
       final deviceId = DeviceIdentityService.instance.deviceId;
+
+      // The cap is a product limit, not a caller preference: whatever was asked
+      // for is forced into range here, so no code path can create a session
+      // without a bound. `database.rules.json` enforces the same number.
+      final memberCap = SessionLimits.normalizeMaxMembers(maxMembers);
 
       // Generate a collision-safe ID from Firebase push
       String sessionId;
@@ -195,12 +240,17 @@ class SessionService {
         name: name,
         description: description,
         ownerId: userId,
-        maxMembers: maxMembers,
+        maxMembers: memberCap,
         isPublic: isPublic,
         createdAt: now,
         theme: theme,
         isActive: true,
-        settings: settings,
+        // A session always carries a settings block, even when the caller
+        // supplied none: that is what makes the group-focus action available
+        // to every member. An empty [SessionSettings] means "each member keeps
+        // their own duration and blocklist", which is the sensible default for
+        // a group created in one tap.
+        settings: settings ?? const SessionSettings(),
         members: [ownerMember],
       );
 
@@ -218,6 +268,7 @@ class SessionService {
               'name': name,
               'theme': theme,
               'memberCount': 1,
+              'maxMembers': memberCap,
               'createdAt': now.toIso8601String(),
             }),
         };
@@ -272,14 +323,14 @@ class SessionService {
           );
         }
 
-        if (session.maxMembers > 0 &&
-            session.memberCount >= session.maxMembers) {
-          throw const SessionException('This session is full.');
-        }
-
+        // Membership is tested before capacity on purpose: someone already in
+        // a full session is *returning*, not joining, and must not be turned
+        // away by the cap they help fill.
         if (session.members.any((m) => m.userId == userId)) {
           // Already in: nothing to write, but the heartbeat must still run.
           debugPrint('SessionService: User already in session');
+        } else if (session.isFull) {
+          throw SessionException(SessionLimits.fullSessionMessage);
         } else {
           final now = DateTime.now();
           final newMember = SessionMember(
@@ -297,12 +348,21 @@ class SessionService {
           // written here: only the owner may write that node, and the live
           // count is derived from this member map when the Discover list is
           // read — see `getPublicSessions`.
-          await _onDatabase(
-            () => _database!.ref().update({
-              'sessions/$sessionId/members/$userId': newMember.toMap(),
-              'users/$userId/sessions/$sessionId': true,
-            }),
-          );
+          // The capacity read above cannot be atomic with this write, so two
+          // people tapping Join in the same instant can both pass the check.
+          // The rules close that race; turn their rejection into the same
+          // message the pre-check would have produced rather than letting a
+          // bare permission-denied reach the user as "sign out and back in".
+          try {
+            await _onDatabase(
+              () => _database!.ref().update({
+                'sessions/$sessionId/members/$userId': newMember.toMap(),
+                'users/$userId/sessions/$sessionId': true,
+              }),
+            );
+          } catch (error) {
+            throw await _translateJoinFailure(sessionId, error);
+          }
         }
       }
 
@@ -559,11 +619,18 @@ class SessionService {
         return data;
       }).toList();
 
-      // `publicSessions/{id}/memberCount` only holds the value written when
-      // the session was created — the rules let nobody but the owner write
-      // that node, so it cannot track members joining and leaving. Replace it
-      // with the authoritative count taken from each session's member map.
-      await Future.wait(sessions.map(_attachLiveMemberCount));
+      // `publicSessions/{id}` only holds what was written when the session was
+      // created — the rules let nobody but the owner write that node, so it
+      // cannot track members joining and leaving, and a session created before
+      // the member cap existed carries no usable `maxMembers` at all. Normalize
+      // the cap first so every card has a denominator, then overwrite both
+      // fields from the session itself.
+      for (final entry in sessions) {
+        entry['maxMembers'] = SessionLimits.normalizeMaxMembers(
+          _asIntOrNull(entry['maxMembers']),
+        );
+      }
+      await Future.wait(sessions.map(_attachLiveCapacity));
       return sessions;
     } catch (e) {
       debugPrint('SessionService: Error getting public sessions: $e');
@@ -571,28 +638,30 @@ class SessionService {
     }
   }
 
-  /// Replaces an entry's stored `memberCount` with the live count read from
-  /// `sessions/{id}/members`.
+  /// Overwrites an entry's `memberCount` and `maxMembers` with the values read
+  /// from `sessions/{id}`.
   ///
-  /// The stored value is only a fallback: it is written once when the session
-  /// is created and the rules deliberately stop anyone but the owner from
-  /// updating it, so it would otherwise drift as members join and leave.
-  Future<void> _attachLiveMemberCount(Map<String, dynamic> entry) async {
+  /// One read of the session supplies both, so this costs the same round trip
+  /// the member-count lookup used to. If it fails the entry keeps the
+  /// normalized cap it was given and its last known count — exactly what the
+  /// card rendered before this read existed.
+  Future<void> _attachLiveCapacity(Map<String, dynamic> entry) async {
     final sessionId = entry['id'] as String?;
     if (sessionId == null || _database == null) return;
 
     try {
       final snapshot = await _database!
-          .ref('sessions/$sessionId/members')
+          .ref('sessions/$sessionId')
           .get()
           .timeout(_networkTimeout);
-      final members = snapshot.value;
-      if (members is Map) {
-        entry['memberCount'] = members.length;
-      }
+      final value = snapshot.value;
+      if (value is! Map) return;
+
+      final session = SharedSession.fromMap(Map<String, dynamic>.from(value));
+      entry['memberCount'] = session.memberCount;
+      entry['maxMembers'] = session.maxMembers;
     } catch (e) {
-      debugPrint(
-          'SessionService: member count lookup failed for $sessionId: $e');
+      debugPrint('SessionService: capacity lookup failed for $sessionId: $e');
     }
   }
 

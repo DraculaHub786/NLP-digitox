@@ -1,5 +1,6 @@
 
 import 'package:flutter/foundation.dart';
+import 'package:nlp_digitox/core/constants/session_limits.dart';
 
 /// Represents a member in a shared session
 @immutable
@@ -123,7 +124,11 @@ class SharedSession {
   /// User ID of the session owner
   final String ownerId;
 
-  /// Maximum members allowed (0 = unlimited)
+  /// Maximum members allowed in this session, the owner included.
+  ///
+  /// Always inside `[1, SessionLimits.maxMembersPerSession]`. The old `0` meant
+  /// "unlimited" and is normalized to the cap on the way in, so no session can
+  /// exist without a bound and no code path can opt one out of its limit.
   final int maxMembers;
 
   /// Current members in the session
@@ -154,7 +159,7 @@ class SharedSession {
     required this.name,
     this.description,
     required this.ownerId,
-    this.maxMembers = 0,
+    this.maxMembers = SessionLimits.maxMembersPerSession,
     this.members = const [],
     this.isPublic = false,
     required this.createdAt,
@@ -169,6 +174,13 @@ class SharedSession {
 
   /// Active member count
   int get activeMembers => members.where((m) => m.isActive).length;
+
+  /// Seats still free. Clamped at zero so a session that somehow ended up over
+  /// its cap reports "no room" instead of a negative count.
+  int get remainingSlots => (maxMembers - memberCount).clamp(0, maxMembers);
+
+  /// Whether the cap has been reached, so nobody else may join.
+  bool get isFull => memberCount >= maxMembers;
 
   /// A finished session: the owner marked it complete, so it no longer
   /// accepts presence heartbeats.
@@ -188,6 +200,25 @@ class SharedSession {
   bool isEligibleForCompletionPayout(String userId) =>
       isCompleted && members.any((m) => m.userId == userId);
 
+  /// The config a group focus run should apply, never null.
+  ///
+  /// A session can legitimately have no stored settings — it was created by a
+  /// client that omitted them, or it predates shared settings entirely. Group
+  /// focus must still work then: each member simply keeps their own focus
+  /// duration and blocklist, which is what an empty [SessionSettings] means to
+  /// the focus engine. Returning a value rather than null is what keeps the
+  /// "start focusing with this group" action reachable for every session
+  /// instead of only for the ones somebody happened to configure.
+  SessionSettings get groupFocusSettings =>
+      settings ?? const SessionSettings();
+
+  /// Whether the group-focus action should be offered for this session.
+  ///
+  /// Deliberately independent of [settings]: the capability belongs to *any*
+  /// active, unfinished session, because the owner having configured (or not
+  /// configured) a shared plan says nothing about whether the group can focus.
+  bool get canStartGroupFocus => isActive && !isCompleted;
+
   /// Parse from Firebase RTDB snapshot value.
   ///
   /// Firebase RTDB stores members as a nested Map:
@@ -202,7 +233,8 @@ class SharedSession {
       name: map['name'] as String? ?? 'Session',
       description: map['description'] as String?,
       ownerId: map['ownerId'] as String? ?? '',
-      maxMembers: map['maxMembers'] as int? ?? 0,
+      maxMembers:
+          SessionLimits.normalizeMaxMembers(_parseCount(map['maxMembers'])),
       members: members,
       isPublic: map['isPublic'] as bool? ?? false,
       createdAt: SessionMember._parseDateTime(map['createdAt']),
@@ -216,6 +248,17 @@ class SharedSession {
               Map<String, dynamic>.from(map['settings'] as Map))
           : null,
     );
+  }
+
+  /// Reads an integer count from RTDB.
+  ///
+  /// Tolerates the `double` that JSON round-tripping can produce, and returns
+  /// null for anything else so [SessionLimits.normalizeMaxMembers] can decide
+  /// what a missing or unusable value means.
+  static int? _parseCount(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return null;
   }
 
   /// Robustly parses the members field from RTDB.
@@ -303,7 +346,8 @@ class SharedSession {
       name: name ?? this.name,
       description: description ?? this.description,
       ownerId: ownerId ?? this.ownerId,
-      maxMembers: maxMembers ?? this.maxMembers,
+      maxMembers:
+          SessionLimits.normalizeMaxMembers(maxMembers ?? this.maxMembers),
       members: members ?? this.members,
       isPublic: isPublic ?? this.isPublic,
       createdAt: createdAt ?? this.createdAt,

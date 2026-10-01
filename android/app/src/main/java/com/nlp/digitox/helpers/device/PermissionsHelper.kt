@@ -5,6 +5,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.AppOpsManager
 import android.app.NotificationManager
 import android.app.admin.DevicePolicyManager
 import android.app.usage.UsageStatsManager
@@ -16,6 +17,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.os.Process
 import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
@@ -37,6 +39,15 @@ import com.nlp.digitox.utils.Utils
  */
 object PermissionsHelper {
     private const val TAG = "Digitox.PermissionsHelper"
+
+    /**
+     * Window used by the usage-access fallback probe (see [hasRecentUsageData]).
+     *
+     * A one-day window is what made the old check flaky: a quiet day legitimately
+     * produces no aggregated entries, which was then misread as "not granted".
+     * A week of history can only be empty if the grant is genuinely missing.
+     */
+    private const val USAGE_ACCESS_FALLBACK_WINDOW_MS = 7 * AppConstants.ONE_DAY_IN_MS
 
     /**
      * Checks whether the user has actually granted the accessibility permission
@@ -143,14 +154,7 @@ object PermissionsHelper {
      * @return True if usage access permission is granted, false otherwise.
      */
     fun getAndAskUsageAccessPermission(context: Context, askPermissionToo: Boolean): Boolean {
-        val usageStatsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val now = System.currentTimeMillis()
-        val haveUsage =
-            usageStatsManager.queryAndAggregateUsageStats(now - AppConstants.ONE_DAY_IN_MS, now)
-                .isNotEmpty()
-
-        if (haveUsage) return true
+        if (hasUsageAccessPermission(context)) return true
 
         if (askPermissionToo) {
             try {
@@ -165,6 +169,92 @@ object PermissionsHelper {
         }
 
         return false
+    }
+
+    /**
+     * Whether the Usage Access permission (`android:get_usage_stats`) is granted.
+     *
+     * The old check inferred the grant from
+     * `queryAndAggregateUsageStats(...).isNotEmpty()` — a *data* probe, not a
+     * permission probe. On a cold start (fresh process, stats service not yet
+     * warm) or after a genuinely quiet day that map comes back empty even
+     * though the permission IS granted, so the startup gate classified a
+     * fully-granted returning user as "usage access missing" and pushed them
+     * back through the permission flow on every launch.
+     *
+     * The authoritative source is the AppOps `GET_USAGE_STATS` mode. Only when
+     * the platform answers `MODE_DEFAULT` — which some OEMs report even for a
+     * granted permission — do we fall back to the data probe, widened to a week
+     * so a single quiet day can no longer produce a false negative.
+     */
+    fun hasUsageAccessPermission(context: Context): Boolean {
+        return when (getUsageAccessAppOpMode(context)) {
+            AppOpsManager.MODE_ALLOWED -> true
+            AppOpsManager.MODE_FOREGROUND -> true
+            AppOpsManager.MODE_DEFAULT -> hasRecentUsageData(context)
+            else -> false
+        }
+    }
+
+    /**
+     * Reads the AppOps mode for `android:get_usage_stats`.
+     *
+     * Returns [AppOpsManager.MODE_DEFAULT] when the lookup itself is unavailable
+     * so the caller can fall back instead of reporting a definitive
+     * "not granted".
+     */
+    private fun getUsageAccessAppOpMode(context: Context): Int {
+        val appOpsManager =
+            context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager
+                ?: return AppOpsManager.MODE_DEFAULT
+
+        return try {
+            val uid = Process.myUid()
+            val packageName = context.packageName
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                appOpsManager.unsafeCheckOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    uid,
+                    packageName,
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                appOpsManager.checkOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    uid,
+                    packageName,
+                )
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "getUsageAccessAppOpMode: AppOps lookup failed, falling back", e)
+            AppOpsManager.MODE_DEFAULT
+        }
+    }
+
+    /**
+     * Fallback signal used only when AppOps cannot answer: does the device
+     * report *any* aggregated usage inside [USAGE_ACCESS_FALLBACK_WINDOW_MS]?
+     *
+     * Deliberately much wider than one day — the one-day window is what made the
+     * old check flaky, since a quiet day legitimately produces no entries.
+     */
+    private fun hasRecentUsageData(context: Context): Boolean {
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+                ?: return false
+
+        val now = System.currentTimeMillis()
+        return try {
+            usageStatsManager
+                .queryAndAggregateUsageStats(
+                    now - USAGE_ACCESS_FALLBACK_WINDOW_MS,
+                    now,
+                )
+                .isNotEmpty()
+        } catch (e: Exception) {
+            Log.w(TAG, "hasRecentUsageData: Usage stats query failed", e)
+            false
+        }
     }
 
 

@@ -89,8 +89,12 @@ class SessionDetailScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: ModernMetricCard(
+                      // "3/10" rather than "3": the cap is the fact the owner
+                      // cares about, and a bare count cannot show how close the
+                      // room is to being closed.
                       label: 'Members',
-                      value: '${session.memberCount}',
+                      value:
+                          '${session.memberCount}/${session.maxMembers}',
                       icon: FluentIcons.people_20_filled,
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -125,7 +129,10 @@ class SessionDetailScreen extends ConsumerWidget {
                 title: 'Members',
                 subtitle: membersAsync.valueOrNull == null
                     ? 'Loading members…'
-                    : _memberCountLabel(membersAsync.valueOrNull!.length),
+                    : _memberCountLabel(
+                        session.memberCount,
+                        session.maxMembers,
+                      ),
               ),
             ),
           ),
@@ -167,8 +174,12 @@ class SessionDetailScreen extends ConsumerWidget {
     );
   }
 
-  static String _memberCountLabel(int count) =>
-      count == 1 ? '1 person in this group' : '$count people in this group';
+  /// Seats used out of the room's cap, with the closed state called out so the
+  /// owner can see at a glance that nobody else can get in.
+  static String _memberCountLabel(int count, int maxMembers) {
+    final seats = '$count of $maxMembers seats taken';
+    return count >= maxMembers ? '$seats • Full' : seats;
+  }
 
   Widget _centredSliver(Widget child) => SliverToBoxAdapter(
         child: Padding(
@@ -360,38 +371,19 @@ class _SessionActions extends ConsumerWidget {
 
     // Once a session is finished there is nothing left to run or join, so the
     // only remaining action is leaving the (now-closed) group.
-    final settings = session.settings;
-    final canFocus = settings != null && session.isActive;
+    //
+    // The settings are never null: a session with none stored simply has every
+    // member focus on their own plan (see `SharedSession.groupFocusSettings`),
+    // so the group-focus action stays reachable for every active session
+    // instead of being disabled until somebody configures a shared one. That
+    // gate made group focus impossible for every session created in the app,
+    // because the create sheet never supplied settings.
+    final settings = session.groupFocusSettings;
+    final canFocus = session.canStartGroupFocus;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!session.isCompleted && session.isActive && settings == null) ...[
-          SurfaceCard(
-            elevation: 0,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  FluentIcons.info_20_regular,
-                  size: 18,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-                const SizedBox(width: Spacing.md),
-                Expanded(
-                  child: StyledText(
-                    'This group has no shared settings yet, so group focus is '
-                    'unavailable.',
-                    fontSize: 13,
-                    isSubtitle: true,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: Spacing.md),
-        ],
         if (isInSharedFocus)
           SizedBox(
             width: double.infinity,
