@@ -92,7 +92,7 @@ class FirestoreService {
       final docSnapshot = await _userDoc!.get();
       if (!docSnapshot.exists) {
         await initializeUserData(username: AppConstants.defaultUsername);
-        return getUserSettings();
+        return await getUserSettings();
       }
 
       final data = docSnapshot.data() as Map<String, dynamic>?;

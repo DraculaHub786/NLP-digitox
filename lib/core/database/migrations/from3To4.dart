@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, experimental_member_use
 
 import 'package:drift/drift.dart';
 import 'package:nlp_digitox/core/database/adapters/time_of_day_adapter.dart';
