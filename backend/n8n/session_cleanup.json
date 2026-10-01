@@ -1,0 +1,100 @@
+{
+  "name": "NLP-Digitox — Shared Session Cleanup",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "hours", "hoursInterval": 24 }
+          ]
+        }
+      },
+      "id": "daily-cron",
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-520, 0]
+    },
+    {
+      "id": "read-sessions",
+      "name": "List Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-280, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.FIREBASE_DB_URL }}/sessions.json?shallow=true",
+        "options": {}
+      }
+    },
+    {
+      "id": "split-sessions",
+      "name": "Split Session Ids",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-60, 0],
+      "parameters": {
+        "jsCode": "const raw = $json;\nif (!raw || typeof raw !== 'object') return [];\nreturn Object.keys(raw).map((sid) => ({ json: { sid } }));"
+      }
+    },
+    {
+      "id": "read-one",
+      "name": "Read Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [160, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.FIREBASE_DB_URL }}/sessions/{{ $json.sid }}.json",
+        "options": {}
+      }
+    },
+    {
+      "id": "is-stale",
+      "name": "Stale?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [380, 0],
+      "parameters": {
+        "jsCode": "const s = $json;\nif (!s || typeof s !== 'object') return [];\nconst now = Date.now();\nconst createdAt = s.createdAt || 0;\nconst countdownMs = (s.countdownSec || 5) * 1000;\nconst durationMs = (s.durationSec || 0) * 1000;\nconst endAt = (s.runStartAt || 0) + countdownMs + durationMs;\n// Lobbies abandoned for a day, or any session whose run ended over two days\n// ago, are removed. The grace period keeps a long run plus a slow final\n// report from losing its own session mid-flight.\nconst lobbyStale = s.state === 'lobby' && createdAt && (now - createdAt) > 24 * 3600 * 1000;\nconst finishedStale = endAt && (now - endAt) > 48 * 3600 * 1000;\nif (!lobbyStale && !finishedStale) return [];\nreturn [{ json: { sid: $('Split Session Ids').item.json.sid, inviteCode: s.inviteCode || null } }];"
+      }
+    },
+    {
+      "id": "delete-session",
+      "name": "Delete Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [620, 0],
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $env.FIREBASE_DB_URL }}/sessions/{{ $json.sid }}.json",
+        "options": {}
+      }
+    },
+    {
+      "id": "delete-invite",
+      "name": "Delete Invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [840, 0],
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $env.FIREBASE_DB_URL }}/invites/{{ $json.inviteCode }}.json",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Daily Cron": { "main": [[{ "node": "List Sessions", "type": "main", "index": 0 }]] },
+    "List Sessions": { "main": [[{ "node": "Split Session Ids", "type": "main", "index": 0 }]] },
+    "Split Session Ids": { "main": [[{ "node": "Read Session", "type": "main", "index": 0 }]] },
+    "Read Session": { "main": [[{ "node": "Stale?", "type": "main", "index": 0 }]] },
+    "Stale?": { "main": [[{ "node": "Delete Session", "type": "main", "index": 0 }]] },
+    "Delete Session": { "main": [[{ "node": "Delete Invite", "type": "main", "index": 0 }]] }
+  }
+}

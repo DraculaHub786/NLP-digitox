@@ -88,7 +88,7 @@ A persona-aware chatbot and sentiment-aware suggestions, powered by Groq. Fully 
 Sign in with Google if you want your persona/onboarding state backed up (so a reinstall doesn't force you through the quiz again), a synced profile picture, and a spot on the leaderboard. Entirely skippable — the app is fully functional without ever creating an account.
 
 ### 🔒 Privacy-Conscious & Open Source
-No ads, no third-party analytics, no data sold, ever. The features that matter most — focus mode, blocking, screen time limits, bedtime mode — run **entirely on-device** and need no account and no internet connection. The optional account features (cloud backup, leaderboard, AI chatbot) do talk to Firebase and Groq, transparently — see [*Why internet permission?*](#why-internet-permission-in-manifest) below. Every line of code is public; audit it yourself.
+No ads, no third-party analytics, no data sold, ever. The features that matter most — focus mode, blocking, screen time limits, bedtime mode — run **entirely on-device** and need no account and no internet connection. The optional account and social features (cloud backup, leaderboard, AI chatbot, and **Shared Focus Sessions**) do talk to Firebase and Groq, transparently — a shared session sends your display name, profile picture and focus status to the other members of *that session only*. See [*Why internet permission?*](#why-internet-permission-in-manifest) below. Every line of code is public; audit it yourself.
 
 ### 🌍 28 Languages, Out of the Box
 `en` `es` `fr` `de` `it` `pt` `ru` `ja` `ko` `zh` `ar` `he` `hi`-adjacent locale coverage and 15+ more — this isn't an English-only project bolted on for one region.
@@ -109,16 +109,15 @@ No ads, no third-party analytics, no data sold, ever. The features that matter m
 git clone https://github.com/DraculaHub786/NLP-digitox.git
 cd NLP-digitox
 flutter pub get
+flutter run --dart-define-from-file=.env                 #(debug / run on device)
 flutter build apk --release --dart-define-from-file=.env #(production build)
-flutter run / flutter build apk --debug #(Development debug)
-Flutter run #(Test on device)
 ```
 
 Requires **Android 8.0 (API 26)** or higher on the target device. iOS isn't currently supported (this app relies on Android-only APIs — usage stats, accessibility service, and a local VPN — for its core blocking features).
 
 ### 🔑 API Key & Cloud Setup (optional, only for AI/cloud features)
 
-The app runs and builds fine with zero configuration — you only need this if you want the AI chatbot or profile picture upload working locally. Every key is resolved through **one mechanism**: `lib/config/api_keys.dart`, which reads a `--dart-define` first, then the bundled `.env`, and only then a literal in that file.
+The app runs and builds fine with zero configuration — you only need this if you want the AI chatbot or profile picture upload working locally. Every key is resolved through **one mechanism**: `lib/config/api_keys.dart`, which reads a `--dart-define` first, then a `.env` passed at build time, and only then a literal in that file. **`.env` is no longer bundled as an asset** (it used to ship every key inside the APK); pass it with `--dart-define-from-file=.env`.
 
 **1. Groq / Gemini** (AI chatbot, sentiment analysis, nightly scoring, monthly report):
 ```bash
@@ -126,7 +125,11 @@ cp .env.example .env
 # fill in GROQ_API_KEY   (free key: https://console.groq.com/keys)
 # optionally GEMINI_API_KEY (https://aistudio.google.com/apikey)
 ```
-`.env` is bundled as an app asset, so plain `flutter run` is enough — no extra flags. `lib/config/api_keys.dart` is committed and holds **no secrets by design**; never paste real keys into it. Without a key, the chatbot just shows "not configured" and everything else works as usual.
+`.env` is not bundled as an asset, so pass it at build/run time:
+```bash
+flutter run --dart-define-from-file=.env
+```
+`lib/config/api_keys.dart` is committed and holds **no secrets by design**; never paste real keys into it. Without a key, the chatbot just shows "not configured" and everything else works as usual.
 
 **2. Cloudinary** (profile picture uploads) — the same `.env`, and for release builds pass it at compile time via `--dart-define-from-file`:
 ```bash
@@ -144,6 +147,7 @@ VS Code users: `.vscode/launch.json` already passes this flag — just hit Run/D
 > The `INTERNET` permission covers a few distinct, all-opt-in things:
 > - **Local VPN** — Android requires network permission to create and protect a Local VPN tunnel, which is how NLP-Digitox blocks internet access for selected apps. Needs no account and no external connection.
 > - **Firebase Auth & Firestore** — only contacted if you choose to sign in, to back up your onboarding/persona state and power the leaderboard.
+> - **Firebase Realtime Database** — used only by **Shared Focus Sessions**. When you create or join a session, your display name, profile picture and focus status are shared with the other members of *that session* so everyone can see who is focusing together on the same synced timer. Nothing is shared with anyone outside the session, and if you never open the Shared Sessions screen, nothing is written.
 > - **Groq API** — only contacted if you use the AI chatbot / sentiment features.
 > - **Cloudinary** — only contacted if you upload a profile picture.
 >

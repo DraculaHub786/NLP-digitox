@@ -102,6 +102,12 @@ class HeroTags {
   static const newNotificationScheduleFABTag =
       "notifications.newNotificationScheduleFAB";
 
+  /// Tag used to identify the FAB for creating a shared focus session.
+  static const newSharedSessionFABTag = "sharedSessions.newSessionFAB";
+
+  /// Tag used to identify the FAB for creating a focus group.
+  static const newFocusGroupFABTag = "groups.newGroupFAB";
+
   /// Tag used to identify the notification schedule timer tile based on the schedule ID.
   static String notificationScheduleTimerTileTag(int scheduleId) =>
       "notifications.notificationScheduleTimer.$scheduleId";

@@ -60,7 +60,11 @@ class ChatContextExtractor {
   static const int topThemesCount = 8;
 
   /// Topic dictionary: canonical topic -> keywords that signal it.
-  static const Map<String, List<String>> _topicKeywords = {
+  ///
+  /// Public so the NLP evaluation suite scores the classifier that actually
+  /// ships (see `test/nlp_eval/topic_classification_eval_test.dart`) rather
+  /// than a copy of the keyword list that would drift out of sync with it.
+  static const Map<String, List<String>> topicKeywords = {
     'sleep': ['sleep', 'tired', 'insomnia', 'rest', 'wake', 'bedtime', 'exhausted', 'slept'],
     'work': ['work', 'deadline', 'job', 'office', 'project', 'meeting', 'boss', 'shift', 'client'],
     'study': ['exam', 'study', 'test', 'revision', 'syllabus', 'assignment', 'studying', 'results'],
@@ -73,6 +77,30 @@ class ChatContextExtractor {
     'productivity': ['productive', 'productivity', 'efficient', 'organize', 'plan', 'routine', 'schedule', 'habits'],
     'phone usage': ['phone', 'screen time', 'addicted', 'usage', 'detox', 'notification', 'hours', 'battery'],
   };
+
+  /// Every topic the classifier can emit, in a stable order.
+  static List<String> get allTopics => topicKeywords.keys.toList();
+
+  /// Multi-label keyword classifier: returns every topic whose keyword set
+  /// matches [message], case-insensitively. A topic is emitted at most once
+  /// per message even when several of its keywords appear.
+  ///
+  /// This is the single source of truth for topic extraction — [extractDay]
+  /// calls it per message rather than re-implementing the match loop, so an
+  /// offline evaluation of this method measures the shipping behaviour.
+  static Set<String> classifyTopics(String message) {
+    final lower = message.toLowerCase();
+    final matched = <String>{};
+    topicKeywords.forEach((topic, keywords) {
+      for (final keyword in keywords) {
+        if (lower.contains(keyword)) {
+          matched.add(topic);
+          break;
+        }
+      }
+    });
+    return matched;
+  }
 
   /// Extract one day's themes from chat sessions and persist them.
   /// `day` defaults to today. Returns the persisted themes for that day.
@@ -90,16 +118,10 @@ class ChatContextExtractor {
             message.timestamp.isAfter(endOfDay)) {
           continue;
         }
-        final lower = message.message.toLowerCase();
-        _topicKeywords.forEach((topic, keywords) {
-          for (final keyword in keywords) {
-            if (lower.contains(keyword)) {
-              counts[topic] = (counts[topic] ?? 0) + 1;
-              totalMentions++;
-              break;
-            }
-          }
-        });
+        for (final topic in classifyTopics(message.message)) {
+          counts[topic] = (counts[topic] ?? 0) + 1;
+          totalMentions++;
+        }
       }
     }
 

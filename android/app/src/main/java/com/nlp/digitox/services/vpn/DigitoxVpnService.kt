@@ -9,6 +9,7 @@ import android.util.Log
 import com.nlp.digitox.AppConstants
 import com.nlp.digitox.R
 import com.nlp.digitox.generics.ServiceBinder
+import com.nlp.digitox.helpers.KeepAliveHelper
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import java.io.IOException
@@ -38,6 +39,12 @@ class DigitoxVpnService : VpnService() {
             startFgService()
         }
         restoreBlockedAppsFromPrefs()
+
+        // Keep the watchdog armed from the service itself, not only from the
+        // activity — the activity is dead whenever the user has swiped the app
+        // away, which is exactly when the watchdog is needed.
+        KeepAliveHelper.scheduleKeepAlive(this)
+
         if (mBlockedApps.isNotEmpty()) {
             connectVpn()
         }
@@ -178,6 +185,20 @@ class DigitoxVpnService : VpnService() {
 
     private fun restoreBlockedAppsFromPrefs() {
         mBlockedApps = SharedPrefsHelper.getSetInternetBlockedApps(this, null)
+    }
+
+    /**
+     * Called when the user swipes the app out of recents.
+     *
+     * The process is killed without `onDestroy()`, so the self-restart below
+     * never runs. Arm an alarm — which outlives the process — so internet
+     * blocking resumes within a couple of seconds instead of waiting for the
+     * next periodic watchdog tick.
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.w(TAG, "onTaskRemoved: task removed from recents - arming immediate restart")
+        KeepAliveHelper.scheduleImmediateRestart(this)
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {

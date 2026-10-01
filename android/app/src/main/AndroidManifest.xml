@@ -103,6 +103,22 @@
                     android:scheme="com.nlp.digitox" />
             </intent-filter>
 
+            <!-- Shared-session invite links: com.nlp.digitox://join/{code}.
+                 Handled by SessionLinkHandler, which normalises the code and
+                 holds it until the user is signed in. No `autoVerify`: a
+                 custom scheme with no web host cannot be verified, and
+                 Android would only refuse the link. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="join"
+                    android:scheme="com.nlp.digitox" />
+            </intent-filter>
+
             <!-- Default -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,0 +1,40 @@
+name: CI
+
+# Runs on every PR and every push to the long-lived branches. The release
+# workflow (build_and_deploy.yml) is tag-triggered and only proves the app
+# *builds*; this one proves it is still correct — analyzer-clean and green on
+# the unit + widget suite — before a change can merge.
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  analyze-and-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # `--no-fatal-infos` keeps informational lints from failing the build,
+      # but a real warning or error still does — which is the line worth
+      # enforcing.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test

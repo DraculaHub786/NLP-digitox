@@ -19,10 +19,20 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({
     required this.isOnboardingDone,
+    this.permissionsOnly = false,
     super.key,
   });
 
   final bool isOnboardingDone;
+
+  /// When true, only the permissions page is rendered — the intro slides and
+  /// the persona quiz are excluded entirely.
+  ///
+  /// Used for a returning user who has already finished onboarding but is
+  /// missing an OS permission. They must never be walked through the intro
+  /// slides or asked to redo the quiz (which would also overwrite their saved
+  /// persona) merely because a permission needs re-granting.
+  final bool permissionsOnly;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _OnboardingState();
@@ -34,7 +44,7 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
   final PageController _controller = PageController();
   final _animCurve = Curves.easeInOut;
   final _animDuration = AppConstants.defaultAnimDuration;
-  late final List<Widget> _pages = [
+  late final List<Widget> _quizFlowPages = [
     // Welcome — new front page
     OnboardingPage(
       title: context.locale.onboarding_page_welcome_title,
@@ -75,6 +85,15 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     ),
   ];
 
+  /// The pages actually rendered.
+  ///
+  /// For a returning user who only needs to re-grant a permission this
+  /// collapses the whole flow down to the permissions page, so neither the
+  /// intro slides nor the quiz are reachable.
+  late final List<Widget> _pages = widget.permissionsOnly
+      ? [PermissionsPage(onSkip: _enterApp)]
+      : _quizFlowPages;
+
   @override
   void initState() {
     super.initState();
@@ -85,24 +104,28 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     _subscription = ref.listenManual<PermissionsModel>(
       permissionProvider,
       (_, perms) {
-        final haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
-            perms.haveDisplayOverlayPermission &&
-            perms.haveAlarmsPermission &&
-            perms.haveNotificationPermission &&
-            perms.haveAccessibilityPermission;
+        if (!perms.hasAllEssentialPermissions) return;
 
-        if (!haveAllEssentialPermissions) return;
-        _goToQuizPage();
+        // A returning user must never be handed the quiz again. That is the
+        // wrong UX (they already have a persona) and destructive, because
+        // completing it overwrites the saved persona. Anyone already onboarded
+        // — or here purely to re-grant a permission — goes straight into the
+        // app once permissions are satisfied.
+        if (widget.permissionsOnly || widget.isOnboardingDone) {
+          _enterApp();
+        } else {
+          _goToQuizPage();
+        }
         _subscription?.close();
       },
     );
 
-    /// Go to permissions page if already done onboarding
-    /// but user removed some essential permissions. Note: this only ever
-    /// lands on the PermissionsPage, never back on the quiz — a returning
-    /// user whose persona is already saved should never be asked to redo
-    /// the quiz just because an OS permission got revoked.
-    if (widget.isOnboardingDone) {
+    /// Go to the permissions page if onboarding is already done but the user
+    /// removed some essential permissions. Note this only ever lands on the
+    /// PermissionsPage, never back on the quiz — a returning user whose
+    /// persona is already saved must not be asked to redo it just because an
+    /// OS permission got revoked.
+    if (widget.isOnboardingDone && !widget.permissionsOnly) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _goToPermissionsPage();
       });
@@ -116,18 +139,27 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
   }
 
   void _finishOnboarding() async {
-    if (mounted) {
-      ref.read(digitoxSettingsProvider.notifier).markOnboardingDone();
+    if (!mounted) return;
+    ref.read(digitoxSettingsProvider.notifier).markOnboardingDone();
+    _enterApp();
+  }
 
-      Future.delayed(
-        200.ms,
-        () {
-          if (!mounted) return;
-          NavigationService.instance
-              .init(showChangeLogsToo: !widget.isOnboardingDone);
-        },
-      );
-    }
+  /// Navigates into the app.
+  ///
+  /// Used both after the quiz is completed (first run) and when a returning
+  /// user has finished re-granting permissions. It deliberately does *not*
+  /// re-flag onboarding — for a returning user that flag is already set, and
+  /// re-writing it would only fire a pointless Firestore sync.
+  void _enterApp() {
+    if (!mounted) return;
+    Future.delayed(
+      200.ms,
+      () {
+        if (!mounted) return;
+        NavigationService.instance
+            .init(showChangeLogsToo: !widget.isOnboardingDone);
+      },
+    );
   }
 
   /// Jumps to the PermissionsPage (second-to-last page). Used for a
@@ -161,16 +193,15 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     final isQuizPage = _pages[_currentPage] is OnboardingQuizPage;
     final isPermissionsPage = _pages[_currentPage] is PermissionsPage;
     final perms = ref.watch(permissionProvider);
-    final haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
-        perms.haveDisplayOverlayPermission &&
-        perms.haveAlarmsPermission &&
-        perms.haveNotificationPermission &&
-        perms.haveAccessibilityPermission;
+    final haveAllEssentialPermissions = perms.hasAllEssentialPermissions;
     // Forward navigation is blocked while sitting on the PermissionsPage
     // until every essential permission is granted — this is what makes
     // granting permissions mandatory instead of just suggested.
     final blockedByMissingPermissions =
         isPermissionsPage && !haveAllEssentialPermissions;
+    // In recovery mode there is a single page and the app is one tap away, so
+    // the pager controls (dots / back / next) are meaningless noise.
+    final showPagerControls = !widget.permissionsOnly;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) => SystemNavigator.pop(),
@@ -199,7 +230,7 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
             /// Overlay controls — hidden entirely on the quiz page
             /// because the quiz has its own self-contained navigation bar
             /// that would be covered by this overlay.
-            if (!isQuizPage)
+            if (!isQuizPage && showPagerControls)
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),

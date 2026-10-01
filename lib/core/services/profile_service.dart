@@ -26,14 +26,11 @@ String _cfg(String key) {
   const uploadPreset = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET');
   const cleanupWebhookUrl =
       String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_URL');
-  const cleanupWebhookSecret =
-      String.fromEnvironment('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
 
   final compileTime = switch (key) {
     'CLOUDINARY_CLOUD_NAME' => cloudName,
     'CLOUDINARY_UPLOAD_PRESET' => uploadPreset,
     'CLOUDINARY_CLEANUP_WEBHOOK_URL' => cleanupWebhookUrl,
-    'CLOUDINARY_CLEANUP_WEBHOOK_SECRET' => cleanupWebhookSecret,
     _ => '',
   };
   if (compileTime.isNotEmpty) return compileTime;
@@ -301,34 +298,34 @@ class ProfileService {
   }
 
   /// Best-effort cleanup — asks n8n (which holds the Cloudinary API secret) to
-  /// delete a previous profile picture asset. Never throws; a failure here just
-  /// means one orphaned image, not a broken upload.
-  void _triggerCleanupWebhook(String publicId) {
+  /// delete a previous profile picture asset.
+  ///
+  /// n8n verifies the caller's Firebase ID token, so no shared secret ships in
+  /// the app. Never throws; a failure here just means one orphaned image, not a
+  /// broken upload.
+  Future<void> _triggerCleanupWebhook(String publicId) async {
     final webhookUrl = _cfg('CLOUDINARY_CLEANUP_WEBHOOK_URL');
-    final webhookSecret = _cfg('CLOUDINARY_CLEANUP_WEBHOOK_SECRET');
-
-    if (webhookUrl.isEmpty || webhookSecret.isEmpty) {
-      debugPrint(
-        'ProfileService: Cleanup webhook not configured — skipping asset '
-        'cleanup for $publicId',
-      );
-      return;
+    try {
+      final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+      if (webhookUrl.isEmpty || idToken == null) {
+        debugPrint(
+          'ProfileService: cleanup skipped for $publicId '
+          '(no webhook URL or not signed in)',
+        );
+        return;
+      }
+      await http
+          .post(
+            Uri.parse(webhookUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $idToken',
+            },
+            body: jsonEncode({'publicId': publicId}),
+          )
+          .timeout(const Duration(seconds: 15));
+    } catch (e) {
+      debugPrint('ProfileService: cleanup webhook failed (non-blocking): $e');
     }
-
-    http
-        .post(
-          Uri.parse(webhookUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            // Lower-case: dart:io sends header names lower-cased, and the n8n
-            // IF node matches `$json.headers['x-webhook-secret']`.
-            'x-webhook-secret': webhookSecret,
-          },
-          body: jsonEncode({'publicId': publicId}),
-        )
-        .then((_) {})
-        .catchError((e) {
-      debugPrint('ProfileService: Cleanup webhook failed (non-blocking): $e');
-    });
   }
 }

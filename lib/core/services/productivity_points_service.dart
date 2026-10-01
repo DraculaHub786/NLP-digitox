@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nlp_digitox/core/services/leaderboard_service.dart';
 import 'package:nlp_digitox/core/services/productivity_notification_service.dart';
+import 'package:nlp_digitox/core/services/shared_session_focus_tracker.dart';
 
 /// Service to handle points earning for productivity activities
 /// Following the "How to Earn Points" rules from the leaderboard
@@ -461,6 +462,14 @@ class ProductivityPointsService {
   /// doc. There is therefore no way for the owner's device to credit the other
   /// members; each member claims their own share. That is why this is guarded
   /// by a local per-session flag rather than by anything server-side.
+  ///
+  /// Two local conditions must both hold before anything is paid:
+  ///   1. the session has not already paid this device out, and
+  ///   2. *this device actually finished a group focus run* in that session.
+  ///
+  /// The second condition is what stops the old bug where creating a session
+  /// and ending it immediately — without ever starting a focus run — still
+  /// awarded the full bonus. See [SharedSessionFocusTracker].
   Future<void> awardSharedSessionCompletionPoints({
     required String sessionId,
     int points = sharedSessionCompletionPoints,
@@ -470,6 +479,15 @@ class ProductivityPointsService {
       if (await _wasSharedSessionPointsAwarded(sessionId)) {
         debugPrint(
           'Shared-session points already awarded for $sessionId, skipping',
+        );
+        return;
+      }
+
+      if (!await SharedSessionFocusTracker.instance
+          .hasCompletedFocusRun(sessionId)) {
+        debugPrint(
+          'Shared-session points withheld for $sessionId: no completed group '
+          'focus run recorded on this device',
         );
         return;
       }

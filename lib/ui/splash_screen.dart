@@ -78,11 +78,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _isAccessProtected =
         (await ref.read(parentalControlsProvider.notifier).init())
             .protectedAccess;
-    _haveAllEssentialPermissions = perms.haveUsageAccessPermission &&
-        perms.haveDisplayOverlayPermission &&
-        perms.haveAlarmsPermission &&
-        perms.haveNotificationPermission &&
-        perms.haveAccessibilityPermission;
+    _haveAllEssentialPermissions = perms.hasAllEssentialPermissions;
 
     // Q-8: Use PersonaService as the authoritative quiz-completion check.
     // If the persona is corrupted (flag true but key missing), isQuizCompleted()
@@ -109,6 +105,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // AND the DigitoxSettings flag is set (or a cloud restore just supplied both).
     _isOnboardingDone = restoredFromCloud || (_isOnboardingDone && quizCompleted);
 
+    // Diagnostic: if a returning user is being sent back through onboarding,
+    // exactly one of these four inputs is false. Reading them together is what
+    // tells you which one to fix (the drift flag, the SharedPreferences quiz
+    // flag, an offline restore, or a revoked permission).
+    debugPrint('SPLASH onboarding: drift=${settings.isOnboardingDone} '
+        'quizCompleted=$quizCompleted restoredFromCloud=$restoredFromCloud '
+        'perms=$_haveAllEssentialPermissions -> done=$_isOnboardingDone');
+
     if (mounted) setState(() {});
     _isAccessProtected ? _authenticate() : _goToNextScreen(true);
   }
@@ -119,12 +123,29 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (_haveAllEssentialPermissions && _isOnboardingDone) {
       NavigationService.instance.init(showChangeLogsToo: _isAppUpdated);
-    } else {
-      Navigator.of(context).pushReplacementNamed(
-        AppRoutes.onboardingPath,
-        arguments: {"isOnboardingDone": _isOnboardingDone},
-      );
+      return;
     }
+
+    // Decision matrix for everyone else:
+    //
+    //   onboarded (persona already saved) + missing permission
+    //     → permission recovery ONLY. The intro slides and the persona quiz
+    //       are excluded, so a returning user is never asked to redo
+    //       onboarding and their saved persona is never overwritten.
+    //
+    //   not onboarded
+    //     → the real first-run flow (intro slides → permissions → quiz).
+    //
+    // Routing an onboarded user into the full flow is exactly what produced
+    // the reported "asks for accessibility settings, then shows the quiz"
+    // behaviour on every cold start.
+    Navigator.of(context).pushReplacementNamed(
+      AppRoutes.onboardingPath,
+      arguments: {
+        "isOnboardingDone": _isOnboardingDone,
+        "permissionsOnly": _isOnboardingDone,
+      },
+    );
   }
 
   void _authenticate() async {

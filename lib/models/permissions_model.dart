@@ -63,6 +63,32 @@ class PermissionsModel {
     this.isDeviceAdminRevoked = false,
   });
 
+  /// Whether every permission the app cannot function without is granted.
+  ///
+  /// This is the exact gate the splash screen uses to choose between the app
+  /// and the permission flow, so it lives here as the single definition rather
+  /// than being re-spelled in the splash, the permissions page, the quiz and
+  /// the onboarding screen — where those copies had already drifted apart.
+  bool get hasAllEssentialPermissions =>
+      haveUsageAccessPermission &&
+      haveDisplayOverlayPermission &&
+      haveAlarmsPermission &&
+      haveNotificationPermission &&
+      haveAccessibilityPermission;
+
+  /// True when tracking is actually working: permission granted, service
+  /// process alive, and not flagged paused by the keep-alive heartbeat.
+  ///
+  /// Deliberately NOT part of [hasAllEssentialPermissions]: the splash screen
+  /// uses that getter to choose between the app and the permission flow, and a
+  /// service that is briefly unbound on resume would otherwise send an
+  /// onboarded user back to the permission screen. Drive a banner / watchdog
+  /// with this; never use it for routing.
+  bool get isTrackingHealthy =>
+      haveAccessibilityPermission &&
+      isAccessibilityServiceActive &&
+      !isAccessibilityServicePaused;
+
   /// Creates a copy of the `PermissionsModel` with potentially modified permissions.
   PermissionsModel copyWith({
     bool? haveNotificationPermission,
@@ -104,4 +130,49 @@ class PermissionsModel {
       isDeviceAdminRevoked: isDeviceAdminRevoked ?? this.isDeviceAdminRevoked,
     );
   }
+
+  /// Value equality.
+  ///
+  /// Without this, assigning a fresh-but-identical [PermissionsModel] in
+  /// `PermissionNotifier` always looked like a *change* to Riverpod, so every
+  /// listener fired on each permission re-read even when nothing had changed.
+  /// That is what let the onboarding screen push a returning user onto the quiz
+  /// page as a side effect of a plain refresh.
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is PermissionsModel &&
+        other.haveNotificationPermission == haveNotificationPermission &&
+        other.haveUsageAccessPermission == haveUsageAccessPermission &&
+        other.haveDndPermission == haveDndPermission &&
+        other.haveDisplayOverlayPermission == haveDisplayOverlayPermission &&
+        other.haveVpnPermission == haveVpnPermission &&
+        other.haveAccessibilityPermission == haveAccessibilityPermission &&
+        other.haveAlarmsPermission == haveAlarmsPermission &&
+        other.haveIgnoreOptimizationPermission ==
+            haveIgnoreOptimizationPermission &&
+        other.haveNotificationAccessPermission ==
+            haveNotificationAccessPermission &&
+        other.isAccessibilityServiceActive == isAccessibilityServiceActive &&
+        other.isAccessibilityServicePaused == isAccessibilityServicePaused &&
+        other.haveAdminPermission == haveAdminPermission &&
+        other.isDeviceAdminRevoked == isDeviceAdminRevoked;
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        haveNotificationPermission,
+        haveUsageAccessPermission,
+        haveDndPermission,
+        haveDisplayOverlayPermission,
+        haveVpnPermission,
+        haveAccessibilityPermission,
+        haveAlarmsPermission,
+        haveIgnoreOptimizationPermission,
+        haveNotificationAccessPermission,
+        isAccessibilityServiceActive,
+        isAccessibilityServicePaused,
+        haveAdminPermission,
+        isDeviceAdminRevoked,
+      ]);
 }

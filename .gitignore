@@ -120,3 +120,6 @@ scripts/service-account.json
 profile_avatar_implementation.md
 tree_shake_fix.md
 todo.md
+completed.md
+# Scratch/temporary files created by tooling or investigations.
+tmp_*

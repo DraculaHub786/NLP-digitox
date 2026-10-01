@@ -2,9 +2,13 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/productivity_points_service.dart';
+import 'package:nlp_digitox/core/services/session_presence_service.dart';
+import 'package:nlp_digitox/core/utils/invite_code.dart';
+import 'package:nlp_digitox/models/session_result.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 
 /// Service for managing shared sessions and group presence
@@ -46,8 +50,12 @@ class SessionService {
   /// Active listeners for cleanup
   final Map<String, StreamSubscription> _activeListeners = {};
 
-  /// Presence heartbeat timers
-  final Map<String, Timer?> _presenceHeartbeatTimers = {};
+  /// Sessions this instance is currently tracking presence for.
+  ///
+  /// The 30-second timer that used to live here is gone — see
+  /// [startPresenceHeartbeat]. This set survives only so the call stays
+  /// idempotent and [debugStatus] can still report a count.
+  final Set<String> _presenceSessions = {};
 
   /// Local session cache
   final Map<String, SharedSession> _sessionCache = {};
@@ -109,6 +117,45 @@ class SessionService {
         source.entries.where((entry) => entry.value != null),
       );
 
+  /// Reads an integer from a value that may be an `int`, a `double` (JSON
+  /// round-tripping turns whole numbers into doubles) or nothing at all.
+  static int? _asIntOrNull(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return null;
+  }
+
+  /// Turns a failed member write into the most accurate error available.
+  ///
+  /// A rejected join almost always means the session filled up between the
+  /// capacity check and the write: that check reads the member map and the
+  /// write lands afterwards, and only the server rules can see the gap. So the
+  /// session is re-read to tell the two cases apart — if there is genuinely no
+  /// room the user gets the full-session message, and if there is still room
+  /// the original error is returned untouched rather than replaced by a guess.
+  Future<Object> _translateJoinFailure(String sessionId, Object error) async {
+    try {
+      final database = _database;
+      if (database != null) {
+        final snapshot = await database
+            .ref('sessions/$sessionId')
+            .get()
+            .timeout(_networkTimeout);
+        final value = snapshot.value;
+        if (value is Map) {
+          final latest =
+              SharedSession.fromMap(Map<String, dynamic>.from(value));
+          if (latest.isFull) {
+            return SessionException(SessionLimits.fullSessionMessage);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('SessionService: join failure re-check failed: $e');
+    }
+    return error;
+  }
+
   // ---------------------------------------------------------------------------
   // Initialization
   // ---------------------------------------------------------------------------
@@ -154,8 +201,15 @@ class SessionService {
     String? description,
     String? theme,
     bool isPublic = false,
-    int maxMembers = 0,
+    int? maxMembers,
     SessionSettings? settings,
+    String type = 'study',
+    int? durationSec,
+    int countdownSec = SessionLimits.defaultCountdownSec,
+    SessionVisibility? visibility,
+    String? groupId,
+    String? hostDisplayName,
+    String? hostPhotoUrl,
   }) async {
     try {
       await _ensureInitialized();
@@ -171,6 +225,11 @@ class SessionService {
 
       final deviceId = DeviceIdentityService.instance.deviceId;
 
+      // The cap is a product limit, not a caller preference: whatever was asked
+      // for is forced into range here, so no code path can create a session
+      // without a bound. `database.rules.json` enforces the same number.
+      final memberCap = SessionLimits.normalizeMaxMembers(maxMembers);
+
       // Generate a collision-safe ID from Firebase push
       String sessionId;
       if (_isFirebaseAvailable && _database != null) {
@@ -181,26 +240,56 @@ class SessionService {
       }
 
       final now = DateTime.now();
+
+      // The host's own member record. Role and status are set explicitly here
+      // rather than left at their defaults, because every later write in this
+      // service treats `host` as the authority for Start/Cancel/Kick.
       final ownerMember = SessionMember(
         userId: userId,
         deviceId: deviceId,
-        displayName: 'You',
+        displayName: hostDisplayName?.trim().isNotEmpty == true
+            ? hostDisplayName!.trim()
+            : 'You',
+        photoUrl: hostPhotoUrl,
+        role: MemberRole.host,
+        status: MemberStatus.joined,
         joinedAt: now,
         isActive: true,
         lastActive: now,
       );
+
+      // A 6-character code drawn from an unambiguous alphabet, so it can be read
+      // aloud across a room. Only written when RTDB is reachable — an offline
+      // create stays a local-only session with no code rather than a permanent
+      // invite pointing at nothing.
+      final inviteCode = InviteCode.generate();
 
       final session = SharedSession(
         id: sessionId,
         name: name,
         description: description,
         ownerId: userId,
-        maxMembers: maxMembers,
+        maxMembers: memberCap,
         isPublic: isPublic,
         createdAt: now,
         theme: theme,
         isActive: true,
-        settings: settings,
+        visibility: visibility ??
+            (isPublic ? SessionVisibility.public : SessionVisibility.invite),
+        type: type,
+        durationSec: SessionLimits.normalizeDurationSec(durationSec),
+        countdownSec: countdownSec.clamp(
+          SessionLimits.minCountdownSec,
+          SessionLimits.maxCountdownSec,
+        ),
+        groupId: groupId,
+        inviteCode: inviteCode,
+        // A session always carries a settings block, even when the caller
+        // supplied none: that is what makes the group-focus action available
+        // to every member. An empty [SessionSettings] means "each member keeps
+        // their own duration and blocklist", which is the sensible default for
+        // a group created in one tap.
+        settings: settings ?? const SessionSettings(),
         members: [ownerMember],
       );
 
@@ -213,11 +302,26 @@ class SessionService {
         final updates = <String, Object?>{
           'sessions/$sessionId': _withoutNulls(session.toMap()),
           'users/$userId/sessions/$sessionId': true,
+          // The invite goes in the same atomic write as the session: a code
+          // that points at a session which was never created is worse than no
+          // code at all, because it fails silently for whoever receives it.
+          'invites/$inviteCode': {
+            'sid': sessionId,
+            'title': name,
+            'type': type,
+            'durationSec': session.durationSec,
+            'hostName': ownerMember.displayName,
+            'createdAt': now.toIso8601String(),
+            'expiresAt': now.add(InviteCode.lifetime).toIso8601String(),
+          },
           if (isPublic)
             'publicSessions/$sessionId': _withoutNulls({
               'name': name,
               'theme': theme,
               'memberCount': 1,
+              'maxMembers': memberCap,
+              'type': type,
+              'durationSec': session.durationSec,
               'createdAt': now.toIso8601String(),
             }),
         };
@@ -272,14 +376,14 @@ class SessionService {
           );
         }
 
-        if (session.maxMembers > 0 &&
-            session.memberCount >= session.maxMembers) {
-          throw const SessionException('This session is full.');
-        }
-
+        // Membership is tested before capacity on purpose: someone already in
+        // a full session is *returning*, not joining, and must not be turned
+        // away by the cap they help fill.
         if (session.members.any((m) => m.userId == userId)) {
           // Already in: nothing to write, but the heartbeat must still run.
           debugPrint('SessionService: User already in session');
+        } else if (session.isFull) {
+          throw SessionException(SessionLimits.fullSessionMessage);
         } else {
           final now = DateTime.now();
           final newMember = SessionMember(
@@ -297,12 +401,21 @@ class SessionService {
           // written here: only the owner may write that node, and the live
           // count is derived from this member map when the Discover list is
           // read — see `getPublicSessions`.
-          await _onDatabase(
-            () => _database!.ref().update({
-              'sessions/$sessionId/members/$userId': newMember.toMap(),
-              'users/$userId/sessions/$sessionId': true,
-            }),
-          );
+          // The capacity read above cannot be atomic with this write, so two
+          // people tapping Join in the same instant can both pass the check.
+          // The rules close that race; turn their rejection into the same
+          // message the pre-check would have produced rather than letting a
+          // bare permission-denied reach the user as "sign out and back in".
+          try {
+            await _onDatabase(
+              () => _database!.ref().update({
+                'sessions/$sessionId/members/$userId': newMember.toMap(),
+                'users/$userId/sessions/$sessionId': true,
+              }),
+            );
+          } catch (error) {
+            throw await _translateJoinFailure(sessionId, error);
+          }
         }
       }
 
@@ -559,11 +672,18 @@ class SessionService {
         return data;
       }).toList();
 
-      // `publicSessions/{id}/memberCount` only holds the value written when
-      // the session was created — the rules let nobody but the owner write
-      // that node, so it cannot track members joining and leaving. Replace it
-      // with the authoritative count taken from each session's member map.
-      await Future.wait(sessions.map(_attachLiveMemberCount));
+      // `publicSessions/{id}` only holds what was written when the session was
+      // created — the rules let nobody but the owner write that node, so it
+      // cannot track members joining and leaving, and a session created before
+      // the member cap existed carries no usable `maxMembers` at all. Normalize
+      // the cap first so every card has a denominator, then overwrite both
+      // fields from the session itself.
+      for (final entry in sessions) {
+        entry['maxMembers'] = SessionLimits.normalizeMaxMembers(
+          _asIntOrNull(entry['maxMembers']),
+        );
+      }
+      await Future.wait(sessions.map(_attachLiveCapacity));
       return sessions;
     } catch (e) {
       debugPrint('SessionService: Error getting public sessions: $e');
@@ -571,28 +691,30 @@ class SessionService {
     }
   }
 
-  /// Replaces an entry's stored `memberCount` with the live count read from
-  /// `sessions/{id}/members`.
+  /// Overwrites an entry's `memberCount` and `maxMembers` with the values read
+  /// from `sessions/{id}`.
   ///
-  /// The stored value is only a fallback: it is written once when the session
-  /// is created and the rules deliberately stop anyone but the owner from
-  /// updating it, so it would otherwise drift as members join and leave.
-  Future<void> _attachLiveMemberCount(Map<String, dynamic> entry) async {
+  /// One read of the session supplies both, so this costs the same round trip
+  /// the member-count lookup used to. If it fails the entry keeps the
+  /// normalized cap it was given and its last known count — exactly what the
+  /// card rendered before this read existed.
+  Future<void> _attachLiveCapacity(Map<String, dynamic> entry) async {
     final sessionId = entry['id'] as String?;
     if (sessionId == null || _database == null) return;
 
     try {
       final snapshot = await _database!
-          .ref('sessions/$sessionId/members')
+          .ref('sessions/$sessionId')
           .get()
           .timeout(_networkTimeout);
-      final members = snapshot.value;
-      if (members is Map) {
-        entry['memberCount'] = members.length;
-      }
+      final value = snapshot.value;
+      if (value is! Map) return;
+
+      final session = SharedSession.fromMap(Map<String, dynamic>.from(value));
+      entry['memberCount'] = session.memberCount;
+      entry['maxMembers'] = session.maxMembers;
     } catch (e) {
-      debugPrint(
-          'SessionService: member count lookup failed for $sessionId: $e');
+      debugPrint('SessionService: capacity lookup failed for $sessionId: $e');
     }
   }
 
@@ -600,53 +722,530 @@ class SessionService {
   // Presence
   // ---------------------------------------------------------------------------
 
-  /// Start presence heartbeat for a session (every 30 s)
+  /// Starts presence tracking for a session.
+  ///
+  /// This used to own a 30-second `Timer.periodic`. Presence is now the job of
+  /// [SessionPresenceService], which registers an `onDisconnect` handler *with
+  /// the server* — the only mechanism that can write a departure when the app is
+  /// killed rather than closed. The set here is kept so the call stays
+  /// idempotent and [debugStatus] can still report how many sessions are being
+  /// tracked.
   void startPresenceHeartbeat(String sessionId) {
-    try {
-      if (_presenceHeartbeatTimers[sessionId]?.isActive == true) return;
+    if (!_presenceSessions.add(sessionId)) return;
+    unawaited(SessionPresenceService.instance.attach(sessionId: sessionId));
+    debugPrint('SessionService: Started presence tracking for $sessionId');
+  }
 
-      _presenceHeartbeatTimers[sessionId] = Timer.periodic(
-        const Duration(seconds: 30),
-        (_) async => _updatePresence(sessionId),
+  /// Stops presence tracking for a session.
+  void _stopPresenceHeartbeat(String sessionId) {
+    if (!_presenceSessions.remove(sessionId)) return;
+    unawaited(SessionPresenceService.instance.detach(sessionId));
+    debugPrint('SessionService: Stopped presence tracking for $sessionId');
+  }
+
+  /// Publishes this member's status to the room.
+  ///
+  /// Used for `ready` and `focusing`, the two states the rest of the room acts
+  /// on. Writes immediately instead of waiting for a heartbeat, because a host
+  /// deciding whether to start should see a ready member right away.
+  Future<void> setMemberStatus({
+    required String sessionId,
+    required MemberStatus status,
+  }) async {
+    await SessionPresenceService.instance.setStatus(
+      sessionId: sessionId,
+      status: status,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lobby lifecycle
+  // ---------------------------------------------------------------------------
+
+  /// Resolves an invite code to the session it names.
+  ///
+  /// Throws a user-readable [SessionException] for every failure — unknown,
+  /// expired, or pointing at a session that has since gone — because the caller
+  /// is always a screen showing a message, never code that can branch on it.
+  Future<String> resolveInviteCode(String rawCode) async {
+    await _ensureInitialized();
+
+    final code = InviteCode.normalize(rawCode);
+    if (!InviteCode.isValid(code)) {
+      throw const SessionException(
+        'That does not look like an invite code. Codes are '
+        '${InviteCode.length} characters, like AB3K7Q.',
       );
+    }
 
-      debugPrint(
-          'SessionService: Started presence heartbeat for $sessionId');
+    if (!_isFirebaseAvailable || _database == null) {
+      throw const SessionException(
+        'Could not reach the server to check that invite. Try again once you '
+        'are back online.',
+      );
+    }
+
+    final snapshot = await _onDatabase(
+      () => _database!.ref('invites/$code').get(),
+    );
+    if (!snapshot.exists || snapshot.value is! Map) {
+      throw const SessionException(
+        'That invite code is not valid any more. Ask for a fresh one.',
+      );
+    }
+
+    final invite = Map<String, dynamic>.from(snapshot.value as Map);
+    final sessionId = invite['sid'] as String?;
+    if (sessionId == null || sessionId.isEmpty) {
+      throw const SessionException(
+        'That invite is damaged and cannot be used. Ask for a new code.',
+      );
+    }
+
+    // Expiry is checked here as well as by the cleanup job: a code can be
+    // scanned seconds after the cron ran, and the user deserves the real reason
+    // rather than "session not found".
+    final expiresAt = invite['expiresAt'];
+    if (expiresAt is String) {
+      final expiry = DateTime.tryParse(expiresAt);
+      if (expiry != null && DateTime.now().isAfter(expiry)) {
+        throw const SessionException(
+          'That invite has expired. Ask the host to share a new one.',
+        );
+      }
+    }
+
+    return sessionId;
+  }
+
+  /// Joins the session named by [rawCode].
+  ///
+  /// Returns the session id so the caller can navigate to its lobby.
+  Future<String> joinByCode({
+    required String rawCode,
+    required String displayName,
+    String? photoUrl,
+  }) async {
+    final sessionId = await resolveInviteCode(rawCode);
+    await _joinAsMember(
+      sessionId: sessionId,
+      displayName: displayName,
+      photoUrl: photoUrl,
+      // Stamped on the member node so the rules can verify the join came
+      // through a code that actually points at this session.
+      code: InviteCode.normalize(rawCode),
+    );
+    return sessionId;
+  }
+
+  /// Shared implementation behind [joinSession] and [joinByCode].
+  ///
+  /// Both paths must enforce exactly the same things — lobby-only, capacity,
+  /// idempotent re-entry — so they share one write rather than two that could
+  /// drift apart. [code] is null for a plain ID join, which is what the rules
+  /// expect for a session the user was handed the ID of directly.
+  Future<void> _joinAsMember({
+    required String sessionId,
+    required String displayName,
+    String? photoUrl,
+    String? code,
+  }) async {
+    await _ensureInitialized();
+
+    final userId = FirebaseAuthService.instance.userId;
+    if (userId == null) throw StateError('User not authenticated');
+    if (displayName.trim().isEmpty) {
+      throw ArgumentError('Display name cannot be empty');
+    }
+
+    if (!_isFirebaseAvailable || _database == null) {
+      throw const SessionException(
+        'Could not reach the server to join. Check your connection and try '
+        'again.',
+      );
+    }
+
+    final sessionSnap = await _onDatabase(
+      () => _database!.ref('sessions/$sessionId').get(),
+    );
+
+    if (!sessionSnap.exists || sessionSnap.value is! Map) {
+      throw const SessionException(
+        'This session no longer exists. The host may have ended it.',
+      );
+    }
+
+    final session = SharedSession.fromMap(
+      Map<String, dynamic>.from(sessionSnap.value as Map),
+    );
+
+    if (session.isCompleted || !session.isActive || session.isCancelled) {
+      throw const SessionException(
+        'This session has already finished, so you can no longer join it.',
+      );
+    }
+
+    // Joining mid-run is out of scope for v1: the latecomer would be dropped
+    // into a timer whose start they never saw, and the completion rule would
+    // reject them anyway. Say so plainly rather than letting them in to fail.
+    if (!session.isLobby) {
+      throw const SessionException(
+        'This session has already started. Ask the host to run another one.',
+      );
+    }
+
+    if (session.members.any((m) => m.userId == userId)) {
+      // Already in — treat it as a re-entry so a reinstall or a cold start
+      // lands the user back in the room instead of erroring.
+      startPresenceHeartbeat(sessionId);
+      return;
+    }
+
+    if (session.isFull) {
+      throw SessionException(SessionLimits.fullSessionMessage);
+    }
+
+    final now = DateTime.now();
+    final member = SessionMember(
+      userId: userId,
+      deviceId: DeviceIdentityService.instance.deviceId,
+      displayName: displayName.trim(),
+      photoUrl: photoUrl,
+      role: MemberRole.member,
+      status: MemberStatus.joined,
+      joinedAt: now,
+      isActive: true,
+      lastActive: now,
+      code: code,
+    );
+
+    try {
+      await _onDatabase(
+        () => _database!.ref().update({
+          'sessions/$sessionId/members/$userId': member.toMap(),
+          'users/$userId/sessions/$sessionId': true,
+        }),
+      );
+    } catch (error) {
+      throw await _translateJoinFailure(sessionId, error);
+    }
+
+    startPresenceHeartbeat(sessionId);
+    debugPrint('SessionService: Joined session $sessionId');
+  }
+
+  /// Marks the signed-in member ready (or not) in the lobby.
+  Future<void> setReady({
+    required String sessionId,
+    required bool ready,
+  }) async {
+    await setMemberStatus(
+      sessionId: sessionId,
+      status: ready ? MemberStatus.ready : MemberStatus.joined,
+    );
+  }
+
+  /// Starts the synchronised run. Host only.
+  ///
+  /// This is the single write the whole synchronisation rests on: one server
+  /// timestamp, and every device derives the same countdown and the same end
+  /// time from it. Nothing else is written at start, so nothing can disagree.
+  Future<void> startSession({
+    required String sessionId,
+    int? durationSec,
+  }) async {
+    await _ensureInitialized();
+
+    final userId = FirebaseAuthService.instance.userId;
+    if (userId == null) throw StateError('User not authenticated');
+    if (!_isFirebaseAvailable || _database == null) {
+      throw const SessionException(
+        'Could not reach the server to start. Check your connection and try '
+        'again.',
+      );
+    }
+
+    final session = await getSession(sessionId);
+    if (session == null) {
+      throw const SessionException('This session no longer exists.');
+    }
+    if (!session.isOwnedBy(userId)) {
+      throw const SessionException('Only the host can start this session.');
+    }
+    if (!session.isLobby) {
+      // Already running or finished — starting again would move the start time
+      // under everyone's feet and desynchronise the room.
+      debugPrint('SessionService: $sessionId is not in a lobby; ignoring start');
+      return;
+    }
+
+    await _onDatabase(
+      () => _database!.ref('sessions/$sessionId').update({
+        'state': SharedSessionState.running.wireName,
+        // Resolved by the server, never by this device's clock.
+        'runStartAt': ServerValue.timestamp,
+        if (durationSec != null)
+          'durationSec': SessionLimits.normalizeDurationSec(durationSec),
+      }),
+    );
+
+    _stopPresenceHeartbeat(sessionId);
+    unawaited(
+      SessionPresenceService.instance.setStatus(
+        sessionId: sessionId,
+        status: MemberStatus.focusing,
+      ),
+    );
+
+    debugPrint('SessionService: Started session $sessionId');
+  }
+
+  /// Cancels a session before it finishes. Host only.
+  Future<void> cancelSession({required String sessionId}) async {
+    await _ensureInitialized();
+
+    final userId = FirebaseAuthService.instance.userId;
+    if (userId == null) throw StateError('User not authenticated');
+    if (!_isFirebaseAvailable || _database == null) return;
+
+    final session = await getSession(sessionId);
+    if (session == null) return;
+    if (!session.isOwnedBy(userId)) {
+      throw const SessionException('Only the host can cancel this session.');
+    }
+
+    final code = session.inviteCode;
+    await _onDatabase(
+      () => _database!.ref().update({
+        'sessions/$sessionId/state': SharedSessionState.cancelled.wireName,
+        'sessions/$sessionId/isActive': false,
+        if (session.isPublic) 'publicSessions/$sessionId': null,
+        // A cancelled session's code must stop working immediately, or someone
+        // who was sent it lands in a room that no longer runs.
+        if (code != null) 'invites/$code': null,
+      }),
+    );
+
+    _stopPresenceHeartbeat(sessionId);
+    _sessionCache.remove(sessionId);
+    debugPrint('SessionService: Cancelled session $sessionId');
+  }
+
+  /// Records that the signed-in member broke focus by stopping early.
+  ///
+  /// Incremented rather than set, so two breaks in one run add up instead of
+  /// overwriting each other. Past [SessionLimits.maxBreaksPerRun] the member is
+  /// no longer credited — the completion webhook enforces the same ceiling.
+  Future<void> reportBreak({required String sessionId}) async {
+    await _ensureInitialized();
+
+    final userId = FirebaseAuthService.instance.userId;
+    if (userId == null || !_isFirebaseAvailable || _database == null) return;
+
+    try {
+      await _onDatabase(
+        () => _database!
+            .ref('sessions/$sessionId/members/$userId/breaks')
+            .runTransaction((current) {
+          final value = current;
+          final count = value is int ? value : 0;
+          return Transaction.success(count + 1);
+        }),
+      );
+      debugPrint('SessionService: Recorded focus break in $sessionId');
     } catch (e) {
-      debugPrint('SessionService: Error starting heartbeat: $e');
+      // A break that fails to record is not worth failing the run over: the
+      // completion check also requires the run to have reached its end.
+      debugPrint('SessionService: could not record break: $e');
     }
   }
 
-  /// Stop presence heartbeat for a session
-  void _stopPresenceHeartbeat(String sessionId) {
-    _presenceHeartbeatTimers[sessionId]?.cancel();
-    _presenceHeartbeatTimers.remove(sessionId);
-    debugPrint(
-        'SessionService: Stopped presence heartbeat for $sessionId');
-  }
+  /// Marks the signed-in member's run complete. Called at `endAt`.
+  ///
+  /// The timestamp is the server's, and `database.rules.json` rejects it before
+  /// the run's own end time — so a member cannot claim completion early by
+  /// editing the client.
+  Future<void> markCompleted({required String sessionId}) async {
+    await _ensureInitialized();
 
-  /// Update member presence timestamp
-  Future<void> _updatePresence(String sessionId) async {
+    final userId = FirebaseAuthService.instance.userId;
+    if (userId == null || !_isFirebaseAvailable || _database == null) return;
+
     try {
-      final userId = FirebaseAuthService.instance.userId;
-      if (userId == null || !_isFirebaseAvailable || _database == null) return;
-
       await _onDatabase(
-        () => _database!
-            .ref('sessions/$sessionId/members/$userId')
-            .update({
-          'lastActive': DateTime.now().toIso8601String(),
+        () => _database!.ref('sessions/$sessionId/members/$userId').update({
+          'completedAt': ServerValue.timestamp,
+          'status': MemberStatus.focusing.wireName,
           'isActive': true,
         }),
       );
+      debugPrint('SessionService: Marked completion in $sessionId');
     } catch (e) {
-      debugPrint('SessionService: Error updating presence: $e');
+      debugPrint('SessionService: could not mark completion: $e');
+    }
+  }
+
+  /// Removes another member from the lobby. Host only.
+  Future<void> kickMember({
+    required String sessionId,
+    required String memberId,
+  }) async {
+    await _ensureInitialized();
+
+    final userId = FirebaseAuthService.instance.userId;
+    if (userId == null) throw StateError('User not authenticated');
+    if (!_isFirebaseAvailable || _database == null) return;
+
+    final session = await getSession(sessionId);
+    if (session == null) return;
+    if (!session.isOwnedBy(userId)) {
+      throw const SessionException('Only the host can remove a member.');
+    }
+    if (memberId == userId) {
+      throw const SessionException(
+        'The host cannot remove themselves — cancel the session instead.',
+      );
+    }
+
+    await _onDatabase(
+      () => _database!.ref().update({
+        'sessions/$sessionId/members/$memberId': null,
+        'users/$memberId/sessions/$sessionId': null,
+      }),
+    );
+    debugPrint('SessionService: Kicked $memberId from $sessionId');
+  }
+
+  /// Deletes the invite code for a session this user owns.
+  Future<void> revokeInvite(String rawCode) async {
+    await _ensureInitialized();
+    if (!_isFirebaseAvailable || _database == null) return;
+
+    final code = InviteCode.normalize(rawCode);
+    if (!InviteCode.isValid(code)) return;
+
+    final sid = await getSession(await resolveInviteCode(code));
+    final userId = FirebaseAuthService.instance.userId;
+    if (sid == null || userId == null || !sid.isOwnedBy(userId)) return;
+
+    await _onDatabase(() => _database!.ref('invites/$code').remove());
+  }
+
+  // ---------------------------------------------------------------------------
+  // Results
+  // ---------------------------------------------------------------------------
+
+  /// Reads the verified result for one member, if the webhook has written it.
+  Future<SessionResult?> getResult({
+    required String sessionId,
+    required String userId,
+  }) async {
+    await _ensureInitialized();
+    if (!_isFirebaseAvailable || _database == null) return null;
+
+    try {
+      final snapshot = await _onDatabase(
+        () => _database!.ref('sessionResults/$sessionId/$userId').get(),
+      );
+      if (!snapshot.exists || snapshot.value is! Map) return null;
+      return SessionResult.fromMap(
+        Map<String, dynamic>.from(snapshot.value as Map),
+        sessionId: sessionId,
+        userId: userId,
+      );
+    } catch (e) {
+      debugPrint('SessionService: could not read result: $e');
+      return null;
+    }
+  }
+
+  /// Reads every member's verified result for a session.
+  Future<List<SessionResult>> getSessionResults(String sessionId) async {
+    await _ensureInitialized();
+    if (!_isFirebaseAvailable || _database == null) return const [];
+
+    try {
+      final snapshot = await _onDatabase(
+        () => _database!.ref('sessionResults/$sessionId').get(),
+      );
+      return SessionResult.listFromSnapshot(
+        snapshot.value,
+        sessionId: sessionId,
+      );
+    } catch (e) {
+      debugPrint('SessionService: could not read results: $e');
+      return const [];
     }
   }
 
   // ---------------------------------------------------------------------------
   // Real-time listening
   // ---------------------------------------------------------------------------
+
+  /// A live stream of one session, or `null` once it stops existing.
+  ///
+  /// Preferred over [listenToSession] on every new screen: it owns its own
+  /// subscription lifetime, so an `autoDispose` provider cancelling the stream
+  /// is all that is needed to release the Realtime Database listener.
+  Stream<SharedSession?> watchSession(String sessionId) async* {
+    await _ensureInitialized();
+    if (!_isFirebaseAvailable || _database == null) {
+      yield _sessionCache[sessionId];
+      return;
+    }
+
+    yield* _database!.ref('sessions/$sessionId').onValue.map((event) {
+      if (!event.snapshot.exists || event.snapshot.value is! Map) {
+        _sessionCache.remove(sessionId);
+        return null;
+      }
+      try {
+        final session = SharedSession.fromMap(
+          Map<String, dynamic>.from(event.snapshot.value as Map),
+        );
+        _sessionCache[sessionId] = session;
+        unawaited(_claimCompletionPointsIfFinished(session));
+        return session;
+      } catch (e) {
+        debugPrint('SessionService: bad session snapshot for $sessionId: $e');
+        return null;
+      }
+    });
+  }
+
+  /// A live stream of the member map for one session.
+  Stream<List<SessionMember>> watchMembers(String sessionId) async* {
+    await _ensureInitialized();
+    if (!_isFirebaseAvailable || _database == null) {
+      yield const [];
+      return;
+    }
+
+    yield* _database!.ref('sessions/$sessionId/members').onValue.map((event) {
+      if (!event.snapshot.exists || event.snapshot.value is! Map) {
+        return const <SessionMember>[];
+      }
+      final raw = Map<String, dynamic>.from(event.snapshot.value as Map);
+      final members = <SessionMember>[];
+      for (final entry in raw.entries) {
+        final value = entry.value;
+        if (value is! Map) continue;
+        try {
+          members.add(
+            SessionMember.fromMap(
+              Map<String, dynamic>.from(value),
+              // `raw` is already a `Map<String, dynamic>`, so the key is
+              // typed `String` and needs no cast.
+              userId: entry.key,
+            ),
+          );
+        } catch (e) {
+          debugPrint('SessionService: bad member ${entry.key}: $e');
+        }
+      }
+      return members;
+    });
+  }
 
   /// Listen to live session updates
   StreamSubscription<DatabaseEvent> listenToSession(
@@ -690,10 +1289,10 @@ class SessionService {
   /// Release all resources
   Future<void> release() async {
     try {
-      for (final timer in _presenceHeartbeatTimers.values) {
-        timer?.cancel();
+      for (final sessionId in _presenceSessions.toList()) {
+        unawaited(SessionPresenceService.instance.detach(sessionId));
       }
-      _presenceHeartbeatTimers.clear();
+      _presenceSessions.clear();
 
       for (final listener in _activeListeners.values) {
         await listener.cancel();
@@ -715,7 +1314,7 @@ class SessionService {
   String get debugStatus =>
       'SessionService(ready: $_isInitialized, '
       'cache: ${_sessionCache.length}, '
-      'heartbeats: ${_presenceHeartbeatTimers.length})';
+      'heartbeats: ${_presenceSessions.length})';
 
   bool get isReady => _isInitialized;
 }

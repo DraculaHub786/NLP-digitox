@@ -49,29 +49,105 @@ service cloud.firestore {
       }
     }
     
-    // Shared sessions - readable by members
-    match /shared_sessions/{sessionId} {
-      allow read: if request.auth != null && 
-        (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null ||
-         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.visibility == "public");
-      
-      allow write: if request.auth != null &&
-        (get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.owner == request.auth.uid ||
-         get(/databases/$(database)/documents/shared_sessions/$(sessionId)).data.members[request.auth.uid] != null);
-      
-      allow create: if request.auth != null;
-    }
-    
-    // Groups - readable by members or if public
+    // NOTE: live shared sessions live in the Realtime Database, not here. The
+    // old `shared_sessions` collection was never written by the shipped client
+    // and its rules were self-referential (`get()` on the document being read),
+    // which is denied by the rules engine. It is deliberately gone.
+
+    // ---------------------------------------------------------------------
+    // Groups (Phase 3) — durable, queryable membership on Firestore.
+    //
+    // Membership is a *subcollection* document, not a map field, so the rule
+    // can use `exists()` rather than a `get()` that has to fetch the parent on
+    // every access, and so a member cannot be added by rewriting the group
+    // document. Roles are checked against that same membership document.
+    // ---------------------------------------------------------------------
     match /groups/{groupId} {
-      allow read: if request.auth != null && 
-        (get(/databases/$(database)/documents/groups/$(groupId)).data.members[request.auth.uid] != null ||
-         get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == "public");
-      
-      allow write: if request.auth != null &&
-        get(/databases/$(database)/documents/groups/$(groupId)).data.owner == request.auth.uid;
-      
-      allow create: if request.auth != null;
+      function isMember() {
+        return request.auth != null &&
+          exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+      }
+
+      function isOwner() {
+        return request.auth != null &&
+          exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == "owner";
+      }
+
+      function isAdmin() {
+        return request.auth != null &&
+          exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role in ["owner", "admin"];
+      }
+
+      // Reading a group requires membership. `isMember()` returns false before
+      // the membership document exists, which is exactly what makes a
+      // newly-created group readable only by its creator.
+      allow read: if isMember();
+
+      // Only an existing owner/admin may edit the group document itself.
+      allow update: if isAdmin();
+
+      // Creation: any signed-in user, but the creator must own it.
+      allow create: if request.auth != null &&
+        request.resource.data.ownerId == request.auth.uid;
+
+      // Only the owner can delete the group.
+      allow delete: if isOwner();
+
+      match /members/{memberId} {
+        // Every member can see the roster.
+        allow read: if isMember();
+
+        // A user may add themselves as the initial owner, or an admin may add
+        // anyone else.
+        allow create: if request.auth != null &&
+          ((memberId == request.auth.uid &&
+            (!exists(/databases/$(database)/documents/groups/$(groupId)) ||
+             get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid)) ||
+           isAdmin());
+
+        // An admin may change roles; a member may only update their own
+        // profile fields and cannot escalate their own role.
+        allow update: if isAdmin() ||
+          (request.auth != null && memberId == request.auth.uid &&
+           request.resource.data.role == resource.data.role);
+
+        // A member may remove themselves; an admin may remove others.
+        allow delete: if isAdmin() ||
+          (request.auth != null && memberId == request.auth.uid);
+      }
+
+      // Scheduled sessions — admins create and edit, members read.
+      match /schedule/{scheduleId} {
+        allow read: if isMember();
+        allow write: if isAdmin();
+      }
+
+      // Per-member stats are written by the points webhook through a service
+      // account only; the client reads its own row for the group screen.
+      match /stats/{uid} {
+        allow read: if isMember();
+        allow write: if false;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Safety (Phase 5) — reports and blocks.
+    // ---------------------------------------------------------------------
+    match /reports/{reportId} {
+      // Any signed-in user may file a report; only the reporter may read it
+      // back. Review happens server-side with a service account.
+      allow create: if request.auth != null &&
+        request.resource.data.reporterUid == request.auth.uid;
+      allow read: if request.auth != null &&
+        resource.data.reporterUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /blocks/{uid}/blocked/{blockedUid} {
+      // A user's own block list, and nothing else.
+      allow read, write: if request.auth != null && request.auth.uid == uid;
     }
     
     // Leaderboard - all authenticated users can read; each user can write only their own doc
@@ -111,9 +187,12 @@ service cloud.firestore {
       allow write: if false; // n8n service account only
     }
     
-    // Badge verification - public-safe on purpose, never gets an email field.
+    // Badge verification - not read by the client today. If a public
+    // verify-by-link page needs it later, allow single-document `get` only so
+    // IDs cannot be listed:
+    //   allow get: if request.auth != null;
     match /badge_verification/{verificationId} {
-      allow read: if request.auth != null;
+      allow read: if false;
       allow write: if false; // n8n service account only
     }
     

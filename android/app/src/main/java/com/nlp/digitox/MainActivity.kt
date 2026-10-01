@@ -69,13 +69,19 @@ class MainActivity : FlutterFragmentActivity() {
 
 
     override fun onDestroy() {
-        // Do NOT dispose the method call handler on destroy - it needs to survive
-        // activity restarts. Only dispose when truly finished.
-        fgMethodCallHandler = FgMethodCallHandler(
-            context = this,
-            activity = this,
-            vpnPermLauncher = vpnPermissionLauncher
-        )
+        // Release the service bindings this activity owns.
+        //
+        // The previous implementation *constructed a brand-new handler here and
+        // dropped it on the floor*: it was never registered on the method
+        // channel, its bindings were never released, and its `init` block
+        // re-ran `ensureAllServicesRunning()` (re-pushing settings and
+        // re-scheduling the keep-alive alarm) during teardown. Every activity
+        // teardown therefore leaked a set of service connections.
+        //
+        // Unbinding is safe: the tracker/VPN services are *started* foreground
+        // services, so they keep running when the last client unbinds, and the
+        // next `onCreate` builds a fresh handler that re-binds.
+        fgMethodCallHandler.dispose()
         super.onDestroy()
     }
 

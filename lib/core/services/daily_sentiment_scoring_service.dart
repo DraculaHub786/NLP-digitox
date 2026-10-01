@@ -148,11 +148,7 @@ Return ONLY the number (e.g., "0.3" or "-0.7"), nothing else.''';
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final content = data['choices'][0]['message']['content'] as String;
-        final score = double.tryParse(content.trim());
-        if (score != null && score >= -1.0 && score <= 1.0) {
-          return score.clamp(-1.0, 1.0);
-        }
-        return null;
+        return parseScoreResponse(content);
       } else {
         debugPrint(
           'DailySentimentScoringService: API error ${response.statusCode}',
@@ -163,6 +159,39 @@ Return ONLY the number (e.g., "0.3" or "-0.7"), nothing else.''';
       debugPrint('DailySentimentScoringService: Scoring error - $e');
       return null;
     }
+  }
+
+  /// Parse the model's reply into a day score in `[-1.0, +1.0]`, or null when
+  /// the reply carries nothing usable.
+  ///
+  /// The prompt asks for a bare number, but models routinely decorate it —
+  /// `"Score: -0.4"`, a fenced code block, a trailing newline, a trailing
+  /// full stop. A bare `double.tryParse` rejected all of those, and each
+  /// rejection silently cost the user a day of wellbeing history, so the
+  /// first numeric token is extracted as a fallback.
+  ///
+  /// Out-of-range values are rejected rather than clamped: a reply of `4.2`
+  /// means the model ignored the scoring instruction, and a fabricated
+  /// extreme would distort the 30-day trend it feeds.
+  @visibleForTesting
+  static double? parseScoreResponse(String content) {
+    final cleaned = content
+        .trim()
+        .replaceAll(
+          RegExp(r'^```(?:json)?\s*|\s*```$', caseSensitive: false),
+          '',
+        )
+        .trim();
+
+    final value = double.tryParse(cleaned) ?? _firstNumberIn(cleaned);
+    if (value == null) return null;
+    return value >= -1.0 && value <= 1.0 ? value : null;
+  }
+
+  /// First signed number in [text] (`-0.4`, `+0.4`, `.4`, `0`), or null.
+  static double? _firstNumberIn(String text) {
+    final match = RegExp(r'[-+]?\d*\.?\d+').firstMatch(text);
+    return match == null ? null : double.tryParse(match.group(0)!);
   }
 
   /// Writes [score] to its own day document and rebuilds the deduplicated,

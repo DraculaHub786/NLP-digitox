@@ -8,6 +8,7 @@ import androidx.annotation.WorkerThread
 import com.nlp.digitox.AppConstants
 import com.nlp.digitox.R
 import com.nlp.digitox.generics.ServiceBinder
+import com.nlp.digitox.helpers.KeepAliveHelper
 import com.nlp.digitox.helpers.device.NotificationHelper
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 
@@ -40,6 +41,12 @@ class DigitoxTrackerService : Service() {
         )
         super.onCreate()
         restoreRestrictionsFromPrefs()
+
+        // Arm the watchdog from the service itself, not only from the activity:
+        // the activity used to be the sole caller, so a user who never opened
+        // the app again after a restore/reboot had no alarm guarding this
+        // service at all.
+        KeepAliveHelper.scheduleKeepAlive(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -115,6 +122,20 @@ class DigitoxTrackerService : Service() {
         if (appRestrictions.isNotEmpty() || restrictionGroups.isNotEmpty()) {
             restrictionManager.updateRestrictions(appRestrictions, restrictionGroups)
         }
+    }
+
+    /**
+     * Called when the user swipes the app out of recents.
+     *
+     * Android kills the whole process in that case, and `onDestroy()` is *not*
+     * invoked — so the self-restart in [onDestroy] never runs and tracking
+     * silently stops until the next periodic watchdog tick. An AlarmManager
+     * alarm outlives the process, so we arm one here to come straight back.
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.w(TAG, "onTaskRemoved: task removed from recents - arming immediate restart")
+        KeepAliveHelper.scheduleImmediateRestart(this)
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {

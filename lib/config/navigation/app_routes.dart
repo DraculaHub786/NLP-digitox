@@ -22,6 +22,7 @@ import 'package:nlp_digitox/ui/screens/settings/settings_screen.dart';
 import 'package:nlp_digitox/ui/screens/shorts_blocking/shorts_blocking_screen.dart';
 import 'package:nlp_digitox/ui/screens/notifications/notifications_screen.dart';
 import 'package:nlp_digitox/ui/screens/websites_blocking/websites_blocking_screen.dart';
+import 'package:nlp_digitox/features/groups/groups_list_screen.dart';
 import 'package:nlp_digitox/features/shared_sessions/sessions_list_screen.dart';
 import 'package:nlp_digitox/ui/splash_screen.dart';
 
@@ -55,6 +56,9 @@ class AppRoutes {
   /// Shared focus sessions (create/join/browse)
   static const String sharedSessionsPath = '/sharedSessions';
 
+  /// Durable focus groups (roster, schedule, group runs)
+  static const String groupsPath = '/groups';
+
   static final Map<String, Widget Function(BuildContext)> routes = {
     /// Auth screens
     loginPath: (context) => const LoginScreen(),
@@ -71,6 +75,11 @@ class AppRoutes {
     onboardingPath: (context) => OnboardingScreen(
           isOnboardingDone:
               context.resolveParam<bool>("isOnboardingDone") ?? false,
+          // Set by the splash when an already-onboarded user is missing an OS
+          // permission: render the permission screen alone, never the intro
+          // slides or the persona quiz.
+          permissionsOnly:
+              context.resolveParam<bool>("permissionsOnly") ?? false,
         ),
 
     /// Change logs screen
@@ -114,6 +123,9 @@ class AppRoutes {
 
     /// Shared focus sessions screen
     sharedSessionsPath: (context) => const SessionsListScreen(),
+
+    /// Focus groups screen
+    groupsPath: (context) => const GroupsListScreen(),
 
     /// Focus mode screen
     focusModePath: (context) => FocusScreen(

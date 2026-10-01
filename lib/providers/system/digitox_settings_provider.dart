@@ -23,16 +23,29 @@ class DigitoxSettingsNotifier extends StateNotifier<DigitoxSettings> {
     init(addListenerToo: true);
   }
 
-  /// Initializes the settings state by loading from the database and setting up a listener for saving changes.
-  Future<DigitoxSettings> init({bool addListenerToo = false}) async {
+  /// The single in-flight load shared by every caller.
+  ///
+  /// The constructor kicks off `init(addListenerToo: true)` and the splash
+  /// calls `init()` again; without this the two raced and could assign `state`
+  /// out of order — the drift flag read by the splash was not necessarily the
+  /// one the listener had settled on, which is one of the ways a returning user
+  /// could be sent back through onboarding.
+  Future<DigitoxSettings>? _initFuture;
+
+  /// Concurrent or repeated callers share one load. Note: later calls do NOT
+  /// reload from the database.
+  Future<DigitoxSettings> init({bool addListenerToo = false}) =>
+      _initFuture ??= _doInit(addListenerToo: addListenerToo);
+
+  Future<DigitoxSettings> _doInit({required bool addListenerToo}) async {
     final dao = DriftDbService.instance.driftDb.uniqueRecordsDao;
     state = await dao.loadDigitoxSettings();
     await MethodChannelService.instance
         .updateLocale(languageCode: state.localeCode);
 
     if (addListenerToo) {
-      /// Run after a delay to avoid database deadlock
-      /// Listen to provider and save changes to Isar database
+      /// Run after a delay to avoid database deadlock.
+      /// Listen to provider and save changes to Isar database.
       Future.delayed(
         1.seconds,
         () => addListener(

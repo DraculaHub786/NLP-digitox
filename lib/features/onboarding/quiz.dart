@@ -46,11 +46,9 @@ class _OnboardingQuizPageState extends ConsumerState<OnboardingQuizPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final perms = ref.read(permissionProvider);
-      final allGranted = perms.haveUsageAccessPermission &&
-          perms.haveDisplayOverlayPermission &&
-          perms.haveAlarmsPermission &&
-          perms.haveNotificationPermission &&
-          perms.haveAccessibilityPermission;
+      // Single source of truth — the five checks were previously re-spelled
+      // here and in the onboarding screen, and had already drifted apart.
+      final allGranted = perms.hasAllEssentialPermissions;
       if (!allGranted) widget.onPermissionsMissing?.call();
     });
   }

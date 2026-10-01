@@ -10,6 +10,7 @@ import 'package:nlp_digitox/core/services/bg_executor_service.dart';
 import 'package:nlp_digitox/core/services/crash_log_service.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/session_link_handler.dart';
 import 'package:nlp_digitox/features/mood/mood_service.dart';
 import 'package:nlp_digitox/digitox_app.dart';
 
@@ -54,6 +55,11 @@ Future<void> main() async {
   /// Mood history isn't needed for the very first frame — load it right after
   /// runApp() instead of before, so the splash/launch screen clears sooner.
   unawaited(MoodService().init());
+
+  /// Start watching for shared-session invite links. Any code that arrives
+  /// before a screen is listening is held by the handler, so a cold start from
+  /// a link is not lost while the splash and sign-in run.
+  unawaited(SessionLinkHandler.instance.start());
 
   FlutterError.onError = (errorDetails) {
     CrashLogService.instance.recordCrashError(
