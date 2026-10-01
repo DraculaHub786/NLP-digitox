@@ -1022,7 +1022,11 @@ $userMessage
 
   /// Suggest conversation starters based on sentiment
   List<String> getSuggestedPrompts(Map<String, double> sentiment) {
-    final topSentiment = sentiment.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    // Ties keep the earlier entry (>= rather than >): on an equal-value map the
+    // answer is whatever label came first, which makes the bucket a caller can
+    // predict from the order of the vector it passed in.
+    final topSentiment =
+        sentiment.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
 
     switch (topSentiment) {
       case 'Anxious':

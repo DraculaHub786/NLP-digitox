@@ -54,6 +54,13 @@ dependencies:
   url_launcher: ^6.3.1
   flutter_dotenv: ^5.1.0
 
+  # Shared-session invites: render the join link as a QR code and share it
+  # through the OS share sheet. Scanning is handled by the device camera
+  # opening the `com.nlp.digitox://join/{code}` deep link, so no in-app camera
+  # scanner (and no camera permission) is needed.
+  qr_flutter: ^4.1.0
+  share_plus: ^10.0.0
+
   # Firebase
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.4
@@ -98,8 +105,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    # Environment config (for debug builds without --dart-define-from-file)
-    - .env
+    # NOTE: `.env` is intentionally NOT bundled as an asset. Shipping it put
+    # every key (Groq, Gemini, Cloudinary, webhook URLs) inside the APK. Pass
+    # them at build time instead:  flutter run --dart-define-from-file=.env
+    # `EnvLoader` treats a missing file as "no environment", and `ApiKeys`
+    # falls back to the --dart-define values.
     # App Logo
     - assets/logo.png
     - assets/logo-prev.png

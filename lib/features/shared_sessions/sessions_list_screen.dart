@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/config/hero_tags.dart';
-import 'package:nlp_digitox/features/shared_sessions/session_detail_screen.dart';
+import 'package:nlp_digitox/core/services/session_link_handler.dart';
+import 'package:nlp_digitox/features/shared_sessions/session_lobby_screen.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/create_session_sheet.dart';
+import 'package:nlp_digitox/features/shared_sessions/widgets/join_by_code_sheet.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/join_by_id_sheet.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_cards.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_state_views.dart';
@@ -39,6 +43,36 @@ class SessionsListScreen extends ConsumerStatefulWidget {
 
 class _SessionsListScreenState extends ConsumerState<SessionsListScreen> {
   SessionTab _tab = SessionTab.mine;
+  StreamSubscription<String>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // An invite link may have arrived before this screen existed (cold start
+    // from the link), so the pending code is read first; the subscription then
+    // covers links that arrive while the screen is open.
+    final pending = SessionLinkHandler.instance.consumePending();
+    if (pending != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _onInviteCode(pending),
+      );
+    }
+
+    _linkSubscription = SessionLinkHandler.instance.codes.listen(_onInviteCode);
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// Opens the join sheet pre-filled with a code from an invite link.
+  void _onInviteCode(String code) {
+    if (!mounted) return;
+    showJoinByCodeSheet(context, initialCode: code);
+  }
 
   Future<void> _refresh() async {
     ref.invalidate(userSessionsProvider);
@@ -64,6 +98,13 @@ class _SessionsListScreenState extends ConsumerState<SessionsListScreen> {
             onPressed: () => showCreateSessionSheet(context),
           ),
           actions: [
+            // The code is the primary join path — it is what a host shares and
+            // what a QR opens — so it gets the more prominent affordance.
+            IconButton(
+              tooltip: 'Join with a code',
+              icon: const Icon(FluentIcons.key_20_regular),
+              onPressed: () => showJoinByCodeSheet(context),
+            ),
             IconButton(
               tooltip: 'Join by ID',
               icon: const Icon(FluentIcons.qr_code_20_regular),
@@ -186,10 +227,16 @@ class _SessionsListScreenState extends ConsumerState<SessionsListScreen> {
     );
   }
 
+  /// Opens the session's lobby.
+  ///
+  /// The lobby, not the read-only detail view, is the right destination: it is
+  /// where readiness is set and where the host starts the synchronised run, and
+  /// it is where every join path (code, ID, deep link) lands. The detail screen
+  /// remains the place a session is inspected when its lobby has closed.
   void _openSession(SharedSession session) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SessionDetailScreen(sessionId: session.id),
+        builder: (_) => SessionLobbyScreen(sessionId: session.id),
       ),
     );
   }

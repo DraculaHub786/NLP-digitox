@@ -105,6 +105,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // AND the DigitoxSettings flag is set (or a cloud restore just supplied both).
     _isOnboardingDone = restoredFromCloud || (_isOnboardingDone && quizCompleted);
 
+    // Diagnostic: if a returning user is being sent back through onboarding,
+    // exactly one of these four inputs is false. Reading them together is what
+    // tells you which one to fix (the drift flag, the SharedPreferences quiz
+    // flag, an offline restore, or a revoked permission).
+    debugPrint('SPLASH onboarding: drift=${settings.isOnboardingDone} '
+        'quizCompleted=$quizCompleted restoredFromCloud=$restoredFromCloud '
+        'perms=$_haveAllEssentialPermissions -> done=$_isOnboardingDone');
+
     if (mounted) setState(() {});
     _isAccessProtected ? _authenticate() : _goToNextScreen(true);
   }

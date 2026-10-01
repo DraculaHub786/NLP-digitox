@@ -1,6 +1,8 @@
 // Session provider for state management with Riverpod
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nlp_digitox/core/enums/session_phase.dart';
+import 'package:nlp_digitox/core/services/session_clock.dart';
 import 'package:nlp_digitox/core/services/session_service.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 
@@ -15,10 +17,15 @@ final userSessionsProvider = FutureProvider<List<SharedSession>>((ref) async {
   return sessionService.getUserSessions();
 });
 
-/// Single session provider (requires sessionId)
-final sessionDetailProvider = FutureProvider.family<SharedSession?, String>((ref, sessionId) async {
-  final sessionService = ref.watch(sessionServiceProvider);
-  return sessionService.getSession(sessionId);
+/// Single session provider (requires sessionId).
+///
+/// A stream, not a future: a lobby that only reads once goes stale the moment
+/// another member joins, marks ready or the host starts the run. `watchSession`
+/// emits the whole document on every change, so the detail screen updates
+/// itself without anyone invalidating this provider.
+final sessionDetailProvider =
+    StreamProvider.family<SharedSession?, String>((ref, sessionId) {
+  return ref.watch(sessionServiceProvider).watchSession(sessionId);
 });
 
 /// Session members provider (requires sessionId)
@@ -53,6 +60,8 @@ class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession?>> {
     bool isPublic = false,
     int? maxMembers,
     SessionSettings? settings,
+    String type = 'study',
+    int? durationSec,
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _sessionService.createSession(
@@ -62,6 +71,8 @@ class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession?>> {
       isPublic: isPublic,
       maxMembers: maxMembers,
       settings: settings,
+      type: type,
+      durationSec: durationSec,
     ));
   }
 }
@@ -136,9 +147,9 @@ class CompleteSessionNotifier
     );
 
     if (state.hasValue) {
+      // The detail and member providers are streams now and update
+      // themselves; only the list of the user's sessions needs a refresh.
       _ref.invalidate(userSessionsProvider);
-      _ref.invalidate(sessionDetailProvider(sessionId));
-      _ref.invalidate(sessionMembersProvider(sessionId));
     }
   }
 }
@@ -182,4 +193,183 @@ final joinByIdProvider =
         (ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return JoinSessionByIdNotifier(sessionService);
+});
+// =============================================================================
+// Live (Realtime Database) providers — synchronised sessions.
+//
+// Everything above this line is the older FutureProvider surface the existing
+// screens and tests use. The providers below are the ones every synchronised
+// screen reads: they stream from RTDB so a lobby updates the instant a member
+// joins, and they derive the shared phase from the *server* clock rather than
+// a local wall clock.
+// =============================================================================
+
+/// The app-wide [SessionClock] — the single source of "now" for every timer.
+///
+/// `start()` is idempotent, so watching this from any screen is enough to make
+/// sure the `.info/serverTimeOffset` subscription is live before a run begins.
+final sessionClockProvider = Provider<SessionClock>((ref) {
+  final clock = SessionClock.instance;
+  clock.start();
+  return clock;
+});
+
+/// A live stream of one session, or `null` once it stops existing.
+final sessionStreamProvider = StreamProvider.autoDispose
+    .family<SharedSession?, String>((ref, sessionId) {
+  return ref.watch(sessionServiceProvider).watchSession(sessionId);
+});
+
+/// A live stream of the member map for one session.
+final sessionMembersStreamProvider = StreamProvider.autoDispose
+    .family<List<SessionMember>, String>((ref, sessionId) {
+  return ref.watch(sessionServiceProvider).watchMembers(sessionId);
+});
+
+/// One-second ticks of the **server** clock, used to drive countdowns.
+final sessionTickerProvider = StreamProvider.autoDispose<int>((ref) {
+  return ref.watch(sessionClockProvider).ticks();
+});
+
+/// The derived lifecycle phase for a session, recomputed every tick.
+///
+/// Deliberately derived and never stored: the host writes exactly one server
+/// timestamp on Start, and every device — the host's own included — works out
+/// "countdown", "running" and "finished" from that value. This is what keeps
+/// devices whose wall clocks disagree within a second of each other.
+final sessionPhaseProvider =
+    Provider.autoDispose.family<SessionPhase, String>((ref, sessionId) {
+  final session = ref.watch(sessionStreamProvider(sessionId)).valueOrNull;
+  final clock = ref.watch(sessionClockProvider);
+
+  // Prefer the latest tick so the phase flips at the right second, but fall
+  // back to a direct read so the very first frame — before a tick has been
+  // delivered — is still correct rather than defaulting to the lobby.
+  final nowMs =
+      ref.watch(sessionTickerProvider).valueOrNull ?? clock.nowMs();
+
+  return session?.phaseAt(nowMs) ?? SessionPhase.lobby;
+});
+
+/// Seconds left in the run (or countdown), recomputed every tick.
+///
+/// Null in the lobby and after `endAt`.
+final sessionRemainingSecProvider =
+    Provider.autoDispose.family<int?, String>((ref, sessionId) {
+  final session = ref.watch(sessionStreamProvider(sessionId)).valueOrNull;
+  if (session == null) return null;
+
+  final clock = ref.watch(sessionClockProvider);
+  final nowMs =
+      ref.watch(sessionTickerProvider).valueOrNull ?? clock.nowMs();
+
+  return session.remainingSecAt(nowMs) ??
+      session.countdownRemainingSecAt(nowMs);
+});
+
+/// Joins the session named by an invite code and returns its id so the caller
+/// can navigate to the lobby.
+class JoinByCodeNotifier extends StateNotifier<AsyncValue<String?>> {
+  JoinByCodeNotifier(this._sessionService)
+      : super(const AsyncValue.data(null));
+
+  final SessionService _sessionService;
+
+  Future<String?> joinByCode({
+    required String code,
+    required String displayName,
+    String? photoUrl,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _sessionService.joinByCode(
+          rawCode: code,
+          displayName: displayName,
+          photoUrl: photoUrl,
+        ));
+    return state.valueOrNull;
+  }
+}
+
+/// Join-by-invite-code provider.
+final joinByCodeProvider = StateNotifierProvider.autoDispose<
+    JoinByCodeNotifier, AsyncValue<String?>>((ref) {
+  final sessionService = ref.watch(sessionServiceProvider);
+  return JoinByCodeNotifier(sessionService);
+});
+
+// -----------------------------------------------------------------------------
+// Lobby actions
+// -----------------------------------------------------------------------------
+
+/// The member actions a lobby offers: ready toggle, host start/cancel/kick.
+///
+/// One notifier for all of them so a screen can show a single busy state and
+/// surface a single error, rather than juggling four separate providers for
+/// what is, from the user's side, one set of buttons.
+class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
+  SessionLobbyNotifier(this._sessionService, this._ref)
+      : super(const AsyncValue.data(null));
+
+  final SessionService _sessionService;
+  final Ref _ref;
+
+  Future<void> setReady({
+    required String sessionId,
+    required bool ready,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _sessionService.setReady(sessionId: sessionId, ready: ready),
+    );
+  }
+
+  Future<void> start(String sessionId, {int? durationSec}) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _sessionService.startSession(
+        sessionId: sessionId,
+        durationSec: durationSec,
+      ),
+    );
+  }
+
+  Future<void> cancel(String sessionId) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _sessionService.cancelSession(sessionId: sessionId),
+    );
+    if (!state.hasError) {
+      _ref.invalidate(userSessionsProvider);
+    }
+  }
+
+  Future<void> kick({
+    required String sessionId,
+    required String memberId,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _sessionService.kickMember(
+        sessionId: sessionId,
+        memberId: memberId,
+      ),
+    );
+  }
+
+  Future<void> leave(String sessionId) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(
+      () => _sessionService.leaveSession(sessionId: sessionId),
+    );
+    if (!state.hasError) {
+      _ref.invalidate(userSessionsProvider);
+    }
+  }
+}
+
+/// Lobby action provider.
+final sessionLobbyProvider = StateNotifierProvider.autoDispose<
+    SessionLobbyNotifier, AsyncValue<void>>((ref) {
+  final sessionService = ref.watch(sessionServiceProvider);
+  return SessionLobbyNotifier(sessionService, ref);
 });

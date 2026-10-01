@@ -1,6 +1,6 @@
 # NLP / AI evaluation report
 
-Generated: 2026-09-30T12:46:35.541680
+Generated: 2026-10-01T23:34:29.174470
 
 ## Run environment
 
@@ -32,8 +32,8 @@ Generated: 2026-09-30T12:46:35.541680
 |  | weighted F1 | 0.5319 |
 | daily_score_parser | exact-match accuracy | 1.0000 |
 |  | rejection correctness | 1.0000 |
-| agent_behaviour | routing accuracy | 0.7000 |
-|  | routing macro F1 | 0.6826 |
+| agent_behaviour | routing accuracy | 1.0000 |
+|  | routing macro F1 | 1.0000 |
 |  | title accuracy | 1.0000 |
 
 ## Full scorecards
@@ -273,16 +273,16 @@ Deterministic AIChatbotService behaviour: prompt routing (30 sentiment vectors) 
 
 | metric | value | note |
 | --- | ---: | --- |
-| Subset accuracy (exact match) | 70.00% | 21/30 examples |
-| Micro precision | 70.00% |  |
-| Micro recall | 70.00% |  |
-| Micro F1 | 70.00% |  |
-| Macro precision | 70.71% |  |
-| Macro recall | 69.10% |  |
-| Macro F1 | 68.26% |  |
-| Weighted F1 | 70.13% |  |
+| Subset accuracy (exact match) | 100.00% | 30/30 examples |
+| Micro precision | 100.00% |  |
+| Micro recall | 100.00% |  |
+| Micro F1 | 100.00% |  |
+| Macro precision | 100.00% |  |
+| Macro recall | 100.00% |  |
+| Macro F1 | 100.00% |  |
+| Weighted F1 | 100.00% |  |
 | Examples scored | 30 |  |
-| Accuracy (single-label argmax) | 70.00% | 21/30 examples |
+| Accuracy (single-label argmax) | 100.00% | 30/30 examples |
 | Title normalisation accuracy | 100.00% | 16/16 titles produced as expected |
 | Routing cases | 30 |  |
 | Title cases | 16 |  |
@@ -293,33 +293,33 @@ Deterministic AIChatbotService behaviour: prompt routing (30 sentiment vectors) 
 
 ```
 label              prec      rec       F1     tp     fp     fn  support
-Anxious           0.750    0.750    0.750      6      2      2        8
-Negative          0.500    0.500    0.500      2      2      2        4
-Focused           0.571    0.800    0.667      4      3      1        5
-Positive          1.000    0.571    0.727      4      0      3        7
-Neutral           0.714    0.833    0.769      5      2      1        6
+Anxious           1.000    1.000    1.000      8      0      0        8
+Negative          1.000    1.000    1.000      4      0      0        4
+Focused           1.000    1.000    1.000      5      0      0        5
+Positive          1.000    1.000    1.000      7      0      0        7
+Neutral           1.000    1.000    1.000      6      0      0        6
 ```
 
 **Prompt routing confusion matrix (counts)**
 
 ```
                Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)
-Anxious              6        1        0        0        1
-Negative             2        2        0        0        0
-Focused              0        0        4        0        1
-Positive             0        1        2        4        0
-Neutral              0        0        1        0        5
+Anxious              8        0        0        0        0
+Negative             0        4        0        0        0
+Focused              0        0        5        0        0
+Positive             0        0        0        7        0
+Neutral              0        0        0        0        6
 ```
 
 **Prompt routing confusion matrix (row-normalised)**
 
 ```
                Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)
-Anxious           0.75     0.13     0.00     0.00     0.13
-Negative          0.50     0.50     0.00     0.00     0.00
-Focused           0.00     0.00     0.80     0.00     0.20
-Positive          0.00     0.14     0.29     0.57     0.00
-Neutral           0.00     0.00     0.17     0.00     0.83
+Anxious           1.00     0.00     0.00     0.00     0.00
+Negative          0.00     1.00     0.00     0.00     0.00
+Focused           0.00     0.00     1.00     0.00     0.00
+Positive          0.00     0.00     0.00     1.00     0.00
+Neutral           0.00     0.00     0.00     0.00     1.00
 ```
 
 

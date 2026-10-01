@@ -1,4 +1,4 @@
-# NLP-Digitox: Shared & Group Focus Sessions - Master Plan
+<!-- # NLP-Digitox: Shared & Group Focus Sessions - Master Plan
 
 Base branch: `main` (`profilepic` was merged in via PRs #8/#9; branch new work from `main`).
 
@@ -7,6 +7,69 @@ Base branch: `main` (`profilepic` was merged in via PRs #8/#9; branch new work f
 **Verified from the repo** (README, `pubspec.yaml`, `firestore.rules`, `todo.md` audit notes): Flutter + Riverpod, Firebase Auth, Realtime Database (RTDB) for sessions, Firestore for user data/leaderboards, n8n for webhooks, `app_links`, `flutter_local_notifications`, `just_audio`, Android-native blocking (`android/app/src/main/java/com/nlp/digitox/...`), files named in `todo.md`: `lib/core/services/session_service.dart`, `sessions_list_screen.dart`, `focus_session_screen.dart`, `database.rules.json`, `profile_service.dart`.
 
 **Not verified** (I could not open `lib/`): exact folder of each screen/provider/model and the names of the existing Focus Mode service. Paths marked **[confirm]** must be located with `grep -rn` before editing. Commands are given in Section 6.
+
+## 0.1 Implementation status (living record)
+
+Legend: `[x]` done and verified in the repo · `[~]` partially done · `[ ]` not started.
+
+**Audited against the codebase.** The repo already contains an *earlier, simpler*
+shared-session feature (create / join-by-ID / leave / complete / heartbeat
+presence / group-focus-from-own-settings / completion points). That work covers
+part of Phase 0 and nothing else. It has **no** synchronized server-time timer,
+**no** lobby lifecycle, **no** invite codes or links, **no** groups, and **no**
+server-side completion verification. Every row below marked `[ ]` is new work.
+
+| # | Area | Status | Notes |
+|---|---|---|---|
+| 1 | `database.rules.json` rewrite (§6.1) | `[x]` | Per-session read, owner-only root write, member self-write in lobby, `code` validated against `invites`, `completedAt` rejected before `endAt`, `sessionResults` write-locked. |
+| 2 | `firebase.json` emulators | `[x]` | auth 9099 / database 9000 / firestore 8080 + emulator UI. |
+| 3 | `firestore.rules` (drop `shared_sessions`, groups/reports/blocks) | `[x]` | Stale `shared_sessions` block deleted. Groups now use a membership **subcollection** with `exists()`/role functions (owner/admin/member, schedule, stats), plus `reports` and `blocks`. |
+| 4 | Session model extensions | `[x]` | `type`/`visibility`/`durationSec`/`countdownSec`/`state`/`runStartAt`/`groupId`/`inviteCode` + derived `startEffective`/`endAt`/`phaseAt`. `isPublic` kept as a getter over `visibility`. |
+| 5 | `lib/models/session_member.dart` | `[x]` | Extracted, with `MemberStatus`/`MemberRole`; still re-exported from `shared_session_model.dart` so old imports keep working. |
+| 6 | `lib/models/session_result.dart` | `[x]` | Read model for `sessionResults/{sid}/{uid}`. |
+| 7 | `lib/core/services/session_clock.dart` | `[x]` | `.info/serverTimeOffset` subscription, re-subscribes on reconnect, 1 Hz `ticks()`, test factory. |
+| 8 | `lib/core/services/session_presence_service.dart` | `[x]` | `onDisconnect` + 45 s heartbeat; the old fast heartbeat is now a shim. |
+| 9 | `SessionService` lobby lifecycle | `[x]` | `joinByCode`, `setReady`, `startSession`, `cancelSession`, `reportBreak`, `markCompleted`, `kickMember`, `watchSession`/`watchMembers`, invite codes (24 h), plus the earlier atomic create. |
+| 10 | `lib/core/services/session_focus_bridge.dart` | `[x]` | Idempotent `startRun`/`reportBreak`/`completeRun`. |
+| 11 | Session providers | `[x]` | `sessionStreamProvider`, `sessionMembersStreamProvider`, `sessionPhaseProvider`, `sessionClockProvider`, `sessionTickerProvider`, `joinByCodeProvider`, `sessionLobbyProvider`. |
+| 12 | `sessions_list_screen.dart` | `[~]` | Join-with-code sheet wired (with deep-link pre-fill); session cards open the **lobby**. Create sheet carries name/type/duration/visibility/capacity. QR is rendered/shared as a link; no in-app camera scanner (the deep link covers it). |
+| 13 | `session_lobby_screen.dart` | `[x]` | Member grid with photos, ready toggle, invite panel (code/QR/share), host Start/Cancel/Kick, auto-start into focus on `running`, auto-finish into summary. |
+| 14 | `focus_session_screen.dart` shared mode | `[~]` | The shared run drives the existing focus engine with the session id and the server-derived remaining time; there is no separate member-ring / emoji layer yet. |
+| 15 | `session_summary_screen.dart` | `[x]` | Reads `sessionResults` (the server's verdict), shows points + per-member outcome. |
+| 16 | Deep links `digitox://join/{code}` | `[x]` | `SessionLinkHandler` parses app + `https` join links, holds a pending code across auth, started in `main()`. |
+| 17 | `AndroidManifest.xml` join intent filter | `[x]` | `com.nlp.digitox://join` filter added. |
+| 18 | Native focus service (arbitrary duration + session id + early-exit event) | `[~]` | The Dart bridge passes the session id and remaining duration; the native early-exit callback is still the pre-existing one. |
+| 19 | Leaderboard via webhook | `[x]` | `SessionCompletionService` posts `{sid, idToken}`; the client never writes points for the shared reason. |
+| 20 | `pubspec.yaml` deps | `[x]` | `qr_flutter` + `share_plus` added. `mobile_scanner` deliberately **not** added: the code arrives through the deep link, so no camera permission is needed. |
+| 21 | Env keys for webhooks | `[x]` | `SESSION_COMPLETE_WEBHOOK_URL` / `SESSION_WEBHOOK_SECRET` in `api_keys.dart` + `.env.example`. |
+| 22 | n8n workflows | `[x]` | `backend/n8n/session_complete.json` (secret check → ID-token verify → RTDB re-read → completion criteria → idempotent `sessionResults` write) and `session_cleanup.json` (daily stale session/invite delete). |
+| 23 | `group_service.dart` + group models | `[ ]` | Absent — Phase 3. The rules are already in place for it. |
+| 24 | Groups UI | `[ ]` | Absent — Phase 3. |
+| 25 | `session_notifications.dart` | `[ ]` | Absent — Phase 3/4. |
+| 26 | Report/block sheet | `[ ]` | Absent — Phase 5. The `reports`/`blocks` rules are in place. |
+| 27 | l10n strings | `[ ]` | Session strings are inline English; ARB extraction still to do. |
+| 28 | README privacy correction | `[x]` | "Why internet permission" and the privacy section now state what a shared session sends, and to whom. |
+| 29 | Tests (§9) | `[~]` | Session model/service/UI/capacity/completion tests pass. Still missing: `SessionClock` math, phase derivation, invite-code generator, completion-criteria unit tests, and emulator rules tests. |
+| 30 | CI (analyze + tests) | `[x]` | `.github/workflows/ci.yml` runs `flutter analyze --no-fatal-infos` + `flutter test` on PRs and pushes to main. |
+
+### Deviations from the original plan (decided during implementation)
+
+1. **Env keys go in `api_keys.dart`, not a new `lib/config/env.dart`.** The README
+   documents `lib/config/api_keys.dart` as *the* single key-resolution mechanism
+   (dart-define → bundled `.env` → literal). Adding a second loader would give the
+   app two ways to read configuration. New session webhook keys join that file and
+   `.env.example`.
+2. **`SessionLimits.maxMembersPerSession` stays the capacity source of truth.**
+   The plan's `capacity` field is served by the existing `maxMembers`, which is
+   already enforced in three layers. `visibility` replaces the `isPublic` boolean
+   at the protocol level while `isPublic` is kept as a derived getter so the
+   existing UI and tests keep working.
+3. **`SessionMember` is extracted to `lib/models/session_member.dart` and
+   re-exported from `shared_session_model.dart`**, so every existing import path
+   and test keeps compiling.
+4. **`SessionService.startPresenceHeartbeat` is retained** as a compatibility
+   shim over the new `SessionPresenceService`, because the existing service test
+   asserts on it and on the `heartbeats:` field of `debugStatus`.
 
 ## 1. Goal and scope
 
@@ -259,4 +322,4 @@ Accept: report/block works; privacy text updated; beta of 20-50 users with no cr
 - Rules deployed and verified in the Firebase console.
 - Manual multi-device matrix passed on at least 3 physical devices.
 - README/privacy text matches actual data flow.
-- No client code path can write points, `sessionResults`, or another user's member node.
+- No client code path can write points, `sessionResults`, or another user's member node. -->

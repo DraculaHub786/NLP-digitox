@@ -23,6 +23,49 @@ class SessionLimits {
   /// The smallest meaningful cap: the owner on their own.
   static const int minMembersPerSession = 1;
 
+  /// Shortest run a synchronised session may be set to.
+  ///
+  /// Five minutes is the point below which a "focus session" is not one. The
+  /// same bound is repeated in `database.rules.json` on `durationSec`, so an
+  /// edited client cannot start a one-second run and still claim completion.
+  static const int minDurationSec = 300;
+
+  /// Longest run a synchronised session may be set to — four hours.
+  ///
+  /// Past this the apps stay blocked long after anyone stopped paying
+  /// attention, and a forgotten session is indistinguishable from a curated
+  /// one. Repeated in the security rules.
+  static const int maxDurationSec = 14400;
+
+  /// Default run length: 25 minutes.
+  static const int defaultDurationSec = 1500;
+
+  /// Shortest shared countdown.
+  static const int minCountdownSec = 3;
+
+  /// Longest shared countdown. Long enough to switch apps, short enough that
+  /// nobody assumes the start failed.
+  static const int maxCountdownSec = 30;
+
+  /// Default shared countdown.
+  static const int defaultCountdownSec = 5;
+
+  /// How many focus breaks a member may take and still be credited.
+  ///
+  /// Not zero: Android kills backgrounded apps routinely, and a run that
+  /// survives one genuine interruption deserves credit. Past this it stops
+  /// looking like an interruption and starts looking like leaving. The same
+  /// number is repeated in `database.rules.json` on `breaks`.
+  static const int maxBreaksPerRun = 2;
+
+  /// Forces [requested] seconds into the supported run range.
+  static int normalizeDurationSec(int? requested) {
+    if (requested == null) return defaultDurationSec;
+    if (requested < minDurationSec) return minDurationSec;
+    if (requested > maxDurationSec) return maxDurationSec;
+    return requested;
+  }
+
   /// Forces [requested] into the supported range.
   ///
   /// Anything that is not a usable limit — `0`, a negative, null, a value from

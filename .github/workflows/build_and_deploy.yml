@@ -47,6 +47,23 @@ jobs:
           cd $GITHUB_WORKSPACE
           sed -i "s/^version: .*/version: ${{ env.VERSION }}/" pubspec.yaml
 
+      # `.env` is no longer bundled as an asset, so the keys must be passed at
+      # compile time. Reconstruct the file from repository secrets (empty
+      # secrets just produce empty values - the same "not configured" state a
+      # build without any keys has always had). `.env` is gitignored, so it is
+      # not present in the checkout otherwise.
+      - name: Reconstruct .env
+        run: |
+          cat > .env <<EOF
+          GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET }}
+          CLOUDINARY_CLEANUP_WEBHOOK_URL=${{ secrets.CLOUDINARY_CLEANUP_WEBHOOK_URL }}
+          SESSION_COMPLETE_WEBHOOK_URL=${{ secrets.SESSION_COMPLETE_WEBHOOK_URL }}
+          SESSION_WEBHOOK_SECRET=${{ secrets.SESSION_WEBHOOK_SECRET }}
+          EOF
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -56,7 +73,7 @@ jobs:
         # which the tree-shaker can already resolve statically, but this
         # flag protects against any *future* dynamically-built IconData
         # elsewhere in the app silently losing its glyph in release builds.
-        run: flutter build appbundle --release --no-tree-shake-icons
+        run: flutter build appbundle --release --no-tree-shake-icons --dart-define-from-file=.env
 
       - name: Upload AAB to Play Store
         id: upload_google_play

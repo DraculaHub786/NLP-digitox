@@ -76,6 +76,19 @@ class PermissionsModel {
       haveNotificationPermission &&
       haveAccessibilityPermission;
 
+  /// True when tracking is actually working: permission granted, service
+  /// process alive, and not flagged paused by the keep-alive heartbeat.
+  ///
+  /// Deliberately NOT part of [hasAllEssentialPermissions]: the splash screen
+  /// uses that getter to choose between the app and the permission flow, and a
+  /// service that is briefly unbound on resume would otherwise send an
+  /// onboarded user back to the permission screen. Drive a banner / watchdog
+  /// with this; never use it for routing.
+  bool get isTrackingHealthy =>
+      haveAccessibilityPermission &&
+      isAccessibilityServiceActive &&
+      !isAccessibilityServicePaused;
+
   /// Creates a copy of the `PermissionsModel` with potentially modified permissions.
   PermissionsModel copyWith({
     bool? haveNotificationPermission,

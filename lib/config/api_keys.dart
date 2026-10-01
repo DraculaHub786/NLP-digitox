@@ -87,6 +87,46 @@ class ApiKeys {
   /// Whether a Gemini key resolved from any source.
   static bool get hasGeminiApiKey => geminiApiKey.isNotEmpty;
 
+  // ---------------------------------------------------------------------------
+  // Shared-session webhooks (n8n)
+  // ---------------------------------------------------------------------------
+
+  static const String _sessionCompleteDefine =
+      String.fromEnvironment('SESSION_COMPLETE_WEBHOOK_URL');
+  static const String _sessionCleanupDefine =
+      String.fromEnvironment('SESSION_CLEANUP_WEBHOOK_URL');
+  static const String _sessionWebhookSecretDefine =
+      String.fromEnvironment('SESSION_WEBHOOK_SECRET');
+
+  /// URL of the n8n workflow that verifies a finished shared run and awards
+  /// points.
+  ///
+  /// Empty by default, and empty is a supported state: a build without it runs
+  /// shared sessions exactly as before and simply never calls the webhook.
+  static String get sessionCompleteWebhookUrl => _firstNonEmpty([
+        _sessionCompleteDefine,
+        _fromEnv('SESSION_COMPLETE_WEBHOOK_URL'),
+      ]);
+
+  /// URL of the n8n cron that deletes stale sessions and expired invites.
+  /// Only the workflow uses this; the app never calls it. It exists here so the
+  /// whole set of server-side endpoints is documented in one place.
+  static String get sessionCleanupWebhookUrl => _firstNonEmpty([
+        _sessionCleanupDefine,
+        _fromEnv('SESSION_CLEANUP_WEBHOOK_URL'),
+      ]);
+
+  /// Shared secret sent as `x-digitox-secret` so the workflow can reject
+  /// anything that did not come from this app. Never logged.
+  static String get sessionWebhookSecret => _firstNonEmpty([
+        _sessionWebhookSecretDefine,
+        _fromEnv('SESSION_WEBHOOK_SECRET'),
+      ]);
+
+  /// Whether a completion webhook is configured.
+  static bool get hasSessionCompleteWebhook =>
+      sessionCompleteWebhookUrl.isNotEmpty;
+
   /// Where [groqApiKey] came from — for logs and the settings diagnostics
   /// screen. Never logs the key itself.
   static String get groqKeySource {

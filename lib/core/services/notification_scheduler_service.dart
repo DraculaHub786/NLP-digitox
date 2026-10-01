@@ -141,13 +141,22 @@ class NotificationSchedulerService {
       return;
     }
 
-    // Navigate to the notifications section. Uses the global navigator key so
-    // this works even when the tap cold-starts the app (no widget context).
-    // Guarded against double-pushes via NavigationService's current-route check.
+    // A group session reminder opens the group it belongs to, not the
+    // schedules list: the user tapped "your group session starts soon", and
+    // landing anywhere but that group is a dead end.
+    final payload = response.payload;
+    final route =
+        payload != null && payload.startsWith(groupReminderPayloadPrefix)
+            ? AppRoutes.groupsPath
+            : AppRoutes.notificationsPath;
+
+    // Uses the global navigator key so this works even when the tap
+    // cold-starts the app (no widget context). Guarded against double-pushes
+    // via NavigationService's current-route check.
     try {
-      await NavigationService.instance.goToRoute(AppRoutes.notificationsPath);
+      await NavigationService.instance.goToRoute(route);
     } catch (e) {
-      debugPrint('Could not navigate to notifications after tap: $e');
+      debugPrint('Could not navigate after notification tap: $e');
     }
   }
 
@@ -349,6 +358,109 @@ class NotificationSchedulerService {
     } catch (e) {
       debugPrint('Error getting pending notifications: $e');
       return [];
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Group session reminders
+  //
+  // Scheduled through this same service rather than a second one: the app has
+  // exactly one FlutterLocalNotificationsPlugin, and calling `initialize()` on a
+  // second instance would replace the tap handler above — silently breaking the
+  // "Complete" action on the daily schedules. A separate id range and channel
+  // keeps the two families of notifications apart instead.
+  // ---------------------------------------------------------------------------
+
+  /// Payload prefix identifying a group session reminder.
+  static const String groupReminderPayloadPrefix = 'group_session_';
+
+  /// First notification id reserved for group session reminders.
+  ///
+  /// `1000-1099` belongs to the daily schedules, so reminders start at 2000 and
+  /// the two can never cancel each other.
+  static const int groupReminderBaseId = 2000;
+
+  /// How many ids the reminder range reserves.
+  static const int groupReminderIdRange = 100;
+
+  /// Cancels every pending group session reminder.
+  Future<void> cancelGroupReminders() async {
+    if (!_initialized) return;
+    try {
+      for (var i = 0; i < groupReminderIdRange; i++) {
+        await _notificationsPlugin.cancel(groupReminderBaseId + i);
+      }
+      debugPrint('Cancelled all group session reminders');
+    } catch (e) {
+      debugPrint('Error cancelling group session reminders: $e');
+    }
+  }
+
+  /// Schedules one group session reminder at [when].
+  ///
+  /// [slot] is the position in the reminder range, assigned by the caller from
+  /// a freshly sorted list, so no two reminders fight over the same id.
+  Future<void> scheduleGroupReminder({
+    required int slot,
+    required String title,
+    required String body,
+    required DateTime when,
+    required String groupId,
+  }) async {
+    if (!_initialized) {
+      await initialize();
+    }
+
+    try {
+      final scheduledDate = tz.TZDateTime.from(when, tz.local);
+      if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
+        // The plan passed while the app was closed. Nothing to schedule, and
+        // asking the OS for a past time either fires immediately or is dropped.
+        return;
+      }
+
+      // A separate channel from the daily schedules: this is a one-off
+      // "it starts soon" heads-up, not a repeating reminder, and a user who
+      // silences schedules should not thereby silence their group.
+      const androidDetails = AndroidNotificationDetails(
+        'group_session_reminders_v1',
+        'Group Session Reminders',
+        channelDescription: 'Heads-up before a scheduled group focus session',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
+      );
+
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _notificationsPlugin.zonedSchedule(
+        groupReminderBaseId + slot,
+        title,
+        body,
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: _androidScheduleMode,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: '$groupReminderPayloadPrefix$groupId',
+      );
+
+      debugPrint(
+          '✅ Scheduled group reminder $slot for $scheduledDate ($groupId)');
+    } catch (e) {
+      debugPrint('❌ Error scheduling group reminder: $e');
+      rethrow;
     }
   }
 }

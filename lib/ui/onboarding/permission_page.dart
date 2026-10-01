@@ -117,7 +117,7 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
                 title: entry.title,
                 description: entry.description,
                 isGranted: entry.isGranted,
-                onTap: () => _requestPermission(
+                onRequest: () => _requestPermission(
                   () => entry.request(ref.read(permissionProvider.notifier)),
                   entry.title,
                 ),
@@ -182,64 +182,48 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
     required String title,
     required String description,
     required bool isGranted,
-    required VoidCallback onTap,
+    required VoidCallback onRequest,
   }) {
-    return InkWell(
-      onTap: isGranted ? null : onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isGranted
-              ? Colors.green.withValues(alpha: 0.1)
-              : Colors.grey.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isGranted ? Colors.green : Colors.grey,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isGranted ? Colors.green : Colors.grey,
-              size: 32,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
+    // Rows are informational only. Only the "Grant" button (or the footer
+    // button) opens a system settings screen, so a stray tap on the icon,
+    // title or description can never yank the user out of onboarding.
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isGranted
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isGranted ? Colors.green : Colors.grey),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: isGranted ? Colors.green : Colors.grey, size: 32),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(description,
+                    style:
+                        TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+              ],
             ),
-            if (isGranted)
-              const Icon(
-                Icons.check_circle,
-                color: Colors.green,
-              )
-            else
-              const Icon(
-                Icons.touch_app,
-                color: Colors.blue,
-              ),
-          ],
-        ),
+          ),
+          if (isGranted)
+            const Icon(Icons.check_circle, color: Colors.green)
+          else
+            TextButton(
+              // Disabled while a request is in flight so a double tap
+              // cannot open Settings twice.
+              onPressed: _isRequesting ? null : onRequest,
+              child: const Text('Grant'),
+            ),
+        ],
       ),
     );
   }

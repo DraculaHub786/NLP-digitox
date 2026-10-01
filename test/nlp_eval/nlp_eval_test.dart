@@ -139,8 +139,24 @@ void main() {
     writer.add(card);
 
     // Guards: the suite must not silently degrade into scoring nothing.
+    //
+    // buildConfusionMatrix admits an example only when BOTH the gold set and
+    // the predicted set hold exactly one label — a multi-label row has no
+    // single square to sit in. `singleGold` counts the gold side alone, so the
+    // two totals diverge by exactly those single-topic messages the classifier
+    // tagged with zero or several topics (i.e. its false positives and misses).
+    // The matrix is therefore checked against the eligibility rule it actually
+    // implements, and separately against being empty.
+    var matrixEligible = 0;
+    for (final topicCase in kTopicExamples) {
+      if (topicCase.gold.length != 1) continue;
+      final predicted = ChatContextExtractor.classifyTopics(topicCase.message);
+      if (predicted.length == 1) matrixEligible++;
+    }
+
     expect(report.total, kTopicExamples.length);
-    expect(matrix.total, singleGold);
+    expect(matrix.total, matrixEligible);
+    expect(matrix.total, greaterThan(0));
     expect(report.microF1, greaterThan(0.5));
   });
 

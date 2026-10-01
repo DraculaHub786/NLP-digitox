@@ -1,0 +1,203 @@
+{
+  "name": "NLP-Digitox — Shared Session Completion",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "session-complete",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-entry",
+      "name": "Completion Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-520, 0],
+      "webhookId": "session-complete"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.headers['x-digitox-secret'] }}",
+              "rightValue": "={{ $env.DIGITOX_WEBHOOK_SECRET }}",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "verify-secret",
+      "name": "Verify Shared Secret",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-300, 0]
+    },
+    {
+      "id": "reject-bad-secret",
+      "name": "Reject 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-80, 160],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"unauthorized\" } }}",
+        "options": { "responseCode": 401 }
+      }
+    },
+    {
+      "id": "verify-token",
+      "name": "Verify ID Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-80, -160],
+      "parameters": {
+        "method": "POST",
+        "url": "https://identitytoolkit.googleapis.com/v1/accounts:lookup",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "key", "value": "={{ $env.FIREBASE_WEB_API_KEY }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ idToken: $('Completion Webhook').item.json.body.idToken }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "extract-uid",
+      "name": "Extract Uid",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [140, -160],
+      "parameters": {
+        "jsCode": "const users = $json.users;\nif (!users || !users.length || !users[0].localId) {\n  throw new Error('invalid token');\n}\nreturn [{ json: { uid: users[0].localId, sid: $('Completion Webhook').item.json.body.sid } }];"
+      }
+    },
+    {
+      "id": "read-session",
+      "name": "Read Session (RTDB)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [360, -160],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.FIREBASE_DB_URL }}/sessions/{{ $json.sid }}.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "access_token", "value": "={{ $json.accessToken }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "compute-verdict",
+      "name": "Compute Verdict",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [580, -160],
+      "parameters": {
+        "jsCode": "const session = $json;\nconst uid = $('Extract Uid').item.json.uid;\nconst sid = $('Extract Uid').item.json.sid;\nif (!session || !session.members || !session.members[uid]) {\n  throw new Error('member not found');\n}\nconst member = session.members[uid];\nconst countdownMs = (session.countdownSec || 5) * 1000;\nconst durationMs = (session.durationSec || 0) * 1000;\nconst endAt = (session.runStartAt || 0) + countdownMs + durationMs;\nconst completedAt = member.completedAt || 0;\nconst breaks = member.breaks || 0;\nconst leftAt = member.leftAt || 0;\nconst joinedAt = member.joinedAt ? Date.parse(member.joinedAt) : 0;\nconst startEffective = (session.runStartAt || 0) + countdownMs;\nconst joinedInTime = joinedAt && joinedAt <= startEffective;\nconst completed = !!completedAt && completedAt >= endAt && !leftAt && breaks <= 2 && joinedInTime;\nconst focusedSec = completed ? Math.floor(durationMs / 1000) : 0;\nreturn [{ json: { sid, uid, completed, focusedSec, breaks, endAt } }];"
+      }
+    },
+    {
+      "id": "read-result",
+      "name": "Already Credited?",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [800, -160],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.FIREBASE_DB_URL }}/sessionResults/{{ $json.sid }}/{{ $json.uid }}.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "access_token", "value": "={{ $('Read Session (RTDB)').item.json.accessToken || '' }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "is-first",
+      "name": "First Time?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1020, -160],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": { "type": "object", "operation": "empty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "write-result",
+      "name": "Write SessionResult",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1240, -260],
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $env.FIREBASE_DB_URL }}/sessionResults/{{ $('Compute Verdict').item.json.sid }}/{{ $('Compute Verdict').item.json.uid }}.json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ completed: $('Compute Verdict').item.json.completed, focusedSec: $('Compute Verdict').item.json.focusedSec, breaks: $('Compute Verdict').item.json.breaks, points: $('Compute Verdict').item.json.completed ? ($env.SHARED_SESSION_POINTS || 50) : 0, at: Date.now() }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "respond-ok",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1460, -260],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"credited\": $('Compute Verdict').item.json.completed } }}",
+        "options": { "responseCode": 200 }
+      }
+    }
+  ],
+  "connections": {
+    "Completion Webhook": { "main": [[{ "node": "Verify Shared Secret", "type": "main", "index": 0 }]] },
+    "Verify Shared Secret": {
+      "main": [
+        [{ "node": "Verify ID Token", "type": "main", "index": 0 }],
+        [{ "node": "Reject 401", "type": "main", "index": 0 }]
+      ]
+    },
+    "Verify ID Token": { "main": [[{ "node": "Extract Uid", "type": "main", "index": 0 }]] },
+    "Extract Uid": { "main": [[{ "node": "Read Session (RTDB)", "type": "main", "index": 0 }]] },
+    "Read Session (RTDB)": { "main": [[{ "node": "Compute Verdict", "type": "main", "index": 0 }]] },
+    "Compute Verdict": { "main": [[{ "node": "Already Credited?", "type": "main", "index": 0 }]] },
+    "Already Credited?": { "main": [[{ "node": "First Time?", "type": "main", "index": 0 }]] },
+    "First Time?": {
+      "main": [
+        [{ "node": "Write SessionResult", "type": "main", "index": 0 }],
+        [{ "node": "Respond 200", "type": "main", "index": 0 }]
+      ]
+    },
+    "Write SessionResult": { "main": [[{ "node": "Respond 200", "type": "main", "index": 0 }]] }
+  }
+}

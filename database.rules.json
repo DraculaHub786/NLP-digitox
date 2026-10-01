@@ -10,19 +10,79 @@
           ".validate": "(!data.exists() && newData.val() === auth.uid) || (data.exists() && data.val() === auth.uid && newData.val() === data.val())"
         },
 
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+        },
+
         "maxMembers": {
           ".validate": "(!data.exists() && newData.isNumber() && newData.val() >= 1 && newData.val() <= 10) || (data.exists() && newData.val() === data.val())"
         },
 
-        "members": {
-          ".validate": "!newData.exists() || newData.numChildren() <= 10",
+        "state": {
+          ".validate": "newData.val() === 'lobby' || newData.val() === 'running' || newData.val() === 'cancelled'"
+        },
 
+        "visibility": {
+          ".validate": "newData.val() === 'private' || newData.val() === 'invite' || newData.val() === 'public'"
+        },
+
+        "durationSec": {
+          ".validate": "newData.isNumber() && newData.val() >= 300 && newData.val() <= 14400 && (!data.exists() || data.val() === newData.val() || root.child('sessions').child($sessionId).child('state').val() === 'lobby')"
+        },
+
+        "countdownSec": {
+          ".validate": "newData.isNumber() && newData.val() >= 3 && newData.val() <= 30"
+        },
+
+        "runStartAt": {
+          ".validate": "(!data.exists() && newData.val() === now) || newData.val() === data.val()"
+        },
+
+        "members": {
           "$memberId": {
-            ".write": "auth != null && $memberId === auth.uid",
-            ".validate": "newData.hasChildren(['userId', 'displayName', 'joinedAt', 'isActive', 'lastActive'])"
+            ".write": "auth != null && (($memberId === auth.uid && (data.exists() || root.child('sessions').child($sessionId).child('state').val() === 'lobby')) || root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid)",
+
+            ".validate": "newData.hasChildren(['displayName', 'joinedAt'])",
+
+            "code": {
+              ".validate": "!newData.exists() || root.child('invites').child(newData.val()).child('sid').val() === $sessionId || root.child('sessions').child($sessionId).child('visibility').val() === 'public'"
+            },
+
+            "breaks": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"
+            },
+
+            "completedAt": {
+              ".validate": "newData.val() === now && now >= (root.child('sessions').child($sessionId).child('runStartAt').val() + (root.child('sessions').child($sessionId).child('countdownSec').val() + root.child('sessions').child($sessionId).child('durationSec').val()) * 1000)"
+            },
+
+            "status": {
+              ".validate": "newData.val() === 'joined' || newData.val() === 'ready' || newData.val() === 'focusing' || newData.val() === 'away' || newData.val() === 'left'"
+            },
+
+            "role": {
+              ".validate": "newData.val() === 'host' || newData.val() === 'member'"
+            }
           }
         }
       }
+    },
+
+    "invites": {
+      "$code": {
+        ".read": "auth != null",
+
+        ".write": "auth != null && ((!data.exists() && root.child('sessions').child(newData.child('sid').val()).child('ownerId').val() === auth.uid) || (data.exists() && root.child('sessions').child(data.child('sid').val()).child('ownerId').val() === auth.uid))",
+
+        "sid": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        }
+      }
+    },
+
+    "sessionResults": {
+      ".read": "auth != null",
+      ".write": false
     },
 
     "users": {

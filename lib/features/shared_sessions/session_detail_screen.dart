@@ -11,6 +11,7 @@ import 'package:nlp_digitox/features/shared_sessions/widgets/session_state_views
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
@@ -365,8 +366,12 @@ class _SessionActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isInSharedFocus =
-        ref.watch(focusModeProvider.notifier).isInSharedSessionFocus;
+    // Watching `.notifier` never rebuilds: a notifier is stable, so the button
+    // stayed on "Start" even after a run began. Select on the provider *state*
+    // so the row recomputes when a run starts or stops, and read the getter for
+    // the current value.
+    final isInSharedFocus = ref.watch(focusModeProvider.select(
+        (_) => ref.read(focusModeProvider.notifier).isInSharedSessionFocus));
     final leaveState = ref.watch(leaveSessionProvider);
 
     // Once a session is finished there is nothing left to run or join, so the
@@ -405,12 +410,34 @@ class _SessionActions extends ConsumerWidget {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: canFocus
-                  ? () {
-                      ref.read(focusModeProvider.notifier)
+                  ? () async {
+                      // Focus needs tracking permissions; without them the run
+                      // cannot be enforced, so tell the user instead of opening
+                      // a session that does nothing.
+                      if (!ref
+                          .read(permissionProvider)
+                          .hasAllEssentialPermissions) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Grant the essential permissions before '
+                              'starting a focus session.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Await the start before navigating, so the run exists
+                      // (and this button's own state has flipped) by the time
+                      // the active-session screen builds.
+                      await ref
+                          .read(focusModeProvider.notifier)
                           .startSessionFromSharedSettings(
-                        settings: settings,
-                        sessionId: session.id,
-                      );
+                            settings: settings,
+                            sessionId: session.id,
+                          );
+                      if (!context.mounted) return;
                       Navigator.of(context)
                           .pushNamed(AppRoutes.activeSessionPath);
                     }

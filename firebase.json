@@ -8,6 +8,22 @@
   "database": {
     "rules": "database.rules.json"
   },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "database": {
+      "port": 9000
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  },
   "functions": [
     {
       "source": "functions",

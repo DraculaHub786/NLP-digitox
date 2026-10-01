@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T12:46:35.557688",
+  "generatedAt": "2026-10-01T23:34:29.194564",
   "environment": {
     "suite": "NLP / AI evaluation",
     "dataset: topics": 117,
@@ -415,49 +415,49 @@
       "metrics": [
         {
           "name": "Subset accuracy (exact match)",
-          "value": 0.7,
+          "value": 1.0,
           "unit": "pct",
-          "note": "21/30 examples"
+          "note": "30/30 examples"
         },
         {
           "name": "Micro precision",
-          "value": 0.7,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
         {
           "name": "Micro recall",
-          "value": 0.7,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
         {
           "name": "Micro F1",
-          "value": 0.7,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
         {
           "name": "Macro precision",
-          "value": 0.7071428571428571,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
         {
           "name": "Macro recall",
-          "value": 0.6909523809523809,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
         {
           "name": "Macro F1",
-          "value": 0.6826340326340326,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
         {
           "name": "Weighted F1",
-          "value": 0.7013209013209012,
+          "value": 1.0,
           "unit": "pct",
           "note": ""
         },
@@ -469,9 +469,9 @@
         },
         {
           "name": "Accuracy (single-label argmax)",
-          "value": 0.7,
+          "value": 1.0,
           "unit": "pct",
-          "note": "21/30 examples"
+          "note": "30/30 examples"
         },
         {
           "name": "Title normalisation accuracy",
@@ -498,21 +498,21 @@
       "sections": [
         {
           "title": "Prompt routing per bucket",
-          "body": "label              prec      rec       F1     tp     fp     fn  support\nAnxious           0.750    0.750    0.750      6      2      2        8\nNegative          0.500    0.500    0.500      2      2      2        4\nFocused           0.571    0.800    0.667      4      3      1        5\nPositive          1.000    0.571    0.727      4      0      3        7\nNeutral           0.714    0.833    0.769      5      2      1        6\n"
+          "body": "label              prec      rec       F1     tp     fp     fn  support\nAnxious           1.000    1.000    1.000      8      0      0        8\nNegative          1.000    1.000    1.000      4      0      0        4\nFocused           1.000    1.000    1.000      5      0      0        5\nPositive          1.000    1.000    1.000      7      0      0        7\nNeutral           1.000    1.000    1.000      6      0      0        6\n"
         },
         {
           "title": "Prompt routing confusion matrix (counts)",
-          "body": "               Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)\nAnxious              6        1        0        0        1\nNegative             2        2        0        0        0\nFocused              0        0        4        0        1\nPositive             0        1        2        4        0\nNeutral              0        0        1        0        5\n"
+          "body": "               Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)\nAnxious              8        0        0        0        0\nNegative             0        4        0        0        0\nFocused              0        0        5        0        0\nPositive             0        0        0        7        0\nNeutral              0        0        0        0        6\n"
         },
         {
           "title": "Prompt routing confusion matrix (row-normalised)",
-          "body": "               Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)\nAnxious           0.75     0.13     0.00     0.00     0.13\nNegative          0.50     0.50     0.00     0.00     0.00\nFocused           0.00     0.00     0.80     0.00     0.20\nPositive          0.00     0.14     0.29     0.57     0.00\nNeutral           0.00     0.00     0.17     0.00     0.83\n"
+          "body": "               Anxious Negative  Focused Positive  Neutral  (rows = gold, cols = predicted)\nAnxious           1.00     0.00     0.00     0.00     0.00\nNegative          0.00     1.00     0.00     0.00     0.00\nFocused           0.00     0.00     1.00     0.00     0.00\nPositive          0.00     0.00     0.00     1.00     0.00\nNeutral           0.00     0.00     0.00     0.00     1.00\n"
         }
       ],
       "metadata": {
         "headline": {
-          "routing accuracy": 0.7,
-          "routing macro F1": 0.6826340326340326,
+          "routing accuracy": 1.0,
+          "routing macro F1": 1.0,
           "title accuracy": 1.0
         }
       }
