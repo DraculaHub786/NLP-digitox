@@ -107,7 +107,8 @@
                  Handled by SessionLinkHandler, which normalises the code and
                  holds it until the user is signed in. No `autoVerify`: a
                  custom scheme with no web host cannot be verified, and
-                 Android would only refuse the link. -->
+                 Android would only refuse the link. This scheme is what the
+                 in-app QR encodes; it is not what a messenger link uses. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -117,6 +118,27 @@
                 <data
                     android:host="join"
                     android:scheme="com.nlp.digitox" />
+            </intent-filter>
+
+            <!-- Shared-session invite links as a real web link:
+                 https://nlpdigitox.me/join/{code}. This is the share text a
+                 host sends, because custom schemes are not tappable in
+                 WhatsApp/Telegram. `autoVerify` makes Android open the app
+                 directly instead of the browser, once the host serves a
+                 matching /.well-known/assetlinks.json (see web/assetlinks.json
+                 and the deploy notes). If verification has not happened yet,
+                 the link still opens — it falls through to the web page, which
+                 redirects into the app or to the Play Store. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="nlpdigitox.me"
+                    android:pathPrefix="/join/"
+                    android:scheme="https" />
             </intent-filter>
 
             <!-- Default -->
@@ -270,12 +292,17 @@
         <!-- _________________________________________________________________________________ -->
         <!-- ______________________________ APP SERVICES _____________________________________ -->
         <!-- _________________________________________________________________________________ -->
+        <!-- Same reasoning as the tracker service below: the tunnel must not be
+             torn down just because the user cleared the task. The system
+             re-binds a VpnService on demand, and stopWithTask=false keeps our
+             process (and therefore the tunnel) alive across a swipe. -->
         <service
             android:name=".services.vpn.DigitoxVpnService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse"
-            android:permission="android.permission.BIND_VPN_SERVICE">
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:stopWithTask="false">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="vpn" />
@@ -288,11 +315,18 @@
                 android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON"
                 android:value="false" />
         </service>
+        <!-- stopWithTask=false is load-bearing. Its default is TRUE, which makes
+             Android tear this foreground service down the instant the app is
+             swiped out of recents — usage tracking and app blocking then stop
+             until the next keep-alive tick, so a long gap (the "reopen after an
+             hour" case) records nothing. The service owns no activity state, so
+             it is safe for it to outlive the task. -->
         <service
             android:name=".services.tracking.DigitoxTrackerService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse" />
+            android:foregroundServiceType="specialUse"
+            android:stopWithTask="false" />
         <service
             android:name=".services.timer.FocusSessionService"
             android:enabled="true"

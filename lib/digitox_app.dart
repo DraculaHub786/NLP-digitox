@@ -9,6 +9,7 @@ import 'package:nlp_digitox/config/navigation/app_routes_observer.dart';
 import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
+import 'package:nlp_digitox/ui/common/shared_session_lifecycle_observer.dart';
 import 'package:nlp_digitox/ui/common/wellbeing_report_lifecycle_observer.dart';
 
 class DigitoxApp extends ConsumerWidget {
@@ -55,11 +56,16 @@ class DigitoxApp extends ConsumerWidget {
                   maxScaleFactor: 1.15,
                 ),
               ),
-              // Runs the daily scoring catch-up and the monthly AI report
-              // generation from the MAIN isolate only — `Initializer` is also
-              // invoked from the background isolate, which must not hold a
-              // pending end-of-day timer.
-              child: WellbeingReportLifecycleObserver(child: child!),
+              // Both observers run from the MAIN isolate only — `Initializer`
+              // is also invoked from the background isolate, which must not
+              // hold a pending end-of-day timer or a session reconciler.
+              //
+              // The shared-session observer sits outside the wellbeing one so
+              // its auth listener is attached even while the wellbeing
+              // observer is still arming its own timer.
+              child: SharedSessionLifecycleObserver(
+                child: WellbeingReportLifecycleObserver(child: child!),
+              ),
             );
           },
 

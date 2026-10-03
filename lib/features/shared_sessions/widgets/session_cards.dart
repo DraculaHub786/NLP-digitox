@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/constants/session_limits.dart';
+import 'package:nlp_digitox/features/shared_sessions/session_error_message.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
@@ -232,8 +233,12 @@ class _DiscoverSessionCardState extends ConsumerState<DiscoverSessionCard> {
       }
     } catch (error) {
       if (mounted) {
+        // Write the failure the way the join sheets do. `$error` printed the
+        // raw exception — including things like "Bad state: Tried to use
+        // JoinSessionByIdNotifier after 'dispose' was called" — which tells the
+        // user nothing they can act on.
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to join: $error')),
+          SnackBar(content: Text(sessionErrorMessage(error, 'join'))),
         );
       }
     } finally {

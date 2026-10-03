@@ -396,6 +396,109 @@ class NotificationSchedulerService {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Shared-session end reminders
+  //
+  // A one-off "the run has ended" heads-up, scheduled for the moment a shared
+  // session's run reaches `endAt`. It exists so a member whose phone was
+  // face-down for the whole run is nudged to reopen the app, which is the only
+  // way the completion report actually gets sent (see
+  // `SessionCompletionReconciler`). Same reasoning as the group reminders above
+  // for reusing this service: one plugin, one tap handler, a distinct id range
+  // and channel.
+  // ---------------------------------------------------------------------------
+
+  /// First notification id reserved for shared-session end reminders.
+  ///
+  /// `1000-1099` belongs to the daily schedules and `2000-2099` to the group
+  /// reminders, so this family starts at 3000 and can never cancel either.
+  static const int sessionEndBaseId = 3000;
+
+  /// How many ids the session-end range reserves.
+  static const int sessionEndIdRange = 100;
+
+  /// Cancels every pending shared-session end reminder.
+  ///
+  /// Called before re-scheduling on each reconcile, so the pending set is
+  /// always derived from the sessions that are actually still running rather
+  /// than accumulating an alarm per session the user ever started.
+  Future<void> cancelSessionEndReminders() async {
+    if (!_initialized) return;
+    try {
+      for (var i = 0; i < sessionEndIdRange; i++) {
+        await _notificationsPlugin.cancel(sessionEndBaseId + i);
+      }
+      debugPrint('Cancelled all session end reminders');
+    } catch (e) {
+      debugPrint('Error cancelling session end reminders: $e');
+    }
+  }
+
+  /// Schedules one "session ended" reminder for [sessionId] at [when].
+  ///
+  /// The id is derived from the session id rather than a caller-assigned slot:
+  /// a reconcile may run before the previous one has finished, and a collision
+  /// there would silently drop one session's reminder.
+  Future<void> scheduleSessionEndReminder({
+    required String sessionId,
+    required String title,
+    required String body,
+    required DateTime when,
+  }) async {
+    if (!_initialized) {
+      await initialize();
+    }
+
+    try {
+      final scheduledDate = tz.TZDateTime.from(when, tz.local);
+      if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
+        // The run already ended. Nothing to schedule, and asking the OS for a
+        // past time either fires immediately or is dropped.
+        return;
+      }
+
+      const androidDetails = AndroidNotificationDetails(
+        'session_end_reminders_v1',
+        'Session Finished',
+        channelDescription: 'Tells you when a shared focus run has ended',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
+      );
+
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _notificationsPlugin.zonedSchedule(
+        sessionEndBaseId + (sessionId.hashCode.abs() % sessionEndIdRange),
+        title,
+        body,
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: _androidScheduleMode,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: '$groupReminderPayloadPrefix$sessionId',
+      );
+
+      debugPrint('✅ Scheduled session end reminder for $sessionId at '
+          '$scheduledDate');
+    } catch (e) {
+      debugPrint('❌ Error scheduling session end reminder: $e');
+      rethrow;
+    }
+  }
+
   /// Schedules one group session reminder at [when].
   ///
   /// [slot] is the position in the reminder range, assigned by the caller from

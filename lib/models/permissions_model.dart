@@ -47,6 +47,23 @@ class PermissionsModel {
   /// When true, the UI should show a lightweight one-tap re-enable nudge.
   final bool isDeviceAdminRevoked;
 
+  /// Whether at least one native permission probe *threw* during the last read.
+  ///
+  /// This is the difference between "the OS says the permission is off" and
+  /// "we could not ask the OS at all". The probes are MethodChannel round
+  /// trips, so a race with an engine teardown, a momentary platform exception,
+  /// or a null activity handle mid-cold-start makes one of them throw. Those
+  /// exceptions used to be swallowed into a plain `false`, which is
+  /// indistinguishable from a genuinely revoked permission — and because
+  /// [hasAllEssentialPermissions] is the splash screen's routing gate, a single
+  /// transient failure pushed an already-permissioned user back through the
+  /// permission screen on every cold start.
+  ///
+  /// While this is true the grant flags are not trustworthy, so the gate below
+  /// declines to enforce them rather than treating them as revoked. The next
+  /// successful read clears it.
+  final bool permissionFetchFailed;
+
   const PermissionsModel({
     this.haveNotificationPermission = true,
     this.haveUsageAccessPermission = true,
@@ -61,6 +78,7 @@ class PermissionsModel {
     this.isAccessibilityServicePaused = false,
     this.haveAdminPermission = true,
     this.isDeviceAdminRevoked = false,
+    this.permissionFetchFailed = false,
   });
 
   /// Whether every permission the app cannot function without is granted.
@@ -69,12 +87,22 @@ class PermissionsModel {
   /// and the permission flow, so it lives here as the single definition rather
   /// than being re-spelled in the splash, the permissions page, the quiz and
   /// the onboarding screen — where those copies had already drifted apart.
+  /// A failed fetch short-circuits to `true` on purpose.
+  ///
+  /// The permission screen exists for one reason: to help a user whose
+  /// permissions are *actually* off. When a probe threw we do not know that,
+  /// so treating the unknown as "revoked" and routing to that screen produces
+  /// exactly the bug this guards against — a fully-permissioned user re-granting
+  /// on every cold start. Under-reporting a revocation for one launch is far
+  /// cheaper than that: the resume re-check corrects it the moment the user
+  /// touches the app.
   bool get hasAllEssentialPermissions =>
-      haveUsageAccessPermission &&
-      haveDisplayOverlayPermission &&
-      haveAlarmsPermission &&
-      haveNotificationPermission &&
-      haveAccessibilityPermission;
+      permissionFetchFailed ||
+      (haveUsageAccessPermission &&
+          haveDisplayOverlayPermission &&
+          haveAlarmsPermission &&
+          haveNotificationPermission &&
+          haveAccessibilityPermission);
 
   /// True when tracking is actually working: permission granted, service
   /// process alive, and not flagged paused by the keep-alive heartbeat.
@@ -104,6 +132,7 @@ class PermissionsModel {
     bool? isAccessibilityServicePaused,
     bool? haveAdminPermission,
     bool? isDeviceAdminRevoked,
+    bool? permissionFetchFailed,
   }) {
     return PermissionsModel(
       haveNotificationPermission:
@@ -128,6 +157,8 @@ class PermissionsModel {
           isAccessibilityServicePaused ?? this.isAccessibilityServicePaused,
       haveAdminPermission: haveAdminPermission ?? this.haveAdminPermission,
       isDeviceAdminRevoked: isDeviceAdminRevoked ?? this.isDeviceAdminRevoked,
+      permissionFetchFailed:
+          permissionFetchFailed ?? this.permissionFetchFailed,
     );
   }
 
@@ -156,7 +187,8 @@ class PermissionsModel {
         other.isAccessibilityServiceActive == isAccessibilityServiceActive &&
         other.isAccessibilityServicePaused == isAccessibilityServicePaused &&
         other.haveAdminPermission == haveAdminPermission &&
-        other.isDeviceAdminRevoked == isDeviceAdminRevoked;
+        other.isDeviceAdminRevoked == isDeviceAdminRevoked &&
+        other.permissionFetchFailed == permissionFetchFailed;
   }
 
   @override
@@ -174,5 +206,6 @@ class PermissionsModel {
         isAccessibilityServicePaused,
         haveAdminPermission,
         isDeviceAdminRevoked,
+        permissionFetchFailed,
       ]);
 }

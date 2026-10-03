@@ -1,325 +1,176 @@
-<!-- # NLP-Digitox: Shared & Group Focus Sessions - Master Plan
+# TODO 1: App code, Firebase rules and repo cleanup
 
-Base branch: `main` (`profilepic` was merged in via PRs #8/#9; branch new work from `main`).
+Repo: DraculaHub786/NLP-digitox, `main` @ `bc2c485` (Oct 2, 2026). Everything here was found by reading the code; I could not run Flutter, the tests or the Firebase emulator. The n8n work is in a separate file (`TODO_N8N.md`).
 
-## 0. How to read this plan
+Priority: **P0** = shared sessions or groups do not work or are unsafe without it. **P1** = needed for a trustworthy launch. **P2** = polish.
 
-**Verified from the repo** (README, `pubspec.yaml`, `firestore.rules`, `todo.md` audit notes): Flutter + Riverpod, Firebase Auth, Realtime Database (RTDB) for sessions, Firestore for user data/leaderboards, n8n for webhooks, `app_links`, `flutter_local_notifications`, `just_audio`, Android-native blocking (`android/app/src/main/java/com/nlp/digitox/...`), files named in `todo.md`: `lib/core/services/session_service.dart`, `sessions_list_screen.dart`, `focus_session_screen.dart`, `database.rules.json`, `profile_service.dart`.
+---
 
-**Not verified** (I could not open `lib/`): exact folder of each screen/provider/model and the names of the existing Focus Mode service. Paths marked **[confirm]** must be located with `grep -rn` before editing. Commands are given in Section 6.
+## A. Firestore rules (`firestore.rules`) - P0
 
-## 0.1 Implementation status (living record)
+Groups cannot work with the current rules. `group_service.dart` uses three collections that have no rules (`group_invites`, `group_directory`, `users/{uid}/groups`), and a normal user can neither read a group nor add themselves to it.
 
-Legend: `[x]` done and verified in the repo · `[~]` partially done · `[ ]` not started.
-
-**Audited against the codebase.** The repo already contains an *earlier, simpler*
-shared-session feature (create / join-by-ID / leave / complete / heartbeat
-presence / group-focus-from-own-settings / completion points). That work covers
-part of Phase 0 and nothing else. It has **no** synchronized server-time timer,
-**no** lobby lifecycle, **no** invite codes or links, **no** groups, and **no**
-server-side completion verification. Every row below marked `[ ]` is new work.
-
-| # | Area | Status | Notes |
-|---|---|---|---|
-| 1 | `database.rules.json` rewrite (§6.1) | `[x]` | Per-session read, owner-only root write, member self-write in lobby, `code` validated against `invites`, `completedAt` rejected before `endAt`, `sessionResults` write-locked. |
-| 2 | `firebase.json` emulators | `[x]` | auth 9099 / database 9000 / firestore 8080 + emulator UI. |
-| 3 | `firestore.rules` (drop `shared_sessions`, groups/reports/blocks) | `[x]` | Stale `shared_sessions` block deleted. Groups now use a membership **subcollection** with `exists()`/role functions (owner/admin/member, schedule, stats), plus `reports` and `blocks`. |
-| 4 | Session model extensions | `[x]` | `type`/`visibility`/`durationSec`/`countdownSec`/`state`/`runStartAt`/`groupId`/`inviteCode` + derived `startEffective`/`endAt`/`phaseAt`. `isPublic` kept as a getter over `visibility`. |
-| 5 | `lib/models/session_member.dart` | `[x]` | Extracted, with `MemberStatus`/`MemberRole`; still re-exported from `shared_session_model.dart` so old imports keep working. |
-| 6 | `lib/models/session_result.dart` | `[x]` | Read model for `sessionResults/{sid}/{uid}`. |
-| 7 | `lib/core/services/session_clock.dart` | `[x]` | `.info/serverTimeOffset` subscription, re-subscribes on reconnect, 1 Hz `ticks()`, test factory. |
-| 8 | `lib/core/services/session_presence_service.dart` | `[x]` | `onDisconnect` + 45 s heartbeat; the old fast heartbeat is now a shim. |
-| 9 | `SessionService` lobby lifecycle | `[x]` | `joinByCode`, `setReady`, `startSession`, `cancelSession`, `reportBreak`, `markCompleted`, `kickMember`, `watchSession`/`watchMembers`, invite codes (24 h), plus the earlier atomic create. |
-| 10 | `lib/core/services/session_focus_bridge.dart` | `[x]` | Idempotent `startRun`/`reportBreak`/`completeRun`. |
-| 11 | Session providers | `[x]` | `sessionStreamProvider`, `sessionMembersStreamProvider`, `sessionPhaseProvider`, `sessionClockProvider`, `sessionTickerProvider`, `joinByCodeProvider`, `sessionLobbyProvider`. |
-| 12 | `sessions_list_screen.dart` | `[~]` | Join-with-code sheet wired (with deep-link pre-fill); session cards open the **lobby**. Create sheet carries name/type/duration/visibility/capacity. QR is rendered/shared as a link; no in-app camera scanner (the deep link covers it). |
-| 13 | `session_lobby_screen.dart` | `[x]` | Member grid with photos, ready toggle, invite panel (code/QR/share), host Start/Cancel/Kick, auto-start into focus on `running`, auto-finish into summary. |
-| 14 | `focus_session_screen.dart` shared mode | `[~]` | The shared run drives the existing focus engine with the session id and the server-derived remaining time; there is no separate member-ring / emoji layer yet. |
-| 15 | `session_summary_screen.dart` | `[x]` | Reads `sessionResults` (the server's verdict), shows points + per-member outcome. |
-| 16 | Deep links `digitox://join/{code}` | `[x]` | `SessionLinkHandler` parses app + `https` join links, holds a pending code across auth, started in `main()`. |
-| 17 | `AndroidManifest.xml` join intent filter | `[x]` | `com.nlp.digitox://join` filter added. |
-| 18 | Native focus service (arbitrary duration + session id + early-exit event) | `[~]` | The Dart bridge passes the session id and remaining duration; the native early-exit callback is still the pre-existing one. |
-| 19 | Leaderboard via webhook | `[x]` | `SessionCompletionService` posts `{sid, idToken}`; the client never writes points for the shared reason. |
-| 20 | `pubspec.yaml` deps | `[x]` | `qr_flutter` + `share_plus` added. `mobile_scanner` deliberately **not** added: the code arrives through the deep link, so no camera permission is needed. |
-| 21 | Env keys for webhooks | `[x]` | `SESSION_COMPLETE_WEBHOOK_URL` / `SESSION_WEBHOOK_SECRET` in `api_keys.dart` + `.env.example`. |
-| 22 | n8n workflows | `[x]` | `backend/n8n/session_complete.json` (secret check → ID-token verify → RTDB re-read → completion criteria → idempotent `sessionResults` write) and `session_cleanup.json` (daily stale session/invite delete). |
-| 23 | `group_service.dart` + group models | `[ ]` | Absent — Phase 3. The rules are already in place for it. |
-| 24 | Groups UI | `[ ]` | Absent — Phase 3. |
-| 25 | `session_notifications.dart` | `[ ]` | Absent — Phase 3/4. |
-| 26 | Report/block sheet | `[ ]` | Absent — Phase 5. The `reports`/`blocks` rules are in place. |
-| 27 | l10n strings | `[ ]` | Session strings are inline English; ARB extraction still to do. |
-| 28 | README privacy correction | `[x]` | "Why internet permission" and the privacy section now state what a shared session sends, and to whom. |
-| 29 | Tests (§9) | `[~]` | Session model/service/UI/capacity/completion tests pass. Still missing: `SessionClock` math, phase derivation, invite-code generator, completion-criteria unit tests, and emulator rules tests. |
-| 30 | CI (analyze + tests) | `[x]` | `.github/workflows/ci.yml` runs `flutter analyze --no-fatal-infos` + `flutter test` on PRs and pushes to main. |
-
-### Deviations from the original plan (decided during implementation)
-
-1. **Env keys go in `api_keys.dart`, not a new `lib/config/env.dart`.** The README
-   documents `lib/config/api_keys.dart` as *the* single key-resolution mechanism
-   (dart-define → bundled `.env` → literal). Adding a second loader would give the
-   app two ways to read configuration. New session webhook keys join that file and
-   `.env.example`.
-2. **`SessionLimits.maxMembersPerSession` stays the capacity source of truth.**
-   The plan's `capacity` field is served by the existing `maxMembers`, which is
-   already enforced in three layers. `visibility` replaces the `isPublic` boolean
-   at the protocol level while `isPublic` is kept as a derived getter so the
-   existing UI and tests keep working.
-3. **`SessionMember` is extracted to `lib/models/session_member.dart` and
-   re-exported from `shared_session_model.dart`**, so every existing import path
-   and test keeps compiling.
-4. **`SessionService.startPresenceHeartbeat` is retained** as a compatibility
-   shim over the new `SessionPresenceService`, because the existing service test
-   asserts on it and on the `heartbeats:` field of `debugStatus`.
-
-## 1. Goal and scope
-
-**Goal:** people on different phones join one session, see each other live, focus on one synchronized timer with app blocking active, and get rewarded fairly for completing it. Groups make this repeatable.
-
-**In scope (v1):** invite-code/link sessions, lobby + ready check, synchronized server-time timer, presence, focus enforcement per device, completion verification, points, groups with scheduled sessions, reporting/blocking.
-
-**Out of scope (v1):** free-text chat (emoji reactions only), pause/resume in shared mode, joining after start, iOS enforcement (timer works, blocking does not), public stranger matchmaking (behind a flag until Phase 5).
-
-## 2. Architecture
-
+- [ ] **A1. Add rules for the three missing collections** (field names match what `group_service.dart` writes: invite has `gid`, `name`, `ownerName`, `createdAt`, `expiresAt`; group has `ownerId`, `visibility`, `maxMembers`):
 ```
- Flutter app (each phone)
-  ├─ UI: list → lobby → focus → summary
-  ├─ Riverpod: session stream, members stream, clock
-  ├─ SessionService  ──────► RTDB  sessions/, invites/, users/{uid}/sessions
-  ├─ SessionClock    ◄────── RTDB  .info/serverTimeOffset
-  ├─ PresenceService ──────► RTDB  members/{uid}.status  (+ onDisconnect)
-  ├─ SessionFocusBridge ───► existing Focus Mode engine (Dart → Kotlin foreground service)
-  └─ GroupService    ──────► Firestore groups/
- n8n (service account)
-  ├─ POST /session-complete  verify ID token + read RTDB → write sessionResults + points
-  └─ cron  /session-cleanup  delete stale sessions/invites
+function isGroupAdmin(gid) {
+  return request.auth != null &&
+    exists(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)) &&
+    get(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)).data.role in ["owner", "admin"];
+}
+
+match /group_invites/{code} {
+  allow get: if request.auth != null;      // single lookup only, so codes cannot be listed
+  allow list: if false;
+  allow create: if request.auth != null && isGroupAdmin(request.resource.data.gid);
+  allow update, delete: if request.auth != null && isGroupAdmin(resource.data.gid);
+}
+
+match /group_directory/{gid} {
+  allow read: if request.auth != null;
+  allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+  allow update, delete: if request.auth != null && isGroupAdmin(gid);
+}
+
+match /users/{userId}/groups/{groupId} {
+  allow read, create, update: if request.auth != null && request.auth.uid == userId;
+  allow delete: if request.auth != null && (request.auth.uid == userId || isGroupAdmin(groupId));
+}
 ```
+Define `isGroupAdmin` once at the top of `match /documents/{...}` (functions inside `match /groups/{groupId}` are not visible to sibling matches).
 
-Key decisions:
-1. **Timestamps, not ticks.** The host writes one server timestamp; every device derives the timer from it. Nothing needs to stream every second.
-2. **Rules do the integrity work** wherever possible (completion time, ownership, member self-write), n8n only for points.
-3. **RTDB for live sessions, Firestore for groups** (queryable, persistent).
-
-## 3. Data model
-
-### RTDB
-
+- [ ] **A2. Let a normal user join a group.** In `match /groups/{groupId}/members/{memberId}`, replace the `create` rule with:
 ```
-sessions/{sid}
-  ownerId            string   (immutable)
-  title              string
-  type               "study" | "work" | "creative"
-  visibility         "private" | "invite" | "public"
-  capacity           number   (soft limit, client + n8n enforced)
-  durationSec        number   (immutable once running)
-  countdownSec       number   (default 5)
-  state              "lobby" | "running" | "cancelled"
-  runStartAt         server timestamp (set once by host on Start)
-  groupId?           string
-  createdAt          server timestamp
-  members/{uid}
-    displayName, photoUrl, role ("host"|"member")
-    status   "joined" | "ready" | "focusing" | "away" | "left"
-    joinedAt (ts), lastSeen (ts), leftAt? (ts)
-    breaks   number   (times the user broke focus)
-    completedAt? (ts) (rule: only if now >= endAt)
-    code     string   (invite code used to join; validated by rule)
-
-invites/{code}       { sid, title, hostName, durationSec, expiresAt }
-publicSessions/{sid} { title, type, durationSec, memberCount }   (Phase 5 only)
-users/{uid}/sessions/{sid}: true
-sessionResults/{sid}/{uid}  { focusedSec, completed, points, at }   (n8n only)
+allow create: if request.auth != null && (
+  // creator becomes the first owner
+  (memberId == request.auth.uid &&
+    (!exists(/databases/$(database)/documents/groups/$(groupId)) ||
+     get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid)) ||
+  // an owner/admin adds someone
+  isGroupAdmin(groupId) ||
+  // self-join as a plain member, through a valid code or a public group
+  (memberId == request.auth.uid && request.resource.data.role == "member" &&
+    ( (request.resource.data.code is string &&
+       exists(/databases/$(database)/documents/group_invites/$(request.resource.data.code)) &&
+       get(/databases/$(database)/documents/group_invites/$(request.resource.data.code)).data.gid == groupId &&
+       get(/databases/$(database)/documents/group_invites/$(request.resource.data.code)).data.expiresAt > request.time)
+      || get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == "public" ))
+);
 ```
+- [ ] **A3. Do not open `groups/{gid}` to every user.** The group document stores `inviteCode`, so a public `get` would leak it. Keep `allow read: if isMember();` and change the app instead (see section D, task D5): a non-member should read the **invite** (`group_invites/{code}`) or **directory** (`group_directory/{gid}`) document for the preview, capacity and visibility, never `groups/{gid}`.
+- [ ] **A4. Capacity of groups is client-side only** (Firestore rules cannot count documents). Decide: accept for now (note in README), or add a `memberCount` field on the group document that a joiner increments in the same batch, guarded by a rule requiring `request.resource.data.memberCount == resource.data.memberCount + 1 && request.resource.data.memberCount <= resource.data.maxMembers` and `affectedKeys().hasOnly(['memberCount'])`. (P1)
+- [ ] **A5. Leaderboard self-award (P1, decision needed).** `weekly_leaderboard` and `monthly_leaderboard` only validate the avatar URL, and `leaderboard` allows a user to create their own doc with any fields. Fully locking points means moving every point source (habits, tasks, streaks, focus) to server-side awards. Recommended path: first remove the **shared-session** client award (task D1), keep solo points client-written for now, and put server-only awards behind n8n later. Do not lock these rules until every client point source has moved, or the app will break.
 
-Derived (never stored):
+## B. Realtime Database rules (`database.rules.json`) - P0
+
+All items below need testing in the Firebase emulator before deploy.
+
+- [ ] **B1. Session creation is probably rejected.** `createSession` writes the session and its invite in one `ref().update()`. The `invites/$code` rule reads `root.child('sessions')...ownerId`, but `root` is the data **before** the write, so the new session does not exist yet. Fix: add `'hostUid': userId` to the invite map in `createSession` (task D2) and change the rule to:
 ```
-startEffective = runStartAt + countdownSec*1000
-endAt          = startEffective + durationSec*1000
-phase          = lobby | countdown | running | finished   (from state + server "now")
-```
-
-### Firestore (Phase 3)
-
-```
-groups/{gid}                 { name, ownerId, visibility, createdAt, liveSession?: {sid, code} }
-groups/{gid}/members/{uid}   { role: owner|admin|member, joinedAt, displayName, photoUrl }
-groups/{gid}/schedule/{id}   { title, startsAt, durationSec, type, createdBy }
-groups/{gid}/stats/{uid}     { sessionsCompleted, focusedSec, streak }   (n8n only)
-reports/{id}                 { reporterUid, targetUid, sid|gid, reason, at }
-blocks/{uid}/blocked/{uid2}  {}
-```
-
-## 4. Core algorithms
-
-### 4.1 Synchronized clock (`SessionClock`)
-1. Listen to `.info/serverTimeOffset` (RTDB) → `offsetMs`.
-2. `serverNowMs = DateTime.now().millisecondsSinceEpoch + offsetMs`.
-3. UI ticker (1 Hz, `Stream.periodic`) computes `remaining = endAt - serverNowMs`.
-4. Re-read the offset on reconnect. Tolerance target: ±1 s across devices.
-
-### 4.2 Lifecycle
-```
-create → lobby ──host Start──► running(countdown → focus) ──endAt──► finished (derived)
-            └──host Cancel──► cancelled
-```
-- Host taps Start: one update `{state:'running', runStartAt: ServerValue.timestamp}`.
-- Every client's session stream sees `running`, computes `startEffective`, shows countdown, then starts Focus Mode for the remaining duration.
-- At `endAt` each client stops Focus Mode, writes `members/{uid}/completedAt = ServerValue.timestamp`, and calls the completion webhook.
-- The host disconnecting does **not** stop the session (it is timestamp-driven). Only Cancel does.
-
-### 4.3 Presence (`SessionPresenceService`)
-1. Listen to `.info/connected`.
-2. When connected: set `status` (focusing/ready), `lastSeen`, and register `onDisconnect().update({status:'away', lastSeen: ServerValue.timestamp})`.
-3. Show a member as "away" only after 60-90 s grace (Android backgrounds apps in focus mode).
-4. Heartbeat every 45 s (`lastSeen` only). Remove the old fast heartbeat.
-
-### 4.4 Focus enforcement (`SessionFocusBridge`)
-- Session `running` + past countdown → call the existing Focus Mode start with `duration = endAt - now`.
-- User stops Focus Mode early or force-quits → `breaks += 1`, `status='left'` if they exit the session.
-- Completion requires: joined before `startEffective`, `leftAt` absent, `breaks <= 2` (config), `completedAt` written after `endAt`.
-
-### 4.5 Completion & points (n8n `/session-complete`)
-1. Input `{sid, idToken}`; verify via Identity Toolkit `accounts:lookup` → `uid`.
-2. Read `sessions/{sid}` and `members/{uid}` through the RTDB REST API (service account).
-3. Reject unless the criteria in 4.4 hold and `sessionResults/{sid}/{uid}` does not exist (idempotent).
-4. Look up points by reason (`shared_session_completed`, group bonus) in the `leaderboard_config` Firestore doc.
-5. Write `sessionResults`, then the leaderboard docs (Admin write), then update group stats.
-
-## 5. Security rules
-
-### 5.1 `database.rules.json` (replace/extend the `sessions` block; combines the pending audit fixes)
-
-```json
-"sessions": {
-  "$sessionId": {
-    ".read": "auth != null && (root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid || root.child('sessions').child($sessionId).child('members').child(auth.uid).exists() || data.child('visibility').val() === 'public')",
-    ".write": "auth != null && (!data.exists() || data.child('ownerId').val() === auth.uid)",
-    "ownerId":  { ".validate": "(!data.exists() && newData.val() === auth.uid) || (data.exists() && newData.val() === data.val())" },
-    "state":    { ".validate": "newData.val() === 'lobby' || newData.val() === 'running' || newData.val() === 'cancelled'" },
-    "runStartAt": { ".validate": "(!data.exists() && newData.val() === now) || newData.val() === data.val()" },
-    "durationSec": { ".validate": "newData.isNumber() && newData.val() >= 300 && newData.val() <= 14400 && (!data.exists() || newData.val() === data.val())" },
-    "members": {
-      "$memberId": {
-        ".write": "auth != null && ((($memberId === auth.uid) && (data.exists() || root.child('sessions').child($sessionId).child('state').val() === 'lobby')) || root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid)",
-        "code": { ".validate": "!newData.exists() || root.child('invites').child(newData.val()).child('sid').val() === $sessionId || root.child('sessions').child($sessionId).child('visibility').val() === 'public'" },
-        "completedAt": { ".validate": "newData.val() === now && now >= (root.child('sessions').child($sessionId).child('runStartAt').val() + (root.child('sessions').child($sessionId).child('countdownSec').val() + root.child('sessions').child($sessionId).child('durationSec').val()) * 1000)" },
-        "breaks": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50" }
-      }
-    }
-  }
-},
 "invites": {
   "$code": {
     ".read": "auth != null",
-    ".write": "auth != null && ((!data.exists() && root.child('sessions').child(newData.child('sid').val()).child('ownerId').val() === auth.uid) || (data.exists() && root.child('sessions').child(data.child('sid').val()).child('ownerId').val() === auth.uid))"
+    ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid))",
+    "sid": { ".validate": "newData.isString() && newData.val().length > 0" },
+    "hostUid": { ".validate": "newData.isString()" }
   }
-},
-"sessionResults": { ".read": "auth != null", ".write": false }
+}
 ```
-
-Notes: no `.read` at the `invites` root, so codes cannot be listed. `capacity` cannot be enforced in RTDB rules (no `numChildren`), so it is soft. Existing `publicSessions` rules stay for Phase 5 with the corrected `memberCount` rule from `todo.md` item 12.
-
-### 5.2 `firestore.rules`
-- Delete the stale `shared_sessions` block. Add `groups/{gid}` rules in Phase 3 using `exists(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid))` for membership, role checks for admin writes, `stats/*` and `reports` write rules (`stats` write: false).
-- Apply the `!exists(...) || diff(...).hasOnly(...)` leaderboard fix from `todo.md` item 11 **only after** the points webhook ships.
-
-## 6. File-by-file change list
-
-Locate unknown files first:
+- [ ] **B2. Invite-only sessions can be joined without a code.** `code` is only checked when present, and `joinSession(sessionId)` (plain ID join) sends none. Replace the member `.validate` with:
 ```
-grep -rln "SharedSession\|SessionService" lib/
-grep -rln "createSessionProvider\|userSessionsProvider" lib/
-grep -rln "FocusMode\|focus_session\|startFocus" lib/ android/app/src/main/java
-grep -rn "app_links\|AppLinks" lib/ android/app/src/main/AndroidManifest.xml
+".validate": "newData.hasChildren(['displayName', 'joinedAt']) && (data.exists() || newData.parent().parent().child('ownerId').val() === $memberId || newData.parent().parent().child('visibility').val() === 'public' || root.child('sessions').child($sessionId).child('visibility').val() === 'public' || newData.child('code').exists())"
 ```
+  Because join-by-ID now fails for private sessions, restrict `join_by_id_sheet.dart` to public sessions (task D6).
+- [ ] **B3. Anyone can create `publicSessions/{id}`** (the `!data.exists() ||` branch). Require ownership for create and update; include `hostUid` in the written entry (task D2):
+```
+".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid) || (!newData.exists() && root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid))"
+```
+- [ ] **B4. `sessionResults` is readable by everyone** (top-level `.read`). Allow reading only by members of that session (the summary screen lists every member's result via `getSessionResults`):
+```
+"sessionResults": {
+  "$sid": {
+    ".read": "auth != null && root.child('sessions').child($sid).child('members').child(auth.uid).exists()",
+    ".write": false
+  }
+}
+```
+- [ ] **B5. Add indexes** (needed by the n8n cleanup queries): `"sessions": { ".indexOn": ["createdAt"], ... }` and `"invites": { ".indexOn": ["expiresAt"], ... }`.
+- [ ] **B6. Make `breaks` monotonic** and block self-promotion: in `members.$memberId`, `breaks` validate `newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= 50`; and `role` validate `newData.val() === 'member' || (newData.val() === 'host' && newData.parent().parent().parent().child('ownerId').val() === $memberId)`.
+- [ ] **B7. Fix the wrong comment.** `session_service.dart` (`joinSession`, comment above the `update`) says "the rules close that race". RTDB rules cannot count members, so session capacity is only enforced by the client. Either accept and document, or enforce it in n8n (a session joined beyond `maxMembers` is ignored for points).
+- [ ] **B8. Tests.** Add emulator tests (`@firebase/rules-unit-testing`) for: create session plus invite in one update, join with a valid code, join without a code (must fail on non-public), non-member write (must fail), `completedAt` before end (must fail), kicking, results read by a non-member (must fail).
+- [ ] **B9. Remove `firebase.rules.json`** (old rules using `owner`, not `ownerId`). Keep `database.rules.json` only.
 
-| # | File | Action | What changes |
-|---|---|---|---|
-| 1 | `database.rules.json` | Edit | Replace with Section 5.1. Deploy: `firebase deploy --only database`. Verify timestamp in console. |
-| 2 | `firebase.json` | Edit | Add `emulators` (auth 9099, database 9000, firestore 8080) for rules tests. |
-| 3 | `firestore.rules` | Edit | Remove `shared_sessions`; add groups/reports/blocks (Phase 3). |
-| 4 | Session model (`SharedSession`) **[confirm path, likely `lib/models/`]** | Edit | Add `type`, `visibility`, `capacity`, `durationSec`, `countdownSec`, `state`, `runStartAt`, `groupId`. Add getters `startEffective`, `endAt`. Remove client-owned `memberCount` from the session (keep in `publicSessions` only). |
-| 5 | `lib/models/session_member.dart` | New | `SessionMember` (fields from 3), `MemberStatus` enum, `fromMap/toMap`. |
-| 6 | `lib/models/session_result.dart` | New | `SessionResult` read model. |
-| 7 | `lib/core/services/session_clock.dart` | New | Section 4.1. Exposes `Stream<int> serverNowMs` and `int now()`. |
-| 8 | `lib/core/services/session_presence_service.dart` | New | Section 4.3. Replaces heartbeat code in `SessionService` (`_startPresenceHeartbeat`/`_stopPresenceHeartbeat`). |
-| 9 | `lib/core/services/session_service.dart` | Edit (major) | (a) `createSession`: apply Fix A from `todo.md` (atomic multi-path `update` with 15 s timeout) and also write `invites/{code}`. (b) New `joinByCode(code)`: read `invites/{code}`, write `members/{uid}` with `code` field, index under `users/{uid}/sessions`. (c) New `setReady(sid, bool)`. (d) New `startSession(sid)` (host only): update `{state:'running', runStartAt: ServerValue.timestamp}`. (e) New `cancelSession(sid)`. (f) `leaveSession`: write `leftAt`/`status:'left'` instead of deleting members mid-run; reorder `memberCount` write before removal for public sessions (`todo.md` item 12b). (g) New `reportBreak(sid)` (increments `breaks`). (h) New `markCompleted(sid)` then call webhook. (i) New `kickMember(sid, uid)`. (j) Streams: `watchSession(sid)`, `watchMembers(sid)`. (k) Generate 6-char invite codes (unambiguous alphabet), 24 h expiry. |
-| 10 | `lib/core/services/session_focus_bridge.dart` | New | Section 4.4. Subscribes to session + clock; calls the **existing** Focus Mode start/stop **[confirm names via grep]**; raises `reportBreak` on early stop. |
-| 11 | Session providers **[confirm path]** | Edit/New | Fix `createSessionProvider` error surfacing. Add `sessionProvider(sid)`, `membersProvider(sid)`, `sessionPhaseProvider(sid)` (derived from clock), `sessionClockProvider`, `joinByCodeProvider`. Ensure providers `autoDispose` and cancel RTDB subscriptions (addresses "consumer does not rebuild" / "navigation races init" findings: initialise the service in `main`/an `AsyncNotifier` and `await` it before navigating). |
-| 12 | `sessions_list_screen.dart` **[confirm path]** | Edit | Apply Fix B (in-sheet error text, scroll view). Add fields: type, duration, visibility, capacity. Add "Join with code" button + QR scan/share actions. |
-| 13 | `session_lobby_screen.dart` | New | Member grid with photos (`profileImageUrl`), ready toggles, invite code/QR/share link, Host controls (Start enabled when ≥1 other ready or host override, Cancel, Kick). Auto-navigates to focus screen when `state == running`. |
-| 14 | `focus_session_screen.dart` **[confirm path]** | Edit | Add "shared mode": countdown overlay, server-time remaining, member ring/list with live status, emoji reactions (write `reactions/{sid}/{uid}` short-lived), "leave session" confirmation that warns about breaking the streak. Keep existing solo mode untouched behind a flag. |
-| 15 | `session_summary_screen.dart` | New | Results after `endAt`: who completed, your points (from `sessionResults`), streak update, "Focus again" button. |
-| 16 | `lib/main.dart` / router **[confirm]** | Edit | Handle `digitox://join/{code}` and `https://<domain>/join/{code}` via `app_links`; if not signed in, defer until sign-in completes; route to lobby via `joinByCode`. |
-| 17 | `android/app/src/main/AndroidManifest.xml` | Edit | Intent filter for the join link scheme/host (autoVerify for https links). Confirm foreground service type is already declared for Focus Mode. |
-| 18 | `android/.../FgMethodCallHandler.kt` and focus service | Verify (edit only if needed) | Ensure Focus Mode can be started with an arbitrary duration and an externally supplied session id, and that an "ended early by user" event is sent back to Dart. Add that callback if missing. |
-| 19 | `lib/core/services/leaderboard_service.dart` **[confirm]** | Edit | Route shared-session points via the webhook (no client `addPoints` for this reason). |
-| 20 | `pubspec.yaml` | Edit | Add `qr_flutter`, `mobile_scanner`, `share_plus` (invite share). Phase 4: `firebase_messaging`. |
-| 21 | `lib/config/env.dart` (from `todo.md` item 3) | New | Add `SESSION_COMPLETE_WEBHOOK_URL`, `SESSION_CLEANUP_*` keys; add them to `.env.example`. |
-| 22 | `backend/n8n/session_complete.json`, `session_cleanup.json` | New | Workflows from 4.5 and a daily cron deleting sessions older than 24 h (lobby) / 48 h (any) and expired invites. |
-| 23 | `lib/core/services/group_service.dart` + `lib/models/group*.dart` | New (Phase 3) | Group CRUD, invite, roles, schedule, live-session pointer, stats read. |
-| 24 | `lib/ui/screens/groups/*` **[confirm UI folder]** | New (Phase 3) | Groups list, group detail (members, schedule, stats, "Start group session"), invite flow. |
-| 25 | `lib/core/services/session_notifications.dart` | New (Phase 3-4) | Local scheduled reminders (`flutter_local_notifications`) for scheduled group sessions; FCM push for invites and "session starting". |
-| 26 | `lib/ui/.../report_block_sheet.dart` | New (Phase 5) | Report/block member; writes `reports`, `blocks`; hides blocked users' names/photos. |
-| 27 | `l10n` ARB **[confirm, per `l10n.yaml`, likely `lib/l10n/app_en.arb`]** | Edit | Add new strings to English only; the Crowdin config handles other locales. |
-| 28 | `README.md` | Edit | Replace "works completely offline / no data transmitted" with an accurate statement: solo features stay offline; shared sessions send display name, photo and focus status to other participants via Firebase. |
-| 29 | `test/` | New | See Section 8. |
-| 30 | `.github/workflows` | Edit | Run `flutter analyze`, unit tests, and rules tests on PRs. |
+## C. Points: remove the client-side award - P0
 
-## 7. Phases, tasks, acceptance criteria
+The webhook and the app would both pay, and the client path can be forged.
 
-Estimates are rough single-developer working days.
+- [ ] **C1.** `lib/core/services/session_service.dart`: delete the two calls to `ProductivityPointsService.instance.awardSharedSessionCompletionPoints(...)` (in `completeSession`, ~line 537, and in `_claimCompletionPointsIfFinished`, ~line 570). Keep `_claimCompletionPointsIfFinished` only if it triggers the webhook call (task C2), otherwise delete it.
+- [ ] **C2.** Make completion server-driven: `SessionCompletionService.reportCompletion` must return the result (`status`, `points`, `reason`) instead of `void`, so the UI can show it.
+- [ ] **C3.** `lib/features/shared_sessions/widgets/complete_session_button.dart`: the dialog and snackbar print a fixed `ProductivityPointsService.sharedSessionCompletionPoints` (50). Replace with the webhook result (for example "Completed - 50 points" or "Completed - no points (needs 2 or more people and at least 15 minutes)").
+- [ ] **C4.** `lib/features/shared_sessions/session_summary_screen.dart`: show points from `sessionResults/{sid}/{uid}` (already read by `getResult`), not a locally computed number.
+- [ ] **C5.** Remove or retire `sharedSessionCompletionPoints`, `awardSharedSessionCompletionPoints`, the SharedPreferences "already awarded" list and `SharedSessionFocusTracker`'s role in payout, once the webhook is the only source. Update their tests (`shared_session_focus_tracker_test.dart`).
+- [ ] **C6.** Remove `SESSION_WEBHOOK_SECRET` from the app: `lib/config/api_keys.dart`, `.env.example`, and the `x-digitox-secret` header in `session_completion_service.dart`. It is compiled into the app, so it protects nothing; the ID token is the real authentication. (Optional: send the token as `Authorization: Bearer ...` instead of in the body. The updated n8n workflow accepts both.)
 
-### Phase 0 - Foundations (3-4 d)
-Tasks: rows 1, 2, 9a, 12 (Fix B), 11 (error surfacing), `.env`/`env.dart` cleanup, deploy rules, emulators.
-Accept: on two real accounts, create → join → leave works; `PERMISSION_DENIED` shown clearly if rules block; rules deployed and verified.
+## D. In-app code fixes
 
-### Phase 1 - Real-time core (8-10 d)
-Tasks: rows 4-11, 13, 14 (shared mode), 15, 10, 18.
-Accept: 3 phones join a lobby; host starts; countdown and timer stay within ±1 s; each phone's apps are blocked; kill/reopen the app mid-session and it resumes to the correct remaining time; early exit registers a break.
+### D-P0: shared session core
 
-### Phase 2 - Invites & discovery (3-4 d)
-Tasks: rows 9b/9k, 12 (join, QR), 16, 17, 20.
-Accept: a link opened on a fresh install/logged-out phone joins the right lobby after sign-in; expired/invalid codes show a friendly error.
+- [ ] **D1. Breaks are never recorded.** `SessionFocusBridge.reportBreak` has no caller anywhere in the app, so leaving a focus run early costs nothing. In `lib/providers/focus/focus_mode_provider.dart`, in `endSharedSession()` (and wherever a shared run is given up early), call `SessionFocusBridge.instance.reportBreak(sessionId)` when `isSuccessful` is false and the shared session's `endAt` has not passed. Capture the session id before it is cleared (`_activeSharedSessionId`). Add a test.
+- [ ] **D2. `createSession`** (`session_service.dart`, ~line 308): add `'hostUid': userId` to the `invites/$inviteCode` map and to the `publicSessions/$sessionId` map (needed by B1 and B3).
+- [ ] **D3. Completion is lost if the app is not open at the end.** `completeRun` is only called from `SessionLobbyScreen` (`session_lobby_screen.dart:68`) while that screen is mounted and observing the phase. If the app is backgrounded for the whole run (the normal case during focus) and killed by Android, nothing is recorded and no points are paid. Add a reconciler:
+  - on app start and on `AppLifecycleState.resumed`, read `users/{uid}/sessions`, and for each session whose phase is `finished` and not yet completed, call `SessionFocusBridge.instance.completeRun(session)`;
+  - schedule a local notification at `endAt` ("Session finished - tap to collect your points") using `session_notifications.dart`, so the user reopens the app;
+  - keep this idempotent (the bridge already de-dupes per launch, and the webhook per `sid + uid`).
+  Also: add `WidgetsBindingObserver` handling to the lobby screen so the phase is re-evaluated on resume (no lifecycle handling exists in `lib/features/shared_sessions` today).
+- [ ] **D4. `_hasHandledStart` / `_hasHandledFinish`** in the lobby screen are per-widget; reopening the screen after the run started will not start the focus run. Drive the start from the bridge or the reconciler (D3), not only from `ref.listen` on a mounted widget.
+- [ ] **D5. Group join must not read `groups/{gid}`** (consequence of A3). In `group_service.dart`:
+  - `resolveInviteCode` already reads `group_invites/{code}`: also store `visibility`, `maxMembers` and a `memberCount` snapshot on the invite document in `issueInviteCode` (~line 947) so the join flow can check them;
+  - `_addSelfAsMember` (~line 567): replace `getGroup(groupId)` and `group.isListed` / `group.isFull` with a read of the invite document (code join) or `group_directory/{gid}` (public join);
+  - keep `getGroup` for members only.
+- [ ] **D6. Join by ID (`join_by_id_sheet.dart`)**: only offer it for public sessions (B2). Private and invite-only sessions are joined by code or link.
+- [ ] **D7. Real share link.** The manifest only registers the custom scheme `com.nlp.digitox://join/{code}`. WhatsApp, Telegram and most messengers do not make custom schemes tappable, so a shared invite is just text. Add an https link such as `https://nlpdigitox.me/join/{code}`: Android App Links intent filter with `android:autoVerify="true"`, a hosted `/.well-known/assetlinks.json`, a small web page that redirects to the Play Store when the app is missing, and `share_plus` text containing both the link and the 6-character code. (P1)
 
-### Phase 3 - Groups (7-10 d)
-Tasks: rows 3, 23, 24, 25 (local reminders).
-Accept: create a group, invite members, schedule a session, members get a reminder, group live session is joinable in one tap from the group screen.
+### D-P1: bugs reported earlier (re-check each; some may already be fixed)
 
-### Phase 4 - Integrity, points, push (4-6 d)
-Tasks: rows 19, 21, 22, 25 (FCM), 20, then Firestore leaderboard lockdown (`todo.md` item 11 Phase 1).
-Accept: a modified client cannot award itself points; duplicate webhook calls award once; stale sessions disappear within a day.
+- [ ] **D8.** `sessions_list_screen.dart` was rewritten; confirm there is no `ref.watch(focusModeProvider.notifier)` (use state or `select`, otherwise the UI never rebuilds). Command: `grep -rn "focusModeProvider.notifier" lib/features/shared_sessions`.
+- [ ] **D9.** `_beginFocusRun` in the lobby screen awaits the start, then navigates: good. Confirm `startSessionFromSharedSettings` fails safely if a required permission (accessibility) is missing, and that `permission_page.dart` / `permissions_provider.dart` require accessibility before a shared focus run (changed in PR #10; confirm).
+- [ ] **D10.** `badge_model.dart`: `monthNames[month]` must be range-checked (1 to 12). `date_time_utils.dart`: invalid calendar dates must be rejected, not normalised.
+- [ ] **D11.** No `firebase_messaging` in `pubspec.yaml`: invites and "session starting" are local-notification only, so nobody is notified when someone else invites them. Add FCM only if you want invites delivered to people who have the app closed. (P2)
+- [ ] **D12.** `mobile_scanner` is not in `pubspec.yaml`: QR codes can be displayed (`qr_flutter`) but not scanned in-app. Optional. (P2)
 
-### Phase 5 - Safety & launch (4-5 d)
-Tasks: rows 26, 28, `publicSessions` discovery behind a remote flag, rate limits, beta.
-Accept: report/block works; privacy text updated; beta of 20-50 users with no critical bugs for a week.
+### D-P1: privacy and policy
 
-## 8. Test plan
+- [ ] **D13.** `README.md` line ~154 says core features work offline "with no account, ever": fine. Add a clear paragraph that shared sessions and groups send display name, photo, focus status and completion to other participants through Firebase, and that report/block exists.
+- [ ] **D14.** Update the in-app privacy text, the Play Console Data safety form and the privacy policy for shared sessions, groups, reports and blocks.
+- [ ] **D15.** Confirm Report/Block (`report_block_sheet.dart`, `report_block_service.dart`) is reachable from the lobby, member list and group roster, and that blocked users are hidden. (Play Store requires this for user-generated content.)
 
-- **Unit tests** (`test/`): `SessionClock` math with fake offsets; phase derivation (lobby/countdown/running/finished); invite code generator; completion-criteria function.
-- **Rules tests** (emulator, `@firebase/rules-unit-testing`): non-member cannot read; member cannot write session root or change `ownerId`; join only in lobby and only with a valid code; `completedAt` rejected before `endAt`; kick only by owner; results not client-writable.
-- **Manual multi-device matrix:** airplane mode 60 s mid-session; app swiped away; wrong phone clock (±5 min); host loses connection; two joins at the same time; low battery / battery saver; Android 12-15.
-- **Load:** simulate expected concurrent users against the emulator/staging project; check RTDB connection usage.
+## E. Repo cleanup - P1
 
-## 9. Edge cases and decisions
+- [ ] **E1.** `git rm` these tracked temp/test files from the repo root (open each first for secrets): `fix_tab_account.py`, `test_groq_chat.dart`, `test_http_direct.dart`, `test_sentiment_json.dart`, `test_weekly_reset.dart`, `tmp_associated_domains_test.txt`, `tmp_build2.txt`, `tmp_diff_dart.txt`, `tmp_diff_native.txt`, `tmp_kill_hung_test.ps1`, `tmp_list_groq_models.ps1`, `tmp_orig_admin_config.txt`, `tmp_orig_admin_receiver.txt`, `tmp_test_groq_model.ps1`. Add `tmp_*` and `test_*.dart` (root only) to `.gitignore`.
+- [ ] **E2.** Delete `firebase.rules.json` (B9).
+- [ ] **E3.** `backend/n8n/session_complete.json` and `session_cleanup.json` are a different, unfinished design (no credentials on the HTTP nodes). Replace them with the files from `TODO_N8N.md` (with credential references only, no secrets) or delete them. Keep one source of truth.
+- [ ] **E4.** Extend `.github/workflows/ci.yml` with a job that runs the rules tests in the Firebase emulator (B8) after `flutter test`.
+- [ ] **E5.** If a release keystore or `key.properties` was ever committed in history, rotate the upload key. Check: `git log --all --diff-filter=A --name-only | grep -E "jks|keystore|key.properties"`.
 
-| Case | Behaviour |
-|---|---|
-| Host disconnects | Session continues (timestamp-driven); only Cancel ends it early. |
-| Joiner arrives after start | Not allowed in v1 (rule: lobby only). |
-| Nobody else joins | Host can start solo; no group bonus. |
-| Phone clock wrong | Irrelevant - uses server offset. |
-| User denies Accessibility/overlay permission | Cannot mark "ready"; explain why (also fixes audit item 15). |
-| Duplicate completion calls | Webhook is idempotent per `sid+uid`. |
-| Abandoned lobbies | Cleanup cron after 24 h. |
-| Abuse in public rooms | Public rooms stay behind a flag until report/block ships. |
+## F. Profile picture cleanup (app side)
 
-**Decisions to confirm before Phase 1:** (1) invite-only first (recommended); (2) synced mode only (recommended); (3) n8n vs Cloud Functions on Blaze for the completion webhook (n8n recommended for launch); (4) RTDB Spark limit of about 100 concurrent connections - plan the Blaze upgrade before public launch; verify current quotas.
+- [ ] **F1.** `profile_service.dart` already sends `Authorization: Bearer <ID token>` and `{publicId}`. Point `CLOUDINARY_CLEANUP_WEBHOOK_URL` in the build at the n8n **v2** path (`.../webhook/delete-cloudinary-asset-v2`).
+- [ ] **F2.** Confirm the Cloudinary public IDs the app uploads start with `profile_pics/{uid}_` (the v2 workflow rejects anything else). Check one uploaded image in the Cloudinary console, or the upload-preset folder setting.
+- [ ] **F3.** `.env.example`: update the comment on `CLOUDINARY_CLEANUP_WEBHOOK_URL` to say the URL is public and authentication is by ID token.
 
-## 10. Definition of done
+## G. Manual test checklist (two real Android devices, release-like build) - before launch
 
-- All Section 6 rows for the phase are merged; `flutter analyze` clean; unit + rules tests green in CI.
-- Rules deployed and verified in the Firebase console.
-- Manual multi-device matrix passed on at least 3 physical devices.
-- README/privacy text matches actual data flow.
-- No client code path can write points, `sessionResults`, or another user's member node. -->
+1. Create a session with an invite; confirm the invite and public entry exist in the database.
+2. Join by code on the second device; try joining a private session by ID (must fail).
+3. Ready, host starts, both countdown within about 1 second, both get app blocking.
+4. Lock the screen for the whole run; reopen after the end: completion must be recorded (D3).
+5. Leave the run early on one device: `breaks` increments, no points for that member (D1).
+6. Check the leaderboard gets exactly one award per member (no double pay).
+7. Group: create, share code, join from another account, schedule an entry, see the roster.
+8. Report and block a member; confirm they disappear.
+9. Airplane mode for 60 seconds mid-run; the timer stays correct and presence recovers.
+
+## Suggested order
+1. A, B (rules) with emulator tests, then deploy rules.
+2. D2, D1, D3/D4 (core fixes), then C (remove client awards) together with the n8n `Session Complete` workflow going live.
+3. D5, D6 (group and join paths), then E (cleanup) and F.
+4. D7 (https links), D13 to D15 (privacy and safety), manual checklist G, then release.

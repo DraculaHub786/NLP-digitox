@@ -35,29 +35,71 @@ class SessionLobbyScreen extends ConsumerStatefulWidget {
   ConsumerState<SessionLobbyScreen> createState() => _SessionLobbyScreenState();
 }
 
-class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen> {
-  bool _hasHandledStart = false;
-  bool _hasHandledFinish = false;
+class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
+    with WidgetsBindingObserver {
+  /// Whether this screen has already pushed the active-session timer route.
+  ///
+  /// The resume re-check re-runs `_actOn` on every foreground, and the lobby
+  /// stays mounted under the pushed timer route, so without this a resume
+  /// mid-run would push a second timer screen on top of the first.
+  bool _hasOpenedTimer = false;
+
+  /// Whether this screen has already handed the finish off to the summary.
+  bool _hasOpenedSummary = false;
 
   /// Reacts to the shared phase changing.
   ///
-  /// Started here rather than in a service so the focus run is tied to a screen
-  /// that is actually on screen — leaving the lobby disposes the listener, and
-  /// only the member looking at the room is the one who starts their own run.
+  /// The "already handled" guards live on [SessionFocusBridge], not here: a
+  /// `ref.listen` only fires on a *change*, so a screen that was backgrounded
+  /// across the whole run would come back to a session that is already
+  /// `running` or `finished` and never start its own run. [didChangeAppLifecycleState]
+  /// re-evaluates the current phase on every resume to close that gap, and the
+  /// bridge's own idempotence is what makes doing so safe.
   void _onPhaseChanged(SessionPhase? previous, SessionPhase next) {
+    _actOn(next);
+  }
+
+  /// Performs the side effect for the current [phase], if any.
+  void _actOn(SessionPhase phase) {
     final session = ref.read(sessionStreamProvider(widget.sessionId)).valueOrNull;
     if (session == null) return;
 
-    if (next == SessionPhase.running && !_hasHandledStart) {
-      _hasHandledStart = true;
+    if (phase == SessionPhase.running) {
       _beginFocusRun(session);
-    } else if (next == SessionPhase.finished && !_hasHandledFinish) {
-      _hasHandledFinish = true;
+    } else if (phase == SessionPhase.finished) {
       _finishRun(session);
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Re-evaluates the phase whenever the screen is brought back to front.
+  ///
+  /// This is the path that matters for a real run: the member backgrounds the
+  /// app for the whole 25 minutes, and when they return the phase has long
+  /// since flipped. No `ref.listen` fires for a change that happened while the
+  /// widget was paused, so it is handled here instead.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    if (!mounted) return;
+    _actOn(ref.read(sessionPhaseProvider(widget.sessionId)));
+  }
+
   Future<void> _beginFocusRun(SharedSession session) async {
+    if (_hasOpenedTimer) return;
+    _hasOpenedTimer = true;
+
     final focus = ref.read(focusModeProvider.notifier);
     await SessionFocusBridge.instance.startRun(session: session, focus: focus);
     if (!mounted) return;
@@ -65,6 +107,9 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen> {
   }
 
   Future<void> _finishRun(SharedSession session) async {
+    if (_hasOpenedSummary) return;
+    _hasOpenedSummary = true;
+
     await SessionFocusBridge.instance.completeRun(session);
     if (!mounted) return;
     Navigator.of(context).pushReplacement(

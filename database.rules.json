@@ -1,6 +1,7 @@
 {
   "rules": {
     "sessions": {
+      ".indexOn": ["createdAt"],
       "$sessionId": {
         ".read": "auth != null",
 
@@ -42,14 +43,14 @@
           "$memberId": {
             ".write": "auth != null && (($memberId === auth.uid && (data.exists() || root.child('sessions').child($sessionId).child('state').val() === 'lobby')) || root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid)",
 
-            ".validate": "newData.hasChildren(['displayName', 'joinedAt'])",
+            ".validate": "newData.hasChildren(['displayName', 'joinedAt']) && (data.exists() || newData.parent().parent().child('ownerId').val() === $memberId || newData.parent().parent().child('visibility').val() === 'public' || root.child('sessions').child($sessionId).child('visibility').val() === 'public' || newData.child('code').exists())",
 
             "code": {
               ".validate": "!newData.exists() || root.child('invites').child(newData.val()).child('sid').val() === $sessionId || root.child('sessions').child($sessionId).child('visibility').val() === 'public'"
             },
 
             "breaks": {
-              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"
+              ".validate": "newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= 50"
             },
 
             "completedAt": {
@@ -61,7 +62,7 @@
             },
 
             "role": {
-              ".validate": "newData.val() === 'host' || newData.val() === 'member'"
+              ".validate": "newData.val() === 'member' || (newData.val() === 'host' && newData.parent().parent().parent().child('ownerId').val() === $memberId)"
             }
           }
         }
@@ -69,20 +70,27 @@
     },
 
     "invites": {
+      ".indexOn": ["expiresAt"],
       "$code": {
         ".read": "auth != null",
 
-        ".write": "auth != null && ((!data.exists() && root.child('sessions').child(newData.child('sid').val()).child('ownerId').val() === auth.uid) || (data.exists() && root.child('sessions').child(data.child('sid').val()).child('ownerId').val() === auth.uid))",
+        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid))",
 
         "sid": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+
+        "hostUid": {
           ".validate": "newData.isString() && newData.val().length > 0"
         }
       }
     },
 
     "sessionResults": {
-      ".read": "auth != null",
-      ".write": false
+      "$sid": {
+        ".read": "auth != null && root.child('sessions').child($sid).child('members').child(auth.uid).exists()",
+        ".write": false
+      }
     },
 
     "users": {
@@ -98,7 +106,11 @@
       ".read": "auth != null",
 
       "$sessionId": {
-        ".write": "auth != null && (!data.exists() || root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid)",
+        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid) || (!newData.exists() && root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid))",
+
+        "hostUid": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
 
         "memberCount": {
           ".validate": "newData.isNumber() && newData.val() >= 0"

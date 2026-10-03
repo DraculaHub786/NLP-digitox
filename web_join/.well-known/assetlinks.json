@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.nlp.digitox",
+      "sha256_cert_fingerprints": [
+        "99:cc:a3:e7:8b:b5:2e:54:6a:f9:4c:29:a1:d1:18:b7:7c:b1:0a:6e:b7:7f:18:f5:7e:4c:06:e9:0a:85:d2:91"
+      ]
+    }
+  }
+]

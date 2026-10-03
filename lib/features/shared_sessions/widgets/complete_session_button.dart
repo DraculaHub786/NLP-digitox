@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
-import 'package:nlp_digitox/core/services/productivity_points_service.dart';
+import 'package:nlp_digitox/core/services/session_completion_service.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
@@ -11,13 +11,11 @@ import 'package:nlp_digitox/ui/common/surface_card.dart';
 
 /// Owner-only "Complete Session" action for the session detail screen.
 ///
-/// Completing a session pays the owner straight away and marks the session
-/// finished. It deliberately does *not* try to pay the other members from
-/// here: `LeaderboardService.addPoints` only ever writes the signed-in user's
-/// board docs, and firestore.rules permit a client to write its own docs only.
-/// Each other member is paid by their own device the next time it reads the
-/// session, so the confirmation copy states that rather than implying the
-/// owner credits the whole group.
+/// Completing a session marks it finished. Points are *not* computed here: the
+/// server verifies each member's run and writes `sessionResults/{sid}/{uid}`.
+/// This button asks the webhook to run that check for the owner and shows the
+/// verdict it returns, rather than promising a fixed number the client cannot
+/// guarantee.
 class CompleteSessionButton extends ConsumerWidget {
   const CompleteSessionButton({super.key, required this.session});
 
@@ -65,8 +63,6 @@ class CompleteSessionButton extends ConsumerWidget {
   }
 
   Future<void> _confirm(BuildContext context, WidgetRef ref) async {
-    final points = ProductivityPointsService.sharedSessionCompletionPoints;
-
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -75,9 +71,9 @@ class CompleteSessionButton extends ConsumerWidget {
         ),
         title: const Text('Complete session?'),
         content: Text(
-          'This marks "${session.name}" as finished. The $points points go to '
-          'members who focused with the group and finished their focus run — '
-          'including you, if you did. This cannot be undone.',
+          'This marks "${session.name}" as finished. Members who focused with '
+          'the group and finished their run are credited — including you, if '
+          'you did. This cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -101,16 +97,26 @@ class CompleteSessionButton extends ConsumerWidget {
     if (!context.mounted) return;
 
     final result = ref.read(completeSessionProvider);
+    if (result.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not complete session: ${result.error}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    // The session is finished; the payout is the server's call, so show its
+    // verdict when there is one and a neutral confirmation otherwise.
+    final verdict =
+        SessionCompletionService.instance.resultFor(session.id) ??
+            SessionCompletionResult.disabled;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          result.hasError
-              ? 'Could not complete session: ${result.error}'
-              : 'Session completed — $points points added.',
-        ),
-        backgroundColor: result.hasError
-            ? Theme.of(context).colorScheme.error
-            : DesignPalette.fern,
+        content: Text(verdict.message),
+        backgroundColor:
+            verdict.isCredited ? DesignPalette.fern : null,
       ),
     );
   }
@@ -138,9 +144,8 @@ class _MemberWaitingNotice extends StatelessWidget {
           Expanded(
             child: StyledText(
               'Waiting for the owner to complete this session. Finish a focus '
-              'run with the group and your '
-              '${ProductivityPointsService.sharedSessionCompletionPoints} '
-              'points are added automatically once they complete it.',
+              'run with the group and your points are credited automatically '
+              'once the server has verified it.',
               fontSize: 13,
               isSubtitle: true,
               height: 1.35,

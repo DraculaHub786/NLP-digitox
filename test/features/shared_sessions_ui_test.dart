@@ -352,11 +352,15 @@ void main() {
           dark: dark,
         );
 
-        expect(find.text('Join by ID'), findsOneWidget);
-        expect(find.text('Session ID'), findsOneWidget);
+        expect(find.text('Join a public session'), findsOneWidget);
+        expect(find.text('Public session ID'), findsOneWidget);
         expect(find.text('Join Session'), findsOneWidget);
         expect(
           find.textContaining('Rooms hold up to 10 people'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Only open sessions can be joined by ID'),
           findsOneWidget,
         );
       });

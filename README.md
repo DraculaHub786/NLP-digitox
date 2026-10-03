@@ -88,7 +88,15 @@ A persona-aware chatbot and sentiment-aware suggestions, powered by Groq. Fully 
 Sign in with Google if you want your persona/onboarding state backed up (so a reinstall doesn't force you through the quiz again), a synced profile picture, and a spot on the leaderboard. Entirely skippable — the app is fully functional without ever creating an account.
 
 ### 🔒 Privacy-Conscious & Open Source
-No ads, no third-party analytics, no data sold, ever. The features that matter most — focus mode, blocking, screen time limits, bedtime mode — run **entirely on-device** and need no account and no internet connection. The optional account and social features (cloud backup, leaderboard, AI chatbot, and **Shared Focus Sessions**) do talk to Firebase and Groq, transparently — a shared session sends your display name, profile picture and focus status to the other members of *that session only*. See [*Why internet permission?*](#why-internet-permission-in-manifest) below. Every line of code is public; audit it yourself.
+No ads, no third-party analytics, no data sold, ever. The features that matter most — focus mode, blocking, screen time limits, bedtime mode — run **entirely on-device** and need no account and no internet connection.
+
+The optional account and social features do talk to Firebase and Groq, transparently:
+
+- **Shared Focus Sessions** send your display name, profile picture and focus status to the other members of *that session only*.
+- **Focus Groups** store your display name, profile picture, group name and role, and the group's roster and schedule, in Firebase, visible to the other members of that group.
+- **Reports and blocks** let you report a member or block them. A report is written to Firebase and read only by you; a block is stored privately on your own account, and blocked members are hidden from you. See [*Report & block*](#report--block) below.
+
+See [*Why internet permission?*](#why-internet-permission-in-manifest) below. Every line of code is public; audit it yourself.
 
 ### 🌍 28 Languages, Out of the Box
 `en` `es` `fr` `de` `it` `pt` `ru` `ja` `ko` `zh` `ar` `he` `hi`-adjacent locale coverage and 15+ more — this isn't an English-only project bolted on for one region.
@@ -139,6 +147,18 @@ flutter run --dart-define-from-file=.env
 ```
 VS Code users: `.vscode/launch.json` already passes this flag — just hit Run/Debug. `.env` is gitignored. Without it, profile picture upload fails silently but sign-in and everything else still works.
 
+**3. Invite links (Android App Links)** — a shared session invite is sent as `https://nlpdigitox.me/join/{code}`, which opens the app directly once the host verifies it. To enable that:
+
+```bash
+# 1. Put the release signing SHA-256 into the verification file:
+keytool -list -v -keystore <your>.jks -alias <alias>   # copy the SHA256 fingerprint
+# paste it into web_join/.well-known/assetlinks.json
+# 2. Deploy the web assets:
+firebase deploy --only hosting
+```
+
+Without this, the link still works — it opens `web_join/join.html`, which redirects into the app or to the Play Store. Set `--dart-define=SESSION_JOIN_HOST=` (empty) to fall back to the app-scheme link only.
+
 ---
 
 > [!IMPORTANT]
@@ -148,10 +168,21 @@ VS Code users: `.vscode/launch.json` already passes this flag — just hit Run/D
 > - **Local VPN** — Android requires network permission to create and protect a Local VPN tunnel, which is how NLP-Digitox blocks internet access for selected apps. Needs no account and no external connection.
 > - **Firebase Auth & Firestore** — only contacted if you choose to sign in, to back up your onboarding/persona state and power the leaderboard.
 > - **Firebase Realtime Database** — used only by **Shared Focus Sessions**. When you create or join a session, your display name, profile picture and focus status are shared with the other members of *that session* so everyone can see who is focusing together on the same synced timer. Nothing is shared with anyone outside the session, and if you never open the Shared Sessions screen, nothing is written.
+> - **Firestore** — used by **Focus Groups** (roster, schedule and live-session pointer, visible to the members of that group), and by **reports and blocks** (a report you file, and your own private block list). Nothing is shared with anyone outside the group you are in.
 > - **Groq API** — only contacted if you use the AI chatbot / sentiment features.
 > - **Cloudinary** — only contacted if you upload a profile picture.
 >
 > None of the above is required to use the core app. Focus mode, blocking, screen-time limits, and bedtime mode work fully offline with no account, ever. You can verify exactly what's being sent by checking the app's network usage in your device settings.
+
+<a id="report--block"></a>
+> [!NOTE]
+> ## Report & block
+>
+> Shared sessions and groups are spaces with other people, so the app gives you two controls over who you are sharing with:
+> - **Report** a member from a session lobby, the member list, or a group roster. The report names the member and the session it came from and is stored for review; only you can read your own reports back.
+> - **Block** a member, from the same screens. A block is kept privately on your account and hides that person from you wherever people are listed. Use it if you would rather not see someone again without filing a report.
+>
+> Both are always available wherever another member is shown — the session lobby, the session member list, and a group's roster.
 
 ---
 

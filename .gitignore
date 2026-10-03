@@ -123,3 +123,13 @@ todo.md
 completed.md
 # Scratch/temporary files created by tooling or investigations.
 tmp_*
+# Ad-hoc test/verification scripts dropped in the repo root (real tests live
+# under test/). These are not part of the app and must not be committed again.
+/test_*.dart
+/test_*.ps1
+/fix_leave*.py
+/fix_leave*.ps1
+/analyze_out.txt
+/unused_output.txt
+/unused_files_list.txt
+/unused_assets.txt

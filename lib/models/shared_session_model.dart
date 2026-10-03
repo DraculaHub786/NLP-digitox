@@ -365,6 +365,33 @@ class SharedSession {
     return SessionPhase.running;
   }
 
+  /// Whether this session still belongs in the "active" list at
+  /// [serverNowMs].
+  ///
+  /// This is deliberately *wider* than [isActive], and it is the check the
+  /// session list uses.
+  ///
+  /// `isActive` is only cleared by an explicit write — the owner completing or
+  /// cancelling, or a member leaving. A session that simply *runs out of time*
+  /// is never written to at all: "finished" is derived from
+  /// `runStartAt + countdown + duration`, by design, so no device has to win a
+  /// race to write it. The consequence is that an expired run keeps
+  /// `isActive == true` forever, and a list that filters on `isActive` alone
+  /// shows it as live long after it ended.
+  ///
+  /// The room still counts as live while its lobby is open (members can join
+  /// and the host can start it) and while the run is going; it stops being live
+  /// once the run is over or cancelled. A *completed* session derives
+  /// [SessionPhase.finished] too, so it is excluded here as well — which is
+  /// correct: the owner's complete action already clears `isActive`, and this
+  /// keeps the two paths agreeing.
+  bool isLiveAt(int serverNowMs) {
+    final phase = phaseAt(serverNowMs);
+    return phase == SessionPhase.lobby ||
+        phase == SessionPhase.countdown ||
+        phase == SessionPhase.running;
+  }
+
   /// Seconds left in the countdown, or null when not counting down.
   int? countdownRemainingSecAt(int serverNowMs) {
     final startMs = startEffectiveMs;

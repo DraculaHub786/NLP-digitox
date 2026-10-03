@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
-import 'package:nlp_digitox/core/services/productivity_points_service.dart';
+import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
 import 'package:nlp_digitox/core/services/session_presence_service.dart';
 import 'package:nlp_digitox/core/utils/invite_code.dart';
 import 'package:nlp_digitox/models/session_result.dart';
@@ -307,6 +307,11 @@ class SessionService {
           // code at all, because it fails silently for whoever receives it.
           'invites/$inviteCode': {
             'sid': sessionId,
+            // `hostUid` is what `database.rules.json` checks to decide whether
+            // this create is allowed. It reads the invite itself rather than
+            // the session, because the session does not exist yet in the rule's
+            // view of the data — it is being written in this same update.
+            'hostUid': userId,
             'title': name,
             'type': type,
             'durationSec': session.durationSec,
@@ -316,6 +321,10 @@ class SessionService {
           },
           if (isPublic)
             'publicSessions/$sessionId': _withoutNulls({
+              // Same reason as the invite: the public-index write is authorised
+              // by `hostUid` on the entry itself, so a stranger cannot create
+              // or overwrite a public listing for a session they do not own.
+              'hostUid': userId,
               'name': name,
               'theme': theme,
               'memberCount': 1,
@@ -382,6 +391,16 @@ class SessionService {
         if (session.members.any((m) => m.userId == userId)) {
           // Already in: nothing to write, but the heartbeat must still run.
           debugPrint('SessionService: User already in session');
+        } else if (!session.isPublic) {
+          // A bare session ID is only a join key for a *public* session. For a
+          // private or invite-only room the ID is discoverable (it is the push
+          // key in the session's own URL), so accepting it here would let in
+          // anyone who ever saw the ID once. The rules enforce the same
+          // condition server-side; this is the message the user actually sees.
+          throw const SessionException(
+            'This session is private. Join it with the invite code or link '
+            'the host shared.',
+          );
         } else if (session.isFull) {
           throw SessionException(SessionLimits.fullSessionMessage);
         } else {
@@ -489,11 +508,7 @@ class SessionService {
   /// when they observe [SharedSession.completedAt] — see
   /// [_claimCompletionPointsIfFinished], which both `getSession` and
   /// `listenToSession` trigger.
-  Future<SharedSession> completeSession({
-    required String sessionId,
-    int pointsPerMember =
-        ProductivityPointsService.sharedSessionCompletionPoints,
-  }) async {
+  Future<SharedSession> completeSession({required String sessionId}) async {
     try {
       await _ensureInitialized();
 
@@ -534,10 +549,10 @@ class SessionService {
       _stopPresenceHeartbeat(sessionId);
       _sessionCache[sessionId] = completed;
 
-      await ProductivityPointsService.instance.awardSharedSessionCompletionPoints(
-        sessionId: sessionId,
-        points: pointsPerMember,
-      );
+      // Ask the server to verify and pay every member — the owner included.
+      // The client writes no points for this: `SessionCompletionService` posts
+      // the session id and an ID token, and the workflow decides.
+      unawaited(SessionFocusBridge.instance.completeRun(completed));
 
       debugPrint('SessionService: Completed session $sessionId');
       return completed;
@@ -547,29 +562,29 @@ class SessionService {
     }
   }
 
-  /// Pays the signed-in user for [session] if it has been completed.
+  /// Reports [session] to the server for verification if the signed-in member
+  /// finished it.
   ///
-  /// Safe to call repeatedly: `ProductivityPointsService` de-dupes by session
-  /// id, so the worst case is one cheap SharedPreferences read. This is the
-  /// only way a non-owner member can be credited, because a client may not
-  /// write another user's leaderboard doc.
+  /// Safe to call repeatedly — `SessionFocusBridge.completeRun` de-dupes per
+  /// session per launch, and the webhook de-dupes per `sid + uid`. This is the
+  /// path a non-owner member takes: they cannot write points for themselves in
+  /// this design, so they ask the server to check the run and credit them.
   Future<void> _claimCompletionPointsIfFinished(SharedSession session) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) return;
 
-      // Only a genuine completion pays out, and only to members still on the
-      // session. A session also goes inactive when its owner merely leaves it,
-      // which must not pay anyone — see
+      // Only a genuine completion triggers a report, and only for members
+      // still on the session. A session also goes inactive when its owner
+      // merely leaves it, which must not report anything — see
       // SharedSession.isEligibleForCompletionPayout.
       if (!session.isEligibleForCompletionPayout(userId)) return;
 
       _stopPresenceHeartbeat(session.id);
 
-      await ProductivityPointsService.instance
-          .awardSharedSessionCompletionPoints(sessionId: session.id);
+      unawaited(SessionFocusBridge.instance.completeRun(session));
     } catch (e) {
-      debugPrint('SessionService: Error claiming completion points: $e');
+      debugPrint('SessionService: Error reporting completion: $e');
     }
   }
 

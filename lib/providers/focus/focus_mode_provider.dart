@@ -13,6 +13,7 @@ import 'package:nlp_digitox/core/enums/session_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
 import 'package:nlp_digitox/core/services/shared_session_focus_tracker.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/models/focus_mode_model.dart';
@@ -287,7 +288,7 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
 
     if (isTheSessionSuccessful) {
       _incrementOrResetStreaks();
-      await _recordSharedRunCompleted();
+      await _clearSharedRunMarker();
       _sessionSuccessCallback?.call(updatedSession);
     } else if (_activeSharedSessionId != null) {
       // The run ended without reaching its goal, so it is not a completed
@@ -379,6 +380,11 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   /// before it started. Safe to call when no shared session is running — it
   /// then behaves as a plain "finish the active session" call.
   Future<void> endSharedSession() async {
+    // Capture the session id *before* anything clears it: a run given up early
+    // has to be counted against that session, and by the time we are done here
+    // `_activeSharedSessionId` is null.
+    final sharedSessionId = _activeSharedSessionId;
+
     final activeSession = state.activeSession.value;
     if (activeSession != null) {
       final isFiniteSession = activeSession.durationSecs > 0;
@@ -397,6 +403,17 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
         isTheSessionSuccessful: isSuccessful,
         isFiniteSession: isFiniteSession,
       );
+
+      // Leaving a group run before its goal is a *break*, and the server pays
+      // against the break count — but nothing recorded one before, so leaving
+      // early cost nothing. A run that reached its goal (so the timer already
+      // finished it) is not a break, which is why this is guarded by
+      // `!isSuccessful`.
+      if (!isSuccessful && sharedSessionId != null) {
+        unawaited(
+          SessionFocusBridge.instance.reportBreak(sharedSessionId),
+        );
+      }
     }
 
     final previousProfile = _previousProfileBeforeSharedSession;
@@ -411,19 +428,17 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
     await SharedSessionFocusTracker.instance.clearActiveFocusRun();
   }
 
-  /// Credits a just-finished run to the shared session it was started from.
+  /// Clears the in-progress marker once a group run has finished.
   ///
-  /// This is the evidence the 50-point completion bonus is paid against: the
-  /// session merely being marked complete is not enough (see
-  /// `ProductivityPointsService.awardSharedSessionCompletionPoints`).
-  Future<void> _recordSharedRunCompleted() async {
-    final sessionId = _activeSharedSessionId;
-    if (sessionId == null) return;
-
+  /// The marker exists only so a run that ends while the app is closed is
+  /// caught up on the next launch; once the run is done it has served its
+  /// purpose. It is deliberately *not* turned into a record of completion —
+  /// points are decided by the completion webhook, which verifies the run
+  /// server-side, never by a flag kept on this device.
+  Future<void> _clearSharedRunMarker() async {
+    if (_activeSharedSessionId == null) return;
     _activeSharedSessionId = null;
-    final tracker = SharedSessionFocusTracker.instance;
-    await tracker.markFocusRunCompleted(sessionId);
-    await tracker.clearActiveFocusRun();
+    await SharedSessionFocusTracker.instance.clearActiveFocusRun();
   }
 
   /// Saves the current focus mode configuration to the database.

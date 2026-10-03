@@ -35,12 +35,24 @@ class InviteCode {
   /// Host segment of an app-scheme join link.
   static const String joinHost = 'join';
 
-  /// Host used for `https` join links when one is configured.
+  /// Host used for `https` join links.
   ///
-  /// Empty by default: the project has no public web host for invites, and
-  /// pointing at a domain that does not resolve would produce a link that looks
-  /// shareable and is not. Set `SESSION_JOIN_HOST` to switch it on.
-  static const String _httpsHost = String.fromEnvironment('SESSION_JOIN_HOST');
+  /// Defaults to the project's own domain so a shared invite is a real,
+  /// tappable `https` link — messengers like WhatsApp and Telegram do not make
+  /// the custom `com.nlp.digitox://` scheme tappable, so an app-scheme-only
+  /// invite arrives as dead text. Override with `--dart-define=SESSION_JOIN_HOST`
+  /// (e.g. for a staging host); set it to the empty string to fall back to the
+  /// app-scheme link.
+  static const String defaultJoinHost = 'nlpdigitox.me';
+
+  static const String _httpsHostOverride =
+      String.fromEnvironment('SESSION_JOIN_HOST');
+
+  /// The effective `https` host, or empty when https links are disabled.
+  static String get _httpsHost {
+    const isOverridden = bool.hasEnvironment('SESSION_JOIN_HOST');
+    return isOverridden ? _httpsHostOverride : defaultJoinHost;
+  }
 
   static final Random _random = Random.secure();
 
