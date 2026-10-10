@@ -126,6 +126,24 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
       _onPhaseChanged,
     );
 
+    // A member whose focus run is still going must stop it when the host
+    // cancels the room: nothing else ends it, and they would otherwise stay
+    // blocked inside a session that no longer exists. This covers the case
+    // where this screen is on screen; the completion reconciler covers the
+    // rest (app reopened, or the screen never mounted).
+    ref.listen<AsyncValue<SharedSession?>>(
+      sessionDetailProvider(widget.sessionId),
+      (previous, next) {
+        final session = next.valueOrNull;
+        final focus = ref.read(focusModeProvider.notifier);
+        if (session != null &&
+            session.isCancelled &&
+            focus.isInSharedSessionFocus) {
+          focus.endSharedSession();
+        }
+      },
+    );
+
     final sessionAsync = ref.watch(sessionStreamProvider(widget.sessionId));
 
     return ScaffoldShell(

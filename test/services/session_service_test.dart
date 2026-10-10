@@ -435,6 +435,65 @@ void main() {
     });
   });
 
+  group('SessionService guarded writes', () {
+    late SessionService sessionService;
+
+    setUp(() async {
+      sessionService = SessionService.instance;
+      await sessionService.init();
+    });
+
+    tearDown(() async {
+      await sessionService.release();
+    });
+
+    /// Runs [action] and returns whatever it threw, or null if it returned.
+    Future<Object?> captureError(Future<void> Function() action) async {
+      try {
+        await action();
+        return null;
+      } catch (error) {
+        return error;
+      }
+    }
+
+    test('joinSession fails loudly instead of silently succeeding', () async {
+      // `joinSession` used to be its own copy of the join write, wrapped in an
+      // `if (rtdb available)` guard: with the server unreachable it skipped the
+      // whole block and reported success, so tapping Join did nothing and said
+      // nothing. It now delegates to `_joinAsMember`, which always refuses —
+      // here on the auth check, on a device on the lobby/capacity rules.
+      final error = await captureError(
+        () => sessionService.joinSession(sessionId: 'nope', displayName: 'Me'),
+      );
+
+      expect(
+        error,
+        isNotNull,
+        reason: 'joinSession must never report success without joining',
+      );
+    });
+
+    test('cancelSession fails loudly instead of returning silently', () async {
+      // The old version returned without a word when the database handle was
+      // missing, which is indistinguishable from a successful cancel to the
+      // caller showing a snackbar.
+      final error = await captureError(
+        () => sessionService.cancelSession(sessionId: 'nope'),
+      );
+
+      expect(
+        error,
+        isNotNull,
+        reason: 'cancelSession must never report success without cancelling',
+      );
+    });
+
+    test('getPublicSessions returns an empty list when unreachable', () async {
+      expect(await sessionService.getPublicSessions(), isEmpty);
+    });
+  });
+
   group('SessionService Integration', () {
     late SessionService sessionService;
 

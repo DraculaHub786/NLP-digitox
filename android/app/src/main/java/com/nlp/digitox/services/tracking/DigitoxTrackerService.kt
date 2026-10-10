@@ -29,6 +29,8 @@ class DigitoxTrackerService : Service() {
     private lateinit var launchTrackingManager: LaunchTrackingManager
     val getLaunchTrackingManager get() = launchTrackingManager
 
+    private lateinit var heartbeat: TrackerHeartbeat
+
     override fun onCreate() {
         overlayManager = OverlayManager(this)
         reminderManager = ReminderManager(overlayManager, ::onNewAppLaunch)
@@ -47,6 +49,14 @@ class DigitoxTrackerService : Service() {
         // the app again after a restore/reboot had no alarm guarding this
         // service at all.
         KeepAliveHelper.scheduleKeepAlive(this)
+
+        // Prove the tracking process is alive on its own clock. The watchdog
+        // alarm above is deferred by Doze and dropped outright by some OEMs, so
+        // on its own it makes the heartbeat report outages that are really just
+        // late alarms. This ticker keeps the heartbeat honest while the service
+        // is running — see [TrackerHeartbeat] and [TrackingHealth].
+        heartbeat = TrackerHeartbeat(this)
+        heartbeat.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -139,6 +149,10 @@ class DigitoxTrackerService : Service() {
     }
 
     override fun onDestroy() {
+        // Stop beating first: a heartbeat written by a process that is on its
+        // way out would hide the very gap this teardown opens.
+        heartbeat.stop()
+
         Log.d(TAG, "onDestroy: TRACKER service destroyed - re-launching immediately")
         // Use startForegroundService for Android 12+ compatibility (it's a foreground service)
         try {

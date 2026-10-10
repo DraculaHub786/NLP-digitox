@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
@@ -49,9 +50,14 @@ class DeviceBootReceiver : BroadcastReceiver() {
                     // *** DIRECTLY START FOREGROUND SERVICES ***
                     // Start tracker service immediately as a persistent foreground service
                     // This ensures app blocking and usage tracking resume right after boot
+                    // startForegroundService, not startService: the tracker is a
+                    // foreground service, and on Android 8+ a plain startService
+                    // throws IllegalStateException unless the app is in the
+                    // foreground — which it never is during a boot broadcast, so
+                    // the tracker silently failed to come back after a reboot.
                     val trackerIntent = Intent(context.applicationContext, DigitoxTrackerService::class.java)
                         .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
-                    context.applicationContext.startService(trackerIntent)
+                    ContextCompat.startForegroundService(context.applicationContext, trackerIntent)
                     Log.d(TAG, "onReceive: DigitoxTrackerService started on boot")
 
                     // Start VPN service immediately if internet blocking was enabled
@@ -60,7 +66,7 @@ class DeviceBootReceiver : BroadcastReceiver() {
                     if (blockedApps.isNotEmpty()) {
                         val vpnIntent = Intent(context.applicationContext, DigitoxVpnService::class.java)
                             .setAction(ServiceBinder.ACTION_START_DIGITOX_SERVICE)
-                        context.applicationContext.startService(vpnIntent)
+                        ContextCompat.startForegroundService(context.applicationContext, vpnIntent)
                         Log.d(TAG, "onReceive: DigitoxVpnService started on boot")
                     }
 

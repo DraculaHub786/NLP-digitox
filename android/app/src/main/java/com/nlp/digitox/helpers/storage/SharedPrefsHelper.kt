@@ -405,6 +405,56 @@ object SharedPrefsHelper {
     }
 
     /**
+     * Stores a long value in UniquePrefs.
+     *
+     * @param context The application context.
+     * @param key     The key for the value.
+     * @param value   The long value to store.
+     */
+    fun putLong(context: Context, key: String, value: Long) {
+        checkAndInitializeUniquePrefs(context)
+        mUniquePrefs!!.edit().putLong(key, value).apply()
+    }
+
+    /**
+     * Retrieves a long value from UniquePrefs.
+     *
+     * @param context      The application context.
+     * @param key          The key for the value.
+     * @param defaultValue The default value if the key is not found.
+     * @return The stored long value, or defaultValue if not set.
+     */
+    fun getLong(context: Context, key: String, defaultValue: Long): Long {
+        checkAndInitializeUniquePrefs(context)
+        return mUniquePrefs!!.getLong(key, defaultValue)
+    }
+
+    /**
+     * Stores a string value in UniquePrefs.
+     *
+     * @param context The application context.
+     * @param key     The key for the value.
+     * @param value   The string value to store.
+     */
+    fun putString(context: Context, key: String, value: String) {
+        checkAndInitializeUniquePrefs(context)
+        mUniquePrefs!!.edit().putString(key, value).apply()
+    }
+
+    /**
+     * Retrieves a string value from UniquePrefs.
+     *
+     * @param context      The application context.
+     * @param key          The key for the value.
+     * @param defaultValue The default value if the key is not found.
+     * @return The stored string value, or defaultValue if not set.
+     */
+    fun getString(context: Context, key: String, defaultValue: String): String {
+        checkAndInitializeUniquePrefs(context)
+        return mUniquePrefs!!.getString(key, defaultValue) ?: defaultValue
+    }
+
+    /**
      * Clears all the stored crash logs from shared prefs.
      *
      * @param context The application context used to access SharedPreferences.

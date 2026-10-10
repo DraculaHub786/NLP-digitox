@@ -397,6 +397,38 @@ class MethodChannelService {
   Future<bool> isAccessibilityServiceActive() async =>
       await _methodChannel.invokeMethod('isAccessibilityServiceActive') ?? false;
 
+  /// Raw diagnostic snapshot of the background-tracking inputs: the OS
+  /// accessibility-services string beside the component name we expect, the
+  /// battery/exact-alarm state, and how the process last ended.
+  ///
+  /// Used to answer "why did the permission page come back" on a real device —
+  /// it reports the unprocessed strings so a matcher bug can be told apart from
+  /// Android having genuinely cleared the grant.
+  Future<Map<String, dynamic>> getBackgroundDiagnostics() async {
+    final result = await _methodChannel
+        .invokeMapMethod<String, dynamic>('getBackgroundDiagnostics');
+    return result ?? const {};
+  }
+
+  /// The recorded background-tracking gaps as a JSON array string, newest
+  /// first. Each entry is `{"from": <ms>, "to": <ms>, "durationMs": <ms>}`.
+  ///
+  /// Used to qualify Accessibility-based metrics with "tracking was off for
+  /// 2 h 31 m today" rather than silently under-reporting. Usage totals are
+  /// unaffected — they come from `UsageStatsManager`, which Android keeps.
+  Future<String> getTrackingGapsJson() async =>
+      await _methodChannel.invokeMethod('getTrackingGaps') ?? '[]';
+
+  /// Epoch millis of the most recent keep-alive heartbeat, or 0 if none yet.
+  Future<int> getLastHeartbeatAt() async =>
+      await _methodChannel.invokeMethod('getLastHeartbeatAt') ?? 0;
+
+  /// Opens the OEM-specific "background / auto-start" settings screen when the
+  /// manufacturer has one. Returns false when there is nothing OEM-specific to
+  /// open, so the caller can fall back to the app's own settings page.
+  Future<bool> openOemBackgroundSettings() async =>
+      await _methodChannel.invokeMethod('openOemBackgroundSettings') ?? false;
+
   /// Checks whether the accessibility service is in the "paused" state — i.e.
   /// permission is granted but the service process was found dead on the last
   /// keep-alive heartbeat. Flutter UI uses this to show a lightweight reconnect

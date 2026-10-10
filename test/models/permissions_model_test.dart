@@ -58,6 +58,52 @@ void main() {
     });
   });
 
+  group('hasCorePermissions', () {
+    test('is true when all four core permissions are granted', () {
+      expect(allGranted.hasCorePermissions, isTrue);
+    });
+
+    test('is false when any one core permission is revoked', () {
+      const revoked = [
+        PermissionsModel(haveUsageAccessPermission: false),
+        PermissionsModel(haveDisplayOverlayPermission: false),
+        PermissionsModel(haveAlarmsPermission: false),
+        PermissionsModel(haveNotificationPermission: false),
+      ];
+
+      for (final model in revoked) {
+        expect(
+          model.hasCorePermissions,
+          isFalse,
+          reason: 'every core permission must be able to close the gate',
+        );
+      }
+    });
+
+    test('ignores Accessibility, which the OS clears on a force-stop', () {
+      // This is the whole point of splitting the gate: an onboarded user whose
+      // Accessibility grant was wiped by a force-stop must still reach the app.
+      expect(accessibilityRevoked.haveAccessibilityPermission, isFalse);
+      expect(accessibilityRevoked.hasCorePermissions, isTrue);
+      expect(accessibilityRevoked.hasAllEssentialPermissions, isFalse);
+    });
+
+    test('is true when the probe failed, because the state is unknown', () {
+      expect(
+        const PermissionsModel(
+          haveUsageAccessPermission: false,
+          permissionFetchFailed: true,
+        ).hasCorePermissions,
+        isTrue,
+      );
+    });
+
+    test('hasAllEssentialPermissions is core plus Accessibility', () {
+      expect(accessibilityRevoked.hasAllEssentialPermissions, isFalse);
+      expect(allGranted.hasAllEssentialPermissions, isTrue);
+    });
+  });
+
   group('permissionFetchFailed', () {
     test('defaults to false', () {
       expect(allGranted.permissionFetchFailed, isFalse);

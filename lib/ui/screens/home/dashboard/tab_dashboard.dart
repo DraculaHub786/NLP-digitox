@@ -14,6 +14,7 @@ import 'package:nlp_digitox/ui/screens/productivity/notes_screen.dart';
 import 'package:nlp_digitox/providers/usage/todays_apps_usage_provider.dart';
 import 'package:nlp_digitox/ui/common/sliver_active_session_alert.dart';
 import 'package:nlp_digitox/ui/common/default_refresh_indicator.dart';
+import 'package:nlp_digitox/ui/permissions/accessibility_permission_card.dart';
 import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/controllers/tab_controller_provider.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/sliver_ai_analysis.dart';
@@ -38,6 +39,16 @@ class TabDashboard extends ConsumerWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
+          /// Accessibility grant banner.
+          ///
+          /// Android clears the Accessibility grant on a force-stop, and the
+          /// splash screen deliberately no longer redirects on it (a
+          /// full-screen re-grant on every launch is worse than a banner).
+          /// This is where a user whose grant has gone learns about it: it
+          /// renders nothing while the grant is healthy, a "resume" nudge when
+          /// the service is paused, and a one-tap re-enable when it is gone.
+          const AccessibilityPermissionCard(),
+
           /// Active session
           const SliverActiveSessionAlert(),
 

@@ -74,7 +74,7 @@
       "$code": {
         ".read": "auth != null",
 
-        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid))",
+        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && (data.child('hostUid').val() === auth.uid || root.child('sessions').child(data.child('sid').val()).child('ownerId').val() === auth.uid)))",
 
         "sid": {
           ".validate": "newData.isString() && newData.val().length > 0"
@@ -106,7 +106,7 @@
       ".read": "auth != null",
 
       "$sessionId": {
-        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid) || (!newData.exists() && root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid))",
+        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid) || (!newData.exists() && root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid) || (!newData.exists() && data.exists() && (!root.child('sessions').child($sessionId).exists() || root.child('sessions').child($sessionId).child('state').val() === 'cancelled' || root.child('sessions').child($sessionId).child('isActive').val() === false)))",
 
         "hostUid": {
           ".validate": "newData.isString() && newData.val().length > 0"

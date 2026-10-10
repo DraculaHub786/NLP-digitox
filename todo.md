@@ -1,176 +1,166 @@
-# TODO 1: App code, Firebase rules and repo cleanup
+# In-app code and rules fixes — implementation status
 
-Repo: DraculaHub786/NLP-digitox, `main` @ `bc2c485` (Oct 2, 2026). Everything here was found by reading the code; I could not run Flutter, the tests or the Firebase emulator. The n8n work is in a separate file (`TODO_N8N.md`).
+**Audited:** 4 Oct 2026, against the working tree (not the plan).
+**Evidence:** `flutter analyze --no-pub` → *No issues found!* · `flutter test` → **359 tests passed**, exit 0.
 
-Priority: **P0** = shared sessions or groups do not work or are unsafe without it. **P1** = needed for a trustworthy launch. **P2** = polish.
+Legend: **[x]** applied as specified · **[~]** partially applied · **[ ]** not applied.
+Each item names the file it lives in so the claim can be re-checked.
 
 ---
 
-## A. Firestore rules (`firestore.rules`) - P0
+## Outstanding work
 
-Groups cannot work with the current rules. `group_service.dart` uses three collections that have no rules (`group_invites`, `group_directory`, `users/{uid}/groups`), and a normal user can neither read a group nor add themselves to it.
+- [ ] **A6a** `test/providers/session_provider_test.dart` — add a test that `SessionLobbyNotifier.cancel()` invalidates `publicSessionsProvider`. The file currently only asserts that `publicSessionsProvider` is `autoDispose`.
+- [ ] **A6b** `test/services/session_service_test.dart` — the fake-DB test for `getPublicSessions` (drops cancelled / missing / running entries, keeps entries it cannot verify, sets `isMember`) is missing; the only test is "returns an empty list when unreachable". **This is not test-only work:** `SessionService._database` is private and hard-wired to `FirebaseDatabase.instance`, so the handle has to be made injectable before a fake DB can drive it.
+- [ ] **A6c** Rules tests for A1 — there is no rules-test harness in the repo: no `test/rules/` directory, no `@firebase/rules-unit-testing` dependency, no emulator config. A harness has to be created before the three A1 cases (owner cancels with a legacy invite; a stranger may delete a cancelled entry but not a live one) can be written.
+- [ ] **C7 (UI half)** — `OemKeepAlive.openBackgroundSettings()` (Kotlin), the `openOemBackgroundSettings` channel handler in `FgMethodCallHandler.kt:546`, and the Dart wrapper at `method_channel_service.dart:429` all exist, but **no file in `lib/` calls the wrapper**. The two optional auto-start / background-activity rows are not in Settings.
+- [ ] **D4 (remainder)** — the native half is done, but `DigitoxTrackerService`'s periodic loop never calls `TrackingHealth.markHeartbeat`, and `MethodChannelService.getTrackingGapsJson()` (`method_channel_service.dart:419`) has no consumer, so nothing surfaces "Tracking was off for 2 h 31 m today".
+- [ ] **D5** — the background-health card in Settings is not implemented. Nothing under `lib/ui/screens/settings/` covers Accessibility / battery optimisation / notifications / exact alarms / heartbeat / last exit reason / OEM guidance.
+- [ ] **B6** *(optional in the plan)* — the "celebrate a new badge" listener with a `seen_badge_ids` SharedPreferences list is not implemented.
 
-- [ ] **A1. Add rules for the three missing collections** (field names match what `group_service.dart` writes: invite has `gid`, `name`, `ownerName`, `createdAt`, `expiresAt`; group has `ownerId`, `visibility`, `maxMembers`):
-```
-function isGroupAdmin(gid) {
-  return request.auth != null &&
-    exists(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)) &&
-    get(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)).data.role in ["owner", "admin"];
-}
+### Not verifiable from the code
+- **F.1** "Merge `profilepic` into `main`" — git history was not inspected.
+- Deployment and device steps are not code: the `firebase deploy --only firestore:rules` for B1, the `adb logcat | findstr "SPLASH a11y"` run for C4, the D6 test procedure, and the Play declaration form for `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (C7).
 
-match /group_invites/{code} {
-  allow get: if request.auth != null;      // single lookup only, so codes cannot be listed
-  allow list: if false;
-  allow create: if request.auth != null && isGroupAdmin(request.resource.data.gid);
-  allow update, delete: if request.auth != null && isGroupAdmin(resource.data.gid);
-}
+---
 
-match /group_directory/{gid} {
-  allow read: if request.auth != null;
-  allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
-  allow update, delete: if request.auth != null && isGroupAdmin(gid);
-}
+## A. Cancelled sessions still in Discover, join does nothing — P0
 
-match /users/{userId}/groups/{groupId} {
-  allow read, create, update: if request.auth != null && request.auth.uid == userId;
-  allow delete: if request.auth != null && (request.auth.uid == userId || isGroupAdmin(groupId));
-}
-```
-Define `isGroupAdmin` once at the top of `match /documents/{...}` (functions inside `match /groups/{groupId}` are not visible to sibling matches).
+### A1. `database.rules.json` — **[x] applied**
+- `invites/$code/.write` accepts the session owner via `root.child('sessions').child(data.child('sid').val()).child('ownerId').val() === auth.uid`, so a legacy invite without `hostUid` can be deleted.
+- `publicSessions/$sessionId/.write` carries the added final clause: anyone may remove an entry whose session is missing, `cancelled`, or `isActive == false` — and only that.
+- **Deployment note:** rules are deployed by `firebase deploy --only database`, separate from the Firestore deploy below.
 
-- [ ] **A2. Let a normal user join a group.** In `match /groups/{groupId}/members/{memberId}`, replace the `create` rule with:
-```
-allow create: if request.auth != null && (
-  // creator becomes the first owner
-  (memberId == request.auth.uid &&
-    (!exists(/databases/$(database)/documents/groups/$(groupId)) ||
-     get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid)) ||
-  // an owner/admin adds someone
-  isGroupAdmin(groupId) ||
-  // self-join as a plain member, through a valid code or a public group
-  (memberId == request.auth.uid && request.resource.data.role == "member" &&
-    ( (request.resource.data.code is string &&
-       exists(/databases/$(database)/documents/group_invites/$(request.resource.data.code)) &&
-       get(/databases/$(database)/documents/group_invites/$(request.resource.data.code)).data.gid == groupId &&
-       get(/databases/$(database)/documents/group_invites/$(request.resource.data.code)).data.expiresAt > request.time)
-      || get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == "public" ))
-);
-```
-- [ ] **A3. Do not open `groups/{gid}` to every user.** The group document stores `inviteCode`, so a public `get` would leak it. Keep `allow read: if isMember();` and change the app instead (see section D, task D5): a non-member should read the **invite** (`group_invites/{code}`) or **directory** (`group_directory/{gid}`) document for the preview, capacity and visibility, never `groups/{gid}`.
-- [ ] **A4. Capacity of groups is client-side only** (Firestore rules cannot count documents). Decide: accept for now (note in README), or add a `memberCount` field on the group document that a joiner increments in the same batch, guarded by a rule requiring `request.resource.data.memberCount == resource.data.memberCount + 1 && request.resource.data.memberCount <= resource.data.maxMembers` and `affectedKeys().hasOnly(['memberCount'])`. (P1)
-- [ ] **A5. Leaderboard self-award (P1, decision needed).** `weekly_leaderboard` and `monthly_leaderboard` only validate the avatar URL, and `leaderboard` allows a user to create their own doc with any fields. Fully locking points means moving every point source (habits, tasks, streaks, focus) to server-side awards. Recommended path: first remove the **shared-session** client award (task D1), keep solo points client-written for now, and put server-only awards behind n8n later. Do not lock these rules until every client point source has moved, or the app will break.
+### A2. `lib/core/services/session_service.dart` — **[x] applied**
+- `cancelSession` is split exactly as specified: the authoritative `state`/`isActive` write first, then `_bestEffortRemove('publicSessions/$sessionId')`, `_bestEffortRemove('invites/$code')` and `_bestEffortRemove('users/$userId/sessions/$sessionId')`. `_bestEffortRemove` exists and takes the null-database guard.
+- `startSession` calls `await _bestEffortRemove('publicSessions/$sessionId')` after the start write succeeds.
+- `getPublicSessions` verifies every entry against `sessions/{id}`, appends dead ids, prunes them with `unawaited(_bestEffortRemove(...))`, stamps `memberCount`/`maxMembers`/`isMember`, and shows-but-never-deletes an entry it could not verify. `_attachLiveCapacity` is gone.
+- `joinSession` is a one-line delegate to `_joinAsMember`, which carries the private-room rule (`code == null && !session.isPublic` → `SessionException`) and the lobby-only check.
 
-## B. Realtime Database rules (`database.rules.json`) - P0
+### A3. `lib/providers/session_provider.dart` — **[x] applied**
+- `publicSessionsProvider` is `FutureProvider.autoDispose` and arms `Timer(const Duration(seconds: 30), ref.invalidateSelf)` with `ref.onDispose(timer.cancel)`.
+- `SessionLobbyNotifier.start()` / `.cancel()` / `.leave()` and `CompleteSessionNotifier.completeSession()` all invalidate `publicSessionsProvider` alongside `userSessionsProvider`.
 
-All items below need testing in the Firebase emulator before deploy.
+### A4. `lib/features/shared_sessions/widgets/session_cards.dart` — **[x] applied**
+- The lobby-screen import is present, `_join` skips the service call when `isMember` is true, invalidates `publicSessionsProvider` on both the success and failure paths, pushes `SessionLobbyScreen`, and labels the button `_isMember ? 'Open' : 'Join'`. `joinByIdProvider` is untouched.
 
-- [ ] **B1. Session creation is probably rejected.** `createSession` writes the session and its invite in one `ref().update()`. The `invites/$code` rule reads `root.child('sessions')...ownerId`, but `root` is the data **before** the write, so the new session does not exist yet. Fix: add `'hostUid': userId` to the invite map in `createSession` (task D2) and change the rule to:
-```
-"invites": {
-  "$code": {
-    ".read": "auth != null",
-    ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid))",
-    "sid": { ".validate": "newData.isString() && newData.val().length > 0" },
-    "hostUid": { ".validate": "newData.isString()" }
-  }
-}
-```
-- [ ] **B2. Invite-only sessions can be joined without a code.** `code` is only checked when present, and `joinSession(sessionId)` (plain ID join) sends none. Replace the member `.validate` with:
-```
-".validate": "newData.hasChildren(['displayName', 'joinedAt']) && (data.exists() || newData.parent().parent().child('ownerId').val() === $memberId || newData.parent().parent().child('visibility').val() === 'public' || root.child('sessions').child($sessionId).child('visibility').val() === 'public' || newData.child('code').exists())"
-```
-  Because join-by-ID now fails for private sessions, restrict `join_by_id_sheet.dart` to public sessions (task D6).
-- [ ] **B3. Anyone can create `publicSessions/{id}`** (the `!data.exists() ||` branch). Require ownership for create and update; include `hostUid` in the written entry (task D2):
-```
-".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid) || (!newData.exists() && root.child('sessions').child($sessionId).child('ownerId').val() === auth.uid))"
-```
-- [ ] **B4. `sessionResults` is readable by everyone** (top-level `.read`). Allow reading only by members of that session (the summary screen lists every member's result via `getSessionResults`):
-```
-"sessionResults": {
-  "$sid": {
-    ".read": "auth != null && root.child('sessions').child($sid).child('members').child(auth.uid).exists()",
-    ".write": false
-  }
-}
-```
-- [ ] **B5. Add indexes** (needed by the n8n cleanup queries): `"sessions": { ".indexOn": ["createdAt"], ... }` and `"invites": { ".indexOn": ["expiresAt"], ... }`.
-- [ ] **B6. Make `breaks` monotonic** and block self-promotion: in `members.$memberId`, `breaks` validate `newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= 50`; and `role` validate `newData.val() === 'member' || (newData.val() === 'host' && newData.parent().parent().parent().child('ownerId').val() === $memberId)`.
-- [ ] **B7. Fix the wrong comment.** `session_service.dart` (`joinSession`, comment above the `update`) says "the rules close that race". RTDB rules cannot count members, so session capacity is only enforced by the client. Either accept and document, or enforce it in n8n (a session joined beyond `maxMembers` is ignored for points).
-- [ ] **B8. Tests.** Add emulator tests (`@firebase/rules-unit-testing`) for: create session plus invite in one update, join with a valid code, join without a code (must fail on non-public), non-member write (must fail), `completedAt` before end (must fail), kicking, results read by a non-member (must fail).
-- [ ] **B9. Remove `firebase.rules.json`** (old rules using `owner`, not `ownerId`). Keep `database.rules.json` only.
+### A5. Members' phones when the host cancels — **[x] applied**
+- `SessionLobbyScreen.build` listens to `sessionDetailProvider(widget.sessionId)` and calls `focus.endSharedSession()` when the session is cancelled and this device is in a shared-session focus.
+- The durable half is also in: `lib/core/services/session_completion_reconciler.dart:85` handles `SessionPhase.cancelled` and ends the focus run at line 94.
 
-## C. Points: remove the client-side award - P0
+### A6. Tests — **[ ] not applied**
+See the outstanding list. No rules harness exists, and the service-level test needs an injectable database handle first.
 
-The webhook and the app would both pay, and the client path can be forged.
+---
 
-- [ ] **C1.** `lib/core/services/session_service.dart`: delete the two calls to `ProductivityPointsService.instance.awardSharedSessionCompletionPoints(...)` (in `completeSession`, ~line 537, and in `_claimCompletionPointsIfFinished`, ~line 570). Keep `_claimCompletionPointsIfFinished` only if it triggers the webhook call (task C2), otherwise delete it.
-- [ ] **C2.** Make completion server-driven: `SessionCompletionService.reportCompletion` must return the result (`status`, `points`, `reason`) instead of `void`, so the UI can show it.
-- [ ] **C3.** `lib/features/shared_sessions/widgets/complete_session_button.dart`: the dialog and snackbar print a fixed `ProductivityPointsService.sharedSessionCompletionPoints` (50). Replace with the webhook result (for example "Completed - 50 points" or "Completed - no points (needs 2 or more people and at least 15 minutes)").
-- [ ] **C4.** `lib/features/shared_sessions/session_summary_screen.dart`: show points from `sessionResults/{sid}/{uid}` (already read by `getResult`), not a locally computed number.
-- [ ] **C5.** Remove or retire `sharedSessionCompletionPoints`, `awardSharedSessionCompletionPoints`, the SharedPreferences "already awarded" list and `SharedSessionFocusTracker`'s role in payout, once the webhook is the only source. Update their tests (`shared_session_focus_tracker_test.dart`).
-- [ ] **C6.** Remove `SESSION_WEBHOOK_SECRET` from the app: `lib/config/api_keys.dart`, `.env.example`, and the `x-digitox-secret` header in `session_completion_service.dart`. It is compiled into the app, so it protects nothing; the ID token is the real authentication. (Optional: send the token as `Authorization: Bearer ...` instead of in the body. The updated n8n workflow accepts both.)
+## B. Badges not shown in Achievements — P0
 
-## D. In-app code fixes
+### B1. `firestore.rules` — **[x] applied**
+The `badges/{badgeId}` block matches the plan: `get` gated on `badgeId.matches(request.auth.uid + '_.*')`, `list` gated on `resource.data.userId == request.auth.uid`, `delete` on the same field, and `create, update: if false`.
+**Deployment note:** requires `firebase deploy --only firestore:rules`.
 
-### D-P0: shared session core
+### B2. `lib/ui/screens/achievements/achievements_screen.dart` — **[x] applied**
+Both `StreamBuilder<QuerySnapshot>` blocks (carousel and list) query `collection('badges').where('userId', isEqualTo: currentUserId)` with no `orderBy`, both return a `"Couldn't load badges: …"` line on `hasError`, and both sort in Dart with `badges.sort((a, b) => b.earnedAt.compareTo(a.earnedAt))`.
 
-- [ ] **D1. Breaks are never recorded.** `SessionFocusBridge.reportBreak` has no caller anywhere in the app, so leaving a focus run early costs nothing. In `lib/providers/focus/focus_mode_provider.dart`, in `endSharedSession()` (and wherever a shared run is given up early), call `SessionFocusBridge.instance.reportBreak(sessionId)` when `isSuccessful` is false and the shared session's `endAt` has not passed. Capture the session id before it is cleared (`_activeSharedSessionId`). Add a test.
-- [ ] **D2. `createSession`** (`session_service.dart`, ~line 308): add `'hostUid': userId` to the `invites/$inviteCode` map and to the `publicSessions/$sessionId` map (needed by B1 and B3).
-- [ ] **D3. Completion is lost if the app is not open at the end.** `completeRun` is only called from `SessionLobbyScreen` (`session_lobby_screen.dart:68`) while that screen is mounted and observing the phase. If the app is backgrounded for the whole run (the normal case during focus) and killed by Android, nothing is recorded and no points are paid. Add a reconciler:
-  - on app start and on `AppLifecycleState.resumed`, read `users/{uid}/sessions`, and for each session whose phase is `finished` and not yet completed, call `SessionFocusBridge.instance.completeRun(session)`;
-  - schedule a local notification at `endAt` ("Session finished - tap to collect your points") using `session_notifications.dart`, so the user reopens the app;
-  - keep this idempotent (the bridge already de-dupes per launch, and the webhook per `sid + uid`).
-  Also: add `WidgetsBindingObserver` handling to the lobby screen so the phase is re-evaluated on resume (no lifecycle handling exists in `lib/features/shared_sessions` today).
-- [ ] **D4. `_hasHandledStart` / `_hasHandledFinish`** in the lobby screen are per-widget; reopening the screen after the run started will not start the focus run. Drive the start from the bridge or the reconciler (D3), not only from `ref.listen` on a mounted widget.
-- [ ] **D5. Group join must not read `groups/{gid}`** (consequence of A3). In `group_service.dart`:
-  - `resolveInviteCode` already reads `group_invites/{code}`: also store `visibility`, `maxMembers` and a `memberCount` snapshot on the invite document in `issueInviteCode` (~line 947) so the join flow can check them;
-  - `_addSelfAsMember` (~line 567): replace `getGroup(groupId)` and `group.isListed` / `group.isFull` with a read of the invite document (code join) or `group_directory/{gid}` (public join);
-  - keep `getGroup` for members only.
-- [ ] **D6. Join by ID (`join_by_id_sheet.dart`)**: only offer it for public sessions (B2). Private and invite-only sessions are joined by code or link.
-- [ ] **D7. Real share link.** The manifest only registers the custom scheme `com.nlp.digitox://join/{code}`. WhatsApp, Telegram and most messengers do not make custom schemes tappable, so a shared invite is just text. Add an https link such as `https://nlpdigitox.me/join/{code}`: Android App Links intent filter with `android:autoVerify="true"`, a hosted `/.well-known/assetlinks.json`, a small web page that redirects to the Play Store when the app is missing, and `share_plus` text containing both the link and the 6-character code. (P1)
+### B3. `lib/models/badge_model.dart` — **[x] applied**
+The file header comment now reads `badges/{uid}_{period}_{cycle}, written by n8n`; `_asDate` handles `Timestamp`, `DateTime`, `int` and `String` with a `DateTime.now()` fallback; the weekly branch maps `2026-W37` to `Week 37, 2026`.
 
-### D-P1: bugs reported earlier (re-check each; some may already be fixed)
+### B4. ISO week id — **[x] applied**
+`_isoWeek`, `_getWeekId` and `_formatWeekLabel` are implemented as specified (Thursday-based ISO week-year). `_getWeekOfYear` no longer exists.
 
-- [ ] **D8.** `sessions_list_screen.dart` was rewritten; confirm there is no `ref.watch(focusModeProvider.notifier)` (use state or `select`, otherwise the UI never rebuilds). Command: `grep -rn "focusModeProvider.notifier" lib/features/shared_sessions`.
-- [ ] **D9.** `_beginFocusRun` in the lobby screen awaits the start, then navigates: good. Confirm `startSessionFromSharedSettings` fails safely if a required permission (accessibility) is missing, and that `permission_page.dart` / `permissions_provider.dart` require accessibility before a shared focus run (changed in PR #10; confirm).
-- [ ] **D10.** `badge_model.dart`: `monthNames[month]` must be range-checked (1 to 12). `date_time_utils.dart`: invalid calendar dates must be rejected, not normalised.
-- [ ] **D11.** No `firebase_messaging` in `pubspec.yaml`: invites and "session starting" are local-notification only, so nobody is notified when someone else invites them. Add FCM only if you want invites delivered to people who have the app closed. (P2)
-- [ ] **D12.** `mobile_scanner` is not in `pubspec.yaml`: QR codes can be displayed (`qr_flutter`) but not scanned in-app. Optional. (P2)
+### B5. Account deletion — **[x] applied**
+`firebase_auth_service.dart:313` wraps the `badges` query and delete loop in its own `try/catch` that logs `Failed to delete badge docs for $uid` and does not block the rest of the deletion.
 
-### D-P1: privacy and policy
+### B6. Celebrate a new badge — **[ ] not applied** (optional in the plan)
 
-- [ ] **D13.** `README.md` line ~154 says core features work offline "with no account, ever": fine. Add a clear paragraph that shared sessions and groups send display name, photo, focus status and completion to other participants through Firebase, and that report/block exists.
-- [ ] **D14.** Update the in-app privacy text, the Play Console Data safety form and the privacy policy for shared sessions, groups, reports and blocks.
-- [ ] **D15.** Confirm Report/Block (`report_block_sheet.dart`, `report_block_service.dart`) is reachable from the lobby, member list and group roster, and that blocked users are hidden. (Play Store requires this for user-generated content.)
+### B7. Check — console step
+After B1 and B2 are deployed, open Achievements on the account that won. If it is still empty, check that the badge document carries a `userId` field; documents written before the n8n mask fix may lack it.
 
-## E. Repo cleanup - P1
+---
 
-- [ ] **E1.** `git rm` these tracked temp/test files from the repo root (open each first for secrets): `fix_tab_account.py`, `test_groq_chat.dart`, `test_http_direct.dart`, `test_sentiment_json.dart`, `test_weekly_reset.dart`, `tmp_associated_domains_test.txt`, `tmp_build2.txt`, `tmp_diff_dart.txt`, `tmp_diff_native.txt`, `tmp_kill_hung_test.ps1`, `tmp_list_groq_models.ps1`, `tmp_orig_admin_config.txt`, `tmp_orig_admin_receiver.txt`, `tmp_test_groq_model.ps1`. Add `tmp_*` and `test_*.dart` (root only) to `.gitignore`.
-- [ ] **E2.** Delete `firebase.rules.json` (B9).
-- [ ] **E3.** `backend/n8n/session_complete.json` and `session_cleanup.json` are a different, unfinished design (no credentials on the HTTP nodes). Replace them with the files from `TODO_N8N.md` (with credential references only, no secrets) or delete them. Keep one source of truth.
-- [ ] **E4.** Extend `.github/workflows/ci.yml` with a job that runs the rules tests in the Firebase emulator (B8) after `flutter test`.
-- [ ] **E5.** If a release keystore or `key.properties` was ever committed in history, rotate the upload key. Check: `git log --all --diff-filter=A --name-only | grep -E "jks|keystore|key.properties"`.
+## C. Accessibility permission page keeps coming back — P0
 
-## F. Profile picture cleanup (app side)
+### C1. `lib/models/permissions_model.dart` — **[x] applied**
+`hasCorePermissions` excludes Accessibility by design (and short-circuits to `true` on `permissionFetchFailed`); `hasAllEssentialPermissions` is `hasCorePermissions && haveAccessibilityPermission`.
 
-- [ ] **F1.** `profile_service.dart` already sends `Authorization: Bearer <ID token>` and `{publicId}`. Point `CLOUDINARY_CLEANUP_WEBHOOK_URL` in the build at the n8n **v2** path (`.../webhook/delete-cloudinary-asset-v2`).
-- [ ] **F2.** Confirm the Cloudinary public IDs the app uploads start with `profile_pics/{uid}_` (the v2 workflow rejects anything else). Check one uploaded image in the Cloudinary console, or the upload-preset folder setting.
-- [ ] **F3.** `.env.example`: update the comment on `CLOUDINARY_CLEANUP_WEBHOOK_URL` to say the URL is public and authentication is by ID token.
+### C2. `lib/ui/splash_screen.dart` — **[x] applied**
+`_haveCorePermissions` is declared, assigned from `perms.hasCorePermissions` next to the existing assignment, printed as `core=$_haveCorePermissions` in the `SPLASH onboarding:` debug line, and used as the routing gate in `_goToNextScreen`.
 
-## G. Manual test checklist (two real Android devices, release-like build) - before launch
+### C3. Recovery page and quiz — **[x] applied**
+`onboarding_screen.dart:113` (the permission listener) and `:208` (the pager gate) both use `perms.hasCorePermissions` when `permissionsOnly`, and `hasAllEssentialPermissions` otherwise. `quiz.dart:51` and `session_detail_screen.dart:419` keep `hasAllEssentialPermissions`, so group focus still requires Accessibility.
 
-1. Create a session with an invite; confirm the invite and public entry exist in the database.
-2. Join by code on the second device; try joining a private session by ID (must fail).
-3. Ready, host starts, both countdown within about 1 second, both get app blocking.
-4. Lock the screen for the whole run; reopen after the end: completion must be recorded (D3).
-5. Leave the run early on one device: `breaks` increments, no points for that member (D1).
-6. Check the leaderboard gets exactly one award per member (no double pay).
-7. Group: create, share code, join from another account, schedule an entry, see the roster.
-8. Report and block a member; confirm they disappear.
-9. Airplane mode for 60 seconds mid-run; the timer stays correct and presence recovers.
+### C4. Prove the cause on your phone — **[x] applied** (diagnostics shipped)
+- `PermissionsHelper.backgroundDiagnostics(context)` reports `expected_component`, `enabled_services_raw`, `has_accessibility_permission`, `is_accessibility_service_active`, `ignoring_battery_optimizations`, `can_schedule_exact_alarms`, `last_exit_reason` and `sdk_int`.
+- `FgMethodCallHandler.kt:447` handles `getBackgroundDiagnostics`.
+- `method_channel_service.dart:407` is the Dart wrapper.
+- `splash_screen.dart:131` prints `SPLASH a11y $diagnostics` when the Accessibility grant looks missing.
+- The `adb logcat | findstr "SPLASH a11y"` run is a device step.
 
-## Suggested order
-1. A, B (rules) with emulator tests, then deploy rules.
-2. D2, D1, D3/D4 (core fixes), then C (remove client awards) together with the n8n `Session Complete` workflow going live.
-3. D5, D6 (group and join paths), then E (cleanup) and F.
-4. D7 (https links), D13 to D15 (privacy and safety), manual checklist G, then release.
+### C5. Dashboard banner — **[x] applied**
+`tab_dashboard.dart` imports `ui/permissions/accessibility_permission_card.dart` and places `const AccessibilityPermissionCard()` as the first sliver, before `SliverActiveSessionAlert`.
+
+### C6. Notify the moment it is lost — **[x] applied**
+`KeepAliveHelper` defines `PREF_KEY_ACCESSIBILITY_WAS_SEEN_ACTIVE` and `PREF_KEY_ACCESSIBILITY_LOST_NOTIFIED_AT`, `monitorAccessibilityService` marks "was seen active" on every tick where the grant is held, and `notifyAccessibilityLostIfNeeded` throttles to one warning per 6 hours on `NotificationHelper.pushAccessibilityLostNotification`. Flags go through `SharedPrefsHelper` like the neighbouring keys.
+
+### C7. Reduce the kills — **[~] partially applied**
+Native side done: `OemKeepAlive.kt` exists with per-OEM intents and an app-details fallback; `FgMethodCallHandler.kt:546` exposes `openOemBackgroundSettings`; `method_channel_service.dart:429` wraps it. The two optional rows in Settings were never added, and the wrapper has no caller. Nothing here gates onboarding or `missing`/`hasAllEssentialPermissions`, as required.
+
+---
+
+## D. 24/7 background — P1
+
+### D1. Exact watchdog — **[x] applied**
+`KeepAliveHelper.scheduleKeepAlive` uses `setExactAndAllowWhileIdle` when `Build.VERSION.SDK_INT < S || alarmManager.canScheduleExactAlarms()`, falls back to `setAndAllowWhileIdle`, and catches `SecurityException` with a second inexact attempt. `scheduleImmediateRestart` follows the same pattern.
+
+### D2. Second, independent chain — **[x] applied**
+`KeepAliveHelper.tick(context)` holds the shared work (heartbeat, tracker restart, VPN restart, accessibility and device-admin checks), and `workers/KeepAliveWorker.kt` is a periodic 15-minute worker that calls `tick` and then re-arms the alarm chain. `scheduleKeepAlive` also calls `KeepAliveWorker.enqueuePeriodic`, so the chain is registered on the alarm path too. `restartTrackerService` catches a refused `startForegroundService` and falls back to an expedited job.
+
+### D3. Boot receiver — **[x] applied**
+`DeviceBootReceiver.kt` uses `ContextCompat.startForegroundService` for both the tracker and the VPN, with a comment explaining that a plain `startService` throws during a boot broadcast.
+
+### D4. Heartbeat and gap log — **[~] partially applied**
+`helpers/device/TrackingHealth.kt` exists with `markHeartbeat` (25-minute gap threshold, 20-gap cap, newest-first), `lastHeartbeatAt` and `gapsJson`. `tick()` calls `markHeartbeat` first. `FgMethodCallHandler` exposes `getTrackingGaps` and a heartbeat getter; `method_channel_service.dart:419` wraps the gaps call.
+**Missing:** the call from `DigitoxTrackerService`'s periodic loop, and any UI that renders the gaps.
+
+### D5. Background-health card in Settings — **[ ] not applied**
+
+### D6. How to test 24/7 — device procedure
+1. Install a release APK once, grant everything including the battery exemption.
+2. Lock the phone for 2 hours: the heartbeat keeps advancing, no gap recorded.
+3. Swipe the app out of recents: the tracker returns within seconds.
+4. Force-stop from Settings: everything stops. On reopening the dashboard card appears, diagnostics show `USER_REQUESTED`, one gap is recorded.
+5. Reboot: tracker and watchdog return without opening the app.
+
+---
+
+## E. Files — actual state
+
+| File | Section | State |
+|---|---|---|
+| `database.rules.json` | A1 | applied |
+| `firestore.rules` | B1 | applied |
+| `lib/core/services/session_service.dart` | A2 | applied |
+| `lib/providers/session_provider.dart` | A3 | applied |
+| `lib/features/shared_sessions/widgets/session_cards.dart` | A4 | applied |
+| `lib/features/shared_sessions/session_lobby_screen.dart` | A5 | applied |
+| `lib/ui/screens/achievements/achievements_screen.dart` | B2, B4 | applied |
+| `lib/models/badge_model.dart` | B3 | applied |
+| `lib/core/services/firebase_auth_service.dart` | B5 | applied |
+| `lib/models/permissions_model.dart` | C1 | applied |
+| `lib/ui/splash_screen.dart` | C2, C4 | applied |
+| `lib/ui/onboarding/onboarding_screen.dart` | C3 | applied |
+| `lib/ui/screens/home/dashboard/tab_dashboard.dart` | C5 | applied |
+| `PermissionsHelper.kt`, `FgMethodCallHandler.kt`, `method_channel_service.dart` | C4, C7, D4 | native and channel applied; no Dart caller for C7 or D4 |
+| `helpers/KeepAliveHelper.kt` | C6, D1, D2 | applied |
+| `receivers/DeviceBootReceiver.kt` | D3 | applied |
+| `helpers/device/OemKeepAlive.kt`, `workers/KeepAliveWorker.kt`, `helpers/device/TrackingHealth.kt` | C7, D2, D4 | all three exist and are wired natively |
+| Settings background-health card (`D5`) | D5 | **does not exist** |
+
+## F. Order of work — status
+
+1. Merge `profilepic` into `main` — not inspected.
+2. **B (badges)** — applied. Needs the Firestore rules deploy.
+3. **A (cancel and Discover)** — applied. Needs the Realtime Database rules deploy.
+4. **C** — applied (C1–C6; C7's UI rows outstanding). The C4 diagnostics run is a device step.
+5. **D** — D1–D3 applied, D4 partial, D5 outstanding.
+6. `flutter analyze` — **clean** (`No issues found!`, 53.6 s). `flutter test` — **359 passed**, exit 0, with no rules tests among them.

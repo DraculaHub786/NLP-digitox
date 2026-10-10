@@ -1,6 +1,6 @@
 # NLP / AI evaluation report
 
-Generated: 2026-10-02T18:10:09.157935
+Generated: 2026-10-04T19:35:36.199382
 
 ## Run environment
 

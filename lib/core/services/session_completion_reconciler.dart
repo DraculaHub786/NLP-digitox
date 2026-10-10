@@ -10,6 +10,7 @@ import 'package:nlp_digitox/core/services/session_clock.dart';
 import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
 import 'package:nlp_digitox/core/services/session_service.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
+import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 
 /// The safety net that reports a finished shared run even when nobody was
 /// looking at it.
@@ -40,7 +41,11 @@ class SessionCompletionReconciler {
   /// Safe to call on every launch and every resume. Any failure is swallowed
   /// and logged: this is a background repair, and it must never surface as an
   /// error on the screen the user actually opened.
-  Future<void> reconcile() async {
+  /// The optional [focus] engine lets a cancelled session end the member's
+  /// in-flight group focus run. It is passed in rather than looked up so this
+  /// stays a plain object a test can drive; the lifecycle observer supplies the
+  /// live notifier from the widget tree's ProviderScope.
+  Future<void> reconcile({FocusModeNotifier? focus}) async {
     if (_isReconciling) return;
     if (FirebaseAuthService.instance.userId == null) return;
     _isReconciling = true;
@@ -76,7 +81,22 @@ class SessionCompletionReconciler {
             await _scheduleEndReminder(session);
             break;
           case SessionPhase.lobby:
+            break;
           case SessionPhase.cancelled:
+            // The host ended the room. A member whose focus run is still going
+            // must stop it — nothing else ends it, and they would otherwise
+            // stay blocked inside a session that no longer exists, with the
+            // shared profile still applied. Only the run that belongs to *this*
+            // session is ended, so a cancellation never stops an unrelated one.
+            if (focus != null &&
+                focus.isInSharedSessionFocus &&
+                focus.activeSharedSessionId == session.id) {
+              await focus.endSharedSession();
+              debugPrint(
+                'SessionCompletionReconciler: ended focus for cancelled '
+                'session ${session.id}',
+              );
+            }
             break;
         }
       }

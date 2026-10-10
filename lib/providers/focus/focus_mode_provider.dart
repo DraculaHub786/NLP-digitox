@@ -334,6 +334,13 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
       _activeSharedSessionId != null ||
       _previousProfileBeforeSharedSession != null;
 
+  /// The shared session the in-flight group focus run belongs to, if any.
+  ///
+  /// Exposed so the completion reconciler can tell whether the run it is about
+  /// to end actually belongs to the session the host cancelled, rather than to
+  /// an unrelated room.
+  String? get activeSharedSessionId => _activeSharedSessionId;
+
   /// Starts a focus session using a shared session's [SessionSettings].
   ///
   /// The caller's existing focus profile is snapshotted first so that

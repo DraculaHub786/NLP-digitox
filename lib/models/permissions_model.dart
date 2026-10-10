@@ -96,13 +96,16 @@ class PermissionsModel {
   /// on every cold start. Under-reporting a revocation for one launch is far
   /// cheaper than that: the resume re-check corrects it the moment the user
   /// touches the app.
-  bool get hasAllEssentialPermissions =>
+  bool get hasCorePermissions =>
       permissionFetchFailed ||
       (haveUsageAccessPermission &&
           haveDisplayOverlayPermission &&
           haveAlarmsPermission &&
-          haveNotificationPermission &&
-          haveAccessibilityPermission);
+          haveNotificationPermission);
+
+  bool get hasAllEssentialPermissions =>
+      permissionFetchFailed ||
+      (hasCorePermissions && haveAccessibilityPermission);
 
   /// True when tracking is actually working: permission granted, service
   /// process alive, and not flagged paused by the keep-alive heartbeat.

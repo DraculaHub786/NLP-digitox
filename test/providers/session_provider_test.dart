@@ -35,6 +35,24 @@ void main() {
     );
   }
 
+  /// `autoDispose` providers report a runtime type prefixed `AutoDispose…`.
+  void expectAutoDisposed(Object provider, String name) {
+    expect(
+      provider.runtimeType.toString(),
+      startsWith('AutoDispose'),
+      reason: '$name must release its listener/timer when its screen goes away',
+    );
+  }
+
+  group('publicSessionsProvider refreshes only while Discover is visible', () {
+    test('is autoDispose so its 30 s refresh timer stops with the screen', () {
+      // It arms a `Timer(30s, ref.invalidateSelf)` to keep Discover fresh.
+      // Without `autoDispose` that timer keeps firing for the whole app
+      // lifetime, re-reading the public-sessions index forever.
+      expectAutoDisposed(publicSessionsProvider, 'publicSessionsProvider');
+    });
+  });
+
   group('session action providers stay alive for the container', () {
     test('create / join / leave / complete', () {
       expectKeptAlive(createSessionProvider, 'createSessionProvider');

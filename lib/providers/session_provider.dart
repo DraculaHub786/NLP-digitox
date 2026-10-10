@@ -1,5 +1,7 @@
 // Session provider for state management with Riverpod
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/enums/session_phase.dart';
 import 'package:nlp_digitox/core/services/session_clock.dart';
@@ -174,6 +176,9 @@ class CompleteSessionNotifier
       // The detail and member providers are streams now and update
       // themselves; only the list of the user's sessions needs a refresh.
       _ref.invalidate(userSessionsProvider);
+      // A public session is delisted from Discover when it is completed, so
+      // any Discover list on screen is now stale.
+      _ref.invalidate(publicSessionsProvider);
     }
   }
 }
@@ -185,11 +190,17 @@ final completeSessionProvider = StateNotifierProvider<
   return CompleteSessionNotifier(sessionService, ref);
 });
 
-/// Public sessions provider — for browse-and-join flow
+/// Public sessions provider — for browse-and-join flow.
+///
+/// `autoDispose` so the periodic refresh below only runs while Discover is on
+/// screen. The list re-reads every 30 s and a refresh keeps the previous list
+/// visible, so there is no flicker: a room cancelled or started on the host's
+/// device drops out of Discover without the viewer doing anything.
 final publicSessionsProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final sessionService = ref.watch(sessionServiceProvider);
-  return sessionService.getPublicSessions();
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  final timer = Timer(const Duration(seconds: 30), ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
+  return ref.watch(sessionServiceProvider).getPublicSessions();
 });
 
 /// Join session by ID notifier
@@ -354,6 +365,10 @@ class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
         durationSec: durationSec,
       ),
     );
+    if (!state.hasError) {
+      // Starting delists a public room from Discover.
+      _ref.invalidate(publicSessionsProvider);
+    }
   }
 
   Future<void> cancel(String sessionId) async {
@@ -363,6 +378,7 @@ class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
     );
     if (!state.hasError) {
       _ref.invalidate(userSessionsProvider);
+      _ref.invalidate(publicSessionsProvider);
     }
   }
 
@@ -386,6 +402,8 @@ class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
     );
     if (!state.hasError) {
       _ref.invalidate(userSessionsProvider);
+      // The owner leaving ends the session and delists it from Discover.
+      _ref.invalidate(publicSessionsProvider);
     }
   }
 }

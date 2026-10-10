@@ -263,12 +263,22 @@ service cloud.firestore {
       allow write: if false; // Only admin can write
     }
 
-    // Badges - winner records; doc ID encodes owner ({uid}_{period}_{periodId}),
-    // so only the owner can read their own badges. Write is service-account only (n8n).
+    // Badges - winner records. The doc ID encodes the owner
+    // ({uid}_{period}_{periodId}) AND the document carries a `userId` field.
+    // Written by the n8n service account only.
     match /badges/{badgeId} {
-      allow read: if request.auth != null &&
-        badgeId.matches(request.auth.uid + "_.*");
-      allow write: if false; // n8n service account only
+      // Single document: the id encodes the owner.
+      allow get: if request.auth != null &&
+        badgeId.matches(request.auth.uid + '_.*');
+      // A list query cannot be authorised by an id pattern — rules cannot prove
+      // a range over document ids — so it must carry
+      // where('userId', isEqualTo: uid) instead.
+      allow list: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+      // Account deletion removes the user's own badges.
+      allow delete: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+      allow create, update: if false; // n8n service account only
     }
 
     // Badge verification - not read by the client today. If a public

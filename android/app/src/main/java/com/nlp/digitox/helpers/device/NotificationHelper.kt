@@ -38,6 +38,8 @@ object NotificationHelper {
         "mindful.notification.channel.SERVICE"
     const val USAGE_REMINDERS_CHANNEL_ID: String = "mindful.notification.channel.USAGE_REMINDERS"
 
+    private const val ACCESSIBILITY_LOST_NOTIFICATION_ID = 302
+
     /**
      * Registers notification channels for the application. This method creates and registers
      * channels for important and other notifications, specifying their importance and descriptions.
@@ -174,6 +176,37 @@ object NotificationHelper {
                     pendingIntent
                 )
                 .build()
+        )
+    }
+
+    /**
+     * Warns that the Accessibility grant has been lost.
+     *
+     * Android removes a service from `ENABLED_ACCESSIBILITY_SERVICES` whenever
+     * the app is force-stopped (and some OEM battery managers do the same), and
+     * nothing in the app can put it back — only the user can. Blocking and app
+     * usage tracking are dead until they do, so this is a Critical-channel
+     * notification that opens the app, where the dashboard card offers the
+     * one-tap re-enable.
+     */
+    fun pushAccessibilityLostNotification(context: Context) {
+        val notificationManager =
+            context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        val msg =
+            "Digitox has lost its Accessibility permission, so website and " +
+                "short-form blocking is off. Tap to turn it back on."
+
+        notificationManager.notify(
+            ACCESSIBILITY_LOST_NOTIFICATION_ID,
+            NotificationCompat.Builder(context, CRITICAL_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setAutoCancel(true)
+                .setContentTitle("Blocking is off")
+                .setContentText(msg)
+                .setContentIntent(AppUtils.getPendingIntentForDigitoxUri(context))
+                .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
+                .build(),
         )
     }
 
