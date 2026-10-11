@@ -22,6 +22,9 @@ class NotificationSchedulerService {
 
   NotificationSchedulerService._();
 
+  /// Points awarded for ticking a reminder off from its notification action.
+  static const int scheduleCompletionPoints = 20;
+
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final _leaderboardService = LeaderboardService.instance;
@@ -172,12 +175,25 @@ class NotificationSchedulerService {
       
       // Check if this schedule was already completed today
       if (!completedToday.contains(payload)) {
+        // Award FIRST, record second. Adding `payload` to the completed list
+        // before knowing the write landed is what made a refused award
+        // permanent for the rest of the day — the user was told "20 points"
+        // and the board never changed. See `todo.md`.
+        final awarded = await _leaderboardService.addPoints(
+          scheduleCompletionPoints,
+          'Notification Schedules',
+        );
+        if (!awarded) {
+          debugPrint(
+              'Schedule points not saved for "$payload", will retry later');
+          return;
+        }
+
         completedToday.add(payload);
         await prefs.setStringList(completedKey, completedToday);
-        
-        // Award 20 points for completing notification schedule
-        await _leaderboardService.addPoints(20, 'Notification Schedules');
-        debugPrint('Awarded 20 points for completing notification schedule: $payload');
+
+        debugPrint(
+            'Awarded $scheduleCompletionPoints points for completing notification schedule: $payload');
       }
     } catch (e) {
       debugPrint('Error marking schedule completed: $e');

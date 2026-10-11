@@ -141,11 +141,19 @@ class ProductivityPointsService {
         return;
       }
       
-      await _leaderboardService.addPoints(
+      final awarded = await _leaderboardService.addPoints(
         habitCompletionPoints,
         'Wellbeing Activities',
       );
-      
+      if (!awarded) {
+        // The write was refused (or nobody is signed in). Do NOT mark the
+        // habit as awarded and do NOT send the "points earned" notification:
+        // leaving the flag unset is exactly what lets the award be retried on
+        // the next completion instead of being lost for the day.
+        debugPrint('Habit points not saved, will retry later');
+        return;
+      }
+
       // Mark as awarded
       await _markHabitPointsAwarded(habitId);
 
@@ -176,11 +184,15 @@ class ProductivityPointsService {
         return;
       }
       
-      await _leaderboardService.addPoints(
+      final awarded = await _leaderboardService.addPoints(
         taskCompletionPoints,
         'Task Completion',
       );
-      
+      if (!awarded) {
+        debugPrint('Task points not saved, will retry later');
+        return;
+      }
+
       // Mark as awarded
       await _markTaskPointsAwarded(taskId);
 
@@ -230,10 +242,14 @@ class ProductivityPointsService {
         }
       }
 
-      await _leaderboardService.addPoints(
+      final awarded = await _leaderboardService.addPoints(
         dailyStreakPoints,
         'Daily Streaks',
       );
+      if (!awarded) {
+        debugPrint('Streak points not saved, will retry later');
+        return;
+      }
 
       // Save last awarded date
       await prefs.setInt(_lastStreakPointsDateKey, now.millisecondsSinceEpoch);
@@ -280,10 +296,16 @@ class ProductivityPointsService {
         }
       }
 
-      await _leaderboardService.addPoints(
+      final awarded = await _leaderboardService.addPoints(
         screenTimeGoalPoints,
         'Screen Time Goals',
       );
+      if (!awarded) {
+        // Not awarded, so the local screen-time streak must not advance either
+        // — otherwise the counter would claim a day that never paid out.
+        debugPrint('Screen time points not saved, will retry later');
+        return;
+      }
 
       // Increment local screen time streak (does NOT overwrite leaderboard streak
       // — that is managed by evaluateAndUpdateStreak based on < 8hr screen time)
@@ -337,10 +359,14 @@ class ProductivityPointsService {
         }
       }
 
-      await _leaderboardService.addPoints(
+      final awarded = await _leaderboardService.addPoints(
         bedtimeSchedulePoints,
         'Bedtime Adherence',
       );
+      if (!awarded) {
+        debugPrint('Bedtime points not saved, will retry later');
+        return;
+      }
 
       // Save last awarded date
       await prefs.setInt(_lastBedtimePointsDateKey, now.millisecondsSinceEpoch);
@@ -387,10 +413,14 @@ class ProductivityPointsService {
         }
       }
 
-      await _leaderboardService.addPoints(
+      final awarded = await _leaderboardService.addPoints(
         appRestrictionPoints,
         'App Restrictions',
       );
+      if (!awarded) {
+        debugPrint('App restriction points not saved, will retry later');
+        return;
+      }
 
       // Save last awarded date
       await prefs.setInt(_lastAppRestrictionPointsDateKey, now.millisecondsSinceEpoch);
@@ -458,10 +488,17 @@ class ProductivityPointsService {
   Future<void> awardPointsForFocusSession(int durationMinutes) async {
     try {
       final points = (durationMinutes * 0.5).round().clamp(10, 100);
-      await _leaderboardService.addPoints(
+      // There is no local "already awarded" flag for a focus session, so a
+      // failed write is simply reported; the caller decides whether to retry.
+      final awarded = await _leaderboardService.addPoints(
         points,
         'Focus Session',
       );
+      if (!awarded) {
+        debugPrint(
+            'Focus session points not saved for $durationMinutes-minute session');
+        return;
+      }
       debugPrint('Awarded $points points for $durationMinutes-minute focus session');
     } catch (e) {
       debugPrint('Error awarding focus session points: $e');

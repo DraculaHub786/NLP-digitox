@@ -1,0 +1,13 @@
+{
+  "name": "digitox-firestore-rules-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Firestore rules tests for firestore.rules, focused on the leaderboard collections.",
+  "scripts": {
+    "test": "firebase emulators:exec --project demo-nlp-firestore --only firestore \"node --test --test-concurrency=1 leaderboard_points.test.js\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.14.1"
+  }
+}

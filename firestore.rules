@@ -23,6 +23,21 @@ service cloud.firestore {
         get(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)).data.role in ["owner", "admin"];
     }
 
+    /// Whether `profileImageUrl` on the incoming document — when the field is
+    /// present at all — points at one of the two hosts the app can legitimately
+    /// produce: Cloudinary (an upload through `ProfileService`) or the Google
+    /// account photo seeded on first Google sign-in.
+    ///
+    /// Deliberately tolerant of the field being absent or null, because
+    /// `ProfileService.removeProfilePicture` clears it with `FieldValue.delete()`
+    /// and the board docs are created before an avatar exists.
+    function validAvatar() {
+      return !("profileImageUrl" in request.resource.data)
+        || request.resource.data.profileImageUrl == null
+        || request.resource.data.profileImageUrl.matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
+        || request.resource.data.profileImageUrl.matches("https://lh3\\.googleusercontent\\.com/.*");
+    }
+
     // User data access rules
     match /users/{userId} {
       // Allow users to read their own data fully. Write access remains restricted to the document owner.
@@ -234,21 +249,68 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // Leaderboard - all authenticated users can read; each user can write only their own doc
+    // ---------------------------------------------------------------------
+    // Leaderboard — the lifetime record (`leaderboard/{uid}`), this week's
+    // score (`weekly_leaderboard/{uid}`) and this month's
+    // (`monthly_leaderboard/{uid}`).
+    //
+    // HISTORY: until now this block allowed an existing document to change
+    // only `profileImageUrl`, `profileImagePublicId` and `username`. That
+    // lockdown (commit 56a1b35) silently broke every points write: the fields
+    // below are what the client actually writes, so the write was refused and
+    // `LeaderboardService.addPoints` swallowed the error. See `todo.md`.
+    //
+    // Every field the client legitimately writes, with its writer:
+    //
+    //   addPoints              lifetimePoints, pointsBreakdown, lastUpdated,
+    //                          lastActiveAt, and on the first write
+    //                          username / avatarEmoji / email / profileImageUrl;
+    //                          points on the two period docs
+    //   updateUserData         username, points, monthlyPoints, streak,
+    //                          avatarEmoji, pointsBreakdown, email,
+    //                          profileImageUrl, lastUpdated, lastActiveAt
+    //   updateStreak           streak, lastUpdated
+    //   evaluateAndUpdateStreak streak, lastStreakEvalDate, lastUpdated
+    //   markActive             lastActiveAt
+    //   ProfileService         profileImageUrl (mirror a new picture, or clear
+    //                          the field with FieldValue.delete())
+    //   _backfillMissingAvatars profileImageUrl
+    //
+    // `points`, `monthlyPoints` and `streak` on the *lifetime* doc are carried
+    // but no longer drive any board — the period collections do — so they are
+    // left unbounded here. The score that decides a rank is bounded below.
+    // ---------------------------------------------------------------------
     match /leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && (
-             !exists(/databases/$(database)/documents/leaderboard/$(userId))
-             || request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(["profileImageUrl", "profileImagePublicId", "username"])
-           )
-        && (!("profileImageUrl" in request.resource.data)
-            || request.resource.data.profileImageUrl == null
-            || request.resource.data.profileImageUrl
-                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
-            || request.resource.data.profileImageUrl
-                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
+
+      // First write for a user. Seeded at most at the largest award the app
+      // can make, so an account cannot be born on top of the board.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.get('lifetimePoints', 0) <= 100
+        && validAvatar();
+
+      // Updates: owner only, only the fields the client writes, and the
+      // lifetime total may only ever grow, by at most 100 in one write (the
+      // largest single award in the app is 50, the largest focus-session clamp
+      // is 100). This bounds a single write, not a determined user: someone
+      // can still write repeatedly. It closes the "set my own total" hole.
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'username', 'avatarEmoji', 'email',
+             'profileImageUrl', 'profileImagePublicId',
+             'points', 'monthlyPoints', 'lifetimePoints',
+             'pointsBreakdown', 'streak',
+             'lastStreakEvalDate', 'lastUpdated', 'lastActiveAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['lifetimePoints'])
+            || (request.resource.data.lifetimePoints is int
+                && request.resource.data.lifetimePoints
+                     >= resource.data.get('lifetimePoints', 0)
+                && request.resource.data.lifetimePoints
+                     - resource.data.get('lifetimePoints', 0) <= 100))
+        && validAvatar();
     }
 
     // Leaderboard config - readable by all authenticated; only service accounts can write
@@ -290,28 +352,74 @@ service cloud.firestore {
       allow write: if false; // n8n service account only
     }
 
+    // ---------------------------------------------------------------------
+    // Weekly / monthly boards — the scores the winner emails are built from.
+    //
+    // These previously had NO bound at all: any signed-in user could set their
+    // own `points` to whatever they liked in a single write, and the reset
+    // workflow then read that value to pick a winner. The bound below is the
+    // same shape as the lifetime total: the score may only grow, and by at
+    // most the largest single award the app can make (100, from a clamped
+    // focus session) per write.
+    //
+    // Resets do NOT go through here: the n8n workflows write 0 with the Admin
+    // SDK, which bypasses these rules entirely, so "never decrease" costs them
+    // nothing.
+    //
+    // Fields written here by the client:
+    //   addPoints               points, lastUpdated, lastActiveAt, and on the
+    //                           first write username / avatarEmoji /
+    //                           profileImageUrl
+    //   ProfileService          profileImageUrl (mirror a new picture, clear it)
+    //   _backfillMissingAvatars profileImageUrl
+    // ---------------------------------------------------------------------
+
     // Weekly leaderboard - all authenticated users can read; each user writes only their own doc
     match /weekly_leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && (!("profileImageUrl" in request.resource.data)
-            || request.resource.data.profileImageUrl == null
-            || request.resource.data.profileImageUrl
-                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
-            || request.resource.data.profileImageUrl
-                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
+
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.get('points', 0) <= 100
+        && validAvatar();
+
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'username', 'avatarEmoji', 'profileImageUrl',
+             'points', 'lastUpdated', 'lastActiveAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['points'])
+            || (request.resource.data.points is int
+                && request.resource.data.points
+                     >= resource.data.get('points', 0)
+                && request.resource.data.points
+                     - resource.data.get('points', 0) <= 100))
+        && validAvatar();
     }
 
     // Monthly leaderboard - same pattern
     match /monthly_leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && (!("profileImageUrl" in request.resource.data)
-            || request.resource.data.profileImageUrl == null
-            || request.resource.data.profileImageUrl
-                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
-            || request.resource.data.profileImageUrl
-                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
+
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.get('points', 0) <= 100
+        && validAvatar();
+
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'username', 'avatarEmoji', 'profileImageUrl',
+             'points', 'lastUpdated', 'lastActiveAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['points'])
+            || (request.resource.data.points is int
+                && request.resource.data.points
+                     >= resource.data.get('points', 0)
+                && request.resource.data.points
+                     - resource.data.get('points', 0) <= 100))
+        && validAvatar();
     }
   }
 }

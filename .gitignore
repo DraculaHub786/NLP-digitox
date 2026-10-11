@@ -157,3 +157,5 @@ tmp_*
 /unused_files_list.txt
 /unused_assets.txt
 dangit.md
+ui fixes.md
+test/firestore_rules/run_output.txt

@@ -663,10 +663,18 @@ class LeaderboardService {
   ///
   /// If any doc does not exist yet, seeds username/email/avatarEmoji so the
   /// user shows correctly on the board before `updateUserData` runs.
-  Future<void> addPoints(int points, String category) async {
+  /// Returns `true` only when all three documents were written.
+  ///
+  /// The three writes share one transaction, so a refusal on any one of them
+  /// rolls back all three — which is how a rules denial made the points
+  /// vanish. The caller MUST check the result before recording the award
+  /// locally: the old `void` signature let a refused write look like a
+  /// success, so a habit could be flagged "awarded today" with nothing saved.
+  /// See `todo.md`.
+  Future<bool> addPoints(int points, String category) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
-      if (userId == null) return;
+      if (userId == null) return false;
 
       final lifetimeRef = _firestore.collection('leaderboard').doc(userId);
       final weeklyRef = _firestore.collection('weekly_leaderboard').doc(userId);
@@ -735,8 +743,10 @@ class LeaderboardService {
 
       clearCache();
       debugPrint('Added $points points to $category (fanned out to 3 collections)');
+      return true;
     } catch (e) {
       debugPrint('Add points error: $e');
+      return false;
     }
   }
 

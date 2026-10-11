@@ -1,95 +1,154 @@
-# Shared focus session — theme parity & fixes (COMPLETED)
+# Points not reaching the leaderboard — status
 
-Status legend: `[x]` done & verified in this repo. `[~]` needs a live run/deploy
-that cannot be done from a local analyse+test pass (owner action).
-
-Verification run on this tree:
-- `flutter analyze` — **No issues found**
-- `flutter test` — **All tests passed** (397)
-- `cd test/rules && npm install && npm test` — **16/16 passed** (6 suites)
-- `flutter run` from latest `main` — the sessions-list background is the shared
-  `TreatedBackgroundImage`, not the old two-stop gradient.
+Last worked: 2026-10-12. Everything under **DONE** is finished and verified;
+the original analysis is kept, commented out, at the bottom for reference.
 
 ---
 
-## 1. Screen background matched to the app theme — `[x]`
+## DONE (verified this pass)
 
-- [x] `sessions_list_screen.dart` is built on `ScaffoldShell`, so it uses the
-      same `TreatedBackgroundImage` (blurred botanical photo + theme-aware scrim
-      + accent orbs) as splash/auth/home. The old
-      `LinearGradient(colors: [primary@0.08, surface, surface])` two-stop seam is
-      gone — that was the "dark teal into flat cream" screenshot.
-- [x] Same shell applied to the lobby, detail and summary screens.
+- [x] **Fix 1 — `firestore.rules`.** `validAvatar()` helper added; the
+      `leaderboard/{userId}` create/update rules now accept every field the
+      client writes (`lifetimePoints`, `pointsBreakdown`, `lastUpdated`,
+      `lastActiveAt`, …) with a +100-per-write bound and a "never decreases"
+      rule; the same bound added to `weekly_leaderboard` and
+      `monthly_leaderboard` (which previously had no bound at all).
+- [x] **Fix 2 — client no longer hides the failure.**
+      `LeaderboardService.addPoints` returns `Future<bool>`; all **8** call
+      sites check it before recording the award —
+      7 in `productivity_points_service.dart` (habit, task, daily streak,
+      screen-time, bedtime, app-restriction, focus session) and 1 in
+      `notification_scheduler_service.dart` (`_markScheduleCompleted`).
+      Verified with `findstr /S /N /C:"addPoints" lib\*.dart`.
+- [x] **`flutter analyze`** → `No issues found! (ran in 12.2s)`, exit 0.
+- [x] **Firestore rules tests** in `test/firestore_rules/`
+      (`leaderboard_points.test.js` + `harness.js`) — pin both halves: the
+      writes the app performs are allowed, and the ones it must never perform
+      are refused.
+- [x] **Emulator runs — re-run first-hand this pass**, not merely read from the
+      captured log:
+      - `test/firestore_rules` (Firestore rules): `# tests 27 / # pass 27 /
+        # fail 0`, exit 0 (also archived at
+        `test/firestore_rules/run_output.txt`).
+      - `test/rules` (Realtime Database rules): `# tests 16 / # pass 16 /
+        # fail 0`, exit 0.
+      Both suites need their `node_modules`; `npm --prefix test/firestore_rules
+      install` restores the Firestore one (it is git-ignored).
+- [x] **Rules DEPLOYED to production.** The repo rules were correct but were
+      *not* live — the deployed ruleset was still the old, broken one. Diffed
+      live vs local (only the leaderboard block, `validAvatar()` and the
+      `badges` read rule differed), deployed, and re-verified.
+      - previous ruleset: `46897095-7ad1-41f7-8608-4a0d47f8a46d`
+      - deployed ruleset: `2e5c79c9-2e67-4f65-a791-1cc16d721a79`
+      - rollback: Firebase Console → Firestore → Rules → history, or redeploy
+        the previous ruleset id.
+- [x] **Live authenticated-client probe PASSES** (`scripts/probe-live-leaderboard-rules.js`):
 
-## 2. Theme-consistency fixes — `[x]`
+      deployed ruleset contains validAvatar():  true
+      deployed ruleset contains lifetime cap:   true
+      create  weekly_leaderboard  points=30        -> 200  PASS
+      create  leaderboard         lifetimePoints=0 -> 200  PASS
+      update  leaderboard         0 -> 30  (+30)   -> 200  PASS   (was 403)
+      update  leaderboard         30 -> 5030 cheat -> 403  PASS
 
-- [x] **Button spinners use the theme's "on primary" colour** instead of a
-      literal white, in `create_session_sheet`, `join_by_code_sheet`,
-      `join_by_id_sheet`, `complete_session_button`, `report_block_sheet`.
-- [x] **Swept the same anti-pattern out of the sibling group sheets** it had
-      also leaked into — `create_group_sheet`, `join_group_sheet`,
-      `add_schedule_entry_sheet`, `group_detail_sections` (GroupActionBar) — so
-      no button anywhere assumes its foreground is literally white.
-- [x] **QR white backdrop gets a soft border** in `session_invite_panel.dart`:
-      stays white for scanners, but reads as intentional in dark mode instead of
-      a hole punched in the card.
-- [x] **"Joined session" snackbar uses the palette**, not stock `Colors.green`
-      — `DesignPalette.fernDeep`, matching the credited-run snackbar.
+- [x] **Mock data seeded into the live DB** (`scripts/seed-mock-leaderboard.js`).
+      10 users (`mock_lb_aria` … `mock_lb_juno`) written to `leaderboard`,
+      `weekly_leaderboard` and `monthly_leaderboard`; read back through the
+      board's own `orderBy('points', desc)` query.
+      - remove them again: `node scripts/seed-mock-leaderboard.js --cleanup`
+      - read-only check:     `node scripts/seed-mock-leaderboard.js --verify`
 
-## 3. Problems fixed — `[x]`
-
-- [x] **Breaks rule regression closed.** `database.rules.json` allows the cap
-      **plus one** (`newData.val() <= 3`), and `SessionService.reportBreak`
-      writes `min(count + 1, SessionLimits.maxStoredBreaks)` so "over the cap"
-      survives the clamp instead of being stored *as* the cap and credited.
-      `session_limits.dart` documents `maxStoredBreaks = maxBreaksPerRun + 1`.
-- [x] **A missing permission is shown, not swallowed.** `SessionLobbyScreen`
-      now raises an 8-second snackbar with a **Fix** action that opens the
-      permissions screen (`onboardingPath` + `permissionsOnly: true`); the run
-      starts for real on the resume re-check once granted.
-- [x] **A zero remaining time no longer starts a fresh run.**
-      `_beginFocusRun` returns early when `_remainingRunSec(session) <= 0`, so
-      the finished phase handles it.
-- [x] **`leaveSession` still never writes `left`** — left as-is by design
-      (minor, and the presence `onDisconnect` path covers departure).
-
-## 4. Rules test coverage — `[x]`
-
-- [x] `breaks_limit.test.js` — 3 breaks accepted, a 4th refused.
-- [x] `completion_time.test.js` — `completedAt` before the end refused, after
-      the end accepted.
-- [x] `member_write.test.js` — a non-owner rewriting `ownerId` refused; a member
-      updating their own presence accepted.
-- [x] `README.md` updated: "six suites", "all sixteen cases should pass".
-
-## 5. Screen-rotation fix — `[x]`
-
-- [x] **Layer 1 — phones stay portrait.** `lib/ui/common/orientation_policy.dart`
-      locks phones (shortest side < 600dp) to portrait and lets tablets/foldables
-      rotate; wired into `MaterialApp.builder` in `digitox_app.dart`. No manifest
-      `screenOrientation` flag — that would lock tablets too.
-- [x] **Layer 2 — large screens cannot overflow.** `ScaffoldShell` caps the
-      header at `min(appBarExpandedHeight, height * 0.3)`; every session/group
-      sheet uses `SessionSheetScaffold`, which is height-capped to the space
-      left above the keyboard and scrolls its body (`isScrollControlled` +
-      `SingleChildScrollView`).
+> **The root cause was the deployed ruleset, not the repo file.** The client
+> code writes were fine; the live rules refused them and `addPoints` swallowed
+> the error. Both halves are now fixed and the live write succeeds.
 
 ---
 
-## Deploy — `[x]`
+## OPEN ITEMS / SUGGESTIONS
 
-- [x] `firebase deploy --only database` run against project
-      `digital-detox-app-01`. The CLI reported **rules syntax valid** and
-      **rules released successfully**.
-- [x] **Deployed rules verified identical to `database.rules.json`** — fetched
-      the live `.settings/rules.json` with the project's service account and
-      deep-compared: **MATCH**. The server-side caps (incl. `breaks <= 3`) are
-      now live, not just local.
+Ordered by value. The user said to stop after the fixes and review — these are
+proposals, nothing below has been applied.
 
-## Owner actions (cannot be done from this environment)
+1. **Prove it end-to-end on a device (highest priority).**
+   The probe proves the *rules* allow the write; it does not prove the app
+   renders it. On a device/simulator: complete one habit, then open
+   Leaderboard → Weekly. The `mock_lb_*` rows should sit above you and your
+   own row should appear with 30 more points.
+   Note: habits already flagged "awarded today" (SharedPreferences
+   `habit_points_awarded_today`) will **not** re-award today — either clear app
+   storage or complete a *different* habit.
 
-- [~] **Two-device run:** create → join by code → host starts → both devices
-      block at the same second → both credited.
-- [~] **Kill & reopen a member's app mid-run:** confirm their personal
-      blocklist and duration come back (the on-disk profile snapshot restores
-      them).
+2. **The +100/write cap only slows cheating — it does not stop it.**
+   A determined user can still write repeatedly. The real fix is to move the
+   award off the client: a Cloud Function (or the existing n8n webhook pattern
+   used for shared sessions) that writes points with the Admin SDK after
+   verifying the action. App Check would close most of the remaining gap.
+   Tracked here, deliberately not done.
+
+3. **Confirm the weekly/monthly reset workflows actually run.**
+   The n8n "Weekly/Monthly Leaderboard Winner" workflows reset the period
+   boards with the Admin SDK (bypassing rules, so unaffected by this change).
+   If they are not scheduled, the weekly/monthly boards never roll over and
+   the bound above is the only thing left. Check `leaderboard_config/weekly_reset`
+   and `monthly_reset` have a recent `lastResetDate`.
+
+4. **Focus-session points can still be lost silently.**
+   `awardPointsForFocusSession` has no local "already awarded" flag (by design —
+   focus sessions legitimately repeat). With `addPoints` now returning `false`
+   on failure, a failed write there just logs and the points are gone.
+   Consider a small retry queue (e.g. re-attempt on next app foreground).
+
+5. **`_backfillMissingAvatars` does one `users/{uid}` read per avatar-less row,
+   on every stream snapshot.** With the mock rows (which have no avatar) that is
+   10 extra reads per snapshot, and it scales with the board. Consider capping
+   it, running it once per session, or seeding the avatar at write time only.
+
+6. **The `badges` read rule changed too.** The deploy also replaced
+   `allow read (id match)` with `get` (id match) + `list` (by `userId`) +
+   `delete` (own). That is the repo's intended state and fixes the badge list
+   being denied, but it is an extra behaviour change that shipped with this
+   deploy — worth a quick check that the achievements/badges screen lists
+   correctly.
+
+7. **Keep or delete the helper scripts.** Added under `scripts/`:
+   `seed-mock-leaderboard.js`, `probe-live-leaderboard-rules.js`,
+   `dump-live-rules.js`. They are useful for re-verifying a deploy; delete
+   them if you would rather not carry service-account tooling in the repo.
+   (`scripts/service-account.json` is already git-ignored.)
+
+---
+
+## Reference: original analysis (commented out — completed)
+
+<!--
+## Why it fails
+
+1. The rule blocks every update except three fields. `firestore.rules` line 238
+   (`match /leaderboard/{userId}`) allowed an existing document to change only
+   `profileImageUrl`, `profileImagePublicId` and `username`. That lockdown
+   arrived in commit 56a1b35 ("Shared session impmenetation for forced firebase
+   rules", Sep 29). It only takes effect once the rules are deployed.
+2. `addPoints` writes fields the rule forbids — `lifetimePoints`,
+   `pointsBreakdown`, `lastUpdated`, `lastActiveAt` — inside one transaction that
+   also covers the weekly and monthly documents. A transaction is all-or-nothing,
+   so one denied write means none of the three documents update.
+3. The app reports success anyway — `addPoints` caught the error and only logged
+   it; `awardHabitCompletionPoints` then marked the habit awarded for the day and
+   sent the notification.
+4. Other writes were blocked too: the streak update, the `lastActiveAt` update
+   and `updateUserData` all wrote non-allowed fields.
+
+## Fix 1: rules — DONE (see above)
+
+Add `validAvatar()` at the top of `match /databases/{database}/documents` and
+replace the `leaderboard/{userId}` block; apply the same grow-only-by-100 bound
+to `weekly_leaderboard` and `monthly_leaderboard`.
+
+Deploy with `firebase deploy --only firestore:rules`.   <-- DONE 2026-10-12
+
+## Fix 2: the app should not hide the failure — DONE (see above)
+
+Make `addPoints` return `Future<bool>` and mark the day awarded only on success
+at each of the 7 call sites in `productivity_points_service.dart` (plus the
+notification-scheduler call site).   <-- DONE
+-->
