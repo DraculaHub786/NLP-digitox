@@ -209,12 +209,12 @@ class _ReportBlockSheetState extends ConsumerState<ReportBlockSheet> {
           child: FilledButton.icon(
             onPressed: busy ? null : _submitReport,
             icon: busy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.flag_20_filled, size: 18),

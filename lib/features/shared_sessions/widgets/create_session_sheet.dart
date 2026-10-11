@@ -147,12 +147,12 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
                 child: FilledButton.icon(
                   onPressed: isBusy ? null : _submit,
                   icon: isBusy
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: colorScheme.onPrimary,
                           ),
                         )
                       : const Icon(FluentIcons.add_20_filled, size: 18),

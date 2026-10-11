@@ -94,8 +94,15 @@ class SessionInvitePanel extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(Spacing.md),
               decoration: BoxDecoration(
+                // The QR needs a light background to scan, but a bare white
+                // square reads as a hole punched in the glass card in dark
+                // mode. The same soft primary border the code chip above uses
+                // gives it an edge, so it looks intentional in both palettes.
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(Radii.md),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.2),
+                ),
               ),
               child: QrImageView(
                 data: InviteCode.linkFor(inviteCode),

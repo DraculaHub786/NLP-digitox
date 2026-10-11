@@ -2,6 +2,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'dart:math' show min;
 import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
@@ -1065,7 +1066,14 @@ class SessionService {
             .runTransaction((current) {
           final value = current;
           final count = value is int ? value : 0;
-          return Transaction.success(count + 1);
+          // Clamp to the cap **plus one** rather than counting without a
+          // ceiling. The rule refuses anything above the cap, so an uncapped
+          // `count + 1` let the server silently clamp five breaks down to the
+          // cap — leaving the member inside the credit window — while the
+          // extra step keeps "over the cap" visible at [maxStoredBreaks].
+          return Transaction.success(
+            min(count + 1, SessionLimits.maxStoredBreaks),
+          );
         }),
       );
       debugPrint('SessionService: Recorded focus break in $sessionId');

@@ -50,7 +50,7 @@
             },
 
             "breaks": {
-              ".validate": "newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= 2"
+              ".validate": "newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= 3"
             },
 
             "completedAt": {

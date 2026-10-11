@@ -108,13 +108,16 @@ class _JoinGroupSheetState extends ConsumerState<JoinGroupSheet> {
           width: double.infinity,
           child: FilledButton.icon(
             onPressed: isBusy ? null : _join,
+            // Follows the button's own foreground colour rather than a literal
+            // white, so it reads correctly in both palettes — matching the
+            // shared-session sheets this scaffold is shared with.
             icon: isBusy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.arrow_join_20_filled, size: 18),

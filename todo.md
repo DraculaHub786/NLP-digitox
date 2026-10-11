@@ -1,70 +1,95 @@
-# Shared-session fix — implementation checklist
+# Shared focus session — theme parity & fixes (COMPLETED)
 
-Legend: `[x]` applied and verified · `[~]` partially applied · `[ ]` not applied.
-Code items are applied in-repo; items marked *(device/console/local)* are manual and cannot be done from the codebase.
+Status legend: `[x]` done & verified in this repo. `[~]` needs a live run/deploy
+that cannot be done from a local analyse+test pass (owner action).
 
-## Phase 0 — Verify
-
-- [ ] *(console)* Run `firebase deploy --only database` and compare the Rules tab with the repo file
-- [ ] *(device)* Reproduce and capture `adb logcat | grep -E "RepoOperation|firebase_database"` — the `setValue at /sessions/... failed` line names the denied path
-- [x] Add `test/rules/` harness (emulator + `@firebase/rules-unit-testing`): 80-char name ok / 81 rejected
-- [x] Rules test: code-join into an invite room succeeds
-- [x] Rules test: non-owner cannot start (`state: running`)
-- [x] *(local)* Run the harness against the emulator: `cd test/rules && npm install && npm test` → **10 cases, all passed**
-
-## Phase 1 — Stop silent failures
-
-- [x] `create_session_sheet.dart`: `maxLength: 80` on the name field
-- [x] `session_error_message.dart`: replace the generic `permission-denied` text with create/join-specific guidance
-- [x] `session_lobby_screen.dart`: gate `_beginFocusRun` on `hasAllEssentialPermissions` (no latch, so a retry after resume works)
-- [x] `database.rules.json`: `breaks` cap to `newData.val() <= 2` (confirmed `SessionLimits.maxBreaksPerRun == 2` first)
-
-## Phase 2 — Make the run actually shared
-
-- [x] Add a duration picker to the create sheet and send `durationSec` through `CreateSessionNotifier.createSession`
-- [x] Delete the `runStartAt` line from `SharedSession.toMap()` — the server owns that field
-- [x] `session_lobby_screen.dart`: derive the member's run length from `runStartAt + countdown + duration` (remaining time), not from `sharedDailyLimit`
-- [x] `session_focus_bridge.dart` + `focus_mode_provider.dart`: `startSessionFromSharedSettings(session:, durationSec:)` sets `sessionDuration: durationSec`
-- [x] Persist the focus-profile snapshot in `SharedSessionFocusTracker` before mutating it, and restore it in `SessionCompletionReconciler` on launch
-
-## Phase 3 — Clock and presence
-
-- [x] `SessionService.init()`: call `SessionClock.instance.start()` after `_database` is assigned
-- [x] `session_lobby_screen.dart` `initState`: `SessionService.instance.startPresenceHeartbeat(sessionId)` while still in the lobby
-
-## Phase 4 — Cleanup
-
-- [x] Make `SessionService._database` injectable for the join/create tests (`SessionService.withDatabase`)
-- [ ] *(local)* Tidy the `tmp_*` / `fix_leave*` files and the in-progress rebase
-- [x] Skip the `memberCount` item — Discover already derives the live count in `getPublicSessions`
-
-## Phase 5 — Two-device acceptance *(manual)*
-
-- [ ] Host creates, a member joins by code, the host starts
-- [ ] Both devices block apps in the same second
-- [ ] Both end together and both are credited
-- [ ] Kill and reopen a member's app mid-lobby; they reappear as present
+Verification run on this tree:
+- `flutter analyze` — **No issues found**
+- `flutter test` — **All tests passed** (397)
+- `cd test/rules && npm install && npm test` — **16/16 passed** (6 suites)
+- `flutter run` from latest `main` — the sessions-list background is the shared
+  `TreatedBackgroundImage`, not the old two-stop gradient.
 
 ---
 
-## Verification run
+## 1. Screen background matched to the app theme — `[x]`
 
-- `flutter analyze lib` → **No issues found!**
-- `flutter test` (services, providers, models, core, features, ui, config) → **397 tests, all passed**
-- `test/rules` → `cd test/rules && npm install && npm test` → **10 cases, all passed**
-  (needs the Firebase CLI and a JDK on PATH; the script runs the three suites with
-  `--test-concurrency=1` on purpose — see `test/rules/README.md`)
+- [x] `sessions_list_screen.dart` is built on `ScaffoldShell`, so it uses the
+      same `TreatedBackgroundImage` (blurred botanical photo + theme-aware scrim
+      + accent orbs) as splash/auth/home. The old
+      `LinearGradient(colors: [primary@0.08, surface, surface])` two-stop seam is
+      gone — that was the "dark teal into flat cream" screenshot.
+- [x] Same shell applied to the lobby, detail and summary screens.
 
-### Notes on the applied items
+## 2. Theme-consistency fixes — `[x]`
 
-* `create_session_sheet.dart` (max length), `session_error_message.dart` (per-instance
-  create/join text) and the create-sheet duration picker were already in the tree and
-  were verified rather than re-written. The remaining Phase 1–4 items were applied in
-  this session.
-* `_beginFocusRun` deliberately does **not** set `_hasOpenedTimer` when the permission
-  gate fails, so the resume re-check starts the run once the user grants what is missing.
-* `startSessionFromSharedSettings` now takes the whole `SharedSession`, so a caller can
-  no longer pair one room's settings with another room's id, and the room's own
-  `durationSec` is authoritative instead of the per-session `sharedDailyLimit`.
-* `runStartAt` is no longer serialised by `toMap()`: only `ServerValue.timestamp`
-  from `startSession` may set it, which is what the rules enforce.
+- [x] **Button spinners use the theme's "on primary" colour** instead of a
+      literal white, in `create_session_sheet`, `join_by_code_sheet`,
+      `join_by_id_sheet`, `complete_session_button`, `report_block_sheet`.
+- [x] **Swept the same anti-pattern out of the sibling group sheets** it had
+      also leaked into — `create_group_sheet`, `join_group_sheet`,
+      `add_schedule_entry_sheet`, `group_detail_sections` (GroupActionBar) — so
+      no button anywhere assumes its foreground is literally white.
+- [x] **QR white backdrop gets a soft border** in `session_invite_panel.dart`:
+      stays white for scanners, but reads as intentional in dark mode instead of
+      a hole punched in the card.
+- [x] **"Joined session" snackbar uses the palette**, not stock `Colors.green`
+      — `DesignPalette.fernDeep`, matching the credited-run snackbar.
+
+## 3. Problems fixed — `[x]`
+
+- [x] **Breaks rule regression closed.** `database.rules.json` allows the cap
+      **plus one** (`newData.val() <= 3`), and `SessionService.reportBreak`
+      writes `min(count + 1, SessionLimits.maxStoredBreaks)` so "over the cap"
+      survives the clamp instead of being stored *as* the cap and credited.
+      `session_limits.dart` documents `maxStoredBreaks = maxBreaksPerRun + 1`.
+- [x] **A missing permission is shown, not swallowed.** `SessionLobbyScreen`
+      now raises an 8-second snackbar with a **Fix** action that opens the
+      permissions screen (`onboardingPath` + `permissionsOnly: true`); the run
+      starts for real on the resume re-check once granted.
+- [x] **A zero remaining time no longer starts a fresh run.**
+      `_beginFocusRun` returns early when `_remainingRunSec(session) <= 0`, so
+      the finished phase handles it.
+- [x] **`leaveSession` still never writes `left`** — left as-is by design
+      (minor, and the presence `onDisconnect` path covers departure).
+
+## 4. Rules test coverage — `[x]`
+
+- [x] `breaks_limit.test.js` — 3 breaks accepted, a 4th refused.
+- [x] `completion_time.test.js` — `completedAt` before the end refused, after
+      the end accepted.
+- [x] `member_write.test.js` — a non-owner rewriting `ownerId` refused; a member
+      updating their own presence accepted.
+- [x] `README.md` updated: "six suites", "all sixteen cases should pass".
+
+## 5. Screen-rotation fix — `[x]`
+
+- [x] **Layer 1 — phones stay portrait.** `lib/ui/common/orientation_policy.dart`
+      locks phones (shortest side < 600dp) to portrait and lets tablets/foldables
+      rotate; wired into `MaterialApp.builder` in `digitox_app.dart`. No manifest
+      `screenOrientation` flag — that would lock tablets too.
+- [x] **Layer 2 — large screens cannot overflow.** `ScaffoldShell` caps the
+      header at `min(appBarExpandedHeight, height * 0.3)`; every session/group
+      sheet uses `SessionSheetScaffold`, which is height-capped to the space
+      left above the keyboard and scrolls its body (`isScrollControlled` +
+      `SingleChildScrollView`).
+
+---
+
+## Deploy — `[x]`
+
+- [x] `firebase deploy --only database` run against project
+      `digital-detox-app-01`. The CLI reported **rules syntax valid** and
+      **rules released successfully**.
+- [x] **Deployed rules verified identical to `database.rules.json`** — fetched
+      the live `.settings/rules.json` with the project's service account and
+      deep-compared: **MATCH**. The server-side caps (incl. `breaks <= 3`) are
+      now live, not just local.
+
+## Owner actions (cannot be done from this environment)
+
+- [~] **Two-device run:** create → join by code → host starts → both devices
+      block at the same second → both credited.
+- [~] **Kill & reopen a member's app mid-run:** confirm their personal
+      blocklist and duration come back (the on-disk profile snapshot restores
+      them).

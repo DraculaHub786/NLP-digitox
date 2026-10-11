@@ -151,12 +151,12 @@ class _JoinByCodeSheetState extends ConsumerState<JoinByCodeSheet> {
           child: FilledButton.icon(
             onPressed: isBusy ? null : _join,
             icon: isBusy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.arrow_join_20_filled, size: 18),

@@ -10,6 +10,7 @@ import 'package:nlp_digitox/config/navigation/navigation_service.dart';
 import 'package:nlp_digitox/l10n/generated/app_localizations.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart';
 import 'package:nlp_digitox/ui/common/badge_celebration_observer.dart';
+import 'package:nlp_digitox/ui/common/orientation_policy.dart';
 import 'package:nlp_digitox/ui/common/shared_session_lifecycle_observer.dart';
 import 'package:nlp_digitox/ui/common/wellbeing_report_lifecycle_observer.dart';
 
@@ -50,25 +51,31 @@ class DigitoxApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             final mq = MediaQuery.of(context);
-            return MediaQuery(
-              data: mq.copyWith(
-                textScaler: mq.textScaler.clamp(
-                  minScaleFactor: 0.9,
-                  maxScaleFactor: 1.15,
+            // Phones stay portrait; tablets and foldables rotate freely. Doing
+            // this here — rather than with a manifest orientation flag — keeps
+            // large screens rotatable and lets the policy read the real window
+            // size, which a static manifest value could not.
+            return OrientationPolicy(
+              child: MediaQuery(
+                data: mq.copyWith(
+                  textScaler: mq.textScaler.clamp(
+                    minScaleFactor: 0.9,
+                    maxScaleFactor: 1.15,
+                  ),
                 ),
-              ),
-              // All three observers run from the MAIN isolate only —
-              // `Initializer` is also invoked from the background isolate,
-              // which must not hold a pending end-of-day timer, a session
-              // reconciler or a Firestore badge watch.
-              //
-              // The shared-session observer sits outermost so its auth listener
-              // is attached even while the other two are starting up. The badge
-              // observer sits innermost because it needs the Navigator, which
-              // this builder wraps.
-              child: SharedSessionLifecycleObserver(
-                child: WellbeingReportLifecycleObserver(
-                  child: BadgeCelebrationObserver(child: child!),
+                // All three observers run from the MAIN isolate only —
+                // `Initializer` is also invoked from the background isolate,
+                // which must not hold a pending end-of-day timer, a session
+                // reconciler or a Firestore badge watch.
+                //
+                // The shared-session observer sits outermost so its auth
+                // listener is attached even while the other two are starting
+                // up. The badge observer sits innermost because it needs the
+                // Navigator, which this builder wraps.
+                child: SharedSessionLifecycleObserver(
+                  child: WellbeingReportLifecycleObserver(
+                    child: BadgeCelebrationObserver(child: child!),
+                  ),
                 ),
               ),
             );

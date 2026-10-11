@@ -18,9 +18,9 @@ npm install
 npm test
 ```
 
-`npm test` starts the emulator, runs the three suites, and shuts it down again
+`npm test` starts the emulator, runs the six suites, and shuts it down again
 (`firebase emulators:exec`). Nothing touches a live project: the emulator runs
-under the throwaway project id `demo-nlp`. All ten cases should pass.
+under the throwaway project id `demo-nlp`. All sixteen cases should pass.
 
 Requires Node 18 or newer — the suites use the built-in `node --test` runner and
 `node:assert` — plus the Firebase CLI and a JDK on `PATH`.
@@ -58,6 +58,9 @@ the wrong reason or red for no reason:
 | `name_length.test.js` | an 80-character name is accepted, 81 is refused, and the refusal takes the whole atomic create with it |
 | `join_by_code.test.js` | a code-join succeeds; a bare ID join of an invite room, a code for a different room, and any join of a started room are all refused |
 | `start_owner_only.test.js` | the owner can start with a server timestamp, a member cannot start at all, and nobody can backdate `runStartAt` to a client clock |
+| `breaks_limit.test.js` | `breaks` is accepted at the stored cap (two plus one) and refused one above it, so "over the cap" survives the write |
+| `completion_time.test.js` | a `completedAt` before the run's end is refused and one after it is accepted, both resolved from the server clock |
+| `member_write.test.js` | a non-owner cannot rewrite `ownerId`, and a member can publish their own presence (ready / active) |
 
 ## Adding a case
 

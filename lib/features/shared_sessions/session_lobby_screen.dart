@@ -121,8 +121,22 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
         'SessionLobbyScreen: not starting focus for ${session.id} — '
         'essential permissions are missing',
       );
+      // The check used to `debugPrint` and return, so a member missing a
+      // permission saw nothing: the lobby simply sat there and the run never
+      // started blocking. The notice says why, and the "Fix" action opens the
+      // permission screen; the resume re-check above starts the run for real
+      // once they are granted and the user comes back.
+      if (mounted) _showMissingPermissionsNotice();
       return;
     }
+
+    // A run whose remaining time has already reached zero is over. The engine
+    // reads a non-positive `durationSec` as "use the session's whole length",
+    // so without this a member still on the running phase as the clock crossed
+    // zero would be dropped into a fresh full-length run after the room had
+    // ended. The finished phase handles that case instead.
+    final remaining = _remainingRunSec(session);
+    if (remaining != null && remaining <= 0) return;
 
     _hasOpenedTimer = true;
 
@@ -133,10 +147,36 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
       // How long *this* device still has to focus, from the shared clock —
       // never from this member's own profile duration. Someone who arrives
       // late must still end with everyone else.
-      durationSec: _remainingRunSec(session),
+      durationSec: remaining,
     );
     if (!mounted) return;
     Navigator.of(context).pushNamed(AppRoutes.activeSessionPath);
+  }
+
+  /// Tells the member, visibly, why the room has not started blocking.
+  ///
+  /// The permission check used to be silent, which read as "the session never
+  /// started" rather than "you are missing a permission". The snackbar stays
+  /// up long enough to be read and offers the one action that unblocks it.
+  void _showMissingPermissionsNotice() {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 8),
+          content: const Text(
+            'Grant the missing permissions so this session can block '
+            'distracting apps. It will start when you come back.',
+          ),
+          action: SnackBarAction(
+            label: 'Fix',
+            onPressed: () => Navigator.of(context).pushNamed(
+              AppRoutes.onboardingPath,
+              arguments: const {'permissionsOnly': true},
+            ),
+          ),
+        ),
+      );
   }
 
   /// Seconds left in the shared run, or null when the run has not begun.

@@ -54,10 +54,25 @@ class SessionLimits {
   ///
   /// Not zero: Android kills backgrounded apps routinely, and a run that
   /// survives one genuine interruption deserves credit. Past this it stops
-  /// looking like an interruption and starts looking like leaving. The same
-  /// number is repeated in `database.rules.json` on `breaks`, which is what
-  /// actually caps it server-side.
+  /// looking like an interruption and starts looking like leaving.
+  ///
+  /// `database.rules.json` on `breaks` allows this value **plus one** — see
+  /// [maxStoredBreaks]. The rule deliberately does not stop at this number:
+  /// storing a value one above the cap is how the client records "over the
+  /// cap" without losing the fact that the member went past it.
   static const int maxBreaksPerRun = 2;
+
+  /// The highest value `breaks` may be written as.
+  ///
+  /// This is [maxBreaksPerRun] **plus one**, and it is what both the client
+  /// transaction and the `breaks` rule enforce. The extra step closes a
+  /// regression: `reportBreak` used to write `count + 1` with no ceiling, while
+  /// the rule refused anything above the cap. A member who broke focus five
+  /// times was therefore *stored* as two — inside the cap — and the completion
+  /// webhook, which credits anyone within the cap, paid them anyway. Writing
+  /// `cap + 1` keeps the over-cap state visible after the clamp, so the webhook
+  /// can refuse them.
+  static const int maxStoredBreaks = maxBreaksPerRun + 1;
 
   /// Longest session name the server accepts.
   ///

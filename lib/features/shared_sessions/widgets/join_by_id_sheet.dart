@@ -68,10 +68,15 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
 
     Navigator.pop(context);
     ref.invalidate(userSessionsProvider);
+    // The app has no "success" colour convention — every other SnackBar in the
+    // app leaves the background at its theme default. A stock `Colors.green`
+    // clashed with the muted botanical palette (and was harsh in dark mode),
+    // so this uses the palette's deep fern, matching the credited-run SnackBar
+    // in `CompleteSessionButton`.
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Joined session!'),
-        backgroundColor: Colors.green,
+        backgroundColor: DesignPalette.fernDeep,
       ),
     );
   }
@@ -113,12 +118,12 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
           child: FilledButton.icon(
             onPressed: isBusy ? null : _join,
             icon: isBusy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.arrow_join_20_filled, size: 18),

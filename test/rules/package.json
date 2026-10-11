@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Realtime Database rules tests for database.rules.json.",
   "scripts": {
-    "test": "firebase emulators:exec --project demo-nlp --only database \"node --test --test-concurrency=1 name_length.test.js join_by_code.test.js start_owner_only.test.js\""
+    "test": "firebase emulators:exec --project demo-nlp --only database \"node --test --test-concurrency=1 name_length.test.js join_by_code.test.js start_owner_only.test.js breaks_limit.test.js completion_time.test.js member_write.test.js\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^3.0.4",

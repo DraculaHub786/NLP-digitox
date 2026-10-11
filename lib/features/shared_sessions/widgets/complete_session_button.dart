@@ -23,6 +23,7 @@ class CompleteSessionButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final completeState = ref.watch(completeSessionProvider);
     final currentUserId = FirebaseAuthService.instance.userId;
 
@@ -42,12 +43,12 @@ class CompleteSessionButton extends ConsumerWidget {
         onPressed:
             completeState.isLoading ? null : () => _confirm(context, ref),
         icon: completeState.isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                 ),
               )
             : const Icon(FluentIcons.flag_20_filled, size: 18),
