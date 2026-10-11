@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/config/design_tokens.dart';
 import 'package:nlp_digitox/core/constants/session_limits.dart';
+import 'package:nlp_digitox/features/shared_sessions/session_error_message.dart';
+import 'package:nlp_digitox/features/shared_sessions/session_lobby_screen.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
 import 'package:nlp_digitox/providers/system/digitox_settings_provider.dart'
@@ -199,12 +201,19 @@ class _DiscoverSessionCardState extends ConsumerState<DiscoverSessionCard> {
     return memberCount >= maxMembers;
   }
 
+  /// Whether the signed-in user is already in this room, read from the entry's
+  /// `isMember` flag (set by `SessionService.getPublicSessions`).
+  bool get _isMember => widget.data['isMember'] == true;
+
   Future<void> _join() async {
+    final sessionId = widget.data['id'] as String;
+    final alreadyIn = _isMember;
+
     // The card can be stale by the time it is tapped: the room may have filled
     // since the list was drawn, and the server would then reject the write.
     // Checking here gives the user the reason instead of a spinner that ends in
-    // an error.
-    if (_isFull) {
+    // an error. A member rejoining their own room is never turned away by it.
+    if (!alreadyIn && _isFull) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(SessionLimits.fullSessionMessage)),
       );
@@ -213,27 +222,36 @@ class _DiscoverSessionCardState extends ConsumerState<DiscoverSessionCard> {
 
     setState(() => _joining = true);
     try {
-      // Use the app's configured username as the in-session display name
-      // (falls back to 'Me' if somehow empty).
-      final username = ref.read(digitoxSettingsProvider).username.trim();
-      await ref.read(joinByIdProvider.notifier).joinById(
-            sessionId: widget.data['id'] as String,
-            displayName: username.isNotEmpty ? username : 'Me',
-          );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('You joined the session!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Invalidate to refresh My Sessions tab
+      if (!alreadyIn) {
+        // Use the app's configured username as the in-session display name
+        // (falls back to 'Me' if somehow empty).
+        final username = ref.read(digitoxSettingsProvider).username.trim();
+        await ref.read(sessionServiceProvider).joinSession(
+              sessionId: sessionId,
+              displayName: username.isNotEmpty ? username : 'Me',
+            );
         ref.invalidate(userSessionsProvider);
+        ref.invalidate(publicSessionsProvider);
       }
+      if (!mounted) return;
+      // Land in the room instead of a snackbar that leads nowhere. This is the
+      // fix for a member tapping Join on a room they were already in: the old
+      // code reported success and stayed on Discover.
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SessionLobbyScreen(sessionId: sessionId),
+        ),
+      );
     } catch (error) {
+      // The card was stale: drop the Discover list now so it re-reads.
+      ref.invalidate(publicSessionsProvider);
       if (mounted) {
+        // Write the failure the way the join sheets do. `$error` printed the
+        // raw exception — including things like "Bad state: Tried to use
+        // JoinSessionByIdNotifier after 'dispose' was called" — which tells the
+        // user nothing they can act on.
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to join: $error')),
+          SnackBar(content: Text(sessionErrorMessage(error, 'join'))),
         );
       }
     } finally {
@@ -310,10 +328,11 @@ class _DiscoverSessionCardState extends ConsumerState<DiscoverSessionCard> {
                     color: colorScheme.secondary,
                   ),
                 )
-              : _isFull
+              : (_isFull && !_isMember)
                   // No Join button once the room is closed: a disabled control
                   // invites taps that can never succeed. The reason replaces
-                  // it instead.
+                  // it instead. A member already in the room is not blocked by
+                  // the cap they help fill — their button reads "Open".
                   ? Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: Spacing.md,
@@ -343,7 +362,7 @@ class _DiscoverSessionCardState extends ConsumerState<DiscoverSessionCard> {
                           borderRadius: BorderRadius.circular(Radii.pill),
                         ),
                       ),
-                      child: const Text('Join'),
+                      child: Text(_isMember ? 'Open' : 'Join'),
                     ),
         ],
       ),

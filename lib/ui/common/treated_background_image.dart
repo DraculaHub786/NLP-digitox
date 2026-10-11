@@ -20,6 +20,21 @@ class TreatedBackgroundImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
+    final media = MediaQuery.of(context);
+
+    // Decode the backdrop at roughly the size it is drawn, not at the source
+    // photo's full resolution. The asset is a large JPEG; without a bound,
+    // `Image.asset` decodes every one of its pixels into memory on every
+    // screen that shows this widget (splash, auth and home all do), which is
+    // the single biggest per-screen memory and first-frame cost here. The
+    // image is cover-fit and pre-blurred, so detail above the device's own
+    // pixel size is invisible. Capped at 2048 so a wide tablet window does not
+    // decode an oversized frame.
+    final devicePixelRatio = media.devicePixelRatio;
+    final decodeWidth =
+        (media.size.width * devicePixelRatio).round().clamp(1, 2048);
+    final decodeHeight =
+        (media.size.height * devicePixelRatio).round().clamp(1, 2048);
 
     return Stack(
       fit: StackFit.expand,
@@ -40,6 +55,12 @@ class TreatedBackgroundImage extends StatelessWidget {
           // change (prevents any cached-light-frame edge cases).
           key: ValueKey(isDark),
           fit: BoxFit.cover,
+          cacheWidth: decodeWidth,
+          cacheHeight: decodeHeight,
+          // Paint the frame without a synchronous decode stall; the scrim and
+          // orbs below already fill the screen, so the photo arriving a frame
+          // later is unnoticeable.
+          gaplessPlayback: true,
         ),
 
         // 3. Translucent scrim — keeps text/cards legible over the photo.

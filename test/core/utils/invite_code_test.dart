@@ -95,10 +95,25 @@ void main() {
       );
     });
 
-    test('linkFor falls back to the deep link when no https host is set', () {
-      // SESSION_JOIN_HOST is unset in tests, so the app scheme is the only
-      // shareable shape.
-      expect(InviteCode.linkFor('AB3K7Q'), equals(InviteCode.deepLinkFor('AB3K7Q')));
+    test('linkFor defaults to a real https link', () {
+      // SESSION_JOIN_HOST is unset in tests, so the built-in default host is
+      // used. An https link is what a messenger can actually make tappable;
+      // the custom scheme is not, which is why the default is not the quick
+      // link.
+      expect(
+        InviteCode.linkFor('AB3K7Q'),
+        equals('https://${InviteCode.defaultJoinHost}/join/AB3K7Q'),
+      );
+      expect(InviteCode.linkFor('AB3K7Q'), startsWith('https://'));
+    });
+
+    test('linkFor keeps the code as the final path segment', () {
+      // Both link shapes this app produces put the code last, which is what
+      // the parser (and the hosted /join/** page) rely on.
+      expect(
+        Uri.parse(InviteCode.linkFor('AB3K7Q')).pathSegments.last,
+        equals('AB3K7Q'),
+      );
     });
   });
 

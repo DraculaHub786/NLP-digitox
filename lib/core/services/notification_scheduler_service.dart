@@ -22,6 +22,9 @@ class NotificationSchedulerService {
 
   NotificationSchedulerService._();
 
+  /// Points awarded for ticking a reminder off from its notification action.
+  static const int scheduleCompletionPoints = 20;
+
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final _leaderboardService = LeaderboardService.instance;
@@ -172,12 +175,25 @@ class NotificationSchedulerService {
       
       // Check if this schedule was already completed today
       if (!completedToday.contains(payload)) {
+        // Award FIRST, record second. Adding `payload` to the completed list
+        // before knowing the write landed is what made a refused award
+        // permanent for the rest of the day — the user was told "20 points"
+        // and the board never changed. See `todo.md`.
+        final awarded = await _leaderboardService.addPoints(
+          scheduleCompletionPoints,
+          'Notification Schedules',
+        );
+        if (!awarded) {
+          debugPrint(
+              'Schedule points not saved for "$payload", will retry later');
+          return;
+        }
+
         completedToday.add(payload);
         await prefs.setStringList(completedKey, completedToday);
-        
-        // Award 20 points for completing notification schedule
-        await _leaderboardService.addPoints(20, 'Notification Schedules');
-        debugPrint('Awarded 20 points for completing notification schedule: $payload');
+
+        debugPrint(
+            'Awarded $scheduleCompletionPoints points for completing notification schedule: $payload');
       }
     } catch (e) {
       debugPrint('Error marking schedule completed: $e');
@@ -393,6 +409,109 @@ class NotificationSchedulerService {
       debugPrint('Cancelled all group session reminders');
     } catch (e) {
       debugPrint('Error cancelling group session reminders: $e');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Shared-session end reminders
+  //
+  // A one-off "the run has ended" heads-up, scheduled for the moment a shared
+  // session's run reaches `endAt`. It exists so a member whose phone was
+  // face-down for the whole run is nudged to reopen the app, which is the only
+  // way the completion report actually gets sent (see
+  // `SessionCompletionReconciler`). Same reasoning as the group reminders above
+  // for reusing this service: one plugin, one tap handler, a distinct id range
+  // and channel.
+  // ---------------------------------------------------------------------------
+
+  /// First notification id reserved for shared-session end reminders.
+  ///
+  /// `1000-1099` belongs to the daily schedules and `2000-2099` to the group
+  /// reminders, so this family starts at 3000 and can never cancel either.
+  static const int sessionEndBaseId = 3000;
+
+  /// How many ids the session-end range reserves.
+  static const int sessionEndIdRange = 100;
+
+  /// Cancels every pending shared-session end reminder.
+  ///
+  /// Called before re-scheduling on each reconcile, so the pending set is
+  /// always derived from the sessions that are actually still running rather
+  /// than accumulating an alarm per session the user ever started.
+  Future<void> cancelSessionEndReminders() async {
+    if (!_initialized) return;
+    try {
+      for (var i = 0; i < sessionEndIdRange; i++) {
+        await _notificationsPlugin.cancel(sessionEndBaseId + i);
+      }
+      debugPrint('Cancelled all session end reminders');
+    } catch (e) {
+      debugPrint('Error cancelling session end reminders: $e');
+    }
+  }
+
+  /// Schedules one "session ended" reminder for [sessionId] at [when].
+  ///
+  /// The id is derived from the session id rather than a caller-assigned slot:
+  /// a reconcile may run before the previous one has finished, and a collision
+  /// there would silently drop one session's reminder.
+  Future<void> scheduleSessionEndReminder({
+    required String sessionId,
+    required String title,
+    required String body,
+    required DateTime when,
+  }) async {
+    if (!_initialized) {
+      await initialize();
+    }
+
+    try {
+      final scheduledDate = tz.TZDateTime.from(when, tz.local);
+      if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
+        // The run already ended. Nothing to schedule, and asking the OS for a
+        // past time either fires immediately or is dropped.
+        return;
+      }
+
+      const androidDetails = AndroidNotificationDetails(
+        'session_end_reminders_v1',
+        'Session Finished',
+        channelDescription: 'Tells you when a shared focus run has ended',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        enableVibration: true,
+      );
+
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _notificationsPlugin.zonedSchedule(
+        sessionEndBaseId + (sessionId.hashCode.abs() % sessionEndIdRange),
+        title,
+        body,
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: _androidScheduleMode,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: '$groupReminderPayloadPrefix$sessionId',
+      );
+
+      debugPrint('✅ Scheduled session end reminder for $sessionId at '
+          '$scheduledDate');
+    } catch (e) {
+      debugPrint('❌ Error scheduling session end reminder: $e');
+      rethrow;
     }
   }
 

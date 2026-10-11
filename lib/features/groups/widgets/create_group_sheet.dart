@@ -161,13 +161,17 @@ class _CreateGroupSheetState extends ConsumerState<CreateGroupSheet> {
           width: double.infinity,
           child: FilledButton.icon(
             onPressed: busy ? null : _create,
+            // The spinner follows the button's own foreground colour rather
+            // than assuming it is literally white, so it stays legible in both
+            // palettes — the same correction applied across the shared-session
+            // sheets and this group sheet alike.
             icon: busy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.add_20_filled, size: 18),

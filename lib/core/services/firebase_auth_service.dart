@@ -310,13 +310,19 @@ class FirebaseAuthService {
           batch.delete(docRef);
         }
 
-        // Delete any badges docs referencing this uid
-        final badgesSnapshot = await firestore
-            .collection('badges')
-            .where('userId', isEqualTo: uid)
-            .get();
-        for (final doc in badgesSnapshot.docs) {
-          batch.delete(doc.reference);
+        // Delete any badges docs referencing this uid. Isolated in its own
+        // try/catch on purpose: a badges failure — a rules denial or an
+        // offline read — must never block the account deletion itself.
+        try {
+          final badgesSnapshot = await firestore
+              .collection('badges')
+              .where('userId', isEqualTo: uid)
+              .get();
+          for (final doc in badgesSnapshot.docs) {
+            batch.delete(doc.reference);
+          }
+        } catch (e) {
+          debugPrint('Failed to delete badge docs for $uid: $e');
         }
 
         await batch.commit();

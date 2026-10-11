@@ -133,22 +133,27 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     return maxStreak;
   }
 
-  String _formatWeekLabel(DateTime date) {
-    final weekOfYear = _getWeekOfYear(date);
-    return 'Week $weekOfYear, ${date.year}';
+  /// ISO-8601 week-year and week number for [d].
+  ///
+  /// n8n labels weekly badges with Luxon's `kkkk-'W'WW` — the ISO week-year and
+  /// ISO week number — not the calendar year with a clamped week count. Around
+  /// New Year the two disagree (2027-01-01 is ISO `2026-W53`), and using the
+  /// calendar year made the carousel look for a badge id n8n never wrote.
+  ({int year, int week}) _isoWeek(DateTime d) {
+    final date = DateTime.utc(d.year, d.month, d.day);
+    final thursday = date.add(Duration(days: 4 - date.weekday));
+    final jan1 = DateTime.utc(thursday.year, 1, 1);
+    return (year: thursday.year, week: (thursday.difference(jan1).inDays ~/ 7) + 1);
   }
 
   String _getWeekId(DateTime date) {
-    final weekOfYear = _getWeekOfYear(date);
-    return '${date.year}-W${weekOfYear.toString().padLeft(2, '0')}';
+    final w = _isoWeek(date);
+    return '${w.year}-W${w.week.toString().padLeft(2, '0')}';
   }
 
-  int _getWeekOfYear(DateTime date) {
-    final dayOfYear = int.parse(DateFormat('D').format(date));
-    final dayOfWeek = date.weekday; // 1=Monday, 7=Sunday
-    // ISO week: week 1 is the week with the first Thursday
-    final weekNumber = ((dayOfYear - dayOfWeek + 10) / 7).floor();
-    return weekNumber < 1 ? 1 : (weekNumber > 52 ? 52 : weekNumber);
+  String _formatWeekLabel(DateTime date) {
+    final w = _isoWeek(date);
+    return 'Week ${w.week}, ${w.year}';
   }
 
   @override
@@ -220,11 +225,15 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                               // badges against fixed weekly slots, so an
                               // early-cut list would drop an earned badge and
                               // wrongly render its slot as "not earned".
+                              //
+                              // One collection, filtered by `userId`: n8n
+                              // writes `badges/{uid}_{period}_{cycle}`, never
+                              // under the leaderboard doc. Sorting is done in
+                              // Dart — a where() plus orderBy() on a different
+                              // field would need a composite index.
                               stream: FirebaseFirestore.instance
-                                  .collection('leaderboard')
-                                  .doc(currentUserId)
                                   .collection('badges')
-                                  .orderBy('earnedAt', descending: true)
+                                  .where('userId', isEqualTo: currentUserId)
                                   .snapshots(),
                               builder: (context, badgeSnapshot) {
                                 if (badgeSnapshot.connectionState == ConnectionState.waiting) {
@@ -234,12 +243,25 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                   );
                                 }
 
+                                if (badgeSnapshot.hasError) {
+                                  return SizedBox(
+                                    height: 130,
+                                    child: Center(
+                                      child: StyledText(
+                                        "Couldn't load badges: ${badgeSnapshot.error}",
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  );
+                                }
+
                                 final badgeDocs = badgeSnapshot.data?.docs ?? [];
                                 final List<badge_model.Badge> badges = badgeDocs
                                     .map((doc) => badge_model.Badge.fromFirestore(
                                         doc.data() as Map<String, dynamic>, doc.id))
                                     .toList()
                                     .cast<badge_model.Badge>();
+                                badges.sort((a, b) => b.earnedAt.compareTo(a.earnedAt));
 
                                 // Define fixed slots for last 3 weekly cycles
                                 final now = DateTime.now();
@@ -450,10 +472,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                           children: [
                             StreamBuilder<QuerySnapshot>(
                               stream: FirebaseFirestore.instance
-                                  .collection('leaderboard')
-                                  .doc(currentUserId)
                                   .collection('badges')
-                                  .orderBy('earnedAt', descending: true)
+                                  .where('userId', isEqualTo: currentUserId)
                                   .snapshots(),
                               builder: (context, badgeSnapshot) {
                                 if (badgeSnapshot.connectionState == ConnectionState.waiting) {
@@ -461,6 +481,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                     child: Padding(
                                       padding: EdgeInsets.all(16),
                                       child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+
+                                // A denied or failed read used to look exactly
+                                // like "No badges yet". Surface it instead.
+                                if (badgeSnapshot.hasError) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: StyledText(
+                                      "Couldn't load badges: ${badgeSnapshot.error}",
+                                      fontSize: 13,
                                     ),
                                   );
                                 }
@@ -478,6 +510,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                         doc.data() as Map<String, dynamic>, doc.id))
                                     .toList()
                                     .cast<badge_model.Badge>();
+                                badges.sort((a, b) => b.earnedAt.compareTo(a.earnedAt));
 
                                 return Column(
                                   children: badges.map((badge) => _buildBadgeTile(badge, colorScheme)).toList(),

@@ -68,10 +68,15 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
 
     Navigator.pop(context);
     ref.invalidate(userSessionsProvider);
+    // The app has no "success" colour convention — every other SnackBar in the
+    // app leaves the background at its theme default. A stock `Colors.green`
+    // clashed with the muted botanical palette (and was harsh in dark mode),
+    // so this uses the palette's deep fern, matching the credited-run SnackBar
+    // in `CompleteSessionButton`.
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Joined session!'),
-        backgroundColor: Colors.green,
+        backgroundColor: DesignPalette.fernDeep,
       ),
     );
   }
@@ -83,8 +88,8 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
     final isBusy = joinState.isLoading;
 
     return SessionSheetScaffold(
-      title: 'Join by ID',
-      subtitle: 'Paste the session ID your group shared with you.',
+      title: 'Join a public session',
+      subtitle: 'Paste the ID of an open session you found in Discover.',
       icon: FluentIcons.link_20_filled,
       children: [
         if (_error != null) SessionSheetErrorBanner(message: _error!),
@@ -92,7 +97,7 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
           controller: _idCtrl,
           enabled: !isBusy,
           decoration: const InputDecoration(
-            labelText: 'Session ID',
+            labelText: 'Public session ID',
             hintText: 'e.g. -Nx8kP2vQ…',
             prefixIcon: Icon(FluentIcons.tag_20_regular),
           ),
@@ -113,12 +118,12 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
           child: FilledButton.icon(
             onPressed: isBusy ? null : _join,
             icon: isBusy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.arrow_join_20_filled, size: 18),
@@ -143,8 +148,9 @@ class _JoinByIdSheetState extends ConsumerState<JoinByIdSheet> {
             const SizedBox(width: Spacing.sm),
             Expanded(
               child: StyledText(
-                'Ask the session owner for the ID, or find an open group in '
-                'Discover. Rooms hold up to '
+                'Only open sessions can be joined by ID — find one in '
+                'Discover. A private or invite-only session can only be joined '
+                'with the code or link the host shared. Rooms hold up to '
                 '${SessionLimits.maxMembersPerSession} people, so a full one '
                 'cannot be joined.',
                 fontSize: 12,

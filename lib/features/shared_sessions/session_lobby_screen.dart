@@ -6,12 +6,14 @@ import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/enums/session_phase.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
+import 'package:nlp_digitox/core/services/session_service.dart';
 import 'package:nlp_digitox/features/shared_sessions/session_summary_screen.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_invite_panel.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_state_views.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
@@ -35,36 +37,166 @@ class SessionLobbyScreen extends ConsumerStatefulWidget {
   ConsumerState<SessionLobbyScreen> createState() => _SessionLobbyScreenState();
 }
 
-class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen> {
-  bool _hasHandledStart = false;
-  bool _hasHandledFinish = false;
+class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
+    with WidgetsBindingObserver {
+  /// Whether this screen has already pushed the active-session timer route.
+  ///
+  /// The resume re-check re-runs `_actOn` on every foreground, and the lobby
+  /// stays mounted under the pushed timer route, so without this a resume
+  /// mid-run would push a second timer screen on top of the first.
+  bool _hasOpenedTimer = false;
+
+  /// Whether this screen has already handed the finish off to the summary.
+  bool _hasOpenedSummary = false;
 
   /// Reacts to the shared phase changing.
   ///
-  /// Started here rather than in a service so the focus run is tied to a screen
-  /// that is actually on screen — leaving the lobby disposes the listener, and
-  /// only the member looking at the room is the one who starts their own run.
+  /// The "already handled" guards live on [SessionFocusBridge], not here: a
+  /// `ref.listen` only fires on a *change*, so a screen that was backgrounded
+  /// across the whole run would come back to a session that is already
+  /// `running` or `finished` and never start its own run. [didChangeAppLifecycleState]
+  /// re-evaluates the current phase on every resume to close that gap, and the
+  /// bridge's own idempotence is what makes doing so safe.
   void _onPhaseChanged(SessionPhase? previous, SessionPhase next) {
+    _actOn(next);
+  }
+
+  /// Performs the side effect for the current [phase], if any.
+  void _actOn(SessionPhase phase) {
     final session = ref.read(sessionStreamProvider(widget.sessionId)).valueOrNull;
     if (session == null) return;
 
-    if (next == SessionPhase.running && !_hasHandledStart) {
-      _hasHandledStart = true;
+    if (phase == SessionPhase.running) {
       _beginFocusRun(session);
-    } else if (next == SessionPhase.finished && !_hasHandledFinish) {
-      _hasHandledFinish = true;
+    } else if (phase == SessionPhase.finished) {
       _finishRun(session);
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Presence is announced while the member is still *in the lobby*, not only
+    // once the run starts. Joining the room already starts it, but a cold start
+    // straight back into an open lobby does not — and the host decides who is
+    // in the room from exactly this list. Same call is idempotent, so a rejoin
+    // that already started it costs nothing.
+    SessionService.instance.startPresenceHeartbeat(widget.sessionId);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Re-evaluates the phase whenever the screen is brought back to front.
+  ///
+  /// This is the path that matters for a real run: the member backgrounds the
+  /// app for the whole 25 minutes, and when they return the phase has long
+  /// since flipped. No `ref.listen` fires for a change that happened while the
+  /// widget was paused, so it is handled here instead.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    if (!mounted) return;
+    _actOn(ref.read(sessionPhaseProvider(widget.sessionId)));
+  }
+
   Future<void> _beginFocusRun(SharedSession session) async {
+    if (_hasOpenedTimer) return;
+
+    // Without the permissions that actually enforce a focus run the room would
+    // "start" and block nothing — the member serves a session that does not
+    // exist on their device. So the run is not started at all; the latch is
+    // deliberately left unset so the resume re-check in
+    // [didChangeAppLifecycleState] starts it for real once the user grants what
+    // was missing and comes back. A latch set before the check would make that
+    // retry impossible.
+    final permissions = ref.read(permissionProvider);
+    if (!permissions.hasAllEssentialPermissions) {
+      debugPrint(
+        'SessionLobbyScreen: not starting focus for ${session.id} — '
+        'essential permissions are missing',
+      );
+      // The check used to `debugPrint` and return, so a member missing a
+      // permission saw nothing: the lobby simply sat there and the run never
+      // started blocking. The notice says why, and the "Fix" action opens the
+      // permission screen; the resume re-check above starts the run for real
+      // once they are granted and the user comes back.
+      if (mounted) _showMissingPermissionsNotice();
+      return;
+    }
+
+    // A run whose remaining time has already reached zero is over. The engine
+    // reads a non-positive `durationSec` as "use the session's whole length",
+    // so without this a member still on the running phase as the clock crossed
+    // zero would be dropped into a fresh full-length run after the room had
+    // ended. The finished phase handles that case instead.
+    final remaining = _remainingRunSec(session);
+    if (remaining != null && remaining <= 0) return;
+
+    _hasOpenedTimer = true;
+
     final focus = ref.read(focusModeProvider.notifier);
-    await SessionFocusBridge.instance.startRun(session: session, focus: focus);
+    await SessionFocusBridge.instance.startRun(
+      session: session,
+      focus: focus,
+      // How long *this* device still has to focus, from the shared clock —
+      // never from this member's own profile duration. Someone who arrives
+      // late must still end with everyone else.
+      durationSec: remaining,
+    );
     if (!mounted) return;
     Navigator.of(context).pushNamed(AppRoutes.activeSessionPath);
   }
 
+  /// Tells the member, visibly, why the room has not started blocking.
+  ///
+  /// The permission check used to be silent, which read as "the session never
+  /// started" rather than "you are missing a permission". The snackbar stays
+  /// up long enough to be read and offers the one action that unblocks it.
+  void _showMissingPermissionsNotice() {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 8),
+          content: const Text(
+            'Grant the missing permissions so this session can block '
+            'distracting apps. It will start when you come back.',
+          ),
+          action: SnackBarAction(
+            label: 'Fix',
+            onPressed: () => Navigator.of(context).pushNamed(
+              AppRoutes.onboardingPath,
+              arguments: const {'permissionsOnly': true},
+            ),
+          ),
+        ),
+      );
+  }
+
+  /// Seconds left in the shared run, or null when the run has not begun.
+  ///
+  /// Derived from `runStartAt + countdown + duration` against the server clock
+  /// rather than from the member's own settings: the room's length is what
+  /// everyone is measured against, and it is the same subtraction the timer
+  /// screen performs. A null (still in the lobby) falls back to the session's
+  /// whole duration inside [SessionFocusBridge.startRun].
+  int? _remainingRunSec(SharedSession session) {
+    final clock = ref.read(sessionClockProvider);
+    final nowMs =
+        ref.read(sessionTickerProvider).valueOrNull ?? clock.nowMs();
+    return session.remainingSecAt(nowMs);
+  }
+
   Future<void> _finishRun(SharedSession session) async {
+    if (_hasOpenedSummary) return;
+    _hasOpenedSummary = true;
+
     await SessionFocusBridge.instance.completeRun(session);
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
@@ -79,6 +211,24 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen> {
     ref.listen<SessionPhase>(
       sessionPhaseProvider(widget.sessionId),
       _onPhaseChanged,
+    );
+
+    // A member whose focus run is still going must stop it when the host
+    // cancels the room: nothing else ends it, and they would otherwise stay
+    // blocked inside a session that no longer exists. This covers the case
+    // where this screen is on screen; the completion reconciler covers the
+    // rest (app reopened, or the screen never mounted).
+    ref.listen<AsyncValue<SharedSession?>>(
+      sessionDetailProvider(widget.sessionId),
+      (previous, next) {
+        final session = next.valueOrNull;
+        final focus = ref.read(focusModeProvider.notifier);
+        if (session != null &&
+            session.isCancelled &&
+            focus.isInSharedSessionFocus) {
+          focus.endSharedSession();
+        }
+      },
     );
 
     final sessionAsync = ref.watch(sessionStreamProvider(widget.sessionId));

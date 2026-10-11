@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nlp_digitox/config/app_constants.dart';
@@ -177,16 +179,23 @@ class _ScaffoldShellState extends State<ScaffoldShell>
     return AnimatedBuilder(
       animation: _appBarScrollOffSet,
       builder: (context, constraints) {
+        // A tall fixed header leaves almost no room for the body in a short
+        // window — tablet landscape, split-screen, or a small emulator profile
+        // — and that is what overflows first. Capping the expanded height at
+        // 30% of the screen guarantees the header can never eat the body.
+        final maxHeaderHeight = MediaQuery.sizeOf(context).height * 0.3;
+        final headerHeight = min(widget.appBarExpandedHeight, maxHeaderHeight);
+
         // Calculate the scroll percentage
         final percentage = (_appBarScrollOffSet.value /
-                (widget.appBarExpandedHeight - kToolbarHeight))
+                (headerHeight - kToolbarHeight))
             .clamp(0.0, 1.0);
 
         // Interpolate left padding for the AppBar's title
         final leftPadding = widget.canGoBack ? 44 * percentage : 0.0;
 
         return SliverAppBar(
-          expandedHeight: widget.appBarExpandedHeight,
+          expandedHeight: headerHeight,
           collapsedHeight: kToolbarHeight,
           pinned: !_haveMultiTabs,
           stretch: true,

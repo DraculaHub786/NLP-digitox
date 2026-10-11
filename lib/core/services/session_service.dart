@@ -2,10 +2,12 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'dart:math' show min;
 import 'package:nlp_digitox/core/constants/session_limits.dart';
 import 'package:nlp_digitox/core/services/device_identity.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
-import 'package:nlp_digitox/core/services/productivity_points_service.dart';
+import 'package:nlp_digitox/core/services/session_clock.dart';
+import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
 import 'package:nlp_digitox/core/services/session_presence_service.dart';
 import 'package:nlp_digitox/core/utils/invite_code.dart';
 import 'package:nlp_digitox/models/session_result.dart';
@@ -43,6 +45,21 @@ class SessionService {
 
   /// Singleton instance
   static final SessionService instance = SessionService._();
+
+  /// Builds a service bound to [database] instead of the process-wide
+  /// singleton — for the join and create tests.
+  ///
+  /// Those two paths read *and* write through this handle, so a test has to be
+  /// able to hand in an emulator instance instead of being forced onto
+  /// `FirebaseDatabase.instance`, which needs a real, configured project and so
+  /// cannot run in CI. `_isInitialized` is set here as a side effect so a later
+  /// [init] cannot quietly swap the injected handle back out for the global one
+  /// — `init` returns early once it is true.
+  @visibleForTesting
+  SessionService.withDatabase(FirebaseDatabase database)
+      : _database = database {
+    _isInitialized = true;
+  }
 
   /// Firebase Realtime Database instance
   FirebaseDatabase? _database;
@@ -181,6 +198,21 @@ class SessionService {
         _isFirebaseAvailable = false;
       }
 
+      // Start the shared clock as soon as the database handle exists.
+      //
+      // Every countdown and every "is this run over?" answer is computed from
+      // `SessionClock`, which learns the server offset by subscribing to
+      // `.info/serverTimeOffset` — a subscription that only begins once
+      // `start()` is called. The only other caller is the `sessionClockProvider`
+      // getter, first read when a session *screen* mounts, so a session created
+      // and started before any such screen existed was judged against the
+      // device's raw wall clock. `start()` is idempotent and the clock keeps its
+      // offset across `stop()`, so calling it here costs nothing when it is
+      // already running.
+      if (_isFirebaseAvailable) {
+        SessionClock.instance.start();
+      }
+
       _isInitialized = true;
       debugPrint('SessionService: Initialized successfully');
     } catch (e) {
@@ -307,6 +339,11 @@ class SessionService {
           // code at all, because it fails silently for whoever receives it.
           'invites/$inviteCode': {
             'sid': sessionId,
+            // `hostUid` is what `database.rules.json` checks to decide whether
+            // this create is allowed. It reads the invite itself rather than
+            // the session, because the session does not exist yet in the rule's
+            // view of the data — it is being written in this same update.
+            'hostUid': userId,
             'title': name,
             'type': type,
             'durationSec': session.durationSec,
@@ -316,6 +353,10 @@ class SessionService {
           },
           if (isPublic)
             'publicSessions/$sessionId': _withoutNulls({
+              // Same reason as the invite: the public-index write is authorised
+              // by `hostUid` on the entry itself, so a stranger cannot create
+              // or overwrite a public listing for a session they do not own.
+              'hostUid': userId,
               'name': name,
               'theme': theme,
               'memberCount': 1,
@@ -343,91 +384,17 @@ class SessionService {
   }
 
   /// Join an existing session by ID.
+  ///
+  /// Delegates to [_joinAsMember] so the ID-join and the code-join paths cannot
+  /// drift apart. They used to be two near-identical copies, and the copy here
+  /// was the weaker one: it lacked the lobby-only check, so joining a
+  /// *running* room by ID reported success and landed the user nowhere, and it
+  /// re-checked `isPublic` differently from the code path.
   Future<void> joinSession({
     required String sessionId,
     required String displayName,
-  }) async {
-    try {
-      await _ensureInitialized();
-
-      final userId = FirebaseAuthService.instance.userId;
-      if (userId == null) throw StateError('User not authenticated');
-      if (displayName.isEmpty) throw ArgumentError('Display name cannot be empty');
-
-      final deviceId = DeviceIdentityService.instance.deviceId;
-
-      if (_isFirebaseAvailable && _database != null) {
-        final sessionSnap = await _onDatabase(
-          () => _database!.ref('sessions/$sessionId').get(),
-        );
-
-        if (!sessionSnap.exists) {
-          throw const SessionException(
-            'This session no longer exists. The owner may have ended it.',
-          );
-        }
-
-        final session = SharedSession.fromMap(
-            Map<String, dynamic>.from(sessionSnap.value as Map));
-
-        if (session.isCompleted || !session.isActive) {
-          throw const SessionException(
-            'This session has already finished, so you can no longer join it.',
-          );
-        }
-
-        // Membership is tested before capacity on purpose: someone already in
-        // a full session is *returning*, not joining, and must not be turned
-        // away by the cap they help fill.
-        if (session.members.any((m) => m.userId == userId)) {
-          // Already in: nothing to write, but the heartbeat must still run.
-          debugPrint('SessionService: User already in session');
-        } else if (session.isFull) {
-          throw SessionException(SessionLimits.fullSessionMessage);
-        } else {
-          final now = DateTime.now();
-          final newMember = SessionMember(
-            userId: userId,
-            deviceId: deviceId,
-            displayName: displayName,
-            joinedAt: now,
-            isActive: true,
-            lastActive: now,
-          );
-
-          // Membership and the user's own session index land together or not
-          // at all, so a dropped connection can never leave one without the
-          // other. `memberCount` on the public index is deliberately no longer
-          // written here: only the owner may write that node, and the live
-          // count is derived from this member map when the Discover list is
-          // read — see `getPublicSessions`.
-          // The capacity read above cannot be atomic with this write, so two
-          // people tapping Join in the same instant can both pass the check.
-          // The rules close that race; turn their rejection into the same
-          // message the pre-check would have produced rather than letting a
-          // bare permission-denied reach the user as "sign out and back in".
-          try {
-            await _onDatabase(
-              () => _database!.ref().update({
-                'sessions/$sessionId/members/$userId': newMember.toMap(),
-                'users/$userId/sessions/$sessionId': true,
-              }),
-            );
-          } catch (error) {
-            throw await _translateJoinFailure(sessionId, error);
-          }
-        }
-      }
-
-      // Auto-start presence heartbeat
-      startPresenceHeartbeat(sessionId);
-
-      debugPrint('SessionService: Joined session $sessionId');
-    } catch (e) {
-      debugPrint('SessionService: Error joining session: $e');
-      rethrow;
-    }
-  }
+  }) =>
+      _joinAsMember(sessionId: sessionId, displayName: displayName);
 
   /// Leave a session
   Future<void> leaveSession({required String sessionId}) async {
@@ -489,11 +456,7 @@ class SessionService {
   /// when they observe [SharedSession.completedAt] — see
   /// [_claimCompletionPointsIfFinished], which both `getSession` and
   /// `listenToSession` trigger.
-  Future<SharedSession> completeSession({
-    required String sessionId,
-    int pointsPerMember =
-        ProductivityPointsService.sharedSessionCompletionPoints,
-  }) async {
+  Future<SharedSession> completeSession({required String sessionId}) async {
     try {
       await _ensureInitialized();
 
@@ -534,10 +497,10 @@ class SessionService {
       _stopPresenceHeartbeat(sessionId);
       _sessionCache[sessionId] = completed;
 
-      await ProductivityPointsService.instance.awardSharedSessionCompletionPoints(
-        sessionId: sessionId,
-        points: pointsPerMember,
-      );
+      // Ask the server to verify and pay every member — the owner included.
+      // The client writes no points for this: `SessionCompletionService` posts
+      // the session id and an ID token, and the workflow decides.
+      unawaited(SessionFocusBridge.instance.completeRun(completed));
 
       debugPrint('SessionService: Completed session $sessionId');
       return completed;
@@ -547,29 +510,29 @@ class SessionService {
     }
   }
 
-  /// Pays the signed-in user for [session] if it has been completed.
+  /// Reports [session] to the server for verification if the signed-in member
+  /// finished it.
   ///
-  /// Safe to call repeatedly: `ProductivityPointsService` de-dupes by session
-  /// id, so the worst case is one cheap SharedPreferences read. This is the
-  /// only way a non-owner member can be credited, because a client may not
-  /// write another user's leaderboard doc.
+  /// Safe to call repeatedly — `SessionFocusBridge.completeRun` de-dupes per
+  /// session per launch, and the webhook de-dupes per `sid + uid`. This is the
+  /// path a non-owner member takes: they cannot write points for themselves in
+  /// this design, so they ask the server to check the run and credit them.
   Future<void> _claimCompletionPointsIfFinished(SharedSession session) async {
     try {
       final userId = FirebaseAuthService.instance.userId;
       if (userId == null) return;
 
-      // Only a genuine completion pays out, and only to members still on the
-      // session. A session also goes inactive when its owner merely leaves it,
-      // which must not pay anyone — see
+      // Only a genuine completion triggers a report, and only for members
+      // still on the session. A session also goes inactive when its owner
+      // merely leaves it, which must not report anything — see
       // SharedSession.isEligibleForCompletionPayout.
       if (!session.isEligibleForCompletionPayout(userId)) return;
 
       _stopPresenceHeartbeat(session.id);
 
-      await ProductivityPointsService.instance
-          .awardSharedSessionCompletionPoints(sessionId: session.id);
+      unawaited(SessionFocusBridge.instance.completeRun(session));
     } catch (e) {
-      debugPrint('SessionService: Error claiming completion points: $e');
+      debugPrint('SessionService: Error reporting completion: $e');
     }
   }
 
@@ -653,68 +616,73 @@ class SessionService {
     }
   }
 
-  /// Get public sessions (for join-by-browse)
+  /// Get public sessions (for join-by-browse).
+  ///
+  /// Every entry is verified against its session document before it is shown,
+  /// because `publicSessions/{id}` is only an index and can outlive the room it
+  /// points at — a cancelled, completed or deleted session leaves an orphan
+  /// entry behind, and the index on its own has no way to tell a running room
+  /// from a dead one. Dead entries are removed (best effort) rather than merely
+  /// hidden, so Discover cleans itself up for everyone.
+  ///
+  /// An entry whose session cannot be read (offline, timeout) is *shown*, never
+  /// deleted: a transient network failure must not silently drop a live room.
   Future<List<Map<String, dynamic>>> getPublicSessions({int limit = 30}) async {
     try {
       await _ensureInitialized();
-
       if (!_isFirebaseAvailable || _database == null) return [];
 
       final snapshot = await _onDatabase(
         () => _database!.ref('publicSessions').limitToFirst(limit).get(),
       );
-      if (!snapshot.exists) return [];
+      if (!snapshot.exists || snapshot.value is! Map) return [];
 
+      final userId = FirebaseAuthService.instance.userId;
       final raw = Map<String, dynamic>.from(snapshot.value as Map);
-      final sessions = raw.entries.map((e) {
-        final data = Map<String, dynamic>.from(e.value as Map);
-        data['id'] = e.key;
-        return data;
-      }).toList();
+      final nowMs = SessionClock.instance.nowMs();
+      final live = <Map<String, dynamic>>[];
+      final dead = <String>[];
 
-      // `publicSessions/{id}` only holds what was written when the session was
-      // created — the rules let nobody but the owner write that node, so it
-      // cannot track members joining and leaving, and a session created before
-      // the member cap existed carries no usable `maxMembers` at all. Normalize
-      // the cap first so every card has a denominator, then overwrite both
-      // fields from the session itself.
-      for (final entry in sessions) {
-        entry['maxMembers'] = SessionLimits.normalizeMaxMembers(
-          _asIntOrNull(entry['maxMembers']),
-        );
+      await Future.wait(raw.entries.map((e) async {
+        final entry = Map<String, dynamic>.from(e.value as Map)..['id'] = e.key;
+        try {
+          final snap = await _database!
+              .ref('sessions/${e.key}')
+              .get()
+              .timeout(_networkTimeout);
+          if (!snap.exists || snap.value is! Map) {
+            dead.add(e.key); // session deleted: the index entry is an orphan
+            return;
+          }
+          final session =
+              SharedSession.fromMap(Map<String, dynamic>.from(snap.value as Map));
+          if (session.isCancelled ||
+              !session.isLobby ||
+              !session.isLiveAt(nowMs)) {
+            dead.add(e.key);
+            return;
+          }
+          entry['memberCount'] = session.memberCount;
+          entry['maxMembers'] = session.maxMembers;
+          entry['isMember'] = session.members.any((m) => m.userId == userId);
+          live.add(entry);
+        } catch (err) {
+          // Could not verify (offline/timeout): show it, never delete it.
+          debugPrint('SessionService: could not verify ${e.key}: $err');
+          entry['maxMembers'] = SessionLimits.normalizeMaxMembers(
+            _asIntOrNull(entry['maxMembers']),
+          );
+          live.add(entry);
+        }
+      }));
+
+      for (final id in dead) {
+        unawaited(_bestEffortRemove('publicSessions/$id'));
       }
-      await Future.wait(sessions.map(_attachLiveCapacity));
-      return sessions;
+      return live;
     } catch (e) {
       debugPrint('SessionService: Error getting public sessions: $e');
       return [];
-    }
-  }
-
-  /// Overwrites an entry's `memberCount` and `maxMembers` with the values read
-  /// from `sessions/{id}`.
-  ///
-  /// One read of the session supplies both, so this costs the same round trip
-  /// the member-count lookup used to. If it fails the entry keeps the
-  /// normalized cap it was given and its last known count — exactly what the
-  /// card rendered before this read existed.
-  Future<void> _attachLiveCapacity(Map<String, dynamic> entry) async {
-    final sessionId = entry['id'] as String?;
-    if (sessionId == null || _database == null) return;
-
-    try {
-      final snapshot = await _database!
-          .ref('sessions/$sessionId')
-          .get()
-          .timeout(_networkTimeout);
-      final value = snapshot.value;
-      if (value is! Map) return;
-
-      final session = SharedSession.fromMap(Map<String, dynamic>.from(value));
-      entry['memberCount'] = session.memberCount;
-      entry['maxMembers'] = session.maxMembers;
-    } catch (e) {
-      debugPrint('SessionService: capacity lookup failed for $sessionId: $e');
     }
   }
 
@@ -901,6 +869,18 @@ class SessionService {
       return;
     }
 
+    // An ID join (no code) is only a join key for a *public* session. For a
+    // private or invite-only room the ID is discoverable — it is the push key
+    // in the session's own URL — so accepting it here would let in anyone who
+    // ever saw the ID once. The rules enforce the same condition server-side;
+    // this is the message the user actually sees.
+    if (code == null && !session.isPublic) {
+      throw const SessionException(
+        'This session is private. Join it with the invite code or link the '
+        'host shared.',
+      );
+    }
+
     if (session.isFull) {
       throw SessionException(SessionLimits.fullSessionMessage);
     }
@@ -989,6 +969,11 @@ class SessionService {
       }),
     );
 
+    // Mid-run joins are not allowed, so a room that has started has no business
+    // staying on Discover. Best effort on purpose: a failed delist must not
+    // undo the start, which is the one write the whole run depends on.
+    await _bestEffortRemove('publicSessions/$sessionId');
+
     _stopPresenceHeartbeat(sessionId);
     unawaited(
       SessionPresenceService.instance.setStatus(
@@ -1001,34 +986,66 @@ class SessionService {
   }
 
   /// Cancels a session before it finishes. Host only.
+  ///
+  /// Deliberately splits the authoritative write from the index cleanup. The
+  /// old version made the state change, the Discover delist and the invite
+  /// delete one atomic `update()`: a single denied path (for example an invite
+  /// created before `hostUid` existed) failed the whole write, so the session
+  /// stayed live and the user saw a raw permission error.
   Future<void> cancelSession({required String sessionId}) async {
     await _ensureInitialized();
 
     final userId = FirebaseAuthService.instance.userId;
     if (userId == null) throw StateError('User not authenticated');
-    if (!_isFirebaseAvailable || _database == null) return;
+    if (!_isFirebaseAvailable || _database == null) {
+      throw const SessionException(
+        'Could not reach the server to cancel. Check your connection and try '
+        'again.',
+      );
+    }
 
     final session = await getSession(sessionId);
-    if (session == null) return;
+    if (session == null) {
+      throw const SessionException('This session no longer exists.');
+    }
     if (!session.isOwnedBy(userId)) {
       throw const SessionException('Only the host can cancel this session.');
     }
 
-    final code = session.inviteCode;
+    // 1. The authoritative write. Nothing else is allowed to make it fail.
     await _onDatabase(
-      () => _database!.ref().update({
-        'sessions/$sessionId/state': SharedSessionState.cancelled.wireName,
-        'sessions/$sessionId/isActive': false,
-        if (session.isPublic) 'publicSessions/$sessionId': null,
-        // A cancelled session's code must stop working immediately, or someone
-        // who was sent it lands in a room that no longer runs.
-        if (code != null) 'invites/$code': null,
+      () => _database!.ref('sessions/$sessionId').update({
+        'state': SharedSessionState.cancelled.wireName,
+        'isActive': false,
       }),
     );
+
+    // 2. Index cleanup, one path at a time and best effort. A denied or failed
+    //    delete here must never undo or hide the cancel itself.
+    await _bestEffortRemove('publicSessions/$sessionId');
+    final code = session.inviteCode;
+    if (code != null) await _bestEffortRemove('invites/$code');
+    await _bestEffortRemove('users/$userId/sessions/$sessionId');
 
     _stopPresenceHeartbeat(sessionId);
     _sessionCache.remove(sessionId);
     debugPrint('SessionService: Cancelled session $sessionId');
+  }
+
+  /// Removes a database path, swallowing any failure.
+  ///
+  /// Used only for index cleanup that must never be allowed to fail the write
+  /// it follows — cancelling a session, delisting a started one. The failure is
+  /// logged, never thrown: a stale index entry is a cosmetic problem, whereas a
+  /// failed cancel leaves a dead room advertised as joinable.
+  Future<void> _bestEffortRemove(String path) async {
+    final database = _database;
+    if (database == null) return;
+    try {
+      await database.ref(path).remove().timeout(_networkTimeout);
+    } catch (e) {
+      debugPrint('SessionService: could not remove $path: $e');
+    }
   }
 
   /// Records that the signed-in member broke focus by stopping early.
@@ -1049,7 +1066,14 @@ class SessionService {
             .runTransaction((current) {
           final value = current;
           final count = value is int ? value : 0;
-          return Transaction.success(count + 1);
+          // Clamp to the cap **plus one** rather than counting without a
+          // ceiling. The rule refuses anything above the cap, so an uncapped
+          // `count + 1` let the server silently clamp five breaks down to the
+          // cap — leaving the member inside the credit window — while the
+          // extra step keeps "over the cap" visible at [maxStoredBreaks].
+          return Transaction.success(
+            min(count + 1, SessionLimits.maxStoredBreaks),
+          );
         }),
       );
       debugPrint('SessionService: Recorded focus break in $sessionId');

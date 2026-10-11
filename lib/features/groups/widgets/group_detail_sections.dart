@@ -303,13 +303,15 @@ class GroupActionBar extends StatelessWidget {
               onPressed: (isBusy || isStartingRun || !canStart)
                   ? null
                   : onStartRun,
+              // Follows the button's own foreground colour rather than a
+              // literal white, so it reads correctly in both palettes.
               icon: isStartingRun
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: colorScheme.onPrimary,
                       ),
                     )
                   : const Icon(FluentIcons.play_20_filled, size: 18),

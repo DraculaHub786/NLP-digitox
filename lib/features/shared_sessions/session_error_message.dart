@@ -19,8 +19,14 @@ String sessionErrorMessage(Object error, String action) {
   final message = error.toString();
   if (message.contains('permission-denied') ||
       message.contains('PERMISSION_DENIED')) {
-    return 'The server rejected this request. Please sign out and back in, '
-        'then try again.';
+    // A rules rejection is not an auth problem, and saying "sign out and back
+    // in" sent people to re-authenticate over a validation failure. The two
+    // actions have different causes, so they get different advice.
+    return action == 'create'
+        ? 'The server refused this session. Keep the name under 80 '
+            'characters and try again. If it keeps failing, update the app.'
+        : 'The server refused this join. The invite may have expired, or the '
+            'room may have already started. Ask the host for a fresh code.';
   }
   if (message.contains('not authenticated')) {
     return 'Please sign in again to $action a session.';

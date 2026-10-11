@@ -32,6 +32,16 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
   final _formKey = GlobalKey<FormState>();
 
   bool _isPublic = false;
+
+  /// The shared run length, in minutes, picked from
+  /// [SessionLimits.durationOptionsMinutes].
+  ///
+  /// The sheet used to omit this entirely, so every room was created at the
+  /// 25-minute default and each member's local focus run was unrelated to the
+  /// room's own length.
+  int _durationMin =
+      SessionLimits.defaultDurationSec ~/ Duration.secondsPerMinute;
+
   String? _error;
 
   @override
@@ -52,6 +62,7 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
               ? null
               : _descCtrl.text.trim(),
           isPublic: _isPublic,
+          durationSec: _durationMin * Duration.secondsPerMinute,
         );
 
     if (!mounted) return;
@@ -91,6 +102,10 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
                 controller: _nameCtrl,
                 textInputAction: TextInputAction.next,
                 enabled: !isBusy,
+                // The rules refuse anything longer than this, and a rejection
+                // arrives as a bare `permission-denied` — so the form stops it
+                // here rather than letting the write explain it.
+                maxLength: SessionLimits.maxNameLength,
                 decoration: const InputDecoration(
                   labelText: 'Session name',
                   hintText: 'e.g. Morning Study Group',
@@ -119,6 +134,12 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
                 onChanged: (value) => setState(() => _isPublic = value),
               ),
               const SizedBox(height: Spacing.md),
+              _DurationTile(
+                minutes: _durationMin,
+                enabled: !isBusy,
+                onChanged: (value) => setState(() => _durationMin = value),
+              ),
+              const SizedBox(height: Spacing.md),
               const _CapacityTile(),
               const SizedBox(height: Spacing.lg),
               SizedBox(
@@ -126,12 +147,12 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
                 child: FilledButton.icon(
                   onPressed: isBusy ? null : _submit,
                   icon: isBusy
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: colorScheme.onPrimary,
                           ),
                         )
                       : const Icon(FluentIcons.add_20_filled, size: 18),
@@ -170,6 +191,142 @@ class _CreateSessionSheetState extends ConsumerState<CreateSessionSheet> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// How long the shared run lasts, chosen from a fixed set of lengths.
+///
+/// The value goes to the server as `durationSec`, and it is what every member's
+/// focus run is measured against once the host starts — so it is picked here,
+/// once, rather than inferred per device.
+class _DurationTile extends StatelessWidget {
+  const _DurationTile({
+    required this.minutes,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final int minutes;
+  final bool enabled;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(Spacing.md),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(Radii.md),
+        border: Border.all(
+          color: colorScheme.tertiary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                FluentIcons.timer_20_filled,
+                size: 20,
+                color: colorScheme.tertiary,
+              ),
+              const SizedBox(width: Spacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StyledText(
+                      'Focus length',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    StyledText(
+                      'Everyone focuses for $minutes min, ending together.',
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      height: 1.35,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: Spacing.md),
+          // A wrap, not a row: seven options overflow a narrow phone, and a
+          // clipped choice is one the user cannot make.
+          Wrap(
+            spacing: Spacing.sm,
+            runSpacing: Spacing.sm,
+            children: [
+              for (final option in SessionLimits.durationOptionsMinutes)
+                _DurationChoice(
+                  minutes: option,
+                  selected: option == minutes,
+                  enabled: enabled,
+                  onTap: () => onChanged(option),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One selectable run length.
+class _DurationChoice extends StatelessWidget {
+  const _DurationChoice({
+    required this.minutes,
+    required this.selected,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final int minutes;
+  final bool selected;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = selected ? colorScheme.tertiary : colorScheme.outline;
+
+    return Material(
+      color: selected
+          ? accent.withValues(alpha: 0.16)
+          : colorScheme.surface.withValues(alpha: 0.4),
+      borderRadius: BorderRadius.circular(Radii.pill),
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(Radii.pill),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.md,
+            vertical: Spacing.sm,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Radii.pill),
+            border: Border.all(
+              color: accent.withValues(alpha: selected ? 0.6 : 0.25),
+            ),
+          ),
+          child: StyledText(
+            '$minutes min',
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? accent : colorScheme.onSurface,
+            maxLines: 1,
+          ),
+        ),
+      ),
     );
   }
 }

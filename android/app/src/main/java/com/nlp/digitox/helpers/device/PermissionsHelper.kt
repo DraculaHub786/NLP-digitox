@@ -4,6 +4,7 @@ package com.nlp.digitox.helpers.device
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.AlarmManager
 import android.app.AppOpsManager
 import android.app.NotificationManager
@@ -448,5 +449,92 @@ object PermissionsHelper {
             }
         }
         return false
+    }
+
+    /**
+     * Raw diagnostic snapshot for the "why did the permission page come back"
+     * question, exposed over the method channel.
+     *
+     * Deliberately reports the *unprocessed* inputs rather than a boolean:
+     * [isAccessibilityServiceEnabled] can only answer yes/no, and when the
+     * answer is "no" the only way to tell "Android cleared our component name"
+     * apart from "we are matching the wrong component name" is to compare the
+     * two strings. Print this from a release build after a force-stop and read
+     * `enabled_services_raw` against `expected_component`.
+     */
+    fun backgroundDiagnostics(context: Context): Map<String, Any?> {
+        val expectedComponent =
+            ComponentName(context, DigitoxAccessibilityService::class.java)
+                .flattenToString()
+
+        val enabledServicesRaw = try {
+            Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "backgroundDiagnostics: could not read enabled services", e)
+            null
+        }
+
+        val ignoringBatteryOptimizations = try {
+            val powerManager =
+                context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            powerManager?.isIgnoringBatteryOptimizations(context.packageName)
+        } catch (e: Exception) {
+            Log.w(TAG, "backgroundDiagnostics: battery lookup failed", e)
+            null
+        }
+
+        val canScheduleExactAlarms = try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                true
+            } else {
+                val alarmManager =
+                    context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+                alarmManager?.canScheduleExactAlarms()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "backgroundDiagnostics: alarm lookup failed", e)
+            null
+        }
+
+        return mapOf(
+            "expected_component" to expectedComponent,
+            "enabled_services_raw" to enabledServicesRaw,
+            "has_accessibility_permission" to isAccessibilityServiceEnabled(context),
+            "is_accessibility_service_active" to isAccessibilityServiceActive(context),
+            "ignoring_battery_optimizations" to ignoringBatteryOptimizations,
+            "can_schedule_exact_alarms" to canScheduleExactAlarms,
+            "last_exit_reason" to lastProcessExitReason(context),
+            "sdk_int" to Build.VERSION.SDK_INT,
+        )
+    }
+
+    /**
+     * Human-readable summary of how our process last ended (Android 11+), or
+     * null when the API is unavailable or has nothing recorded. "USER_REQUESTED"
+     * or "SIGNALED" here is the proof that a force-stop cleared the grant.
+     */
+    private fun lastProcessExitReason(context: Context): String? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return null
+
+        return try {
+            val activityManager =
+                context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                    ?: return null
+            val reasons = activityManager.getHistoricalProcessExitReasons(
+                context.packageName,
+                0,
+                1,
+            )
+            if (reasons.isEmpty()) return null
+
+            val reason = reasons.first()
+            "${reason.reason}:${reason.description ?: ""}"
+        } catch (e: Exception) {
+            Log.w(TAG, "lastProcessExitReason: lookup failed", e)
+            null
+        }
     }
 }

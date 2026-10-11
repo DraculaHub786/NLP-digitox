@@ -76,17 +76,40 @@ android/app/*.keystore
 # Large generated files
 /lib/l10n/generated/
 
+# Node dependencies and npm scratch (the rules tests, Cloud Functions, and any
+# ad-hoc npm install run inside the repo). `npm install` recreates all of it and
+# none of it is source, so it must not be committed or pushed.
+**/node_modules/
+**/.npm/
+**/package-lock.json
+**/node_modules/.package-lock.json
+**/npm-debug.log*
+**/yarn-error.log*
+**/*.tsbuildinfo
+
+# Firebase emulator output written next to the config that started it.
+**/firebase-debug.log
+**/firebase-debug.*.log
+**/database-debug.log
+**/firestore-debug.log
+**/ui-debug.log
+**/*-debug.log
+
 # Firebase Cloud Functions
-/functions/node_modules/
 /functions/lib/
-/functions/firebase-debug.log
-/functions/firebase-debug.*.log
 /functions/.runtimeconfig.json
 /functions/.env
 /functions/.env.*
 /functions/.firebase/
 /functions/.eslintcache
-/functions/package-lock.json
+
+# Scratch output from local test/analysis runs.
+/rules_test_out.txt
+/test_out.txt
+/*_out.txt
+
+# Realtime Database rules test scratch (kept out of the push).
+/test/rules/.firebase/
 
 # Project status/temporary markdown files (keep README.md and docs/*.md tracked)
 /AGENT_PROMPT.md
@@ -123,3 +146,16 @@ todo.md
 completed.md
 # Scratch/temporary files created by tooling or investigations.
 tmp_*
+# Ad-hoc test/verification scripts dropped in the repo root (real tests live
+# under test/). These are not part of the app and must not be committed again.
+/test_*.dart
+/test_*.ps1
+/fix_leave*.py
+/fix_leave*.ps1
+/analyze_out.txt
+/unused_output.txt
+/unused_files_list.txt
+/unused_assets.txt
+dangit.md
+ui fixes.md
+test/firestore_rules/run_output.txt

@@ -382,8 +382,8 @@ class _SessionActions extends ConsumerWidget {
     // so the group-focus action stays reachable for every active session
     // instead of being disabled until somebody configures a shared one. That
     // gate made group focus impossible for every session created in the app,
-    // because the create sheet never supplied settings.
-    final settings = session.groupFocusSettings;
+    // because the create sheet never supplied settings. The engine resolves
+    // them from the session itself now, so nothing is unpacked here.
     final canFocus = session.canStartGroupFocus;
 
     return Column(
@@ -433,10 +433,7 @@ class _SessionActions extends ConsumerWidget {
                       // the active-session screen builds.
                       await ref
                           .read(focusModeProvider.notifier)
-                          .startSessionFromSharedSettings(
-                            settings: settings,
-                            sessionId: session.id,
-                          );
+                          .startSessionFromSharedSettings(session: session);
                       if (!context.mounted) return;
                       Navigator.of(context)
                           .pushNamed(AppRoutes.activeSessionPath);

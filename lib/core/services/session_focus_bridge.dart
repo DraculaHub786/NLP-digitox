@@ -43,18 +43,29 @@ class SessionFocusBridge {
   /// [focus] is the live focus notifier — passed in rather than looked up so
   /// this stays a plain object that a test can drive, and so the caller keeps
   /// owning the widget/provider lifetime.
+  ///
+  /// [durationSec] is how long *this device* still has to focus, measured
+  /// against the shared clock — the session's whole length for the host who
+  /// starts it, and the remainder for anyone who joins or syncs late. Passing
+  /// null falls back to the session's own duration, which is what a caller
+  /// that has not computed the remainder should use.
   Future<void> startRun({
     required SharedSession session,
     required FocusModeNotifier focus,
+    int? durationSec,
   }) async {
     // Starting a run twice would snapshot the shared profile over itself (see
     // `FocusModeNotifier.startSessionFromSharedSettings`), so guard on the
     // engine's own notion of whether a shared run is already in flight.
     if (focus.isInSharedSessionFocus) return;
 
+    // The session is handed over whole, so the id, the shared blocklist and
+    // the room's own length can never be paired up wrong. Clamping a
+    // non-positive remainder to the session's own length is the engine's job
+    // now — it needs the session to do that, which is exactly why it is passed.
     await focus.startSessionFromSharedSettings(
-      settings: session.groupFocusSettings,
-      sessionId: session.id,
+      session: session,
+      durationSec: durationSec,
     );
     debugPrint('SessionFocusBridge: started shared focus for ${session.id}');
   }

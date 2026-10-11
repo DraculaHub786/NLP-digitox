@@ -17,7 +17,9 @@ import com.nlp.digitox.helpers.AlarmTasksSchedulingHelper.scheduleNotificationBa
 import com.nlp.digitox.helpers.device.DeviceAppsHelper.getDeviceAppInfos
 import com.nlp.digitox.helpers.device.NewActivitiesLaunchHelper
 import com.nlp.digitox.helpers.device.NotificationHelper
+import com.nlp.digitox.helpers.device.OemKeepAlive
 import com.nlp.digitox.helpers.device.PermissionsHelper
+import com.nlp.digitox.helpers.device.TrackingHealth
 import com.nlp.digitox.helpers.storage.SharedPrefsHelper
 import com.nlp.digitox.helpers.usages.AppsUsageHelper.getAppsUsageForInterval
 import com.nlp.digitox.models.AppRestriction
@@ -442,6 +444,18 @@ class FgMethodCallHandler(
             // ============================== ACCESSIBILITY SERVICE STATUS ==================================================
             // ==============================================================================================================
 
+            "getBackgroundDiagnostics" -> {
+                result.success(PermissionsHelper.backgroundDiagnostics(context))
+            }
+
+            "getTrackingGaps" -> {
+                result.success(TrackingHealth.gapsJson(context))
+            }
+
+            "getLastHeartbeatAt" -> {
+                result.success(TrackingHealth.lastHeartbeatAt(context))
+            }
+
             "isAccessibilityServiceActive" -> {
                 result.success(PermissionsHelper.isAccessibilityServiceActive(context))
             }
@@ -527,6 +541,15 @@ class FgMethodCallHandler(
 
             "openAutoStartSettings" -> {
                 result.success(NewActivitiesLaunchHelper.openAutoStartSettings(context))
+            }
+
+            "openOemBackgroundSettings" -> {
+                // OEM-specific "auto-start / background activity" screen where the
+                // manufacturer has one, falling back to the app-details page.
+                // Returns false on the fallback so a caller can show the OEM
+                // guidance text instead. Deliberately advisory: nothing here
+                // gates onboarding or the dashboard.
+                result.success(OemKeepAlive.openBackgroundSettings(context))
             }
 
             "restartApp" -> {

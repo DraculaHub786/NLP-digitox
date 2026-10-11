@@ -13,6 +13,7 @@ import 'package:nlp_digitox/core/enums/session_type.dart';
 import 'package:nlp_digitox/core/extensions/ext_date_time.dart';
 import 'package:nlp_digitox/core/services/drift_db_service.dart';
 import 'package:nlp_digitox/core/services/method_channel_service.dart';
+import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
 import 'package:nlp_digitox/core/services/shared_session_focus_tracker.dart';
 import 'package:nlp_digitox/core/utils/default_models_utils.dart';
 import 'package:nlp_digitox/models/focus_mode_model.dart';
@@ -78,6 +79,14 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
       focusProfile: focusProfile,
       activeSession: activeSession,
     );
+
+    /// A group run started by an earlier launch leaves its profile snapshot on
+    /// disk. When there is no run to end — it finished while the app was
+    /// closed — nothing else would ever restore the member's own profile, and
+    /// the database now holds the group's.
+    if (_activeSharedSessionId == null) {
+      await _restoreSnapshotFromDisk();
+    }
 
     /// Run after a delay to avoid database deadlock
     await Future.delayed(1.seconds, () {
@@ -287,7 +296,7 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
 
     if (isTheSessionSuccessful) {
       _incrementOrResetStreaks();
-      await _recordSharedRunCompleted();
+      await _clearSharedRunMarker();
       _sessionSuccessCallback?.call(updatedSession);
     } else if (_activeSharedSessionId != null) {
       // The run ended without reaching its goal, so it is not a completed
@@ -333,7 +342,20 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
       _activeSharedSessionId != null ||
       _previousProfileBeforeSharedSession != null;
 
-  /// Starts a focus session using a shared session's [SessionSettings].
+  /// The shared session the in-flight group focus run belongs to, if any.
+  ///
+  /// Exposed so the completion reconciler can tell whether the run it is about
+  /// to end actually belongs to the session the host cancelled, rather than to
+  /// an unrelated room.
+  String? get activeSharedSessionId => _activeSharedSessionId;
+
+  /// Starts a focus session using a [SharedSession]'s own settings and length.
+  ///
+  /// Takes the whole session rather than a loose settings block plus an id:
+  /// the run's *length* now comes from the room (`session.durationSec`, or the
+  /// caller's `durationSec` remainder), and the session is also where the id
+  /// and the shared blocklist live — passing them separately let a caller pair
+  /// one room's settings with another room's id.
   ///
   /// The caller's existing focus profile is snapshotted first so that
   /// [endSharedSession] can restore it afterwards.
@@ -343,9 +365,11 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   /// (`focusApps`, an allowlist, has no native support today and is
   /// intentionally not applied here.)
   Future<void> startSessionFromSharedSettings({
-    required SessionSettings settings,
-    required String sessionId,
+    required SharedSession session,
+    int? durationSec,
   }) async {
+    final sessionId = session.id;
+    final settings = session.groupFocusSettings;
     // Remember which group this run belongs to — in memory for the completion
     // that follows, and on disk so a run that finishes while the app is closed
     // is still credited as a completed group focus session.
@@ -353,21 +377,37 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
     await SharedSessionFocusTracker.instance.markFocusRunStarted(sessionId);
 
     // Snapshot only once — a second call while already inside a shared session
-    // must not overwrite the snapshot with the shared profile itself.
-    _previousProfileBeforeSharedSession ??= state.focusProfile;
+    // must not overwrite the snapshot with the shared profile itself. Written
+    // to disk as well as held in memory: an app kill mid-run takes the
+    // in-memory copy with it, and without the disk copy the member's own
+    // duration and blocklist would stay replaced by the group's for good.
+    if (_previousProfileBeforeSharedSession == null) {
+      _previousProfileBeforeSharedSession = state.focusProfile;
+      await SharedSessionFocusTracker.instance.saveProfileSnapshot(
+        sessionDurationSec: state.focusProfile.sessionDuration,
+        distractingApps: state.focusProfile.distractingApps,
+      );
+    }
 
     final sharedBlockedApps = settings.blockedApps;
-    final sharedLimitMinutes = settings.sharedDailyLimit;
+
+    // The run's length is the *session's*, not this member's own profile: that
+    // is what makes the room a shared run rather than several private runs that
+    // merely start together. `durationSec` is the session's remaining time — so
+    // someone who joins late still ends with everyone else — and it wins
+    // outright. A session always carries a real `durationSec` (the server
+    // clamps it to `[5 min, 4 h]`), so a non-positive value can only mean "the
+    // run is already over"; the session's own length is then the safe answer
+    // rather than an open-ended run.
+    final requestedSec = durationSec ?? session.durationSec;
+    final sharedDurationSec =
+        requestedSec > 0 ? requestedSec : session.durationSec;
 
     state = state.copyWith(
       focusProfile: state.focusProfile.copyWith(
         distractingApps:
             sharedBlockedApps ?? state.focusProfile.distractingApps,
-        // SessionSettings.sharedDailyLimit is in MINUTES, while
-        // FocusProfile.sessionDuration is in SECONDS.
-        sessionDuration: sharedLimitMinutes != null
-            ? sharedLimitMinutes * Duration.secondsPerMinute
-            : state.focusProfile.sessionDuration,
+        sessionDuration: sharedDurationSec,
       ),
     );
     _updateFocusProfileInDb();
@@ -379,6 +419,11 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
   /// before it started. Safe to call when no shared session is running — it
   /// then behaves as a plain "finish the active session" call.
   Future<void> endSharedSession() async {
+    // Capture the session id *before* anything clears it: a run given up early
+    // has to be counted against that session, and by the time we are done here
+    // `_activeSharedSessionId` is null.
+    final sharedSessionId = _activeSharedSessionId;
+
     final activeSession = state.activeSession.value;
     if (activeSession != null) {
       final isFiniteSession = activeSession.durationSecs > 0;
@@ -397,6 +442,17 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
         isTheSessionSuccessful: isSuccessful,
         isFiniteSession: isFiniteSession,
       );
+
+      // Leaving a group run before its goal is a *break*, and the server pays
+      // against the break count — but nothing recorded one before, so leaving
+      // early cost nothing. A run that reached its goal (so the timer already
+      // finished it) is not a break, which is why this is guarded by
+      // `!isSuccessful`.
+      if (!isSuccessful && sharedSessionId != null) {
+        unawaited(
+          SessionFocusBridge.instance.reportBreak(sharedSessionId),
+        );
+      }
     }
 
     final previousProfile = _previousProfileBeforeSharedSession;
@@ -404,6 +460,12 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
       state = state.copyWith(focusProfile: previousProfile);
       _updateFocusProfileInDb();
       _previousProfileBeforeSharedSession = null;
+      await SharedSessionFocusTracker.instance.clearProfileSnapshot();
+    } else {
+      // The run was started by an earlier launch, so the in-memory snapshot is
+      // gone. The disk copy is then the only record of the member's own
+      // profile, and skipping it would leave the group's profile applied.
+      await _restoreSnapshotFromDisk();
     }
 
     // Either way, this user is no longer focusing with the group.
@@ -411,19 +473,73 @@ class FocusModeNotifier extends StateNotifier<FocusModeModel>
     await SharedSessionFocusTracker.instance.clearActiveFocusRun();
   }
 
-  /// Credits a just-finished run to the shared session it was started from.
+  /// Restores the member's own focus profile once a group run is over.
   ///
-  /// This is the evidence the 50-point completion bonus is paid against: the
-  /// session merely being marked complete is not enough (see
-  /// `ProductivityPointsService.awardSharedSessionCompletionPoints`).
-  Future<void> _recordSharedRunCompleted() async {
-    final sessionId = _activeSharedSessionId;
-    if (sessionId == null) return;
+  /// A run that reaches its goal is finished by the *timer*
+  /// ([giveUpOrFinishFocusSession]), which clears the in-progress marker but
+  /// deliberately leaves the profile alone — the profile swap is
+  /// [endSharedSession]'s job, and the timer path never went through it. The
+  /// result was that a member who focused a full group run kept the group's
+  /// duration and blocklist until the app was next launched, and on that launch
+  /// the in-memory snapshot was gone. This is the missing half, called by
+  /// [SessionCompletionReconciler] on launch and on every resume.
+  ///
+  /// A no-op while a run of ours is genuinely still in flight, and a no-op when
+  /// no snapshot was ever written — so it is safe to call on every reconcile.
+  Future<void> restoreProfileAfterFinishedRun() async {
+    // Still focusing with a group: the shared profile is the right one and must
+    // stay applied until that run ends.
+    if (_activeSharedSessionId != null) return;
 
+    final previousProfile = _previousProfileBeforeSharedSession;
+    if (previousProfile == null) {
+      // The run was started by an earlier launch, so the in-memory copy died
+      // with it. The disk copy is then the only record of the member's own
+      // profile, and skipping it would leave the group's applied for good.
+      await _restoreSnapshotFromDisk();
+      return;
+    }
+
+    state = state.copyWith(focusProfile: previousProfile);
+    _previousProfileBeforeSharedSession = null;
+    _updateFocusProfileInDb();
+    await SharedSessionFocusTracker.instance.clearProfileSnapshot();
+  }
+
+  /// Clears the in-progress marker once a group run has finished.
+  ///
+  /// The marker exists only so a run that ends while the app is closed is
+  /// caught up on the next launch; once the run is done it has served its
+  /// purpose. It is deliberately *not* turned into a record of completion —
+  /// points are decided by the completion webhook, which verifies the run
+  /// server-side, never by a flag kept on this device.
+  Future<void> _clearSharedRunMarker() async {
+    if (_activeSharedSessionId == null) return;
     _activeSharedSessionId = null;
-    final tracker = SharedSessionFocusTracker.instance;
-    await tracker.markFocusRunCompleted(sessionId);
-    await tracker.clearActiveFocusRun();
+    await SharedSessionFocusTracker.instance.clearActiveFocusRun();
+  }
+
+  /// Restores the pre-run profile held on disk, then drops the copy.
+  ///
+  /// A no-op when no snapshot was ever written, so it is safe to call from
+  /// launch and from [endSharedSession] alike. This is what stops an app killed
+  /// mid-run from permanently losing the member's own duration and blocklist.
+  Future<void> _restoreSnapshotFromDisk() async {
+    final snapshot =
+        await SharedSessionFocusTracker.instance.loadProfileSnapshot();
+    if (snapshot == null) return;
+
+    state = state.copyWith(
+      focusProfile: state.focusProfile.copyWith(
+        sessionDuration:
+            snapshot.sessionDurationSec ?? state.focusProfile.sessionDuration,
+        distractingApps:
+            snapshot.distractingApps ?? state.focusProfile.distractingApps,
+      ),
+    );
+    _updateFocusProfileInDb();
+
+    await SharedSessionFocusTracker.instance.clearProfileSnapshot();
   }
 
   /// Saves the current focus mode configuration to the database.

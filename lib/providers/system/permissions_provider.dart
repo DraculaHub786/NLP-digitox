@@ -28,6 +28,15 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
   /// Flag to track if initialization is complete
   bool _isInitialized = false;
 
+  /// Whether any probe in the *current* read threw.
+  ///
+  /// Reset at the top of each full read and set by [_safeGetPermission] when a
+  /// native round trip fails. It is read only after every probe has resolved,
+  /// so it reflects the whole batch rather than whichever call happened to be
+  /// last, and it is stamped onto the resulting model as
+  /// [PermissionsModel.permissionFetchFailed].
+  bool _probeFailed = false;
+
   /// Whether [dispose] has already run.
   ///
   /// `StateNotifier.dispose()` throws if called a second time, but teardown can
@@ -47,6 +56,7 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
   /// Handles errors gracefully with safe defaults.
   Future<PermissionsModel> fetchPermissionsStatus() async {
     try {
+      _probeFailed = false;
       final cache = PermissionsModel(
         haveNotificationPermission: await _safeGetPermission(
           () => MethodChannelService.instance.getAndAskNotificationPermission(),
@@ -102,6 +112,9 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
           () => MethodChannelService.instance.isDeviceAdminRevoked(),
           'device admin revoked',
         ),
+        // Read last on purpose: every probe above has resolved by now, so this
+        // reflects whether *any* of them threw.
+        permissionFetchFailed: _probeFailed,
       );
 
       // The native round-trips above can outlive this notifier (e.g. the owning
@@ -125,6 +138,11 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
     try {
       return await permissionCall();
     } catch (e) {
+      // A throw here means "we could not ask the OS", NOT "the OS says no".
+      // Reporting the failure as `false` is what made a fully-permissioned
+      // returning user look revoked on a cold start, so the failure is
+      // recorded separately and the gate treats the batch as unknowable.
+      _probeFailed = true;
       debugPrint('PermissionNotifier: Error checking $permissionName permission: $e');
       return false;
     }
@@ -154,6 +172,7 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
   Future<void> recheckAllPermissions() async {
     if (!mounted) return;
     try {
+      _probeFailed = false;
       state = PermissionsModel(
         haveNotificationPermission: await _safeGetPermission(
           () => MethodChannelService.instance.getAndAskNotificationPermission(),
@@ -209,6 +228,9 @@ class PermissionNotifier extends StateNotifier<PermissionsModel>
           () => MethodChannelService.instance.isDeviceAdminRevoked(),
           'device admin revoked',
         ),
+        // Read last: all probes above have resolved. A clean re-check clears a
+        // stale failure flag left over from a bad cold start.
+        permissionFetchFailed: _probeFailed,
       );
 
       debugPrint('PermissionNotifier: All permissions re-checked on app resume');

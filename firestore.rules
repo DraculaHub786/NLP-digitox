@@ -1,7 +1,43 @@
 rules_version = "2";
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
+    // ---------------------------------------------------------------------
+    // Shared helper functions.
+    //
+    // A rules `function` is only visible inside the `match` block that
+    // declares it, so every helper used by more than one sibling match lives
+    // here at the top of the documents block. `isGroupAdmin` in particular
+    // cannot live inside `match /groups/{groupId}` — a function declared there
+    // is invisible to `group_invites`, `group_directory` and the per-user
+    // group index, which all need it.
+    // ---------------------------------------------------------------------
+
+    /// Whether the caller is an owner or admin of [gid].
+    ///
+    /// Reads the membership document rather than a field on the group, so a
+    /// member cannot grant themselves a role by rewriting the group doc.
+    function isGroupAdmin(gid) {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/groups/$(gid)/members/$(request.auth.uid)).data.role in ["owner", "admin"];
+    }
+
+    /// Whether `profileImageUrl` on the incoming document — when the field is
+    /// present at all — points at one of the two hosts the app can legitimately
+    /// produce: Cloudinary (an upload through `ProfileService`) or the Google
+    /// account photo seeded on first Google sign-in.
+    ///
+    /// Deliberately tolerant of the field being absent or null, because
+    /// `ProfileService.removeProfilePicture` clears it with `FieldValue.delete()`
+    /// and the board docs are created before an avatar exists.
+    function validAvatar() {
+      return !("profileImageUrl" in request.resource.data)
+        || request.resource.data.profileImageUrl == null
+        || request.resource.data.profileImageUrl.matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
+        || request.resource.data.profileImageUrl.matches("https://lh3\\.googleusercontent\\.com/.*");
+    }
+
     // User data access rules
     match /users/{userId} {
       // Allow users to read their own data fully. Write access remains restricted to the document owner.
@@ -13,22 +49,22 @@ service cloud.firestore {
                  .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
             || request.resource.data.profileImageUrl
                  .matches("https://lh3\\.googleusercontent\\.com/.*"));
-      
+
       // Habits subcollection
       match /habits/{habitId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
+
       // Tasks subcollection
       match /tasks/{taskId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
+
       // Chat sessions subcollection
       match /chats/{chatId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
+
       // Settings and preferences
       match /settings/{settingId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -47,8 +83,19 @@ service cloud.firestore {
       match /monthly_wellbeing_reports/{monthKey} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      // The signed-in user's own index of the groups they belong to. The
+      // groups list screen reads this instead of running a collection-group
+      // query over every roster. Only the user may read or write their own
+      // index; a group admin may additionally delete a stale entry when they
+      // remove someone from a group.
+      match /groups/{groupId} {
+        allow read, create, update: if request.auth != null && request.auth.uid == userId;
+        allow delete: if request.auth != null &&
+          (request.auth.uid == userId || isGroupAdmin(groupId));
+      }
     }
-    
+
     // NOTE: live shared sessions live in the Realtime Database, not here. The
     // old `shared_sessions` collection was never written by the shipped client
     // and its rules were self-referential (`get()` on the document being read),
@@ -61,6 +108,14 @@ service cloud.firestore {
     // can use `exists()` rather than a `get()` that has to fetch the parent on
     // every access, and so a member cannot be added by rewriting the group
     // document. Roles are checked against that same membership document.
+    //
+    // NOTE ON CAPACITY: Firestore rules cannot count documents, so `maxMembers`
+    // is enforced by the client only. There is a race in which two people can
+    // both pass the client-side capacity check and take the last seat. The
+    // impact is a group one member over its cap, which is cosmetic rather than
+    // unsafe. Moving the check server-side needs a denormalised `memberCount`
+    // field incremented atomically by the joiner under a rule that also bounds
+    // it; that is tracked separately and intentionally not done here.
     // ---------------------------------------------------------------------
     match /groups/{groupId} {
       function isMember() {
@@ -83,6 +138,11 @@ service cloud.firestore {
       // Reading a group requires membership. `isMember()` returns false before
       // the membership document exists, which is exactly what makes a
       // newly-created group readable only by its creator.
+      //
+      // Deliberately NOT opened to every signed-in user: the group document
+      // carries `inviteCode`, so a public read would leak a live invite. A
+      // non-member previews a group from `group_invites/{code}` (code join) or
+      // `group_directory/{gid}` (public join) instead — never from here.
       allow read: if isMember();
 
       // Only an existing owner/admin may edit the group document itself.
@@ -99,13 +159,23 @@ service cloud.firestore {
         // Every member can see the roster.
         allow read: if isMember();
 
-        // A user may add themselves as the initial owner, or an admin may add
-        // anyone else.
-        allow create: if request.auth != null &&
-          ((memberId == request.auth.uid &&
+        // Who may create a membership document:
+        //   1. the creator, who becomes the first owner, or
+        //   2. an existing owner/admin adding someone, or
+        //   3. a self-join as a plain member through a valid, unexpired invite
+        //      code that points at this group, or through a public group.
+        allow create: if request.auth != null && (
+          (memberId == request.auth.uid &&
             (!exists(/databases/$(database)/documents/groups/$(groupId)) ||
              get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId == request.auth.uid)) ||
-           isAdmin());
+          isGroupAdmin(groupId) ||
+          (memberId == request.auth.uid && request.resource.data.role == "member" &&
+            ( (request.resource.data.code is string &&
+               exists(/databases/$(database)/documents/group_invites/$(request.resource.data.code)) &&
+               get(/databases/$(database)/documents/group_invites/$(request.resource.data.code)).data.gid == groupId &&
+               get(/databases/$(database)/documents/group_invites/$(request.resource.data.code)).data.expiresAt > request.time)
+              || get(/databases/$(database)/documents/groups/$(groupId)).data.visibility == "public" ))
+        );
 
         // An admin may change roles; a member may only update their own
         // profile fields and cannot escalate their own role.
@@ -133,6 +203,35 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------
+    // Group invite codes.
+    //
+    // The code document is the ONLY thing a non-member may read to preview a
+    // group, which is why it carries the fields the join flow needs
+    // (visibility, maxMembers, a memberCount snapshot). Only a single-document
+    // `get` is allowed: `list` is false so nobody can enumerate live codes.
+    // ---------------------------------------------------------------------
+    match /group_invites/{code} {
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if request.auth != null && isGroupAdmin(request.resource.data.gid);
+      allow update, delete: if request.auth != null && isGroupAdmin(resource.data.gid);
+    }
+
+    // ---------------------------------------------------------------------
+    // Public group directory.
+    //
+    // One document per *listed* (public) group. A non-member reads this to
+    // preview and capacity-check a group before joining without touching the
+    // group document itself. Written only by the group's own service code from
+    // the group document, so it can never drift into leaking a private group.
+    // ---------------------------------------------------------------------
+    match /group_directory/{gid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if request.auth != null && isGroupAdmin(gid);
+    }
+
+    // ---------------------------------------------------------------------
     // Safety (Phase 5) — reports and blocks.
     // ---------------------------------------------------------------------
     match /reports/{reportId} {
@@ -149,44 +248,101 @@ service cloud.firestore {
       // A user's own block list, and nothing else.
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
-    
-    // Leaderboard - all authenticated users can read; each user can write only their own doc
+
+    // ---------------------------------------------------------------------
+    // Leaderboard — the lifetime record (`leaderboard/{uid}`), this week's
+    // score (`weekly_leaderboard/{uid}`) and this month's
+    // (`monthly_leaderboard/{uid}`).
+    //
+    // HISTORY: until now this block allowed an existing document to change
+    // only `profileImageUrl`, `profileImagePublicId` and `username`. That
+    // lockdown (commit 56a1b35) silently broke every points write: the fields
+    // below are what the client actually writes, so the write was refused and
+    // `LeaderboardService.addPoints` swallowed the error. See `todo.md`.
+    //
+    // Every field the client legitimately writes, with its writer:
+    //
+    //   addPoints              lifetimePoints, pointsBreakdown, lastUpdated,
+    //                          lastActiveAt, and on the first write
+    //                          username / avatarEmoji / email / profileImageUrl;
+    //                          points on the two period docs
+    //   updateUserData         username, points, monthlyPoints, streak,
+    //                          avatarEmoji, pointsBreakdown, email,
+    //                          profileImageUrl, lastUpdated, lastActiveAt
+    //   updateStreak           streak, lastUpdated
+    //   evaluateAndUpdateStreak streak, lastStreakEvalDate, lastUpdated
+    //   markActive             lastActiveAt
+    //   ProfileService         profileImageUrl (mirror a new picture, or clear
+    //                          the field with FieldValue.delete())
+    //   _backfillMissingAvatars profileImageUrl
+    //
+    // `points`, `monthlyPoints` and `streak` on the *lifetime* doc are carried
+    // but no longer drive any board — the period collections do — so they are
+    // left unbounded here. The score that decides a rank is bounded below.
+    // ---------------------------------------------------------------------
     match /leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && (
-             !exists(/databases/$(database)/documents/leaderboard/$(userId))
-             || request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(["profileImageUrl", "profileImagePublicId", "username"])
-           )
-        && (!("profileImageUrl" in request.resource.data)
-            || request.resource.data.profileImageUrl == null
-            || request.resource.data.profileImageUrl
-                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
-            || request.resource.data.profileImageUrl
-                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
+
+      // First write for a user. Seeded at most at the largest award the app
+      // can make, so an account cannot be born on top of the board.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.get('lifetimePoints', 0) <= 100
+        && validAvatar();
+
+      // Updates: owner only, only the fields the client writes, and the
+      // lifetime total may only ever grow, by at most 100 in one write (the
+      // largest single award in the app is 50, the largest focus-session clamp
+      // is 100). This bounds a single write, not a determined user: someone
+      // can still write repeatedly. It closes the "set my own total" hole.
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'username', 'avatarEmoji', 'email',
+             'profileImageUrl', 'profileImagePublicId',
+             'points', 'monthlyPoints', 'lifetimePoints',
+             'pointsBreakdown', 'streak',
+             'lastStreakEvalDate', 'lastUpdated', 'lastActiveAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['lifetimePoints'])
+            || (request.resource.data.lifetimePoints is int
+                && request.resource.data.lifetimePoints
+                     >= resource.data.get('lifetimePoints', 0)
+                && request.resource.data.lifetimePoints
+                     - resource.data.get('lifetimePoints', 0) <= 100))
+        && validAvatar();
     }
-    
+
     // Leaderboard config - readable by all authenticated; only service accounts can write
     match /leaderboard_config/{configDoc} {
       allow read: if request.auth != null;
       allow write: if false; // Only n8n cron / admin writes
     }
-    
+
     // Public content - readable by all authenticated users
     match /public/{document=**} {
       allow read: if request.auth != null;
       allow write: if false; // Only admin can write
     }
-    
-    // Badges - winner records; doc ID encodes owner ({uid}_{period}_{periodId}),
-    // so only the owner can read their own badges. Write is service-account only (n8n).
+
+    // Badges - winner records. The doc ID encodes the owner
+    // ({uid}_{period}_{periodId}) AND the document carries a `userId` field.
+    // Written by the n8n service account only.
     match /badges/{badgeId} {
-      allow read: if request.auth != null &&
-        badgeId.matches(request.auth.uid + "_.*");
-      allow write: if false; // n8n service account only
+      // Single document: the id encodes the owner.
+      allow get: if request.auth != null &&
+        badgeId.matches(request.auth.uid + '_.*');
+      // A list query cannot be authorised by an id pattern — rules cannot prove
+      // a range over document ids — so it must carry
+      // where('userId', isEqualTo: uid) instead.
+      allow list: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+      // Account deletion removes the user's own badges.
+      allow delete: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+      allow create, update: if false; // n8n service account only
     }
-    
+
     // Badge verification - not read by the client today. If a public
     // verify-by-link page needs it later, allow single-document `get` only so
     // IDs cannot be listed:
@@ -195,29 +351,75 @@ service cloud.firestore {
       allow read: if false;
       allow write: if false; // n8n service account only
     }
-    
+
+    // ---------------------------------------------------------------------
+    // Weekly / monthly boards — the scores the winner emails are built from.
+    //
+    // These previously had NO bound at all: any signed-in user could set their
+    // own `points` to whatever they liked in a single write, and the reset
+    // workflow then read that value to pick a winner. The bound below is the
+    // same shape as the lifetime total: the score may only grow, and by at
+    // most the largest single award the app can make (100, from a clamped
+    // focus session) per write.
+    //
+    // Resets do NOT go through here: the n8n workflows write 0 with the Admin
+    // SDK, which bypasses these rules entirely, so "never decrease" costs them
+    // nothing.
+    //
+    // Fields written here by the client:
+    //   addPoints               points, lastUpdated, lastActiveAt, and on the
+    //                           first write username / avatarEmoji /
+    //                           profileImageUrl
+    //   ProfileService          profileImageUrl (mirror a new picture, clear it)
+    //   _backfillMissingAvatars profileImageUrl
+    // ---------------------------------------------------------------------
+
     // Weekly leaderboard - all authenticated users can read; each user writes only their own doc
     match /weekly_leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && (!("profileImageUrl" in request.resource.data)
-            || request.resource.data.profileImageUrl == null
-            || request.resource.data.profileImageUrl
-                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
-            || request.resource.data.profileImageUrl
-                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
+
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.get('points', 0) <= 100
+        && validAvatar();
+
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'username', 'avatarEmoji', 'profileImageUrl',
+             'points', 'lastUpdated', 'lastActiveAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['points'])
+            || (request.resource.data.points is int
+                && request.resource.data.points
+                     >= resource.data.get('points', 0)
+                && request.resource.data.points
+                     - resource.data.get('points', 0) <= 100))
+        && validAvatar();
     }
-    
+
     // Monthly leaderboard - same pattern
     match /monthly_leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-        && (!("profileImageUrl" in request.resource.data)
-            || request.resource.data.profileImageUrl == null
-            || request.resource.data.profileImageUrl
-                 .matches("https://res\\.cloudinary\\.com/ucarrdxh/.*")
-            || request.resource.data.profileImageUrl
-                 .matches("https://lh3\\.googleusercontent\\.com/.*"));
+
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.get('points', 0) <= 100
+        && validAvatar();
+
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'username', 'avatarEmoji', 'profileImageUrl',
+             'points', 'lastUpdated', 'lastActiveAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['points'])
+            || (request.resource.data.points is int
+                && request.resource.data.points
+                     >= resource.data.get('points', 0)
+                && request.resource.data.points
+                     - resource.data.get('points', 0) <= 100))
+        && validAvatar();
     }
   }
 }

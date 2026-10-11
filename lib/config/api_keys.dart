@@ -95,8 +95,6 @@ class ApiKeys {
       String.fromEnvironment('SESSION_COMPLETE_WEBHOOK_URL');
   static const String _sessionCleanupDefine =
       String.fromEnvironment('SESSION_CLEANUP_WEBHOOK_URL');
-  static const String _sessionWebhookSecretDefine =
-      String.fromEnvironment('SESSION_WEBHOOK_SECRET');
 
   /// URL of the n8n workflow that verifies a finished shared run and awards
   /// points.
@@ -116,12 +114,10 @@ class ApiKeys {
         _fromEnv('SESSION_CLEANUP_WEBHOOK_URL'),
       ]);
 
-  /// Shared secret sent as `x-digitox-secret` so the workflow can reject
-  /// anything that did not come from this app. Never logged.
-  static String get sessionWebhookSecret => _firstNonEmpty([
-        _sessionWebhookSecretDefine,
-        _fromEnv('SESSION_WEBHOOK_SECRET'),
-      ]);
+  // NOTE: there is deliberately no `sessionWebhookSecret`. A shared secret
+  // compiled into the app protects nothing — anyone can extract it — so the
+  // completion webhook authenticates the caller with the Firebase ID token
+  // instead. See `SessionCompletionService`.
 
   /// Whether a completion webhook is configured.
   static bool get hasSessionCompleteWebhook =>

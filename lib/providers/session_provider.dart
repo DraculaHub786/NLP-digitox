@@ -1,5 +1,7 @@
 // Session provider for state management with Riverpod
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nlp_digitox/core/enums/session_phase.dart';
 import 'package:nlp_digitox/core/services/session_clock.dart';
@@ -11,10 +13,25 @@ final sessionServiceProvider = Provider<SessionService>((ref) {
   return SessionService.instance;
 });
 
-/// User's sessions provider
+/// User's sessions provider — the list shown in "My Sessions".
+///
+/// [SessionService.getUserSessions] intentionally returns *everything* the user
+/// is linked to, including runs that have already ended: the completion
+/// reconciler reads that same list to find finished runs and report them for
+/// points, so filtering there would silently break payouts.
+///
+/// The list, however, must not present an ended run as live. A run that reaches
+/// its end by *time* is never written to the database at all — "finished" is
+/// derived from `runStartAt + countdown + duration`, deliberately, so no device
+/// has to win a race to write it — which means `isActive` stays `true` forever
+/// for it. So the live filter is applied here, at read time, against the shared
+/// server clock, and the reconciler keeps seeing the raw list.
 final userSessionsProvider = FutureProvider<List<SharedSession>>((ref) async {
   final sessionService = ref.watch(sessionServiceProvider);
-  return sessionService.getUserSessions();
+  final sessions = await sessionService.getUserSessions();
+
+  final nowMs = SessionClock.instance.nowMs();
+  return sessions.where((session) => session.isLiveAt(nowMs)).toList();
 });
 
 /// Single session provider (requires sessionId).
@@ -77,9 +94,18 @@ class CreateSessionNotifier extends StateNotifier<AsyncValue<SharedSession?>> {
   }
 }
 
-/// Create session provider
+/// Create session provider.
+///
+/// Deliberately **not** `autoDispose`. Every caller drives these action
+/// notifiers through `ref.read(...).notifier` and never watch them, so an
+/// auto-disposing provider was torn down as soon as the action's first `await`
+/// suspended. The write that resumed afterwards then threw
+/// "Tried to use CreateSessionNotifier after 'dispose' was called" — the join
+/// button on a Discover card and the "join the run" button on a group both
+/// failed this way. These notifiers hold nothing but a service reference, so
+/// keeping them alive for the container's lifetime costs nothing.
 final createSessionProvider =
-    StateNotifierProvider.autoDispose<CreateSessionNotifier,
+    StateNotifierProvider<CreateSessionNotifier,
         AsyncValue<SharedSession?>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return CreateSessionNotifier(sessionService);
@@ -104,7 +130,7 @@ class JoinSessionNotifier extends StateNotifier<AsyncValue<void>> {
 }
 
 /// Join session provider
-final joinSessionProvider = StateNotifierProvider.autoDispose<JoinSessionNotifier, AsyncValue<void>>((ref) {
+final joinSessionProvider = StateNotifierProvider<JoinSessionNotifier, AsyncValue<void>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return JoinSessionNotifier(sessionService);
 });
@@ -122,7 +148,7 @@ class LeaveSessionNotifier extends StateNotifier<AsyncValue<void>> {
 }
 
 /// Leave session provider
-final leaveSessionProvider = StateNotifierProvider.autoDispose<LeaveSessionNotifier, AsyncValue<void>>((ref) {
+final leaveSessionProvider = StateNotifierProvider<LeaveSessionNotifier, AsyncValue<void>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return LeaveSessionNotifier(sessionService);
 });
@@ -150,22 +176,31 @@ class CompleteSessionNotifier
       // The detail and member providers are streams now and update
       // themselves; only the list of the user's sessions needs a refresh.
       _ref.invalidate(userSessionsProvider);
+      // A public session is delisted from Discover when it is completed, so
+      // any Discover list on screen is now stale.
+      _ref.invalidate(publicSessionsProvider);
     }
   }
 }
 
 /// Complete session provider
-final completeSessionProvider = StateNotifierProvider.autoDispose<
+final completeSessionProvider = StateNotifierProvider<
     CompleteSessionNotifier, AsyncValue<SharedSession?>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return CompleteSessionNotifier(sessionService, ref);
 });
 
-/// Public sessions provider — for browse-and-join flow
+/// Public sessions provider — for browse-and-join flow.
+///
+/// `autoDispose` so the periodic refresh below only runs while Discover is on
+/// screen. The list re-reads every 30 s and a refresh keeps the previous list
+/// visible, so there is no flicker: a room cancelled or started on the host's
+/// device drops out of Discover without the viewer doing anything.
 final publicSessionsProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final sessionService = ref.watch(sessionServiceProvider);
-  return sessionService.getPublicSessions();
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  final timer = Timer(const Duration(seconds: 30), ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
+  return ref.watch(sessionServiceProvider).getPublicSessions();
 });
 
 /// Join session by ID notifier
@@ -189,8 +224,7 @@ class JoinSessionByIdNotifier extends StateNotifier<AsyncValue<void>> {
 
 /// Join session by ID provider
 final joinByIdProvider =
-    StateNotifierProvider.autoDispose<JoinSessionByIdNotifier, AsyncValue<void>>(
-        (ref) {
+    StateNotifierProvider<JoinSessionByIdNotifier, AsyncValue<void>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return JoinSessionByIdNotifier(sessionService);
 });
@@ -291,7 +325,7 @@ class JoinByCodeNotifier extends StateNotifier<AsyncValue<String?>> {
 }
 
 /// Join-by-invite-code provider.
-final joinByCodeProvider = StateNotifierProvider.autoDispose<
+final joinByCodeProvider = StateNotifierProvider<
     JoinByCodeNotifier, AsyncValue<String?>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return JoinByCodeNotifier(sessionService);
@@ -331,6 +365,10 @@ class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
         durationSec: durationSec,
       ),
     );
+    if (!state.hasError) {
+      // Starting delists a public room from Discover.
+      _ref.invalidate(publicSessionsProvider);
+    }
   }
 
   Future<void> cancel(String sessionId) async {
@@ -340,6 +378,7 @@ class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
     );
     if (!state.hasError) {
       _ref.invalidate(userSessionsProvider);
+      _ref.invalidate(publicSessionsProvider);
     }
   }
 
@@ -363,12 +402,14 @@ class SessionLobbyNotifier extends StateNotifier<AsyncValue<void>> {
     );
     if (!state.hasError) {
       _ref.invalidate(userSessionsProvider);
+      // The owner leaving ends the session and delists it from Discover.
+      _ref.invalidate(publicSessionsProvider);
     }
   }
 }
 
 /// Lobby action provider.
-final sessionLobbyProvider = StateNotifierProvider.autoDispose<
+final sessionLobbyProvider = StateNotifierProvider<
     SessionLobbyNotifier, AsyncValue<void>>((ref) {
   final sessionService = ref.watch(sessionServiceProvider);
   return SessionLobbyNotifier(sessionService, ref);

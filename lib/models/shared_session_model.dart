@@ -365,6 +365,33 @@ class SharedSession {
     return SessionPhase.running;
   }
 
+  /// Whether this session still belongs in the "active" list at
+  /// [serverNowMs].
+  ///
+  /// This is deliberately *wider* than [isActive], and it is the check the
+  /// session list uses.
+  ///
+  /// `isActive` is only cleared by an explicit write — the owner completing or
+  /// cancelling, or a member leaving. A session that simply *runs out of time*
+  /// is never written to at all: "finished" is derived from
+  /// `runStartAt + countdown + duration`, by design, so no device has to win a
+  /// race to write it. The consequence is that an expired run keeps
+  /// `isActive == true` forever, and a list that filters on `isActive` alone
+  /// shows it as live long after it ended.
+  ///
+  /// The room still counts as live while its lobby is open (members can join
+  /// and the host can start it) and while the run is going; it stops being live
+  /// once the run is over or cancelled. A *completed* session derives
+  /// [SessionPhase.finished] too, so it is excluded here as well — which is
+  /// correct: the owner's complete action already clears `isActive`, and this
+  /// keeps the two paths agreeing.
+  bool isLiveAt(int serverNowMs) {
+    final phase = phaseAt(serverNowMs);
+    return phase == SessionPhase.lobby ||
+        phase == SessionPhase.countdown ||
+        phase == SessionPhase.running;
+  }
+
   /// Seconds left in the countdown, or null when not counting down.
   int? countdownRemainingSecAt(int serverNowMs) {
     final startMs = startEffectiveMs;
@@ -537,7 +564,14 @@ class SharedSession {
       'durationSec': durationSec,
       'countdownSec': countdownSec,
       'state': state.wireName,
-      if (runStartAt != null) 'runStartAt': runStartAt!.toIso8601String(),
+      // `runStartAt` is deliberately NOT written here. The start of the run is
+      // the one value every device's timer is derived from, and it must come
+      // from the server's own clock — `SessionService.startSession` writes it
+      // as `ServerValue.timestamp` and the rules accept nothing else. Echoing a
+      // client-side `DateTime` back through a whole-session `set()`/`update()`
+      // would overwrite the authoritative timestamp with this device's wall
+      // clock, and two phones that disagree would then disagree about when the
+      // run ends. It is read in `fromMap` and never re-sent.
       if (groupId != null) 'groupId': groupId,
       if (inviteCode != null) 'inviteCode': inviteCode,
     };

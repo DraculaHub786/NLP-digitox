@@ -104,7 +104,15 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     _subscription = ref.listenManual<PermissionsModel>(
       permissionProvider,
       (_, perms) {
-        if (!perms.hasAllEssentialPermissions) return;
+        // In recovery mode (`permissionsOnly`) only the core permissions are
+        // required. Accessibility is deliberately excluded there: Android
+        // clears it on a force-stop, so gating this page on it would trap a
+        // returning user in a loop they cannot satisfy from this screen. The
+        // first-run flow still requires everything, Accessibility included.
+        final satisfied = widget.permissionsOnly
+            ? perms.hasCorePermissions
+            : perms.hasAllEssentialPermissions;
+        if (!satisfied) return;
 
         // A returning user must never be handed the quiz again. That is the
         // wrong UX (they already have a persona) and destructive, because
@@ -193,7 +201,12 @@ class _OnboardingState extends ConsumerState<OnboardingScreen> {
     final isQuizPage = _pages[_currentPage] is OnboardingQuizPage;
     final isPermissionsPage = _pages[_currentPage] is PermissionsPage;
     final perms = ref.watch(permissionProvider);
-    final haveAllEssentialPermissions = perms.hasAllEssentialPermissions;
+    // Recovery mode only demands the core permissions — Accessibility is shown
+    // by the dashboard card instead, never as a blocker here. First run still
+    // demands everything.
+    final haveAllEssentialPermissions = widget.permissionsOnly
+        ? perms.hasCorePermissions
+        : perms.hasAllEssentialPermissions;
     // Forward navigation is blocked while sitting on the PermissionsPage
     // until every essential permission is granted — this is what makes
     // granting permissions mandatory instead of just suggested.

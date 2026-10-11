@@ -13,6 +13,32 @@ import 'package:nlp_digitox/models/group_member.dart';
 import 'package:nlp_digitox/models/group_schedule_entry.dart';
 import 'package:nlp_digitox/models/group_stats.dart';
 
+/// The minimum a join needs to know about a group before adding a member:
+/// whether it is listed, its cap, and its current size.
+///
+/// Deliberately *not* a [FocusGroup]: the join flow is forbidden from reading
+/// the group document (it is members-only), so it can only ever assemble this
+/// partial view from the invite or directory entry. Keeping it a separate,
+/// smaller type makes that constraint obvious rather than implied.
+@immutable
+class _GroupPreview {
+  const _GroupPreview({
+    required this.visibility,
+    required this.maxMembers,
+    required this.memberCount,
+  });
+
+  final GroupVisibility visibility;
+  final int maxMembers;
+  final int memberCount;
+
+  /// Whether the group appears in the directory.
+  bool get isListed => visibility.isListed;
+
+  /// Whether the cap has been reached.
+  bool get isFull => memberCount >= maxMembers;
+}
+
 /// A group failure whose message is already written for the user.
 ///
 /// Thrown for the cases this service can describe precisely (unreachable
@@ -570,6 +596,14 @@ class GroupService {
   /// cap, and the private-group refusal — so they share one write rather than
   /// two that could drift apart. [code] is null for a listed-group join, which
   /// is what the rules expect for a group that does not need a code.
+  ///
+  /// The preview of the group being joined is read from the *invite* document
+  /// (code joins) or the *directory* document (public joins), never from
+  /// `groups/{gid}`: that document is members-only (it holds the live invite
+  /// code), so a non-member is not permitted to read it — the rules deny it,
+  /// and a read here would surface as a bare `permission-denied`. The invite
+  /// and the directory entry both carry the visibility, the cap and a
+  /// member-count snapshot for exactly this purpose.
   Future<GroupMember> _addSelfAsMember({
     required String groupId,
     required String displayName,
@@ -580,13 +614,6 @@ class GroupService {
     _requireFirestore();
     final userId = _requireUserId();
 
-    final group = await getGroup(groupId);
-    if (group == null) {
-      throw const GroupException(
-        'This group no longer exists. The owner may have deleted it.',
-      );
-    }
-
     final existingRole = await roleOf(groupId, userId);
     if (existingRole != null) {
       // Already in: a reinstall or a cold start landing back in the room is a
@@ -595,13 +622,23 @@ class GroupService {
       if (existing != null) return existing;
     }
 
-    if (code == null && !group.isListed) {
+    final preview = code != null
+        ? await _previewFromInvite(code, groupId)
+        : await _previewFromDirectory(groupId);
+
+    if (preview == null) {
+      throw const GroupException(
+        'This group no longer exists. The owner may have deleted it.',
+      );
+    }
+
+    if (code == null && !preview.isListed) {
       throw const GroupException(
         'This group is private. Ask a member for an invite code.',
       );
     }
 
-    if (group.isFull) {
+    if (preview.isFull) {
       throw GroupException(GroupLimits.fullGroupMessage);
     }
 
@@ -868,6 +905,68 @@ class GroupService {
     return trimmed.isEmpty ? 'Member' : trimmed;
   }
 
+  /// Previews a group from its invite document, for the code-join path.
+  ///
+  /// Returns null when the invite has gone (the group was deleted, or the code
+  /// was revoked and re-issued) — the caller then reports the group as gone.
+  /// The invite's own `gid` is checked against the group being joined so a code
+  /// cannot be used to preview a different group than the one it admits.
+  Future<_GroupPreview?> _previewFromInvite(
+    String code,
+    String groupId,
+  ) async {
+    try {
+      final snapshot = await _onFirestore(
+        () => _db.collection(invitesCollection).doc(code).get(),
+      );
+      final data = snapshot.data();
+      if (!snapshot.exists || data == null) return null;
+      if (FirestoreValueUtils.stringOrNull(data['gid']) != groupId) return null;
+
+      return _GroupPreview(
+        visibility: GroupVisibility.parse(data['visibility']),
+        maxMembers: GroupLimits.normalizeMaxMembers(
+          FirestoreValueUtils.intOrNull(data['maxMembers']),
+        ),
+        memberCount: FirestoreValueUtils.intOrNull(data['memberCount']) ?? 0,
+      );
+    } catch (e) {
+      debugPrint('GroupService: could not read invite $code: $e');
+      return null;
+    }
+  }
+
+  /// Previews a listed group from its directory entry, for the public-join
+  /// path.
+  ///
+  /// Returns null when there is no directory entry, which is also the answer
+  /// for a group that is not listed at all — so a private group is refused by
+  /// the same "gone" path the caller already handles, without ever reading the
+  /// members-only group document.
+  Future<_GroupPreview?> _previewFromDirectory(String groupId) async {
+    try {
+      final snapshot = await _onFirestore(
+        () => _db.collection(directoryCollection).doc(groupId).get(),
+      );
+      final data = snapshot.data();
+      if (!snapshot.exists || data == null) return null;
+
+      return _GroupPreview(
+        visibility: GroupVisibility.public,
+        maxMembers: GroupLimits.normalizeMaxMembers(
+          FirestoreValueUtils.intOrNull(data['maxMembers']),
+        ),
+        // The directory entry does not carry a live count (it is written only
+        // by the owner). A cheap count aggregation fills it in; if that fails
+        // the group simply reads as empty, which is the honest low estimate.
+        memberCount: await memberCount(groupId),
+      );
+    } catch (e) {
+      debugPrint('GroupService: could not read directory $groupId: $e');
+      return null;
+    }
+  }
+
   /// Writes or removes the public directory entry for [group].
   ///
   /// Best-effort: the directory is a discovery convenience, and a failure here
@@ -944,11 +1043,22 @@ class GroupService {
     final code = InviteCode.generate();
     final expiresAt = now.add(GroupLimits.inviteLifetime);
 
+    // The invite carries everything the join flow needs to gate entry — its
+    // visibility, its cap and a member-count snapshot. That matters because
+    // `groups/{gid}` is readable only by members (it holds the live invite
+    // code), so a stranger cannot preview the group from the group document.
+    // The invite is the one node a non-member may read, so the fields live here
+    // (see firestore.rules). The count is a snapshot: capacity is client-side
+    // by design, so a stale-by-one value is the same approximation a live read
+    // would be.
     final batch = _db.batch();
     batch.set(_db.collection(invitesCollection).doc(code), {
       'gid': groupId,
       'name': group.name,
       'ownerName': group.name,
+      'visibility': group.visibility.wireName,
+      'maxMembers': group.maxMembers,
+      'memberCount': group.memberCount,
       'createdAt': Timestamp.fromDate(now),
       'expiresAt': Timestamp.fromDate(expiresAt),
     });

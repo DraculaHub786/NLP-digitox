@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Join a focus session - NLP-Digitox</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #0f2018;
+      color: #eaf5ef;
+      text-align: center;
+      padding: 24px;
+    }
+    .card {
+      max-width: 420px;
+      width: 100%;
+      background: #163023;
+      border: 1px solid #2f5d45;
+      border-radius: 20px;
+      padding: 32px 24px;
+    }
+    .code {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #8fe0b4;
+      margin: 8px 0 20px;
+      word-break: break-all;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    p { color: #b6cdc0; font-size: 14px; line-height: 1.5; margin: 0 0 20px; }
+    a.button {
+      display: inline-block;
+      background: #8fe0b4;
+      color: #0f2018;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 14px 28px;
+      margin: 6px 0;
+    }
+    a.secondary { color: #b6cdc0; font-size: 13px; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>You have been invited</h1>
+    <p>Join a shared focus session on NLP-Digitox.</p>
+    <div class="code" id="code">-</div>
+    <p id="hint">Opening the app...</p>
+    <a class="button" id="openApp" href="#">Open NLP-Digitox</a>
+    <p style="margin-top:18px">
+      <a class="secondary" id="store" href="https://play.google.com/store/apps/details?id=com.nlp.digitox">
+        Don't have the app? Get it on Google Play
+      </a>
+    </p>
+  </main>
+
+  <script>
+    // The invite code is the final path segment: /join/AB3K7Q.
+    // Static hosting serves this page for every /join/** URL (see the Firebase
+    // rewrite and the deploy notes), so the code is read from the path rather
+    // than hard-coded.
+    (function () {
+      var segments = window.location.pathname.split('/').filter(Boolean);
+      var raw = segments.length ? segments[segments.length - 1] : '';
+      var code = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+
+      var codeEl = document.getElementById('code');
+      var hintEl = document.getElementById('hint');
+      var openEl = document.getElementById('openApp');
+
+      if (!code) {
+        codeEl.textContent = '-';
+        hintEl.textContent = 'This invite link looks incomplete. Ask the host to share it again.';
+        openEl.style.display = 'none';
+        return;
+      }
+
+      codeEl.textContent = code;
+
+      // Hand the same code to the app through its own scheme. If the app is
+      // installed, Android App Links may already have opened it and this page
+      // is only the fallback; if not, this is the manual retry.
+      var deepLink = 'com.nlp.digitox://join/' + code;
+      openEl.setAttribute('href', deepLink);
+
+      // Try to bounce straight into the app; keep the button for a manual tap
+      // because most browsers block an automatic scheme redirect.
+      window.location.href = deepLink;
+    })();
+  </script>
+</body>
+</html>

@@ -168,13 +168,15 @@ class _AddScheduleEntrySheetState extends ConsumerState<AddScheduleEntrySheet> {
           width: double.infinity,
           child: FilledButton.icon(
             onPressed: busy ? null : _submit,
+            // Follows the button's own foreground colour rather than a literal
+            // white, so it reads correctly in both palettes.
             icon: busy
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                     ),
                   )
                 : const Icon(FluentIcons.add_20_filled, size: 18),

@@ -29,6 +29,7 @@ class SplashScreen extends ConsumerStatefulWidget {
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _haveAllEssentialPermissions = false;
+  bool _haveCorePermissions = false;
   bool _isOnboardingDone = false;
   bool _isAccessProtected = false;
   bool _isAppUpdated = false;
@@ -79,6 +80,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         (await ref.read(parentalControlsProvider.notifier).init())
             .protectedAccess;
     _haveAllEssentialPermissions = perms.hasAllEssentialPermissions;
+    // Accessibility is not part of the routing gate any more — the OS clears
+    // it on a force-stop, and redirecting an onboarded user through the
+    // permission flow on every launch is worse than a dashboard banner. See
+    // `PermissionsModel.hasCorePermissions`.
+    _haveCorePermissions = perms.hasCorePermissions;
 
     // Q-8: Use PersonaService as the authoritative quiz-completion check.
     // If the persona is corrupted (flag true but key missing), isQuizCompleted()
@@ -111,7 +117,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // flag, an offline restore, or a revoked permission).
     debugPrint('SPLASH onboarding: drift=${settings.isOnboardingDone} '
         'quizCompleted=$quizCompleted restoredFromCloud=$restoredFromCloud '
-        'perms=$_haveAllEssentialPermissions -> done=$_isOnboardingDone');
+        'perms=$_haveAllEssentialPermissions core=$_haveCorePermissions '
+        '-> done=$_isOnboardingDone');
+
+    // Only worth the channel round trip when the Accessibility grant is the
+    // thing that looks missing — that is the case this diagnostic exists to
+    // explain. Log the raw inputs so a matcher bug can be told apart from
+    // Android having genuinely cleared the grant (see C4 in `todo.md`):
+    // `adb logcat | findstr "SPLASH a11y"`.
+    if (!perms.haveAccessibilityPermission) {
+      try {
+        final diagnostics =
+            await MethodChannelService.instance.getBackgroundDiagnostics();
+        debugPrint('SPLASH a11y $diagnostics');
+      } catch (e) {
+        debugPrint('SPLASH a11y diagnostics unavailable: $e');
+      }
+    }
 
     if (mounted) setState(() {});
     _isAccessProtected ? _authenticate() : _goToNextScreen(true);
@@ -121,7 +143,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (shouldDelay) await Future.delayed(250.ms);
     if (!mounted) return;
 
-    if (_haveAllEssentialPermissions && _isOnboardingDone) {
+    // Onboarded + core permissions: open the app. A missing Accessibility grant
+    // is shown by the dashboard card (see `AccessibilityPermissionCard`), not
+    // by a full-screen redirect.
+    if (_haveCorePermissions && _isOnboardingDone) {
       NavigationService.instance.init(showChangeLogsToo: _isAppUpdated);
       return;
     }

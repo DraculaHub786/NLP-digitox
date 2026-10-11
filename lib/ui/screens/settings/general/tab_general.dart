@@ -18,6 +18,7 @@ import 'package:nlp_digitox/ui/common/sliver_tabs_bottom_padding.dart';
 import 'package:nlp_digitox/ui/common/styled_text.dart';
 import 'package:nlp_digitox/ui/permissions/battery_permission_tile.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
+import 'package:nlp_digitox/ui/screens/settings/general/background_health_card.dart';
 
 class TabGeneral extends ConsumerWidget {
   const TabGeneral({super.key});
@@ -387,6 +388,27 @@ class TabGeneral extends ConsumerWidget {
                 ],
               ),
             ),
+          ),
+        ),
+
+        /// Background health — the honest answer to "why does tracking keep
+        /// stopping?". Each warning on the card carries its own fix button, and
+        /// the gaps it reports are the ones the watchdog actually recorded.
+        12.vSliverBox,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ModernSectionHeader(
+              title: 'Background health',
+              subtitle: 'Why tracking can stop, and how to fix it',
+            ),
+          ),
+        ),
+
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: const BackgroundHealthCard(),
           ),
         ),
 
