@@ -55,8 +55,23 @@ class SessionLimits {
   /// Not zero: Android kills backgrounded apps routinely, and a run that
   /// survives one genuine interruption deserves credit. Past this it stops
   /// looking like an interruption and starts looking like leaving. The same
-  /// number is repeated in `database.rules.json` on `breaks`.
+  /// number is repeated in `database.rules.json` on `breaks`, which is what
+  /// actually caps it server-side.
   static const int maxBreaksPerRun = 2;
+
+  /// Longest session name the server accepts.
+  ///
+  /// `database.rules.json` refuses anything longer, so the form has to stop it
+  /// before the write: an 81-character name came back as a bare
+  /// `permission-denied`, which the UI then reported as an auth problem.
+  static const int maxNameLength = 80;
+
+  /// Run lengths the create sheet offers, in minutes.
+  ///
+  /// A fixed set rather than a free-form field: the server clamps to
+  /// `[minDurationSec, maxDurationSec]` anyway, and a picker cannot produce a
+  /// value outside it.
+  static const List<int> durationOptionsMinutes = [5, 10, 15, 25, 45, 60, 90];
 
   /// Forces [requested] seconds into the supported run range.
   static int normalizeDurationSec(int? requested) {

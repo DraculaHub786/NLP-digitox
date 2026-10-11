@@ -62,4 +62,86 @@ class SharedSessionFocusTracker {
       debugPrint('SharedSessionFocusTracker: error clearing active run - $e');
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Pre-run profile snapshot
+  // ---------------------------------------------------------------------------
+
+  /// Keys for the two profile fields a group run overwrites.
+  ///
+  /// Only these two are snapshotted, not the whole profile: they are the ones
+  /// [FocusModeNotifier.startSessionFromSharedSettings] mutates, so restoring
+  /// exactly them is complete and cannot resurrect an unrelated stale field.
+  static const String _snapshotDurationKey =
+      'shared_session_snapshot_duration_sec';
+  static const String _snapshotBlockedAppsKey =
+      'shared_session_snapshot_blocked_apps';
+
+  /// Saves the profile fields a group run is about to overwrite.
+  ///
+  /// Held on disk, not just in memory: the app can be killed mid-run, and the
+  /// in-memory snapshot dies with it — which left the member's own focus
+  /// duration and blocklist permanently replaced by the group's.
+  Future<void> saveProfileSnapshot({
+    required int sessionDurationSec,
+    required List<String> distractingApps,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_snapshotDurationKey, sessionDurationSec);
+      await prefs.setStringList(_snapshotBlockedAppsKey, distractingApps);
+    } catch (e) {
+      debugPrint('SharedSessionFocusTracker: error saving snapshot - $e');
+    }
+  }
+
+  /// The snapshot written by [saveProfileSnapshot], or null when there is none.
+  Future<SharedFocusProfileSnapshot?> loadProfileSnapshot() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final duration = prefs.getInt(_snapshotDurationKey);
+      final blocked = prefs.getStringList(_snapshotBlockedAppsKey);
+      if (duration == null && blocked == null) return null;
+      return SharedFocusProfileSnapshot(
+        sessionDurationSec: duration,
+        distractingApps: blocked,
+      );
+    } catch (e) {
+      debugPrint('SharedSessionFocusTracker: error reading snapshot - $e');
+      return null;
+    }
+  }
+
+  /// Drops the snapshot once the profile has been restored.
+  Future<void> clearProfileSnapshot() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_snapshotDurationKey);
+      await prefs.remove(_snapshotBlockedAppsKey);
+    } catch (e) {
+      debugPrint('SharedSessionFocusTracker: error clearing snapshot - $e');
+    }
+  }
+}
+
+/// The profile fields a group run overwrites, captured before it starts.
+///
+/// Both nullable so a snapshot written by an older build — which stored only
+/// one of them — can still be read without inventing a value for the other.
+@immutable
+class SharedFocusProfileSnapshot {
+  const SharedFocusProfileSnapshot({
+    this.sessionDurationSec,
+    this.distractingApps,
+  });
+
+  /// The member's own focus duration before the group run replaced it.
+  final int? sessionDurationSec;
+
+  /// The member's own blocklist before the group run replaced it.
+  final List<String>? distractingApps;
+
+  /// Whether nothing was captured, so restoring would be a no-op.
+  bool get isEmpty =>
+      sessionDurationSec == null && (distractingApps?.isEmpty ?? true);
 }

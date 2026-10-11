@@ -45,6 +45,21 @@ class SessionService {
   /// Singleton instance
   static final SessionService instance = SessionService._();
 
+  /// Builds a service bound to [database] instead of the process-wide
+  /// singleton — for the join and create tests.
+  ///
+  /// Those two paths read *and* write through this handle, so a test has to be
+  /// able to hand in an emulator instance instead of being forced onto
+  /// `FirebaseDatabase.instance`, which needs a real, configured project and so
+  /// cannot run in CI. `_isInitialized` is set here as a side effect so a later
+  /// [init] cannot quietly swap the injected handle back out for the global one
+  /// — `init` returns early once it is true.
+  @visibleForTesting
+  SessionService.withDatabase(FirebaseDatabase database)
+      : _database = database {
+    _isInitialized = true;
+  }
+
   /// Firebase Realtime Database instance
   FirebaseDatabase? _database;
 
@@ -180,6 +195,21 @@ class SessionService {
       } catch (e) {
         debugPrint('SessionService: Firebase initialization error: $e');
         _isFirebaseAvailable = false;
+      }
+
+      // Start the shared clock as soon as the database handle exists.
+      //
+      // Every countdown and every "is this run over?" answer is computed from
+      // `SessionClock`, which learns the server offset by subscribing to
+      // `.info/serverTimeOffset` — a subscription that only begins once
+      // `start()` is called. The only other caller is the `sessionClockProvider`
+      // getter, first read when a session *screen* mounts, so a session created
+      // and started before any such screen existed was judged against the
+      // device's raw wall clock. `start()` is idempotent and the clock keeps its
+      // offset across `stop()`, so calling it here costs nothing when it is
+      // already running.
+      if (_isFirebaseAvailable) {
+        SessionClock.instance.start();
       }
 
       _isInitialized = true;

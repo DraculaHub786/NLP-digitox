@@ -106,6 +106,16 @@ class SessionCompletionReconciler {
           'SessionCompletionReconciler: reported $reported finished run(s)',
         );
       }
+
+      // A group run that reached its goal is completed by the *timer*, which
+      // clears the in-progress marker but leaves the group's focus profile
+      // applied — putting the member's own duration and blocklist back was
+      // `endSharedSession`'s job, and the timer path never went through it.
+      // Without this, a member keeps the room's profile until the app is
+      // restarted. This is a no-op while a run of ours is still in flight.
+      if (focus != null) {
+        await focus.restoreProfileAfterFinishedRun();
+      }
     } catch (e) {
       debugPrint('SessionCompletionReconciler: reconcile failed: $e');
     } finally {

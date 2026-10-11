@@ -6,12 +6,14 @@ import 'package:nlp_digitox/config/navigation/app_routes.dart';
 import 'package:nlp_digitox/core/enums/session_phase.dart';
 import 'package:nlp_digitox/core/services/firebase_auth_service.dart';
 import 'package:nlp_digitox/core/services/session_focus_bridge.dart';
+import 'package:nlp_digitox/core/services/session_service.dart';
 import 'package:nlp_digitox/features/shared_sessions/session_summary_screen.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_invite_panel.dart';
 import 'package:nlp_digitox/features/shared_sessions/widgets/session_state_views.dart';
 import 'package:nlp_digitox/models/shared_session_model.dart';
 import 'package:nlp_digitox/providers/focus/focus_mode_provider.dart';
 import 'package:nlp_digitox/providers/session_provider.dart';
+import 'package:nlp_digitox/providers/system/permissions_provider.dart';
 import 'package:nlp_digitox/ui/common/modern_cards.dart';
 import 'package:nlp_digitox/ui/common/scaffold_shell.dart';
 import 'package:nlp_digitox/ui/screens/home/dashboard/modern_dashboard_components.dart';
@@ -75,6 +77,13 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // Presence is announced while the member is still *in the lobby*, not only
+    // once the run starts. Joining the room already starts it, but a cold start
+    // straight back into an open lobby does not — and the host decides who is
+    // in the room from exactly this list. Same call is idempotent, so a rejoin
+    // that already started it costs nothing.
+    SessionService.instance.startPresenceHeartbeat(widget.sessionId);
   }
 
   @override
@@ -98,12 +107,50 @@ class _SessionLobbyScreenState extends ConsumerState<SessionLobbyScreen>
 
   Future<void> _beginFocusRun(SharedSession session) async {
     if (_hasOpenedTimer) return;
+
+    // Without the permissions that actually enforce a focus run the room would
+    // "start" and block nothing — the member serves a session that does not
+    // exist on their device. So the run is not started at all; the latch is
+    // deliberately left unset so the resume re-check in
+    // [didChangeAppLifecycleState] starts it for real once the user grants what
+    // was missing and comes back. A latch set before the check would make that
+    // retry impossible.
+    final permissions = ref.read(permissionProvider);
+    if (!permissions.hasAllEssentialPermissions) {
+      debugPrint(
+        'SessionLobbyScreen: not starting focus for ${session.id} — '
+        'essential permissions are missing',
+      );
+      return;
+    }
+
     _hasOpenedTimer = true;
 
     final focus = ref.read(focusModeProvider.notifier);
-    await SessionFocusBridge.instance.startRun(session: session, focus: focus);
+    await SessionFocusBridge.instance.startRun(
+      session: session,
+      focus: focus,
+      // How long *this* device still has to focus, from the shared clock —
+      // never from this member's own profile duration. Someone who arrives
+      // late must still end with everyone else.
+      durationSec: _remainingRunSec(session),
+    );
     if (!mounted) return;
     Navigator.of(context).pushNamed(AppRoutes.activeSessionPath);
+  }
+
+  /// Seconds left in the shared run, or null when the run has not begun.
+  ///
+  /// Derived from `runStartAt + countdown + duration` against the server clock
+  /// rather than from the member's own settings: the room's length is what
+  /// everyone is measured against, and it is the same subtraction the timer
+  /// screen performs. A null (still in the lobby) falls back to the session's
+  /// whole duration inside [SessionFocusBridge.startRun].
+  int? _remainingRunSec(SharedSession session) {
+    final clock = ref.read(sessionClockProvider);
+    final nowMs =
+        ref.read(sessionTickerProvider).valueOrNull ?? clock.nowMs();
+    return session.remainingSecAt(nowMs);
   }
 
   Future<void> _finishRun(SharedSession session) async {

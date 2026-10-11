@@ -564,7 +564,14 @@ class SharedSession {
       'durationSec': durationSec,
       'countdownSec': countdownSec,
       'state': state.wireName,
-      if (runStartAt != null) 'runStartAt': runStartAt!.toIso8601String(),
+      // `runStartAt` is deliberately NOT written here. The start of the run is
+      // the one value every device's timer is derived from, and it must come
+      // from the server's own clock — `SessionService.startSession` writes it
+      // as `ServerValue.timestamp` and the rules accept nothing else. Echoing a
+      // client-side `DateTime` back through a whole-session `set()`/`update()`
+      // would overwrite the authoritative timestamp with this device's wall
+      // clock, and two phones that disagree would then disagree about when the
+      // run ends. It is read in `fromMap` and never re-sent.
       if (groupId != null) 'groupId': groupId,
       if (inviteCode != null) 'inviteCode': inviteCode,
     };
